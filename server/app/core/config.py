@@ -1,6 +1,4 @@
-from pydantic_settings import BaseSettings
-
-
+from pydantic_settings import BaseSettings # type: ignore
 class Settings(BaseSettings):
     GEMINI_API_KEY: str
     DB_HOST: str
