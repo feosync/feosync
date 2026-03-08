@@ -3,6 +3,10 @@ from fastapi import FastAPI
 from app.modules.auth.router import auth_router
 from app.modules.ai.router import ai_router
 from app.core.database import engine
+from app.modules.fb_page.router import fb_page_router
+from app.modules.OAuth2 import oauth_router
+from app.modules.organisations import org_router
+from app.modules.notifications import notif_router       
 
 
 Base.metadata.create_all(bind=engine)
@@ -10,3 +14,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.include_router(auth_router, prefix="/app/v1/auth", tags=["auth"])
 app.include_router(ai_router, prefix="/app/v1/ai", tags=["ai"])
+app.include_router(fb_page_router, prefix="/app/v1/fb", tags=["fb"] )
+app.include_router(oauth_router, prefix="/app/v1/oauth", tags=["oauth"])
+app.include_router(org_router, prefix="/app/v1/org", tags=["org"])
+app.include_router(notif_router, prefix="/app/v1/notif", tags=["notif"])
