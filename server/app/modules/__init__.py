@@ -16,3 +16,4 @@ from app.modules.organisations.models.org_model import organisation
 from app.modules.plans.plan_model import Plan
 from app.modules.user.user_model import User   
 from app.modules.fb_page.fb_model import facebook 
+from app.modules.whatsapp.whatsapp_model import whatsapp

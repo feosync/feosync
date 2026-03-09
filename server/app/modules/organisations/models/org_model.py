@@ -16,7 +16,10 @@ class organisation(Base):
     tone: Mapped[tone_enum] = mapped_column(nullable=False)
     sector: Mapped[sector_enum] = mapped_column(nullable=False)
     brand_color: Mapped[list[str]] = mapped_column(String(7), nullable=True)  # Hex color code
-    
+
     owner = relationship("User", back_populates="organisations")
     owner_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+
+    facebook_pages = relationship("facebook", back_populates="org", cascade="all, delete-orphan")
+    whatsapp_accounts = relationship("whatsapp", back_populates="organisation", cascade="all, delete-orphan")
 
