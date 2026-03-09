@@ -10,4 +10,10 @@ from app.modules.auth.router import auth_router
 from app.modules.ai.router import ai_router
 from app.modules.fb_page.router import fb_page_router
 from app.modules.notifications.router import notif_router
-from app.modules.organisations.router import organisation_router            
+from app.modules.organisations.router import organisation_router     
+
+from app.modules import ai
+from app.modules import auth
+from app.modules import fb_page
+from app.modules import notifications
+from app.modules import organisations
