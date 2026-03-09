@@ -20,5 +20,4 @@ class User(Base):
         "organisation", back_populates="users"
     )
 
-
-
+    

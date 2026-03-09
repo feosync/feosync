@@ -17,3 +17,4 @@ from app.modules.plans.plan_model import Plan
 from app.modules.user.user_model import User   
 from app.modules.fb_page.fb_model import facebook 
 from app.modules.whatsapp.whatsapp_model import whatsapp
+from app.modules.ai.ai_gen_model import ai_generattion

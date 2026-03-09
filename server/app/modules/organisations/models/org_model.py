@@ -1,5 +1,6 @@
 from app.modules.organisations.models.tone_enum import tone_enum
 from app.modules.organisations.models.sector_enum import sector_enum
+from app.modules.ai.ai_gen_model import ai_generattion
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.base import Base
@@ -23,3 +24,4 @@ class organisation(Base):
     facebook_pages = relationship("facebook", back_populates="org", cascade="all, delete-orphan")
     whatsapp_accounts = relationship("whatsapp", back_populates="organisation", cascade="all, delete-orphan")
 
+    ai_generations: Mapped[list["ai_generattion"]] = relationship("ai_generattion", back_populates="organisation", cascade="all, delete-orphan")
