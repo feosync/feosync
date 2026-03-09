@@ -12,8 +12,7 @@ from app.modules.fb_page.router import fb_page_router
 from app.modules.notifications.router import notif_router
 from app.modules.organisations.router import organisation_router     
 
-from app.modules import ai
-from app.modules import auth
-from app.modules import fb_page
-from app.modules import notifications
-from app.modules import organisations
+from app.modules.organisations.models.org_model import organisation
+from app.modules.plans.plan_model import Plan
+from app.modules.user.user_model import User   
+from app.modules.fb_page.fb_model import facebook 
