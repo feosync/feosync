@@ -1,7 +1,8 @@
 from app.modules.organisations.models.tone_enum import tone_enum
 from app.modules.organisations.models.sector_enum import sector_enum
-from app.modules.ai.ai_gen_model import ai_generattion
+from app.modules.ai.ai_gen_model import ai_generation
 from app.modules.post_template.models.post_temp_model import post_template
+from app.modules.schedule.models.schedule_model import schedule
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.base import Base
@@ -25,6 +26,8 @@ class organisation(Base):
     facebook_pages = relationship("facebook", back_populates="org", cascade="all, delete-orphan")
     whatsapp_accounts = relationship("whatsapp", back_populates="organisation", cascade="all, delete-orphan")
 
-    ai_generations: Mapped[list["ai_generattion"]] = relationship("ai_generattion", back_populates="organisation", cascade="all, delete-orphan")
+    ai_generations: Mapped[list["ai_generation"]] = relationship("ai_generattion", back_populates="organisation", cascade="all, delete-orphan")
 
     post_templates: Mapped[list["post_template"]] = relationship("post_template", back_populates="organisation", cascade="all, delete-orphan")
+
+    schedule: Mapped[list["schedule"]] = relationship("schedule", back_populates="post_template", cascade="all, delete-orphan")
