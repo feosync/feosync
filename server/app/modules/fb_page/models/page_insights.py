@@ -1,3 +1,4 @@
+from __future__ import annotations
 import uuid
 
 from app.core.base import Base
@@ -6,13 +7,13 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime, timezone
 
-class page_insights(Base):
+class PageInsights(Base):
     __tablename__ = "page_insights"
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     fb_page_id: Mapped[UUID] = mapped_column(ForeignKey("facebook_pages.id"), nullable=False)
-    fb_page = relationship("facebook", back_populates="page_insights")
+    fb_page = relationship("Facebook", back_populates="page_insights")
 
     date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
