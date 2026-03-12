@@ -15,7 +15,12 @@ from app.modules.organisations.router import organisation_router
 from app.modules.organisations.models.org_model import organisation
 from app.modules.plans.plan_model import Plan
 from app.modules.user.user_model import User   
-from app.modules.fb_page.fb_model import facebook 
+from app.modules.fb_page.models.fb_model import facebook 
 from app.modules.whatsapp.whatsapp_model import whatsapp
-from app.modules.ai.ai_gen_model import ai_generattion
+from app.modules.ai.ai_gen_model import ai_generation
 from app.modules.post_template.models.post_temp_model import post_template
+from app.modules.scheduled_post.models.scheduled_post_model import scheduled_post
+from app.modules.published_post.published_post_model import published_post
+from app.modules.post_analitycs.post_analitycs_model import post_analitycs  
+from app.modules.fb_page.models.page_insights import page_insights
+from app.modules.refresh_token.refresh_token_model import fresh_token

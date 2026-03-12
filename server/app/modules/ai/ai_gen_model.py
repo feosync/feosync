@@ -4,8 +4,9 @@ from uuid import UUID, uuid4
 from app.core.base import Base
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import JSONB
+from app.modules.scheduled_post.models.scheduled_post_model import scheduled_post
 
-class ai_generattion(Base):
+class ai_generation(Base):
     __tablename__ = "ai_generation"
 
     
@@ -20,4 +21,6 @@ class ai_generattion(Base):
     image_url: Mapped[str] = mapped_column(String(255), nullable=True)  # URL de l'image générée, si applicable
     token_used: Mapped[int] = mapped_column(Integer, nullable=False)  # Nombre de tokens utilisés pour la génération
     caption: Mapped[str] = mapped_column(String(255), nullable=True)  # Légende ou description de l'image générée, si applicable
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+    created_at: Mapped[datetime] =mapped_column(DateTime(timezone=True), nullable=False)
+
+    scheduled_post: Mapped[list["scheduled_post"]] = relationship("scheduled_post", back_populates="ai_generation")
