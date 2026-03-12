@@ -1,18 +1,17 @@
+from __future__ import annotations
 from sqlalchemy import Column, String, ForeignKey, DateTime, Integer
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from uuid import UUID, uuid4
 from app.core.base import Base
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import JSONB
-from app.modules.scheduled_post.models.scheduled_post_model import scheduled_post
-
-class ai_generation(Base):
+class AiGeneration(Base):
     __tablename__ = "ai_generation"
 
     
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     organisation_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False)
-    organisation = relationship("organisation", back_populates="ai_generations")
+    organisation = relationship("Organisation", back_populates="ai_generations")
 
     input_data: Mapped[dict[any]] = mapped_column(JSONB, nullable=True)
     prompt_used: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -23,4 +22,4 @@ class ai_generation(Base):
     caption: Mapped[str] = mapped_column(String(255), nullable=True)  # Légende ou description de l'image générée, si applicable
     created_at: Mapped[datetime] =mapped_column(DateTime(timezone=True), nullable=False)
 
-    scheduled_post: Mapped[list["scheduled_post"]] = relationship("scheduled_post", back_populates="ai_generation")
+    scheduled_posts: Mapped[list[ScheduledPost]] = relationship("ScheduledPost", back_populates="ai_generation")

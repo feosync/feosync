@@ -1,3 +1,4 @@
+from __future__ import annotations
 from uuid import UUID, uuid4
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -6,7 +7,8 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.base import Base
 
 if TYPE_CHECKING:
-    from app.modules.organisations.models.org_model import organisation
+    from app.modules.organisations.models.org_model import Organisation
+    from app.modules.refresh_token.refresh_token_model import FreshToken
 
 
 class User(Base):
@@ -31,8 +33,10 @@ class User(Base):
     plan = relationship("Plan", foreign_keys=[plan_id])
 
     # un utilisateur peut avoir plusieurs organisations
-    organisations: Mapped[list["organisation"]] = relationship(
-        "organisation", back_populates="owner"
+    organisations: Mapped[list[Organisation]] = relationship(
+        "Organisation", back_populates="user"
     )
 
-    
+    refresh_tokens: Mapped[list[FreshToken]] = relationship(
+        "FreshToken", back_populates="user", cascade="all, delete-orphan"
+    )

@@ -1,4 +1,5 @@
 
+from __future__ import annotations
 from datetime import datetime
 
 from app.core.base import Base
@@ -7,12 +8,12 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 import uuid
 
-class schedule(Base):
+class Schedule(Base):
     __tablename__ = "schedule"
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    organisation = relationship("organisation", back_populates="schedules")
+    organisation = relationship("Organisation", back_populates="schedules")
     organisation_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False)  
-    post_template = relationship("post_template", back_populates="schedules")
+    post_template = relationship("PostTemplate", back_populates="schedules")
     post_template_id: Mapped[UUID] = mapped_column(ForeignKey("post_template.id"), nullable=True)
     name: Mapped[str] = mapped_column(nullable=False)   
     cron_expression: Mapped[str] = mapped_column(nullable=False)   

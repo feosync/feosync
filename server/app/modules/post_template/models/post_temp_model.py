@@ -1,12 +1,10 @@
+from __future__ import annotations
 from app.modules.organisations.models.sector_enum import sector_enum
-from app.modules.scheduled_post.models.scheduled_post_model import scheduled_post
-from app.modules.schedule.models.schedule_model import schedule
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.base import Base 
 from uuid import UUID, uuid4
-
-class post_template(Base):
+class PostTemplate(Base):
     __tablename__ = "post_template"
     
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
@@ -16,7 +14,7 @@ class post_template(Base):
     usage_acount: Mapped[int] = mapped_column(Integer, nullable=False, default=0)  # Compteur d'utilisation du template
     is_template_app: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)  # Indique si c'est un template fourni par l'application
     organisation_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=True)  # Clé étrangère vers l'organisation propriétaire du template si c'est un template ajouté par l'organistions
-    organisation = relationship("organisation", back_populates="post_templates")    
+    organisation = relationship("Organisation", back_populates="post_templates")    
 
-    scheduled_posts: Mapped[list["scheduled_post"]] = relationship("scheduled_post", back_populates="post_template", cascade="all, delete-orphan")  
-    schedule: Mapped[list["schedule"]] = relationship("schedule", back_populates="post_template", cascade="all, delete-orphan")
+    scheduled_posts: Mapped[list[ScheduledPost]] = relationship("ScheduledPost", back_populates="post_template", cascade="all, delete-orphan")  
+    schedules: Mapped[list[Schedule]] = relationship("Schedule", back_populates="post_template", cascade="all, delete-orphan")
