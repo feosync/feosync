@@ -1,4 +1,5 @@
 
+from __future__ import annotations
 from datetime import datetime
 
 from app.core.base import Base
@@ -7,7 +8,7 @@ from sqlalchemy import ForeignKey, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 import uuid
 
-class fresh_token(Base):
+class FreshToken(Base):
     __tablename__ = "refresh_token"
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     token_hased: Mapped[str] = mapped_column(nullable=False, unique=True)
