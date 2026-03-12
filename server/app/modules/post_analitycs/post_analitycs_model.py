@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime
 
 from app.core.base import Base
@@ -6,12 +7,12 @@ from sqlalchemy import ForeignKey, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 import uuid
 
-class post_analitycs(Base):
+class PostAnalitycs(Base):
     __tablename__ = 'post_analitycs'
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     published_post_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("published_post.id"), nullable=False)
-    published_post = relationship("published_post", back_populates="post_analitycs")
+    published_post = relationship("PublishedPost", back_populates="post_analitycs")
     mesured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     reach: Mapped[int] = mapped_column(nullable=True)
     impressions: Mapped[int] = mapped_column(nullable=True)
