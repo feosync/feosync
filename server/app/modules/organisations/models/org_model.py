@@ -1,12 +1,14 @@
+from typing import TYPE_CHECKING
 from app.modules.organisations.models.tone_enum import tone_enum
 from app.modules.organisations.models.sector_enum import sector_enum
-from app.modules.ai.ai_gen_model import ai_generation
-from app.modules.post_template.models.post_temp_model import post_template
-from app.modules.schedule.models.schedule_model import schedule
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.base import Base
 from uuid import UUID, uuid4
+
+if TYPE_CHECKING:
+    from app.modules.ai.ai_gen_model import ai_generattion
+    from app.modules.post_template.models.post_temp_model import post_template
 
 
 
