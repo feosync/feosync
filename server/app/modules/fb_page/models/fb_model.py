@@ -2,6 +2,7 @@
 import uuid
 
 from app.core.base import Base
+from app.modules.scheduled_post.models.scheduled_post_model import scheduled_post
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from uuid import UUID, uuid4
@@ -17,9 +18,7 @@ class facebook(Base):
     access_token: Mapped[str] = mapped_column(String(255), nullable=False)
     token_expiry: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),  # stocke la date avec timezone
-        nullable=False,
-        default=lambda: datetime.now(timezone.utc)  # valeur par défaut UTC
-    )
+        nullable=False)
     last_synced: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=True
@@ -27,3 +26,5 @@ class facebook(Base):
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
     org_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False)
     org = relationship("Organisation", back_populates="facebook_pages")
+
+    schelued_posts: Mapped[list["scheduled_post"]] = relationship("scheduled_post", back_populates="fb_page", cascade="all, delete-orphan")
