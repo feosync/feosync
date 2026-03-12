@@ -1,8 +1,12 @@
 from uuid import UUID, uuid4
-from app.modules.organisations.models.org_model import organisation
-from sqlalchemy import String, Integer, ForeignKey
+from datetime import datetime
+from typing import TYPE_CHECKING
+from sqlalchemy import String, Integer, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.base import Base
+
+if TYPE_CHECKING:
+    from app.modules.organisations.models.org_model import organisation
 
 
 class User(Base):
@@ -11,13 +15,24 @@ class User(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    
+    # Google OAuth fields
+    google_id: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
+    google_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    profile_picture: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    
+    # Account status
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    plan = relationship("Plan", back_populates="user", uselist=False)
+    # Foreign key and relationship to Plan
     plan_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("plans.id"))
+    plan = relationship("Plan", foreign_keys=[plan_id])
 
-   # un utilisateur peut avoir plusieurs organisations
+    # un utilisateur peut avoir plusieurs organisations
     organisations: Mapped[list["organisation"]] = relationship(
-        "organisation", back_populates="users"
+        "organisation", back_populates="owner"
     )
 
     
