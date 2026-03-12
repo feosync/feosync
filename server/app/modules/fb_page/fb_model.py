@@ -26,4 +26,4 @@ class facebook(Base):
     )
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
     org_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False)
-    org = relationship("Organisation", back_populates="facebook_pages")
+    org = relationship("organisation", back_populates="facebook_pages")

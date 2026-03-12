@@ -10,8 +10,8 @@ class ai_generattion(Base):
 
     
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    organisation_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False)   
     organisation_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False)
+    organisation = relationship("organisation", back_populates="ai_generations")
 
     input_data: Mapped[dict[any]] = mapped_column(JSONB, nullable=True)
     prompt_used: Mapped[str] = mapped_column(String(255), nullable=False)
