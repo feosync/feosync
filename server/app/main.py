@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from app.modules import auth_router, ai_router, fb_page_router, organisation_router, notif_router, plans_router
+from app.modules import auth_router, ai_router, fb_page_router, organisation_router, notif_router, plans_router, schedule_router
 from app.core.database import engine
 from app.core.base import Base
 from app.core.config import settings
@@ -45,6 +45,7 @@ app.include_router(fb_page_router, prefix="/api/v1/fb", tags=["fb"])
 app.include_router(organisation_router, prefix="/api/v1/org", tags=["org"])
 app.include_router(notif_router, prefix="/api/v1/notif", tags=["notif"])
 app.include_router(plans_router, prefix="/api/v1/plans", tags=["plans"])
+app.include_router(schedule_router, prefix="/api/v1/schedule", tags=["schedule"])
 
 
 

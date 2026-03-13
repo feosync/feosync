@@ -8,7 +8,6 @@ from app.modules.organisations.model import Organisation
 
 
 class OrganisationService:
-
     @staticmethod
     def get_all(db: Session, user_id: UUID) -> list[Organisation]:
         return OrganisationRepository.get_all(db, user_id)
