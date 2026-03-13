@@ -9,8 +9,6 @@ from uuid import UUID, uuid4
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import DateTime
 
-if TYPE_CHECKING:
-    from app.modules.fb_page.models.page_insights import PageInsights
 
 class Facebook(Base):
     __tablename__ = "facebook_pages"
@@ -27,6 +25,6 @@ class Facebook(Base):
         nullable=True
     )
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
-    org_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False)
-    org = relationship("Organisation", back_populates="facebook_pages")
-    page_insights: Mapped[list[PageInsights]] = relationship("PageInsights", back_populates="fb_page", cascade="all, delete-orphan")
+    organisation = relationship("Organisation", back_populates="facebook_pages")
+    organisation_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"))
+    page_insights: Mapped[list["PageInsights"]] = relationship("PageInsights", back_populates="fb_page", cascade="all, delete-orphan")
