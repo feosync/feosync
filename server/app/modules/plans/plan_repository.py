@@ -1,17 +1,41 @@
-from .schema import PlanInputOutput
 from .plan_model import Plan
 from sqlalchemy.orm import Session
+from typing import Optional
+from .schema import  PlanUpdate
+
 class PlanRepository:
     @staticmethod
-    def add_plan(plan_in: PlanInputOutput, db: Session)->PlanInputOutput:
-        plan = Plan(
-             name=plan_in.name,
-             price=plan_in.price,
-             features=plan_in.features,
-             max_page=plan_in.max_page,
-             max_post_month=plan_in.max_post_month,
-             max_ai_gen=plan_in.max_ai_gen
-             
-             
-         )
-        return plan_in
+    def add_plan(db:Session, plan: Plan)->Plan:
+        db.add(plan)
+        db.commit()
+        db.refresh(plan)
+        db.close()
+        return  plan
+    
+    # trouver un plan dans la base
+    @staticmethod
+    def find_plan_by_id(db:Session, plan_id:str)->Optional[Plan]:
+        return db.query(Plan).filter(Plan.id==plan_id).first()
+    
+    @staticmethod
+    def get_all_plan(db:Session)->list[Plan]:
+        return db.query(Plan).all()
+    
+    @staticmethod
+    def update_plan(db:Session,plan:Plan, data:dict)->Plan:
+        for key, value in data.items():
+            if hasattr(plan, key):
+                setattr(plan, key, value)
+        db.commit()
+        db.refresh(plan)
+        return plan
+    
+    
+    @staticmethod
+    def delete_plan(db:Session, plan_id:int)->bool:
+        plan = db.query(Plan).filter(Plan.id==plan_id).first()
+        if not plan:
+            return False
+        db.delete(plan)
+        db.commit()
+        return True

@@ -14,3 +14,4 @@ class Plan(Base):
     max_post_month:Mapped[int] = mapped_column(Integer, nullable=False)  
     max_ai_gen: Mapped[int] = mapped_column(Integer, nullable=False)
     user = relationship("User", back_populates="plan")
+    
