@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.base import Base
 
 if TYPE_CHECKING:
-    from server.app.modules.organisations.org_model import Organisation
+    from server.app.modules.organisations.model import Organisation
     from app.modules.refresh_token.refresh_token_model import FreshToken
 
 
