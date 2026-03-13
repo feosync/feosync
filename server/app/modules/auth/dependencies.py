@@ -2,60 +2,49 @@
 Auth Dependencies - Reusable dependency functions for authentication
 """
 from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.modules.auth.service import AuthService
 from app.modules.user.user_model import User
 
-
-async def get_token_from_header(authorization: str | None = None) -> str:
-    """
-    Extract bearer token from Authorization header
-    
-    Args:
-        authorization: Authorization header value
-        
-    Returns:
-        Token string
-    """
-    if not authorization:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing authorization header",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    parts = authorization.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authorization header format",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    return parts[1]
+# HTTPBearer scheme for Swagger UI recognition
+security = HTTPBearer(
+    description="Bearer token for JWT authentication",
+    auto_error=False
+)
 
 
 async def get_current_user(
-    authorization: str | None = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
     """
-    Get current authenticated user from JWT token
+    Get current authenticated user from JWT token in Bearer header
+    
+    This dependency extracts and validates the JWT token from the Authorization header.
+    Used by Swagger UI to provide authentication UI for API endpoints.
     
     Args:
-        authorization: Authorization header
+        credentials: Bearer token credentials from Authorization header
         db: Database session
         
     Returns:
-        Current user
+        Current user object
         
     Raises:
-        HTTPException: If token is invalid or user not found
+        HTTPException: If credentials missing, invalid, or user not found
     """
-    token = await get_token_from_header(authorization)
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing or invalid authorization header",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
+    token = credentials.credentials
+    
     user = AuthService.get_current_user(db, token)
     if not user:
         raise HTTPException(
@@ -73,11 +62,13 @@ async def get_active_user(
     """
     Get current active user
     
+    Ensures the authenticated user is active (not deactivated).
+    
     Args:
-        current_user: Current user dependency
+        current_user: Current user from JWT token
         
     Returns:
-        Current active user
+        Current active user object
         
     Raises:
         HTTPException: If user is not active
