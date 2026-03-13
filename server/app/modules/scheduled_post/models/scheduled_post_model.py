@@ -30,7 +30,7 @@ class ScheduledPost(Base):
     ai_generation = relationship("AiGeneration", back_populates="scheduled_posts")
     ai_generation_id: Mapped[UUID] = mapped_column(ForeignKey("ai_generation.id"), nullable=True)
 
-    published_posts: Mapped[list[PublishedPost]] = relationship("PublishedPost", back_populates="scheduled_post")
+    published_posts: Mapped[list["PublishedPost"]] = relationship("PublishedPost", back_populates="scheduled_post")
 
     
     

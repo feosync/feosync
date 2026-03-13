@@ -20,6 +20,6 @@ class PublishedPost(Base):
     initial_reach: Mapped[int] = mapped_column(nullable=True)
     initial_impressions: Mapped[int] = mapped_column(nullable=True)
     
-    post_analitycs: Mapped[list[PostAnalitycs]] = relationship("PostAnalitycs", back_populates="published_post", cascade="all, delete-orphan")
+    post_analitycs: Mapped[list["PostAnalitycs"]] = relationship("PostAnalitycs", back_populates="published_post", cascade="all, delete-orphan")
 
     
