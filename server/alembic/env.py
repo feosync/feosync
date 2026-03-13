@@ -24,7 +24,7 @@ from app.core.config import settings
 from app.modules.user.user_model import User
 from app.modules.organisations.model import Organisation
 from app.modules.plans.plan_model import Plan
-from app.modules.fb_page.models.fb_model import Facebook
+from server.app.modules.fb_page.model import Facebook
 from app.modules.whatsapp.whatsapp_model import Whatsapp
 from app.modules.ai.ai_gen_model import AiGeneration
 from app.modules.post_template.models.post_temp_model import PostTemplate
