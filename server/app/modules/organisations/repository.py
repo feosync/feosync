@@ -33,6 +33,7 @@ class OrganisationRepository:
                 setattr(org, key, value)
         db.commit()
         db.refresh(org)
+        
         return org
 
     @staticmethod
