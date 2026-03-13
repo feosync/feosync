@@ -1,7 +1,7 @@
 """
 Auth Router - Authentication endpoints
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -79,20 +79,33 @@ async def google_auth(
     "/me",
     response_model=UserResponse,
     responses={
-        401: {"model": AuthError, "description": "Unauthorized"},
+        401: {"model": AuthError, "description": "Missing or invalid Bearer token"},
     },
+    summary="Get current user info",
+    tags=["User Info"],
 )
 async def get_current_user_info(
     current_user: User = Depends(get_active_user),
 ):
     """
-    Get current authenticated user info
+    Get current authenticated user information
+    
+    **Security:** Requires valid JWT Bearer token from Google OAuth authentication
+    
+    Usage:
+    1. Call POST /google/auth with Google ID token → get access_token
+    2. Use the access_token with Bearer authentication: `Authorization: Bearer {access_token}`
+    3. This endpoint returns your current user profile
     
     Args:
-        current_user: Current user from JWT token
+        current_user: Current active user from Bearer JWT token
         
     Returns:
-        Current user info
+        UserResponse: Current user information (id, name, email, profile_picture, etc.)
+        
+    Raises:
+        HTTPException 401: If Bearer token is missing or invalid
+        HTTPException 403: If user account is deactivated
     """
     return UserResponse.model_validate(current_user)
 
@@ -101,8 +114,11 @@ async def get_current_user_info(
     "/logout",
     responses={
         200: {"description": "Successfully logged out"},
-        401: {"model": AuthError, "description": "Unauthorized"},
+        401: {"model": AuthError, "description": "Missing or invalid Bearer token"},
+        403: {"model": AuthError, "description": "User account is deactivated"},
     },
+    summary="Logout user",
+    tags=["User Info"],
 )
 async def logout(
     current_user: User = Depends(get_active_user),
@@ -110,19 +126,27 @@ async def logout(
     """
     Logout endpoint
     
-    Note: With JWT tokens, logout is typically handled client-side
-    by removing the token. This endpoint can be used for tracking
-    or revoking tokens server-side if needed.
+    **Security:** Requires valid JWT Bearer token
+    
+    Note: With JWT tokens (stateless), logout is handled client-side by removing the token.
+    This endpoint validates that the token is still valid and can be used for tracking
+    logout events server-side or revoking tokens if needed in the future.
     
     Args:
-        current_user: Current user from JWT token
+        current_user: Current active user from Bearer JWT token
         
     Returns:
-        Success message
+        LogoutResponse: Success message and instructions
+        
+    Raises:
+        HTTPException 401: If Bearer token is missing or invalid
+        HTTPException 403: If user account is deactivated
     """
     return {
         "detail": "Successfully logged out",
-        "message": "Please remove the token from client storage",
+        "message": "Please remove the Bearer token from client storage",
+        "status": "success",
+        "timestamp": "now",
     }
 
 
@@ -130,4 +154,20 @@ async def logout(
 async def health_check():
     """Health check endpoint"""
     return {"status": "ok", "service": "auth"}
+
+
+@auth_router.get("/debug/validate")
+async def debug_validate(authorization: str | None = Header(None)):
+    """
+    Debug token validation endpoint
+    Shows what the server receives from Authorization header
+    Useful for troubleshooting Bearer token issues
+    """
+    return {
+        "authorization_header_received": authorization,
+        "instruction_1": "Make sure you send: Authorization: Bearer {your_token}",
+        "instruction_2": "The header value should start with 'Bearer '",
+        "your_current_header": authorization if authorization else "NO HEADER RECEIVED",
+        "status": "valid" if authorization and authorization.startswith("Bearer ") else "INVALID or MISSING"
+    }
 
