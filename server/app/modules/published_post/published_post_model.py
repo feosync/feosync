@@ -21,16 +21,17 @@ class PublishedPost(Base):
     facebook_page = relationship("Facebook", back_populates="published_posts")
 
     post_id: Mapped[str] = mapped_column(String(255), nullable=True)
-    channel: Mapped[str] = mapped_column(String(255), nullable=True)          # corrigé
+    channel: Mapped[str] = mapped_column(String(255), nullable=True)         
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     initial_reach: Mapped[int] = mapped_column(nullable=True)
     initial_impressions: Mapped[int] = mapped_column(nullable=True)
 
-    # === Relation avec les analytics ===
-    post_analytics: Mapped[list["PostAnalytics"]] = relationship(   # corrigé
-        "PostAnalytics", back_populates="published_post", cascade="all, delete-orphan"
+        # === Relation avec les analytics ===
+    post_analytics: Mapped[list["PostAnalytics"]] = relationship(
+        "PostAnalytics", 
+        back_populates="published_post", 
+        cascade="all, delete-orphan"
     )
-
     # === Timestamps (cohérence) ===
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(

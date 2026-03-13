@@ -22,7 +22,7 @@ from app.modules.ai.ai_gen_model import AiGeneration
 from app.modules.post_template.models.post_temp_model import PostTemplate
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
 from app.modules.published_post.published_post_model import PublishedPost
-from app.modules.post_analitycs.post_analitycs_model import PostAnalitycs  
+from app.modules.post_analitycs.post_analitycs_model import PostAnalytics  
 
 from app.modules.refresh_token.refresh_token_model import FreshToken
 from app.modules.schedule.models.schedule_model import Schedule
