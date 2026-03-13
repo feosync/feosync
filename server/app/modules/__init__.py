@@ -13,7 +13,7 @@ from app.modules.notifications.router import notif_router
 from app.modules.organisations.router import organisation_router    
 from app.modules.plans.router import plans_router 
 
-from server.app.modules.organisations.org_model import Organisation
+from server.app.modules.organisations.model import Organisation
 from app.modules.plans.plan_model import Plan
 from app.modules.user.user_model import User   
 from app.modules.fb_page.models.fb_model import Facebook 
