@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 class PlanService:
     def __init__(self):
          pass      
+     
     def add_plan(self, plan_create: PlanCreate, db: Session)->Plan:
             plan = Plan(**plan_create.model_dump())
             return plan_repository.add_plan(db, plan=plan)
