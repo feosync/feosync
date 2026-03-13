@@ -5,7 +5,23 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.base import Base
 from uuid import UUID, uuid4
+from enum import Enum
 
+
+class sector_enum(str, Enum):
+    technology = "technology"
+    finance = "finance"
+    healthcare = "healthcare"
+    education = "education"
+    retail = "retail"
+    manufacturing = "manufacturing"
+
+class tone_enum(str, Enum):
+    formal = "formal"
+    informal = "informal"
+    friendly = "friendly"
+    professional = "professional"
+    casual = "casual"
 
 class Organisation(Base):
     __tablename__ = "organisations"
