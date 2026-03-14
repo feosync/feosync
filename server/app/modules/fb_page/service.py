@@ -158,33 +158,54 @@ class FacebookService:
 
     @staticmethod
     async def sync_insights(db: Session, page_id: UUID, org_id: UUID) -> dict:
-        """Synchronise les insights du jour depuis Meta Graph API"""
         page = FacebookService.get_by_id(db, page_id, org_id)
 
+        METRICS = [
+            ("page_post_engagements", "day"),
+            ("page_impressions_unique", "day"),
+            ("page_views_total", "day"),
+            ("page_fan_adds_unique", "day"),
+        ]
+
+        metrics = {}
+        fans_total = 0
+
         async with httpx.AsyncClient() as client:
-            r = await client.get(
-                f"{META_GRAPH_URL}/{page.fb_page_id}/insights",
+            # ✅ Récupère le vrai total des followers directement sur la page
+            page_info = await client.get(
+                f"{META_GRAPH_URL}/{page.fb_page_id}",
                 params={
-                    "metric": "page_fans,page_impressions_unique,page_engaged_users,page_fan_adds",
-                    "period": "day",
+                    "fields": "followers_count,fan_count",
                     "access_token": page.access_token,
                 },
             )
-        FacebookService._raise_if_meta_error(r.json(), "Sync insights échoué")
+            page_data = page_info.json()
+            fans_total = page_data.get("followers_count", page_data.get("fan_count", 0))
 
-        metrics = {
-            item["name"]: item["values"][-1]["value"]
-            for item in r.json().get("data", [])
-            if item.get("values")
-        }
+            # Insights métriques
+            for metric, period in METRICS:
+                r = await client.get(
+                    f"{META_GRAPH_URL}/{page.fb_page_id}/insights",
+                    params={
+                        "metric": metric,
+                        "period": period,
+                        "access_token": page.access_token,
+                    },
+                )
+                data = r.json()
+                if "error" in data:
+                    continue
+                for item in data.get("data", []):
+                    if item.get("values"):
+                        metrics[item["name"]] = item["values"][-1]["value"]
 
         PageInsightsRepository.create(db, {
             "fb_page_id": page_id,
             "date": datetime.now(timezone.utc),
-            "fans_total": metrics.get("page_fans", 0),
+            "fans_total": fans_total,                                         # ✅ vrai total
             "impressions_unique": metrics.get("page_impressions_unique", 0),
-            "engaged_users": metrics.get("page_engaged_users", 0),
-            "new_followers": metrics.get("page_fan_adds", 0),
+            "engaged_users": metrics.get("page_post_engagements", 0),
+            "new_followers": metrics.get("page_fan_adds_unique", 0),
         })
 
         FacebookPageRepository.update(db, page, {
@@ -192,7 +213,12 @@ class FacebookService:
             "updated_at": datetime.now(timezone.utc),
         })
 
-        return {"detail": "Insights synced successfully", "metrics": metrics}
+        return {
+            "detail": "Insights synced successfully",
+            "fans_total": fans_total,
+            "metrics_collected": list(metrics.keys()),
+            "metrics": metrics,
+        }
 
     @staticmethod
     def get_insights(db: Session, page_id: UUID, org_id: UUID) -> list:
