@@ -31,6 +31,7 @@ class ScheduleRepository:
     def delete_schedule(db:Session, schedule:Schedule)->bool:
         db.delete(schedule)
         db.commit()
+        db.refresh(schedule)
         return True
     
         
