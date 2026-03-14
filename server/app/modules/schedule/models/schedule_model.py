@@ -16,7 +16,7 @@ class Schedule(Base):
     organisation_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False) 
      
     post_template = relationship("PostTemplate", back_populates="schedules")
-    post_template_id: Mapped[UUID] = mapped_column(ForeignKey("post_template.id"), nullable=True)
+    post_template_id: Mapped[UUID] = mapped_column(ForeignKey("post_templates.id"), nullable=True)
     
     chanels: Mapped[list[str]] = mapped_column(JSONB, nullable=False)  # Liste des plateformes de publication (ex: ["facebook", "twitter"])
     page_ids: Mapped[dict] = mapped_column(JSONB, nullable=False)  # Dictionnaire associant chaque plateforme à l'ID de la page ou du compte (ex: {"facebook": "123456789", "twitter": "987654321"})
