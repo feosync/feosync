@@ -24,13 +24,13 @@ from app.core.config import settings
 from app.modules.user.user_model import User
 from app.modules.organisations.model import Organisation
 from app.modules.plans.plan_model import Plan
-from server.app.modules.fb_page.model import Facebook, PageInsights
+from app.modules.fb_page.model import Facebook, PageInsights
 from app.modules.whatsapp.whatsapp_model import Whatsapp
 from app.modules.ai.ai_gen_model import AiGeneration
 from app.modules.post_template.models.post_temp_model import PostTemplate
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
 from app.modules.published_post.published_post_model import PublishedPost
-from server.app.modules.post_analytics.model import PostAnalytics
+from app.modules.post_analytics.model import PostAnalytics
 from app.modules.refresh_token.refresh_token_model import FreshToken
 from app.modules.schedule.models.schedule_model import Schedule
 
