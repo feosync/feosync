@@ -13,6 +13,7 @@ from app.modules.notifications.router import notif_router
 from app.modules.organisations.router import organisation_router    
 from app.modules.plans.router import plans_router 
 from app.modules.schedule.router import schedule_router
+from app.modules.scheduled_post.router import scheduled_post_router
 
 from app.modules.organisations.model import Organisation
 from app.modules.plans.plan_model import Plan

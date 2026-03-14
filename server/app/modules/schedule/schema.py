@@ -7,6 +7,8 @@ from typing import Optional
 class ScheduleCreate(BaseModel):
     organisation_id: UUID
     name: str
+    chanels: list[str]
+    page_ids:dict
     cron_expression: str
     post_template_id: str | None
     data_source_config: dict 
@@ -22,6 +24,8 @@ class ScheduleResponse(ScheduleCreate):
 
 class ScheduleUpdate(BaseModel):
     name: Optional[str] = None
+    chanels: list[str] = None
+    page_ids:dict = None
     cron_expression: Optional[str] = None
     post_template_id: Optional[UUID] = None
     data_source_config: Optional[dict] = None
