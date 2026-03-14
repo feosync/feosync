@@ -45,7 +45,6 @@ async def oauth_callback(
     code: str,
     state: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_active_user),
 ):
     """
     Meta redirige ici après autorisation.
