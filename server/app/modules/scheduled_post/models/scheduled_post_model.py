@@ -20,7 +20,7 @@ class ScheduledPost(Base):
     status: Mapped[post_status] = mapped_column(nullable=False)
     
     post_template = relationship("PostTemplate", back_populates="scheduled_posts")
-    post_template_id: Mapped[UUID] = mapped_column(ForeignKey("post_template.id"), nullable=True)
+    post_template_id: Mapped[UUID] = mapped_column(ForeignKey("post_templates.id"), nullable=True)
 
     ai_generation = relationship("AiGeneration", back_populates="scheduled_posts")
     ai_generation_id: Mapped[UUID] = mapped_column(ForeignKey("ai_generation.id"), nullable=True)
