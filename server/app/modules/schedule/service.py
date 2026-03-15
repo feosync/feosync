@@ -16,8 +16,8 @@ class ScheduleService:
     def get_all(self, db:Session)->list[Schedule]:
         return schedule_repository.get_all(db=db)
 
-    def find_schedule_by_id(self, db:Session, schedule_id:UUID)->Schedule:
-        return schedule_repository.find_schedule_by_id(schedule_id=schedule_id, db=db)
+    def get_schedule_by_id(self, db:Session, schedule_id:UUID)->Schedule:
+        return schedule_repository.get_schedule_by_id(schedule_id=schedule_id, db=db)
 
     def update_schedule(self, db:Session,schedule_id, payload: ScheduleUpdate)->Schedule:
         schedule = self.find_schedule_by_id(schedule_id=schedule_id, db=db)

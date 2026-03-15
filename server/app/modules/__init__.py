@@ -28,3 +28,4 @@ from app.modules.post_analitycs.post_analitycs_model import PostAnalitycs
 from app.modules.fb_page.models.page_insights import PageInsights
 from app.modules.refresh_token.refresh_token_model import FreshToken
 from app.modules.schedule.models.schedule_model import Schedule
+from app.modules.scheduled_post.models.scheduled_post_ai_image import ScheduledPostAiImage
