@@ -25,9 +25,9 @@ def get_all(db:Session = Depends(get_db), user:User=Depends(get_active_user))->l
     return service.get_all(db=db)
 
 @schedule_router.get("/{schedule_id}")
-def find_schedule_by_id(schedule_id: UUID, db:Session=Depends(get_db), user:User=Depends(get_active_user)):
+def get_schedule_by_id(schedule_id: UUID, db:Session=Depends(get_db)):
     service = ScheduleService()
-    return service.find_schedule_by_id(schedule_id=schedule_id,db=db)
+    return service.get_schedule_by_id(schedule_id=schedule_id,db=db)
 
 
 @schedule_router.patch("/update/{schedule_id}")

@@ -1,16 +1,28 @@
+from sqlalchemy.orm import Session
 from google import genai
 from app.core.config import settings
 from google.genai import types
+from .schema import AiCreate
+from .repository import AiGenerationRepository as repository
+from .ai_gen_model import AiGeneration
 
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-def generate_ai_response(prompt: str) -> str:
+def add_ai_gen(db:Session, ai_create:AiCreate) -> str:
+    
     response = client.models.generate_content(
-        model="gemini-3-flash-preview",
+        model=ai_create.model_used,
         config=types.GenerateContentConfig(
         system_instruction="You are a exeprt in marketing digital. Your name is Neko."
         ),
-        contents=prompt
+        contents=ai_create.prompt_used
     )
-    return response.text
+    ai_gen = AiGeneration(
+        **ai_create.model_dump(), 
+        output_data=response.text,
+        )
+    
+    return repository.add_ai_generation(db=db, ai_gen=ai_gen)
+
+#gemini-3-flash-preview
