@@ -17,7 +17,7 @@ class ScheduledPostRepository:
         return db.query(ScheduledPost).filter(ScheduledPost.schedule_id==scheduled_id).all()
     
     @staticmethod
-    def find_scheduled_by_id(db:Session, scheduled_id:UUID)->ScheduledPost:
+    def get_by_id(db:Session, scheduled_id:UUID)->ScheduledPost:
         return db.query(ScheduledPost).filter(ScheduledPost.id==scheduled_id).first()
     
     @staticmethod
