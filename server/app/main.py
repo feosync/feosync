@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from app.modules import auth_router, ai_router, fb_page_router, organisation_router, notif_router, plans_router, schedule_router, scheduled_post_router, post_template_router
+from app.modules import auth_router, ai_router, fb_page_router, organisation_router, notif_router, plans_router, schedule_router, scheduled_post_router, post_template_router, post_analytics_router
 from app.core.database import engine
 from app.core.base import Base
 from app.core.config import settings
@@ -48,6 +48,7 @@ app.include_router(plans_router, prefix="/api/v1/plans", tags=["plans"])
 app.include_router(schedule_router, prefix="/api/v1/schedule", tags=["schedule"])
 app.include_router(scheduled_post_router, prefix="/api/v1/scheduled", tags=["scheduledPost"])
 app.include_router(post_template_router, prefix="/api/v1/post-template", tags=["postTemplate"])
+app.include_router(post_analytics_router, prefix="/api/v1/post-analytics", tags=["PostAnalytics"])
 
 
 
