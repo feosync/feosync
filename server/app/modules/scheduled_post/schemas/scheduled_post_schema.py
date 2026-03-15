@@ -1,7 +1,9 @@
 # app/modules/scheduled_post/schemas.py
+from dataclasses import Field
+
 from pydantic import BaseModel
 from uuid import UUID
-from datetime import datetime
+from datetime import UTC, datetime
 from app.modules.scheduled_post.models.post_status import post_status
 from typing import Optional
 class ScheduledPostResponse(BaseModel):
@@ -75,3 +77,26 @@ class ScheduledPostCreate(BaseModel):
     post_template_id: Optional[UUID] | None
     ai_generation_id: Optional[UUID] | None
     publish_at: datetime
+    
+class generateImageCreate(BaseModel):
+    id:int
+    
+class AiCreate(BaseModel):
+    organisation_id: UUID
+    prompt_used: str
+    model_used: str
+    input_data: Optional[dict] = None       # ✅ = None obligatoire
+    image_url: Optional[str] = None         # ✅ = None obligatoire
+    caption: Optional[str] = None           # ✅ = None obligatoire
+    created_at: datetime = datetime.now(UTC)  # ✅ évite le bug de valeur figée
+
+class AiResponse(AiCreate):
+    organisation_id: Optional[UUID] = None
+    prompt_used: str
+    model_used: str
+    input_data: Optional[dict] = None       # ✅ = None obligatoire
+    image_url: Optional[str] = None         # ✅ = None obligatoire
+    caption: Optional[str] = None           # ✅ = None obligatoire
+    created_at: datetime = datetime.now(UTC)  # ✅ évite le bug de valeur figée
+    output_data: dict
+    id: UUID

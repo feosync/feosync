@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
     DB_NAME: str
+    REPLICATE_API_TOKEN: str
 
     # Google OAuth settings
     GOOGLE_CLIENT_ID: str | None = None

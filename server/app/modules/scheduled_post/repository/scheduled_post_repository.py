@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from uuid import UUID
-from .models.scheduled_post_model import ScheduledPost
+from ..models.scheduled_post_model import ScheduledPost
 
 class ScheduledPostRepository:
     

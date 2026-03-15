@@ -1,6 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,  Depends
 import app.modules.ai.service as ai_service
-
+from .schema import AiCreate, AiResponse
+from sqlalchemy.orm import Session
+from app.core.database import get_db
 
 ai_router = APIRouter()
 
@@ -9,6 +11,5 @@ async def generate():
     return {"message": "AI generation endpoint"}
 
 @ai_router.post("/generate")
-async def generate_ai(prompt: str):
-    response = ai_service.generate_ai_response(prompt)
-    return {"response": response}
+async def generate_ai(ai_create: AiCreate, db:Session=Depends(get_db))->AiResponse:
+   return ai_service.add_ai_gen(db=db, ai_create=ai_create)
