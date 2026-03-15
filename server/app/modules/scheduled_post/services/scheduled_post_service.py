@@ -34,7 +34,7 @@ class ScheduledPostService:
 
     @staticmethod
     def update(db: Session, scheduled_id: UUID, data: dict) -> ScheduledPost:
-        scheduled = repository.find_scheduled_by_id(db=db, scheduled_id=scheduled_id)
+        scheduled = repository.get_by_id(db=db, scheduled_id=scheduled_id)
         if not scheduled:
             raise HTTPException(status_code=404, detail="ScheduledPost introuvable")
         return repository.update_scheduled(db=db, scheduled=scheduled, data=data)
