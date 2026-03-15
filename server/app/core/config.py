@@ -10,8 +10,14 @@ class Settings(BaseSettings):
 
     # Google OAuth settings
     GOOGLE_CLIENT_ID: str | None = None
-   
+    
+    # Secret key for JWT or other purposes
     SECRET_KEY: str | None = None
+
+    # Facebook API Credentials
+    META_APP_ID: str | None = None
+    META_APP_SECRET: str | None = None
+    META_REDIRECT_URI: str | None = None
 
     @property
     def DATABASE_URL(self) -> str:

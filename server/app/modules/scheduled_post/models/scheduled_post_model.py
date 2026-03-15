@@ -25,6 +25,7 @@ class ScheduledPost(Base):
         ForeignKey("post_template.id"), nullable=True
     )
     post_template = relationship("PostTemplate", back_populates="scheduled_posts")
+    post_template_id: Mapped[UUID] = mapped_column(ForeignKey("post_templates.id"), nullable=True)
 
     # Schedule (nullable : post manuel possible sans schedule)
     schedule_id: Mapped[UUID | None] = mapped_column(
