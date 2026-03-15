@@ -17,11 +17,8 @@ from app.modules.plans.router import plans_router
 from app.modules.schedule.router import schedule_router
 from app.modules.scheduled_post.router import scheduled_post_router
 from app.modules.post_template.router import post_template_router
-from app.modules.post_analytics.router import post_analytics_router
-
-# =====================================================================
-#              ALLL MODEL IMPORT
-# =====================================================================
+from app.modules.published_post.router import published_post_router
+from app.modules.post_analytics.router import  post_analytics_router
 
 from app.modules.organisations.model import Organisation
 from app.modules.plans.plan_model import Plan
@@ -31,7 +28,7 @@ from app.modules.whatsapp.whatsapp_model import Whatsapp
 from app.modules.ai.ai_gen_model import AiGeneration
 from app.modules.post_template.model import PostTemplate
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
-from app.modules.published_post.published_post_model import PublishedPost
+from app.modules.published_post.model import PublishedPost
 from app.modules.post_analytics.model import PostAnalytics
 from app.modules.refresh_token.refresh_token_model import FreshToken
 from app.modules.schedule.models.schedule_model import Schedule
