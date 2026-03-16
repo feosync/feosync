@@ -31,3 +31,4 @@ class AiGeneration(Base):
     post_ai_images: Mapped[list["ScheduledPostAiImage"]] = relationship(
         "ScheduledPostAiImage", back_populates="ai_generation"
     )
+    
