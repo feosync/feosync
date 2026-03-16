@@ -22,7 +22,7 @@ from app.modules.post_analytics.router import  post_analytics_router
 
 from app.modules.organisations.model import Organisation
 from app.modules.plans.model import Plan
-from server.app.modules.user.model import User   
+from app.modules.user.model import User   
 from app.modules.fb_page.model import Facebook , PageInsights
 from app.modules.whatsapp.whatsapp_model import Whatsapp
 from app.modules.ai.model import AiGeneration
