@@ -33,6 +33,14 @@ class PostAnalyticsRepository:
     
     def get_by_published(db:Session,publised_id:UUID)->list[PostAnalytics]:
         return db.query(PostAnalytics).filter(PostAnalytics.published_post_id==publised_id).all()
+    
+    
 
-
-
+    
+    def get_latest_by_published(db: Session, published_id: UUID) -> PostAnalytics | None:
+        return (
+            db.query(PostAnalytics)
+            .filter(PostAnalytics.published_post_id == published_id)
+            .order_by(PostAnalytics.mesured_at.desc())
+            .first()
+        )
