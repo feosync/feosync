@@ -11,7 +11,7 @@ from google.oauth2 import id_token
 from app.core.config import settings
 from app.modules.auth.schemas import GoogleUserInfo, UserResponse
 from app.modules.auth.repository import UserRepository
-from app.modules.user.user_model import User
+from app.modules.user.model import User
 
 
 class AuthService:
