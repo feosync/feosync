@@ -1,7 +1,7 @@
 """
 Auth Router - Authentication endpoints
 """
-from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi import APIRouter, Depends, HTTPException, status, Header, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -29,6 +29,7 @@ auth_router = APIRouter()
 )
 async def google_auth(
     request: GoogleTokenRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
     """
@@ -60,7 +61,7 @@ async def google_auth(
     try:
         # Authenticate or create user (same behavior for both login and register)
         user, access_token = AuthService.authenticate_google_user(
-            db, google_user_info
+            db, google_user_info, background_tasks 
         )
 
         return LoginResponse(

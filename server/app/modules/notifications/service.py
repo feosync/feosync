@@ -122,3 +122,4 @@ class NotificationService:
         if not deleted:
             raise HTTPException(status_code=404, detail="Notification not found")
         return {"detail": "Notification deleted"}
+    
