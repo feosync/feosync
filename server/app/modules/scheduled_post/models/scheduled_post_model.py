@@ -1,12 +1,13 @@
 # scheduled_post.py
 from __future__ import annotations
 from app.core.base import Base
-from sqlalchemy import String, ForeignKey, DateTime
+from sqlalchemy import String, ForeignKey, DateTime,  Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime
 from uuid import UUID, uuid4
 from enum import Enum
+
 
 
 class PostStatus(str, Enum):
@@ -23,7 +24,9 @@ class ScheduledPost(Base):
     content: Mapped[dict] = mapped_column(JSONB, nullable=False)
     image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)  # snapshot de l'image active
     publish_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    status: Mapped[PostStatus] = mapped_column(nullable=False)
+    status: Mapped[PostStatus] = mapped_column(
+        SAEnum(PostStatus, native_enum=False), nullable=False, default=PostStatus.SCHEDULED
+    )
 
     # Template (optionnel)
     post_template_id: Mapped[UUID | None] = mapped_column(
