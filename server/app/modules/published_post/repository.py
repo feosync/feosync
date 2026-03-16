@@ -7,11 +7,11 @@ class PublishedPostRepository:
 
     @staticmethod
     def get_all_by_org(db: Session, org_id: UUID) -> list[PublishedPost]:
-        from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
+        from app.modules.fb_page.model import Facebook
         return (
             db.query(PublishedPost)
-            .join(ScheduledPost, PublishedPost.scheduled_post_id == ScheduledPost.id)
-            .filter(ScheduledPost.organisation_id == org_id)
+            .join(Facebook, PublishedPost.facebook_page_id == Facebook.id)
+            .filter(Facebook.organisation_id == org_id)
             .order_by(PublishedPost.published_at.desc())
             .all()
         )

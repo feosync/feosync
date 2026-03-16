@@ -1,6 +1,6 @@
 from .schema import ScheduleCreate, ScheduleUpdate
 from sqlalchemy.orm import Session
-from .models.schedule_model import Schedule
+from .model import Schedule
 from .repository import ScheduleRepository as schedule_repository
 from  app.modules.organisations.service import OrganisationService as organisation_service
 from uuid import UUID

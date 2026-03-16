@@ -21,18 +21,18 @@ if config.config_file_name is not None:
 from app.core.base import Base
 from app.core.config import settings
 
-from app.modules.user.user_model import User
+from app.modules.user.model import User
 from app.modules.organisations.model import Organisation
-from app.modules.plans.plan_model import Plan
+from app.modules.plans.model import Plan
 from app.modules.fb_page.model import Facebook, PageInsights
 from app.modules.whatsapp.whatsapp_model import Whatsapp
-from app.modules.ai.ai_gen_model import AiGeneration
+from app.modules.ai.model import AiGeneration
 from app.modules.post_template.model import PostTemplate
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
 from app.modules.published_post.model import PublishedPost
 from app.modules.post_analytics.model import PostAnalytics
 from app.modules.refresh_token.refresh_token_model import FreshToken
-from app.modules.schedule.models.schedule_model import Schedule
+from app.modules.schedule.model import Schedule
 from app.modules.scheduled_post.models.scheduled_post_ai_image import ScheduledPostAiImage
 
 target_metadata =  Base.metadata
