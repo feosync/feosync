@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from .models.schedule_model import Schedule
+from .model import Schedule
 from uuid import UUID
 
 class ScheduleRepository:
