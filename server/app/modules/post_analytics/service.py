@@ -10,8 +10,8 @@ import httpx
 
 from .model import PostAnalytics
 from .repository import PostAnalyticsRepository as analyse_repository
+from app.modules.published_post.service import PublishedPostService as published_service
 from .schema import (
-    PostAnalyticsBulkCreate,
     PostAnalyticsCreate,
     PostAnalyticsResponse,
     PublishedPostResponse
@@ -41,6 +41,21 @@ class PostAnalyticsService:
         return analyse_repository.get_by_id(db=db, analytics_id=analytics_id)
     
    
-    @staticmethod
-    def get_by_published(db:Session, published_id:UUID)->list[PublishedPostResponse]:
+    """
+    get a analyse for one post 
+    """
+    
+    def get_by_published(self, db:Session, published_id:UUID)->list[PublishedPostResponse]:
         return analyse_repository.get_by_published(db=db,publised_id=published_id)
+ 
+    async def get_single_analyse_by_published_post(self, db: Session, organisation_id: UUID) -> list[PostAnalytics]:
+        published_post_list = published_service.get_all_by_org(db, org_id=organisation_id)  # ✅ await + sans self ni db
+        
+        post_analytics_list: list[PostAnalytics] = []  # ✅ initialisée
+        
+        for elt in published_post_list:
+            post_analytics = analyse_repository.get_latest_by_published(db=db, published_id=elt.id)  # ✅ elt["id"] car response.json() retourne des dicts
+            if post_analytics:  # ✅ peut être None
+                post_analytics_list.append(post_analytics)  # ✅ append sur la liste
+        
+        return post_analytics_list
