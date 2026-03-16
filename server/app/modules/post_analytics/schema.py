@@ -83,3 +83,17 @@ class PublishedPostResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+    
+class PublishedPostResponse(BaseModel):
+    id: UUID
+    scheduled_post_id: UUID
+    facebook_page_id: UUID
+    post_id: Optional[str]
+    channel: Optional[str]
+    published_at: datetime
+    initial_reach: Optional[int]
+    initial_impressions: Optional[int]
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
