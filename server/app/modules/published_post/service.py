@@ -1,22 +1,19 @@
 from uuid import UUID
 from datetime import datetime, timezone
+from fastapi import HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
 import httpx
 
 from app.core.config import settings
 from app.modules.published_post.repository import PublishedPostRepository
-from app.modules.published_post.schemas import PublishedPostCreate, ManualPublishRequest
 from app.modules.published_post.model import PublishedPost
-from app.modules.fb_page.repository import FacebookPageRepository
+from app.modules.fb_page.model import Facebook
 
 META_GRAPH_URL = "https://graph.facebook.com/v19.0"
 META_TIMEOUT = httpx.Timeout(30.0, connect=10.0)
 
 
 class PublishedPostService:
-
-    # ── Lecture ───────────────────────────────────────────────────────────────
 
     @staticmethod
     def get_all_by_org(db: Session, org_id: UUID) -> list[PublishedPost]:
@@ -31,29 +28,21 @@ class PublishedPostService:
 
     @staticmethod
     def get_by_page(db: Session, facebook_page_id: UUID, org_id: UUID) -> list[PublishedPost]:
-        # Vérifie que la page appartient à l'org
+        from app.modules.fb_page.repository import FacebookPageRepository
         page = FacebookPageRepository.get_by_id(db, facebook_page_id, org_id)
         if not page:
             raise HTTPException(status_code=404, detail="Facebook page not found")
         return PublishedPostRepository.get_by_page(db, facebook_page_id)
-
-    # ── Publication ───────────────────────────────────────────────────────────
 
     @staticmethod
     async def publish_to_facebook(
         db: Session,
         scheduled_post_id: UUID,
         facebook_page_id: UUID,
+        background_tasks: BackgroundTasks,  
+        user_id: UUID,                       
+        user_email: str,                    
     ) -> PublishedPost:
-        """
-        Publie un ScheduledPost sur Facebook via Meta Graph API.
-        Appelé par le scheduler OU manuellement.
-
-        Flux :
-        1. Récupère le ScheduledPost et la FacebookPage
-        2. Appelle POST /{page_id}/feed via Meta API
-        3. Meta retourne un post_id → on crée le PublishedPost
-        """
         from app.modules.scheduled_post.repository.scheduled_post_repository import ScheduledPostRepository
         from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
 
@@ -71,9 +60,7 @@ class PublishedPostService:
             )
 
         # Récupère la page Facebook
-        fb_page = db.query(__import__(
-            'app.modules.fb_page.model', fromlist=['Facebook']
-        ).Facebook).filter_by(id=facebook_page_id).first()
+        fb_page = db.query(Facebook).filter(Facebook.id == facebook_page_id).first()
         if not fb_page:
             raise HTTPException(status_code=404, detail="Facebook page not found")
 
@@ -84,13 +71,11 @@ class PublishedPostService:
                 "access_token": fb_page.access_token,
             }
             if scheduled_post.image_url:
-                # Post avec image
                 r = await client.post(
                     f"{META_GRAPH_URL}/{fb_page.fb_page_id}/photos",
                     data={**payload, "url": scheduled_post.image_url},
                 )
             else:
-                # Post texte uniquement
                 r = await client.post(
                     f"{META_GRAPH_URL}/{fb_page.fb_page_id}/feed",
                     data=payload,
@@ -98,12 +83,22 @@ class PublishedPostService:
 
         data = r.json()
         if "error" in data:
+            # ── Notif échec ───────────────────────────────────────────────────
+            PublishedPostService._notify(
+                db=db,
+                background_tasks=background_tasks,
+                user_id=user_id,
+                user_email=user_email,
+                type="post_failed",
+                title="Échec de publication ❌",
+                message=data['error']['message'],
+                template_body={"reason": data['error']['message']},
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Meta API error: {data['error']['message']}"
             )
 
-        # Meta retourne {"id": "page_id_post_id"} ou {"post_id": "..."}
         meta_post_id = data.get("id") or data.get("post_id")
 
         # Crée le PublishedPost
@@ -117,22 +112,61 @@ class PublishedPostService:
             "initial_impressions": 0,
         })
 
-        # Met à jour le statut du ScheduledPost → published
-        ScheduledPostRepository.update_scheduled(db, scheduled_post, {"status": PostStatus.PUBLISHED})
+        # Met à jour le statut du ScheduledPost
+        ScheduledPostRepository.update_scheduled(
+            db, scheduled_post, {"status": PostStatus.PUBLISHED}
+        )
+
+        # ── Notif succès ──────────────────────────────────────────────────────
+        PublishedPostService._notify(
+            db=db,
+            background_tasks=background_tasks,
+            user_id=user_id,
+            user_email=user_email,
+            type="post_published",
+            title="Post publié ✅",
+            message=f"Votre post sur {fb_page.page_name} a été publié.",
+            template_body={
+                "page_name": fb_page.page_name,
+                "post_id": meta_post_id,
+            },
+        )
 
         return published
 
     @staticmethod
+    def _notify(
+        db,
+        background_tasks: BackgroundTasks,
+        user_id: UUID,
+        user_email: str,
+        type: str,
+        title: str,
+        message: str,
+        template_body: dict,
+    ) -> None:
+        """Helper — centralise l'appel NotificationService"""
+        from app.modules.notifications.service import NotificationService
+        from app.modules.notifications.model import NotificationType, NotificationChannel
+
+        NotificationService.create(
+            db=db,
+            background_tasks=background_tasks,
+            user_id=user_id,
+            title=title,
+            message=message,
+            type=NotificationType(type),
+            channel=NotificationChannel.BOTH,
+            user_email=user_email,
+            template_body=template_body,
+        )
+
+    @staticmethod
     async def sync_initial_metrics(db: Session, published_post_id: UUID) -> PublishedPost:
-        """
-        Récupère reach/impressions initiaux depuis Meta API
-        Appelé ~1h après publication
-        """
         post = PublishedPostService.get_by_id(db, published_post_id)
         if not post.post_id:
             raise HTTPException(status_code=400, detail="No Meta post ID available")
 
-        # Récupère le token via la page
         fb_page = post.facebook_page
 
         async with httpx.AsyncClient(timeout=META_TIMEOUT) as client:
@@ -146,9 +180,12 @@ class PublishedPostService:
 
         data = r.json()
         if "error" in data:
-            return post  # Pas de metrics encore disponibles → pas d'erreur
+            return post
 
-        metrics = {item["name"]: item["values"][0]["value"] for item in data.get("data", [])}
+        metrics = {
+            item["name"]: item["values"][0]["value"]
+            for item in data.get("data", [])
+        }
 
         return PublishedPostRepository.update(db, post, {
             "initial_reach": metrics.get("post_reach", 0),
