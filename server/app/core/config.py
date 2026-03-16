@@ -19,6 +19,14 @@ class Settings(BaseSettings):
     META_APP_SECRET: str | None = None
     META_REDIRECT_URI: str | None = None
 
+    # Mail settings
+    MAIL_USERNAME: str | None = None
+    MAIL_PASSWORD: str | None = None
+    MAIL_FROM: str | None = None
+    MAIL_PORT: int | None = None
+    MAIL_SERVER: str | None = None
+   
+
     @property
     def DATABASE_URL(self) -> str:
         return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
