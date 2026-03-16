@@ -13,7 +13,7 @@ from app.modules.auth.schemas import (
 )
 from app.modules.auth.service import AuthService
 from app.modules.auth.dependencies import get_current_user, get_active_user
-from app.modules.user.user_model import User
+from app.modules.user.model import User
 
 
 auth_router = APIRouter()
