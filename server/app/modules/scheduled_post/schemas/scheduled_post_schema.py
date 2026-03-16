@@ -4,7 +4,7 @@ from dataclasses import Field
 from pydantic import BaseModel
 from uuid import UUID
 from datetime import UTC, datetime
-from app.modules.scheduled_post.models.post_status import post_status
+from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
 from typing import Optional
 
 
@@ -15,7 +15,7 @@ class ScheduledPostResponse(BaseModel):
     content: dict
     image_url: str | None
     publish_at: datetime
-    status: post_status
+    status: PostStatus
     post_template_id: UUID | None
     schedule_id: UUID
     model_config = {"from_attributes": True}
@@ -25,7 +25,7 @@ class ScheduledPostUpdate(BaseModel):
     caption: Optional[str] | None
     content: Optional[dict] | None
     image_url: Optional[str] | None
-    status: post_status = post_status.SCHEDULED
+    status: PostStatus = PostStatus.SCHEDULED
     post_template_id: Optional[UUID] | None# app/modules/scheduled_post/schemas.py
 
 class ScheduledPostResponse(BaseModel):
@@ -34,7 +34,7 @@ class ScheduledPostResponse(BaseModel):
     content: dict
     image_url: str | None
     publish_at: datetime
-    status: post_status
+    status: PostStatus
     post_template_id: UUID | None
     schedule_id: UUID
     model_config = {"from_attributes": True}
@@ -44,7 +44,7 @@ class ScheduledPostUpdate(BaseModel):
     caption: Optional[str] = None          
     content: Optional[dict] = None          
     image_url: Optional[str] = None         
-    status: Optional[post_status] = None    
+    status: Optional[PostStatus] = None    
     post_template_id: Optional[UUID] = None 
     publish_at: Optional[datetime] = None   
 
@@ -55,7 +55,7 @@ class ScheduledPostCreate(BaseModel):
     caption:str 
     content: dict
     image_url: Optional[str] | None
-    status: post_status = post_status.SCHEDULED
+    status: PostStatus = PostStatus.SCHEDULED
     post_template_id: Optional[UUID] | None
     publish_at: datetime
     publish_at: Optional[datetime] | None
@@ -67,7 +67,7 @@ class ScheduledPostCreate(BaseModel):
     caption:str 
     content: dict
     image_url: Optional[str] | None
-    status: post_status = post_status.SCHEDULED
+    status: PostStatus = PostStatus.SCHEDULED
     post_template_id: Optional[UUID] | None
     publish_at: datetime
     
