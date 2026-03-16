@@ -19,7 +19,7 @@ class AuthService:
 
     # JWT Configuration
     ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 60
+    ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
     @staticmethod
     def verify_google_token(token: str) -> Optional[GoogleUserInfo]:
