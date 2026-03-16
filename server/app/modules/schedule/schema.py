@@ -10,7 +10,7 @@ class ScheduleCreate(BaseModel):
     chanels: list[str]
     page_ids:dict
     cron_expression: str
-    post_template_id: str | None
+    post_template_id: UUID | None = None
     data_source_config: dict 
     last_run_at: datetime
     next_run_at: datetime

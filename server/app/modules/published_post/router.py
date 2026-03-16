@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -66,6 +66,7 @@ async def get_published_post(
 )
 async def publish_post(
     payload: ManualPublishRequest,
+    background_tasks: BackgroundTasks ,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
@@ -77,6 +78,9 @@ async def publish_post(
         db,
         payload.scheduled_post_id,
         payload.facebook_page_id,
+         background_tasks=background_tasks,    
+        user_id=current_user.id,              
+        user_email=current_user.email,    
     )
 
 
