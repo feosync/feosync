@@ -4,6 +4,7 @@ Auth Service - Business logic for authentication
 from datetime import datetime, timedelta
 from typing import Optional
 import jwt
+
 from sqlalchemy.orm import Session
 from google.auth.transport import requests
 from google.oauth2 import id_token
@@ -12,6 +13,7 @@ from app.core.config import settings
 from app.modules.auth.schemas import GoogleUserInfo, UserResponse
 from app.modules.auth.repository import UserRepository
 from app.modules.user.model import User
+from fastapi import BackgroundTasks
 
 
 class AuthService:
@@ -108,7 +110,7 @@ class AuthService:
 
     @staticmethod
     def authenticate_google_user(
-        db: Session, google_user_info: GoogleUserInfo
+        db: Session, google_user_info: GoogleUserInfo, background_tasks: BackgroundTasks,
     ) -> tuple[User, str]:
         """
         Authenticate or create user from Google OAuth info
@@ -122,6 +124,7 @@ class AuthService:
         """
         # Check if user already exists by Google ID
         user = UserRepository.get_user_by_google_id(db, google_user_info.sub)
+        is_new_user = False
 
         if not user:
             # Check if user exists by email
@@ -146,10 +149,27 @@ class AuthService:
                     profile_picture=google_user_info.picture,
                 )
 
+                
+                is_new_user = True
+                
+
         # Generate JWT token
         access_token = AuthService.create_access_token(
             str(user.id), user.email
         )
+
+        if is_new_user:
+            # Notify user of successful registration
+            AuthService._notify(
+                db,
+                background_tasks=background_tasks, 
+                user_id=str(user.id),
+                email=user.email,
+                title="Bienvenue sur FeoSync",
+                message="Votre compte a été créé avec succès.",
+                type="welcome",
+                template_body={"title": user.name}
+            )
 
         return user, access_token
 
@@ -181,3 +201,44 @@ class AuthService:
         except Exception as e:
             print(f"Error fetching user: {str(e)}")
             return None
+        
+    # Notification 
+    @staticmethod
+    def _notify(
+        db: Session,
+        background_tasks: BackgroundTasks,
+        user_id: str,
+        email: str,
+        title: str,
+        type: str,
+        message: str,
+        template_body: dict,
+    ) -> None:
+        """
+        Send notification to user (in-app and email)
+        
+        Args:
+            db: Database session
+            user_id: User UUID
+            email: User email
+            title: Notification title
+            message: Notification message
+            type: Notification type
+        """
+        from app.modules.notifications.service import NotificationService
+        from app.modules.notifications.model import NotificationChannel, NotificationType
+
+        # Create in-app notification and send email
+        NotificationService.create(
+            db=db,
+            background_tasks=background_tasks, 
+            user_id=user_id,
+            title=title,
+            message=message,
+            type=NotificationType(type),
+            channel=NotificationChannel.BOTH,
+            user_email=email,
+            template_body=template_body
+        )
+
+        
