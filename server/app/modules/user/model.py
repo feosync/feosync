@@ -38,3 +38,7 @@ class User(Base):
     refresh_tokens: Mapped[list["FreshToken"]] = relationship(
         "FreshToken", back_populates="user", cascade="all, delete-orphan"
     )
+
+    notifications: Mapped[list["Notification"]] = relationship(
+        "Notification", back_populates="user", cascade="all, delete-orphan"
+    )
