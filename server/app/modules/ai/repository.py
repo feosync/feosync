@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from uuid import UUID
-from .ai_gen_model import AiGeneration
+from .model import AiGeneration
 
 class AiGenerationRepository:
     @staticmethod

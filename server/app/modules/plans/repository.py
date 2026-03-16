@@ -1,7 +1,7 @@
-from .plan_model import Plan
+from .model import Plan
 from sqlalchemy.orm import Session
 from typing import Optional
-from .schema import  PlanUpdate
+from .schemas import  PlanUpdate
 
 class PlanRepository:
     @staticmethod
