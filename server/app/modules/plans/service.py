@@ -1,6 +1,6 @@
-from .schema import PlanCreate, PlanResponse, PlanUpdate
-from .plan_repository import PlanRepository  as plan_repository
-from .plan_model import Plan
+from .schemas import PlanCreate, PlanResponse, PlanUpdate
+from .repository import PlanRepository  as plan_repository
+from .model import Plan
 
 from sqlalchemy.orm import Session
 

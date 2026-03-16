@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.modules.auth.service import AuthService
-from app.modules.user.user_model import User
+from app.modules.user.model import User
 
 # HTTPBearer scheme for Swagger UI recognition
 security = HTTPBearer(

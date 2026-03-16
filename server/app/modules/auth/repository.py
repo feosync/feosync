@@ -3,7 +3,7 @@ User Repository - Database operations for users
 """
 from uuid import UUID
 from sqlalchemy.orm import Session
-from app.modules.user.user_model import User
+from app.modules.user.model import User
 
 
 class UserRepository:

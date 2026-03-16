@@ -2,9 +2,9 @@ from sqlalchemy.orm import Session
 from google import genai
 from app.core.config import settings
 from google.genai import types
-from .schema import AiCreate
+from .schemas import AiCreate
 from .repository import AiGenerationRepository as repository
-from .ai_gen_model import AiGeneration
+from .model import AiGeneration
 
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)

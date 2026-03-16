@@ -5,7 +5,7 @@ from uuid import UUID
 from app.core.database import get_db
 from .schema import ScheduleCreate, ScheduleResponse, ScheduleUpdate
 from .service import ScheduleService 
-from app.modules.user.user_model import User
+from app.modules.user.model import User
 from app.modules.auth.dependencies import get_active_user
 
 schedule_router = APIRouter()

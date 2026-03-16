@@ -1,6 +1,6 @@
 from fastapi import APIRouter,  Depends
 import app.modules.ai.service as ai_service
-from .schema import AiCreate, AiResponse
+from .schemas import AiCreate, AiResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.modules.auth.dependencies import get_active_user
-from app.modules.user.user_model import User
+from app.modules.user.model import User
 from app.modules.post_template.model import SectorEnum
 from app.modules.post_template.schemas import (
     PostTemplateCreate,

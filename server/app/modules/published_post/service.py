@@ -55,6 +55,7 @@ class PublishedPostService:
         3. Meta retourne un post_id → on crée le PublishedPost
         """
         from app.modules.scheduled_post.repository.scheduled_post_repository import ScheduledPostRepository
+        from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
 
         # Récupère le scheduled post
         scheduled_post = ScheduledPostRepository.get_by_id(db, scheduled_post_id)
@@ -117,7 +118,7 @@ class PublishedPostService:
         })
 
         # Met à jour le statut du ScheduledPost → published
-        ScheduledPostRepository.update_scheduled(db, scheduled_post, {"status": "published"})
+        ScheduledPostRepository.update_scheduled(db, scheduled_post, {"status": PostStatus.PUBLISHED})
 
         return published
 
