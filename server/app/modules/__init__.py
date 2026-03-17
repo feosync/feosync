@@ -14,7 +14,6 @@ from app.modules.fb_page.router import fb_page_router
 from app.modules.notifications.router import notif_router
 from app.modules.organisations.router import organisation_router    
 from app.modules.plans.router import plans_router 
-from app.modules.schedule.router import schedule_router
 from app.modules.scheduled_post.router import scheduled_post_router
 from app.modules.post_template.router import post_template_router
 from app.modules.published_post.router import published_post_router
@@ -32,5 +31,4 @@ from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
 from app.modules.published_post.model import PublishedPost
 from app.modules.post_analytics.model import PostAnalytics
 from app.modules.refresh_token.refresh_token_model import FreshToken
-from app.modules.schedule.model import Schedule
 from app.modules.scheduled_post.models.scheduled_post_ai_image import ScheduledPostAiImage
