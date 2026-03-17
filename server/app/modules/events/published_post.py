@@ -1,24 +1,33 @@
+# celery/tasks/published_post.py
 from app.celery_app import celery_app
-import httpx
+from app.core.database import SessionLocal
+from app.modules.published_post.service import PublishedPostService
+from fastapi import BackgroundTasks
+import logging
 import asyncio
 
-
-async def _do_publish(scheduled_id: str):
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            url="http://localhost:8000/api/v1/published/publish",  # ✅ = et pas :
-            json={"scheduled_id": scheduled_id},                  # ✅ json= et pas data=
-        )
-        response.raise_for_status()
-        return response.json()
+# ✅ Configuration de base
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-@celery_app.task(bind=True, max_retries=3)
-def published_task(self, scheduled_id: str):          # ✅ str et pas UUID
+@celery_app.task(bind=True, max_retries=2)
+def published_task(self, scheduled_id: str, user_id: str, user_email: str):
+    db = SessionLocal()
     try:
-        result = asyncio.run(_do_publish(scheduled_id))  # ✅ asyncio.run()
-        print(f"✅ Publié avec succès : {scheduled_id}")
-        return result
+        from uuid import UUID
+        result = asyncio.run(
+            PublishedPostService.publish_to_facebook(
+                db=db,
+                scheduled_post_id=UUID(scheduled_id),
+                background_tasks=BackgroundTasks(),
+                user_id=UUID(user_id),
+                user_email=user_email,
+            )
+        )
+        logger.info(f"Post {result.id} published successfully")
     except Exception as exc:
-        print(f"❌ Erreur : {exc}")
+        db.rollback()
         raise self.retry(exc=exc, countdown=10)
+    finally:
+        db.close()
