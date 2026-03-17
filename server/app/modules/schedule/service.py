@@ -1,17 +1,39 @@
-from .schema import ScheduleCreate, ScheduleUpdate
 from sqlalchemy.orm import Session
+
+# ======================SCHEMA OR MODEL============================
+from .schema import ScheduleCreate, ScheduleUpdate
+from app.modules.scheduled_post.schemas.scheduled_post_schema import ScheduledPostCreate
+from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost, PostStatus
 from .model import Schedule
+
+# ================= SERVICE AND REPOSITORY===========================
 from .repository import ScheduleRepository as schedule_repository
 from  app.modules.organisations.service import OrganisationService as organisation_service
+from app.modules.scheduled_post.services.scheduled_post_service import ScheduledPostService as scheduled_service
+# ======================TYPE===============================================
+
 from uuid import UUID
 
 class ScheduleService:
     def __init__(self):
         pass
     
-    def add_schedule(self, db:Session, schedule_create: ScheduleCreate)->Schedule:
+    async def add_schedule(self, db:Session, schedule_create: ScheduleCreate)->Schedule:
         schedule = Schedule(**schedule_create.model_dump())
         return schedule_repository.add_schedule(schedule=schedule, db=db)
+    
+    async def create_scheduled_post(self, db:Session, schedule_create: ScheduleCreate)->tuple[Schedule,ScheduledPost]:
+        schedule = await self.add_schedule(db=db, schedule_create=schedule_create)
+        if not schedule:
+            raise ValueError("Schedule not create")
+        
+        scheduled_post = ScheduledPostCreate(
+            schedule_id=schedule.id,
+            status=PostStatus.SCHEDULED
+        )
+        scheduled = scheduled_service.create(db=db, scheduled_create=scheduled_post)
+        return schedule, scheduled
+    
     
     def get_all(self, db:Session)->list[Schedule]:
         return schedule_repository.get_all(db=db)

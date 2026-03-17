@@ -20,10 +20,10 @@ class ScheduledPost(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 
-    caption: Mapped[str] = mapped_column(String, nullable=False)
-    content: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    caption: Mapped[str] = mapped_column(String, nullable=True)
+    content: Mapped[dict] = mapped_column(JSONB, nullable=True)
     image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)  # snapshot de l'image active
-    publish_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    publish_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     status: Mapped[PostStatus] = mapped_column(
         SAEnum(PostStatus, native_enum=False), nullable=False, default=PostStatus.SCHEDULED
     )

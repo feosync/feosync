@@ -32,3 +32,4 @@ class ScheduleUpdate(BaseModel):
     last_run_at: Optional[datetime] = None
     next_run_at: Optional[datetime] = None
     is_active: Optional[bool] = None
+    

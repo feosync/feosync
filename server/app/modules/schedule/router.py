@@ -1,22 +1,55 @@
+# ==============================
+# 🔹 Imports FastAPI (routing & dépendances)
+# ==============================
 from fastapi import APIRouter, Depends
+
+# ==============================
+# 🔹 Base de données (SQLAlchemy)
+# ==============================
 from sqlalchemy.orm import Session
+
+# ==============================
+# 🔹 Types & utilitaires
+# ==============================
 from uuid import UUID
 
+# ==============================
+# 🔹 Core (config globale de l'app)
+# ==============================
 from app.core.database import get_db
+
+# ==============================
+# 🔹 Schémas (DTO / validation des données)
+# ==============================
 from .schema import ScheduleCreate, ScheduleResponse, ScheduleUpdate
+from app.modules.scheduled_post.schemas.scheduled_post_schema import ScheduledPostResponse
+
+# ==============================
+# 🔹 Services (logique métier)
+# ==============================
 from .service import ScheduleService 
+
+# ==============================
+# 🔹 Modèles (ORM / DB)
+# ==============================
 from app.modules.user.model import User
+
+# ==============================
+# 🔹 Authentification & sécurité
+# ==============================
 from app.modules.auth.dependencies import get_active_user
+
+
 
 schedule_router = APIRouter()
 
 @schedule_router.post("/add")
-def add_schedule(
+async def add_schedule(
     schedule_create:ScheduleCreate,
     db: Session = Depends(get_db),
-    user:User=Depends(get_active_user)):
+    user:User=Depends(get_active_user))->tuple[ScheduleResponse, ScheduledPostResponse]:
     service = ScheduleService()
-    return service.add_schedule(db=db, schedule_create=schedule_create)
+    return await service.create_scheduled_post(db=db, schedule_create=schedule_create)
 
 
 @schedule_router.get("/")
