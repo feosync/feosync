@@ -42,6 +42,3 @@ class PostTemplate(Base):
     scheduled_posts = relationship(
         "ScheduledPost", back_populates="post_template", cascade="all, delete-orphan"
     )
-    schedules = relationship(
-        "Schedule", back_populates="post_template", cascade="all, delete-orphan"
-    )
