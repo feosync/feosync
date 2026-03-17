@@ -77,8 +77,7 @@ async def publish_post(
     return await PublishedPostService.publish_to_facebook(
         db,
         payload.scheduled_post_id,
-        payload.facebook_page_id,
-         background_tasks=background_tasks,    
+        background_tasks=background_tasks,    
         user_id=current_user.id,              
         user_email=current_user.email,    
     )

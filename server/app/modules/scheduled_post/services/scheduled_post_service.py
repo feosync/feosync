@@ -26,8 +26,11 @@ class ScheduledPostService:
     @staticmethod
     def create(db: Session, scheduled_create: ScheduledPostCreate) -> ScheduledPost:
         data = scheduled_create.model_dump()
-        # ✅ Convertit UUID -> str avant insertion JSONB
-        data["page_ids"] = [str(uid) for uid in data["page_ids"]]
+        data["page_ids"] = {
+            channel: str(uid)
+            for channel, uid in data["page_ids"].items()
+        }
+        
         scheduled = ScheduledPost(**data)
         return repository.add_scheduled(db=db, scheduled=scheduled)
 
@@ -38,9 +41,11 @@ class ScheduledPostService:
         scheduled = repository.get_by_id(db=db, scheduled_id=scheduled_id)
         if not scheduled:
             raise HTTPException(status_code=404, detail="ScheduledPost introuvable")
-        # ✅ Convertit UUID -> str si page_ids est dans le update
-        if "page_ids" in data:
-            data["page_ids"] = [str(uid) for uid in data["page_ids"]]
+        if "page_ids" in data and data["page_ids"]:
+            data["page_ids"] = {
+                channel: str(uid)
+                for channel, uid in data["page_ids"].items()
+            }
         return repository.update_scheduled(db=db, scheduled=scheduled, data=data)
 
     # ─── DELETE ──────────────────────────────────────────────────────────────
@@ -62,3 +67,4 @@ class ScheduledPostService:
         return repository.update_scheduled(
             db=db, scheduled=scheduled, data={"image_url": image_url}
         )
+        

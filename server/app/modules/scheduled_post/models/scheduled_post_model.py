@@ -25,9 +25,9 @@ class ScheduledPost(Base):
     status: Mapped[PostStatus] = mapped_column(
         SAEnum(PostStatus, native_enum=False), nullable=False, default=PostStatus.SCHEDULED
     )
-    # ✅ JSONB pour les deux — stocke strings
-    channels: Mapped[list] = mapped_column(JSONB, nullable=False)
-    page_ids: Mapped[list] = mapped_column(JSONB, nullable=False)
+    
+    page_ids: Mapped[dict] = mapped_column(JSONB, nullable=False)
+
 
     post_template_id: Mapped[UUID | None] = mapped_column(ForeignKey("post_templates.id"), nullable=True)
     post_template = relationship("PostTemplate", back_populates="scheduled_posts")
