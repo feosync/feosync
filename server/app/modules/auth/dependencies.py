@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.modules.auth.service import AuthService
 from app.modules.user.model import User
-
+from app.core.contexte import current_token, current_user_email, current_user_id
 # HTTPBearer scheme for Swagger UI recognition
 security = HTTPBearer(
     description="Bearer token for JWT authentication",
@@ -44,7 +44,7 @@ async def get_current_user(
         )
 
     token = credentials.credentials
-    
+    current_token.set(token)
     user = AuthService.get_current_user(db, token)
     if not user:
         raise HTTPException(
@@ -52,7 +52,6 @@ async def get_current_user(
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
     return user
 
 
@@ -78,5 +77,7 @@ async def get_active_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is deactivated",
         )
-
+        
+    current_user_id.set(current_user.id)
+    current_user_email.set(current_user.email)
     return current_user
