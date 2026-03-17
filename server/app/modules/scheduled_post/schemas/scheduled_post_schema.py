@@ -5,12 +5,9 @@ from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
 from typing import Optional
 
 
-# ─── ScheduledPost ───────────────────────────────────────────────────────────
-
 class ScheduledPostCreate(BaseModel):
     organisation_id: UUID
-    channels: list[str]
-    page_ids: list[UUID]          # ✅ UUID pour validation entrée
+    page_ids: dict[str, UUID]     # ✅ {"facebook": UUID, "whatsapp": UUID}
     caption: Optional[str] = None
     content: Optional[dict] = None
     image_url: Optional[str] = None
@@ -26,27 +23,19 @@ class ScheduledPostUpdate(BaseModel):
     status: Optional[PostStatus] = None
     post_template_id: Optional[UUID] = None
     publish_at: Optional[datetime] = None
+    page_ids: Optional[dict[str, UUID]] = None
 
 
 class ScheduledPostResponse(BaseModel):
     id: UUID
     organisation_id: UUID
-    channels: list[str]
-    page_ids: list[UUID]          # ✅ retourné en UUID
+    page_ids: dict[str, str]      # ✅ {"facebook": "uuid-str", ...}
     caption: Optional[str] = None
     content: Optional[dict] = None
     image_url: Optional[str] = None
     publish_at: Optional[datetime] = None
     status: PostStatus
     post_template_id: Optional[UUID] = None
-
-    @field_validator("page_ids", "channels", mode="before")
-    @classmethod
-    def parse_jsonb_list(cls, v):
-        # ✅ Gère le cas où PostgreSQL retourne '{val}' au lieu de ['val']
-        if isinstance(v, str):
-            return [item.strip() for item in v.strip("{}").split(",") if item]
-        return v
 
     model_config = {"from_attributes": True}
 

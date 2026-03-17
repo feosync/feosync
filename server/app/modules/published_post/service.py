@@ -38,7 +38,6 @@ class PublishedPostService:
     async def publish_to_facebook(
         db: Session,
         scheduled_post_id: UUID,
-        facebook_page_id: UUID,
         background_tasks: BackgroundTasks,  
         user_id: UUID,                       
         user_email: str,                    
@@ -58,9 +57,16 @@ class PublishedPostService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="This scheduled post has already been published"
             )
+            
+        # ✅ Accès direct par channel — plus besoin de chercher par index
+        fb_id  = scheduled_post.page_ids.get("facebook")
+        
 
-        # Récupère la page Facebook
-        fb_page = db.query(Facebook).filter(Facebook.id == facebook_page_id).first()
+        if fb_id:
+            fb_page = db.query(Facebook).filter(Facebook.id == fb_id).first()
+        
+    
+
         if not fb_page:
             raise HTTPException(status_code=404, detail="Facebook page not found")
 
@@ -104,7 +110,7 @@ class PublishedPostService:
         # Crée le PublishedPost
         published = PublishedPostRepository.create(db, {
             "scheduled_post_id": scheduled_post_id,
-            "facebook_page_id": facebook_page_id,
+            "facebook_page_id": fb_id,
             "post_id": meta_post_id,
             "channel": "facebook",
             "published_at": datetime.now(timezone.utc),

@@ -5,6 +5,7 @@ from app.modules import auth_router,user_router,  ai_router, fb_page_router, org
 from app.core.database import engine
 from app.core.base import Base
 from app.core.config import settings
+from app.modules.events.scheduled_post_events import register_scheduled_post_events
 
 Base.metadata.create_all(bind=engine)
 
@@ -13,6 +14,8 @@ app = FastAPI(
     description="FeoSync - Social Media Management Platform API",
     version="1.0.0",
 )
+register_scheduled_post_events()
+
 
 # CORS en premier
 app.add_middleware(
