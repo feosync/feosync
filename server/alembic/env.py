@@ -32,7 +32,6 @@ from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
 from app.modules.published_post.model import PublishedPost
 from app.modules.post_analytics.model import PostAnalytics
 from app.modules.refresh_token.refresh_token_model import FreshToken
-from app.modules.schedule.model import Schedule
 from app.modules.scheduled_post.models.scheduled_post_ai_image import ScheduledPostAiImage
 
 target_metadata =  Base.metadata
