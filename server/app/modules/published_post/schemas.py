@@ -40,4 +40,4 @@ class PublishedPostWithAnalytics(PublishedPostResponse):
 class ManualPublishRequest(BaseModel):
     """Publication manuelle d'un scheduled post"""
     scheduled_post_id: UUID
-    facebook_page_id: UUID
+    
