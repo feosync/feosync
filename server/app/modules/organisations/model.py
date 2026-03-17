@@ -64,6 +64,6 @@ class Organisation(Base):
     post_templates: Mapped[list["PostTemplate"]] = relationship(
         "PostTemplate", back_populates="organisation", cascade="all, delete-orphan"
     )
-    schedules: Mapped[list["Schedule"]] = relationship(
-        "Schedule", back_populates="organisation", cascade="all, delete-orphan"
+    scheduled_posts: Mapped[list["ScheduledPost"]] = relationship(
+        "ScheduledPost", back_populates="organisation", cascade="all, delete-orphan"
     )
