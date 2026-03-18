@@ -31,11 +31,20 @@ async def get_quota(
     current_user: User = Depends(get_active_user),
 ):
     from app.core.config import settings
+    from datetime import datetime, timezone
+
     quota = AiQuotaRepository.get_current(db, current_user.id, org_id)
-    if not quota:
-        from datetime import datetime, timezone
-        return AiQuotaResponse(
-            period=datetime.now(timezone.utc).strftime("%Y-%m"),
-            caption_count=0, image_count=0, total_tokens=0,
-        )
-    return AiQuotaResponse.model_validate(quota)
+
+    caption_count = quota.caption_count if quota else 0
+    image_count = quota.image_count if quota else 0
+
+    return AiQuotaResponse(
+        period=datetime.now(timezone.utc).strftime("%Y-%m"),
+        caption_count=caption_count,
+        image_count=image_count,
+        total_tokens=quota.total_tokens if quota else 0,
+        caption_limit=settings.AI_CAPTION_LIMIT_PER_MONTH,
+        image_limit=settings.AI_IMAGE_LIMIT_PER_MONTH,
+        caption_remaining=max(0, settings.AI_CAPTION_LIMIT_PER_MONTH - caption_count),
+        image_remaining=max(0, settings.AI_IMAGE_LIMIT_PER_MONTH - image_count),
+    )

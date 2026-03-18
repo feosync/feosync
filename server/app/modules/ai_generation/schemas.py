@@ -49,5 +49,7 @@ class AiQuotaResponse(BaseModel):
     total_tokens: int
     caption_limit: Optional[int] = None
     image_limit: Optional[int] = None
+    caption_remaining: int    # caption_limit - caption_count
+    image_remaining: int    # image_limit - image_count
 
     model_config = {"from_attributes": True}
