@@ -24,7 +24,6 @@ class AiGeneration(Base):
     __tablename__ = "ai_generation"
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-
     organisation_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
 
@@ -45,5 +44,4 @@ class AiGeneration(Base):
     )
 
     organisation = relationship("Organisation", back_populates="ai_generations")
-    user = relationship("User", backref="ai_generations")
     post_ai_images = relationship("ScheduledPostAiImage", back_populates="ai_generation")

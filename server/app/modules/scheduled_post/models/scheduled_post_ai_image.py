@@ -14,7 +14,7 @@ class ScheduledPostAiImage(Base):
     image_url: Mapped[str] = mapped_column(String(512), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     linked_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, server_default=func.now()
+        DateTime(timezone=True), server_default=func.now()
     )
     replaced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
