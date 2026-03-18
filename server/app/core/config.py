@@ -32,6 +32,13 @@ class Settings(BaseSettings):
     MAIL_FROM: str | None = None
     MAIL_PORT: int | None = None
     MAIL_SERVER: str | None = None
+
+    # AI Generation limits
+    AI_CAPTION_LIMIT_PER_MONTH: int | None = None
+    AI_IMAGE_LIMIT_PER_MONTH: int | None = None
+
+    # Server URL
+    SERVER_URL: str | None = None
    
 
     @property

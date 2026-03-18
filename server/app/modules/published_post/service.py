@@ -42,7 +42,7 @@ class PublishedPostService:
         user_id: UUID,                       
         user_email: str,                    
     ) -> PublishedPost:
-        from app.modules.scheduled_post.repository.scheduled_post_repository import ScheduledPostRepository
+        from app.modules.scheduled_post.repository import ScheduledPostRepository
         from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
 
         # Récupère le scheduled post
@@ -119,7 +119,7 @@ class PublishedPostService:
         })
 
         # Met à jour le statut du ScheduledPost
-        ScheduledPostRepository.update_scheduled(
+        ScheduledPostRepository.update(
             db, scheduled_post, {"status": PostStatus.PUBLISHED}
         )
 
