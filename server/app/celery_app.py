@@ -1,9 +1,9 @@
 from celery import Celery
-
+from app.core.config import settings
 celery_app = Celery(
     "autopost",
-    broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/0",
+    broker=settings.BROKER,
+    backend=settings.BACKEND,
     include=[
         "app.modules.events.published_post",  # ✅ force le chargement au démarrage
     ]
