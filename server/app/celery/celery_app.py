@@ -5,7 +5,7 @@ celery_app = Celery(
     broker=settings.BROKER,
     backend=settings.BACKEND,
     include=[
-        "app.modules.events.published_post",  # ✅ force le chargement au démarrage
+        "app.celery.task.published_post",  # ✅ force le chargement au démarrage
     ]
 )
 
@@ -19,5 +19,5 @@ celery_app.conf.update(
 
 # ✅ Indique à Celery où trouver les tâches
 celery_app.autodiscover_tasks([
-    "app.modules.events",   # ← dossier où est published_post.py
+    "app.celery.task",   # ← dossier où est published_post.py
 ])

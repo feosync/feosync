@@ -1,5 +1,5 @@
 # celery/tasks/published_post.py
-from app.celery_app import celery_app
+from app.celery.celery_app import celery_app
 from app.core.database import SessionLocal
 from app.modules.published_post.service import PublishedPostService
 from fastapi import BackgroundTasks

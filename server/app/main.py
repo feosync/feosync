@@ -5,7 +5,7 @@ from app.modules import auth_router,user_router,  ai_router, fb_page_router, org
 from app.core.database import engine
 from app.core.base import Base
 from app.core.config import settings
-from app.modules.events.scheduled_post_events import register_scheduled_post_events
+from app.celery.task.scheduled_post_events import register_scheduled_post_events
 
 Base.metadata.create_all(bind=engine)
 
