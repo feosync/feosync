@@ -240,5 +240,6 @@ class AuthService:
             user_email=email,
             template_body=template_body
         )
+        
 
         
