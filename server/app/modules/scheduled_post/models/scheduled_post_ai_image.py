@@ -1,6 +1,6 @@
 from __future__ import annotations
 from app.core.base import Base
-from sqlalchemy import Boolean, String, DateTime, ForeignKey, Index
+from sqlalchemy import Boolean, Text, DateTime, ForeignKey, Index
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql import func
 from datetime import datetime
@@ -11,7 +11,7 @@ class ScheduledPostAiImage(Base):
     __tablename__ = "scheduled_post_ai_image"
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    image_url: Mapped[str] = mapped_column(String(512), nullable=False)
+    image_url: Mapped[str] = mapped_column(Text, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     linked_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

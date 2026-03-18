@@ -1,6 +1,6 @@
 from __future__ import annotations
 from app.core.base import Base
-from sqlalchemy import String, ForeignKey, DateTime, Text
+from sqlalchemy import  ForeignKey, DateTime, Text
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -30,7 +30,7 @@ class ScheduledPost(Base):
 
     # ── Contenu ───────────────────────────────────────────────────────────────
     caption: Mapped[str | None] = mapped_column(Text, nullable=True)
-    image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_source: Mapped[str | None] = mapped_column(
         SAEnum(ImageSource, name="image_source", native_enum=False),
         nullable=True

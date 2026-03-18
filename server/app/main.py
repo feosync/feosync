@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from app.modules import auth_router,user_router,  ai_router, fb_page_router, organisation_router, notif_router, plans_router, scheduled_post_router, post_template_router, post_analytics_router,published_post_router
@@ -6,6 +7,7 @@ from app.core.database import engine
 from app.core.base import Base
 from app.core.config import settings
 from app.modules.events.scheduled_post_events import register_scheduled_post_events
+from pathlib import Path
 
 Base.metadata.create_all(bind=engine)
 
@@ -51,4 +53,10 @@ app.include_router(ai_router, prefix="/api/v1/ai", tags=["ai"])
 app.include_router(published_post_router, prefix="/api/v1/published", tags=["publishedPost"])
 app.include_router(post_analytics_router, prefix="/api/v1/post-analytics", tags=["PostAnalytics"])
 app.include_router(notif_router, prefix="/api/v1/notif", tags=["notif"])
+
+
+
+
+Path("app/static/uploads").mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 

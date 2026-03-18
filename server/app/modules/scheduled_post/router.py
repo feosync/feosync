@@ -111,6 +111,7 @@ async def patch_image_upload(
 @scheduled_post_router.patch(
     "/{post_id}/confirm",
     response_model=ScheduledPostResponse,
+    response_model_exclude_none=True, 
     summary="Confirmer la planification (DRAFT → SCHEDULED)",
 )
 def confirm(
