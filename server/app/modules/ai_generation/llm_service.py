@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 import base64
 import logging
 
+from fastapi import HTTPException
 from app.core.config import settings
 from app.modules.ai_generation.models.ai_generation_model import (
     AiGeneration, AiProvider, AiGenerationType
@@ -75,30 +76,48 @@ class AiGenerationService:
         image_limit = getattr(settings, "AI_IMAGE_LIMIT_PER_MONTH", None)
         if generation_type == AiGenerationType.CAPTION and caption_limit:
             if quota.caption_count >= caption_limit:
-                raise ValueError(f"Quota caption dépassé ({caption_limit}/mois)")
+                raise HTTPException(
+                    status_code=429,   # ← Too Many Requests
+                    detail={
+                        "error": "quota_exceeded",
+                        "type": "caption",
+                        "used": quota.caption_count,
+                        "limit": caption_limit,
+                        "resets_at": f"{quota.period}-01",
+                    }
+                )
         if generation_type == AiGenerationType.IMAGE and image_limit:
             if quota.image_count >= image_limit:
-                raise ValueError(f"Quota image dépassé ({image_limit}/mois)")
+                raise HTTPException(
+                    status_code=429,
+                    detail={
+                        "error": "quota_exceeded",
+                        "type": "image",
+                        "used": quota.image_count,
+                        "limit": image_limit,
+                        "resets_at": f"{quota.period}-01",
+                    }
+                )
 
     def _build_caption_prompt(self, ctx: AiContext, req: CaptionRequest) -> str:
         return f"""
-Tu es expert social media pour {ctx.organisation_name}.
-Secteur : {ctx.organisation_sector} | Ton : {ctx.organisation_tone}
-{f"Page Facebook : {ctx.facebook_page_name}" if ctx.facebook_page_name else ""}
+            Tu es expert social media pour {ctx.organisation_name}.
+            Secteur : {ctx.organisation_sector} | Ton : {ctx.organisation_tone}
+            {f"Page Facebook : {ctx.facebook_page_name}" if ctx.facebook_page_name else ""}
 
-Rédige un caption {ctx.organisation_tone} pour Facebook.
-Sujet : {req.topic} | Langue : {req.language} | Max : {req.max_length} caractères
-{f"Instructions : {req.additional_instructions}" if req.additional_instructions else ""}
+            Rédige un caption {ctx.organisation_tone} pour Facebook.
+            Sujet : {req.topic} | Langue : {req.language} | Max : {req.max_length} caractères
+            {f"Instructions : {req.additional_instructions}" if req.additional_instructions else ""}
 
-Réponds uniquement avec le caption, sans guillemets ni commentaires.
-""".strip()
+            Réponds uniquement avec le caption, sans guillemets ni commentaires.
+            """.strip()
 
     def _build_image_prompt(self, ctx: AiContext, req: ImageRequest) -> str:
         return f"""
-Professional social media image for {ctx.organisation_name}.
-Sector: {ctx.organisation_sector} | Style: {req.style}
-Description: {req.description}
-""".strip()
+            Professional social media image for {ctx.organisation_name}.
+            Sector: {ctx.organisation_sector} | Style: {req.style}
+            Description: {req.description}
+            """.strip()
 
     async def generate_caption(
         self, db: Session, ctx: AiContext, req: CaptionRequest
