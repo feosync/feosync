@@ -7,6 +7,13 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     DB_NAME: str
     
+    #Redis setting
+    REDIS_HOST:str
+    REDIS_PORT: int
+    
+    #Celery setting
+    BROKER:str
+    BACKEND: str
 
     # Google OAuth settings
     GOOGLE_CLIENT_ID: str | None = None
