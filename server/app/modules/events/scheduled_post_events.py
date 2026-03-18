@@ -33,6 +33,15 @@ def register_scheduled_post_events():
         user_id = current_user_id.get()
         user_email = current_user_email.get()
 
+<<<<<<< HEAD
+        if target.publish_at:
+            published_task.apply_async(
+                args=[str(target.id), str(user_id), user_email],
+                eta=target.publish_at
+            )
+            print(f"⏰ Tâche planifiée à {target.publish_at} pour {target.id}")
+            
+=======
         # ✅ Planifier la nouvelle tâche
         result = published_task.apply_async( 
             args=[str(target.id), str(user_id), user_email],
@@ -46,3 +55,4 @@ def register_scheduled_post_events():
         )
 
         logger.info(f"⏰ Task scheduled at {target.publish_at} for post {target.id}")
+>>>>>>> main
