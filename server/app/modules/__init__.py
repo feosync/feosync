@@ -9,7 +9,7 @@ This package contains all the core modules used by the server application.
 #              ALLL ROUTER IMPORT
 # =====================================================================
 from app.modules.auth.router import auth_router
-from app.modules.ai.router import ai_router
+from app.modules.ai_generation.router import ai_router
 from app.modules.fb_page.router import fb_page_router
 from app.modules.notifications.router import notif_router
 from app.modules.organisations.router import organisation_router    
@@ -25,7 +25,7 @@ from app.modules.plans.model import Plan
 from app.modules.user.model import User   
 from app.modules.fb_page.model import Facebook , PageInsights
 from app.modules.whatsapp.whatsapp_model import Whatsapp
-from app.modules.ai.model import AiGeneration
+from app.modules.ai_generation.models.ai_generation_model import AiGeneration
 from app.modules.post_template.model import PostTemplate
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
 from app.modules.published_post.model import PublishedPost
