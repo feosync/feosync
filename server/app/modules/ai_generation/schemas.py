@@ -13,27 +13,18 @@ class AiContext(BaseModel):
     organisation_sector: str
     organisation_tone: str
     facebook_page_name: Optional[str] = None
-    facebook_page_id: Optional[str] = None
 
 
 class CaptionRequest(BaseModel):
     topic: str
-    additional_instructions: Optional[str] = None
     language: str = "fr"
     max_length: int = Field(default=280, le=2200)
+    additional_instructions: Optional[str] = None
 
 
 class ImageRequest(BaseModel):
     description: str
     style: str = "professional"
-
-
-class AiSuggestRequest(BaseModel):
-    """Utilisé dans PATCH /scheduled/{id}/ai-suggest"""
-    topic: str
-    generate_caption: bool = True
-    generate_image: bool = False
-    additional_instructions: Optional[str] = None
 
 
 class AiGenerationResponse(BaseModel):
@@ -51,18 +42,12 @@ class AiGenerationResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class AiSuggestionResponse(BaseModel):
-    scheduled_post_id: UUID
-    suggested_caption: Optional[str] = None
-    suggested_image_url: Optional[str] = None
-    caption_generation_id: Optional[UUID] = None
-    image_generation_id: Optional[UUID] = None
-
-
 class AiQuotaResponse(BaseModel):
     period: str
     caption_count: int
     image_count: int
     total_tokens: int
+    caption_limit: Optional[int] = None
+    image_limit: Optional[int] = None
 
     model_config = {"from_attributes": True}

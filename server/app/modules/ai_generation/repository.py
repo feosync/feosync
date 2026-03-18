@@ -47,10 +47,16 @@ class AiQuotaRepository:
         return quota
 
     @staticmethod
-    def increment(
-        db: Session, quota: AiQuota,
-        generation_type: str, tokens: int
-    ) -> None:
+    def get_current(db: Session, user_id: UUID, org_id: UUID) -> AiQuota | None:
+        period = datetime.now(timezone.utc).strftime("%Y-%m")
+        return db.query(AiQuota).filter(
+            AiQuota.user_id == user_id,
+            AiQuota.organisation_id == org_id,
+            AiQuota.period == period,
+        ).first()
+
+    @staticmethod
+    def increment(db: Session, quota: AiQuota, generation_type: str, tokens: int) -> None:
         if generation_type == AiGenerationType.CAPTION:
             quota.caption_count += 1
         else:

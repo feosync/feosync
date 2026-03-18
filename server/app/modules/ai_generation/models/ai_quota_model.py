@@ -1,6 +1,6 @@
 from __future__ import annotations
 from sqlalchemy import String, Integer, ForeignKey, DateTime, UniqueConstraint
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 from app.core.base import Base
 from uuid import UUID, uuid4

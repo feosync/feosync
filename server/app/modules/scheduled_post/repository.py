@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from uuid import UUID
+from datetime import datetime, timezone
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
 from app.modules.scheduled_post.models.scheduled_post_ai_image import ScheduledPostAiImage
-from datetime import datetime, timezone
 
 
 class ScheduledPostRepository:
@@ -31,7 +31,7 @@ class ScheduledPostRepository:
     @staticmethod
     def update(db: Session, post: ScheduledPost, data: dict) -> ScheduledPost:
         for key, value in data.items():
-            if hasattr(post, key) and value is not None:
+            if hasattr(post, key):
                 setattr(post, key, value)
         db.commit()
         db.refresh(post)
@@ -43,13 +43,12 @@ class ScheduledPostRepository:
         db.commit()
 
 
-class ScheduledPostAiImageRepository:
+class AiImageRepository:
 
     @staticmethod
-    def deactivate_all(db: Session, scheduled_post_id: UUID) -> None:
-        """Désactive toutes les images IA actives pour un post"""
+    def deactivate_all(db: Session, post_id: UUID) -> None:
         db.query(ScheduledPostAiImage).filter(
-            ScheduledPostAiImage.scheduled_post_id == scheduled_post_id,
+            ScheduledPostAiImage.scheduled_post_id == post_id,
             ScheduledPostAiImage.is_active == True,
         ).update({
             "is_active": False,
