@@ -18,3 +18,4 @@ def register_scheduled_post_events():
                 eta=target.publish_at
             )
             print(f"⏰ Tâche planifiée à {target.publish_at} pour {target.id}")
+            
