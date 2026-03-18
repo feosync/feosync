@@ -8,7 +8,7 @@ from app.modules.user.model import User
 from app.modules.ai_generation.schemas import (
     AiGenerationResponse, AiQuotaResponse,
 )
-from app.modules.ai_generation.llm_service import AiGenerationService
+
 from app.modules.ai_generation.repository import AiGenerationRepository, AiQuotaRepository
 
 ai_router = APIRouter()

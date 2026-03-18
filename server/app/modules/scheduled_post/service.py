@@ -1,9 +1,9 @@
 from __future__ import annotations
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, UploadFile
-from uuid import UUID
-import base64
+from uuid import UUID, uuid4
 
+from app.core.config import settings
 from app.modules.scheduled_post.models.scheduled_post_model import (
     ScheduledPost, PostStatus, ImageSource
 )
@@ -275,7 +275,7 @@ class ScheduledPostService:
         #     ScheduledPostRepository.update(db, post, {"status": PostStatus.DRAFT})
         #     raise HTTPException(status_code=500, detail=f"Scheduling failed: {e}")
 
-        # return post
+        return post
 
     # ── DELETE ────────────────────────────────────────────────────────────────
 
@@ -297,9 +297,29 @@ class ScheduledPostService:
 
 def _upload_file(contents: bytes, filename: str, org_id: UUID) -> str:
     """
-    Dev  → base64 data URL
+    Dev  → sauvegarde dans /static/uploads/ et retourne une URL publique
     Prod → Cloudinary/S3
     """
-    ext = filename.rsplit(".", 1)[-1] if "." in filename else "png"
-    b64 = base64.b64encode(contents).decode("utf-8")
-    return f"data:image/{ext};base64,{b64}"
+    import os
+    from pathlib import Path
+
+    # ── Dev : sauvegarde dans static/uploads ─────────────────────────────────
+    upload_dir = Path("app/static/uploads") / str(org_id)
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    ext = filename.rsplit(".", 1)[-1] if "." in filename else "jpg"
+    
+    unique_name = f"{uuid4()}.{ext}"
+    file_path = upload_dir / unique_name
+
+    with open(file_path, "wb") as f:
+        f.write(contents)
+
+    # ← URL publique accessible par Meta
+    base_url = settings.SERVER_URL  
+    return f"{base_url}/static/uploads/{org_id}/{unique_name}"
+
+    # ── Prod : Cloudinary ─────────────────────────────────────────────────────
+    # import cloudinary.uploader
+    # result = cloudinary.uploader.upload(contents, folder=f"feosync/{org_id}")
+    # return result["secure_url"]

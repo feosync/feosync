@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     # AI Generation limits
     AI_CAPTION_LIMIT_PER_MONTH: int | None = None
     AI_IMAGE_LIMIT_PER_MONTH: int | None = None
+
+    # Server URL
+    SERVER_URL: str | None = None
    
 
     @property

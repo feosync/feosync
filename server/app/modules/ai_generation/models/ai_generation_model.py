@@ -36,7 +36,7 @@ class AiGeneration(Base):
     output_data: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
 
     caption: Mapped[str | None] = mapped_column(Text, nullable=True)
-    image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     tokens_used: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     created_at: Mapped[datetime] = mapped_column(
