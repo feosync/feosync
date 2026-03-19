@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 210 3% 13%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 3% 13%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 3% 13%;
+
+    --primary: 217 82% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 17% 95%;
+    --secondary-foreground: 210 3% 13%;
+
+    --muted: 210 17% 95%;
+    --muted-foreground: 213 5% 39%;
+
+    --accent: 170 100% 37%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 216 14% 87%;
+    --input: 216 14% 87%;
+    --ring: 217 82% 50%;
+
+    --radius: 0.75rem;
+
+    /* AutoPost Pro custom tokens */
+    --google-blue: 217 82% 50%;
+    --google-teal: 170 100% 37%;
+    --google-green: 142 53% 43%;
+    --google-dark: 210 3% 13%;
+    --google-gray-ui: 213 5% 39%;
+    --google-gray-mid: 213 5% 62%;
+    --google-border: 216 14% 87%;
+    --google-bg-light: 210 17% 97%;
+    --google-bg-chip: 217 72% 93%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark {
+    --background: 222 14% 7%;
+    --foreground: 210 17% 90%;
+
+    --card: 222 14% 10%;
+    --card-foreground: 210 17% 90%;
+
+    --popover: 222 14% 10%;
+    --popover-foreground: 210 17% 90%;
+
+    --primary: 217 82% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 14% 15%;
+    --secondary-foreground: 210 17% 90%;
+
+    --muted: 222 14% 15%;
+    --muted-foreground: 213 5% 55%;
+
+    --accent: 170 100% 42%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 14% 18%;
+    --input: 222 14% 18%;
+    --ring: 217 82% 55%;
+
+    /* AutoPost Pro dark tokens */
+    --google-blue: 217 82% 55%;
+    --google-teal: 170 100% 42%;
+    --google-green: 142 53% 50%;
+    --google-dark: 210 17% 90%;
+    --google-gray-ui: 213 5% 70%;
+    --google-gray-mid: 213 5% 50%;
+    --google-border: 222 14% 18%;
+    --google-bg-light: 222 14% 10%;
+    --google-bg-chip: 217 50% 18%;
+
+    --sidebar-background: 222 14% 8%;
+    --sidebar-foreground: 210 17% 90%;
+    --sidebar-primary: 210 17% 90%;
+    --sidebar-primary-foreground: 222 14% 8%;
+    --sidebar-accent: 222 14% 13%;
+    --sidebar-accent-foreground: 210 17% 90%;
+    --sidebar-border: 222 14% 15%;
+    --sidebar-ring: 217 82% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+}
+
+@layer utilities {
+  .text-gradient-hero {
+    background: linear-gradient(135deg, #1A73E8 0%, #00BFA5 60%, #06FFA5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shadow-hero-card {
+    box-shadow: 0 8px 40px rgba(26, 115, 232, 0.12);
+  }
+}
