@@ -90,8 +90,8 @@ export interface Notification {
 // Mock current user
 export const mockCurrentUser: User = {
   id: uuidv4(),
-  name: 'Alex Johnson',
-  email: 'alex@feosync.com',
+  name: 'Anicet RANDRIANAMBININA',
+  email: 'anicet@feosync.com',
   avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
 };
 
