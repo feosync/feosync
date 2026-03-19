@@ -8,6 +8,7 @@ export interface AuthContextType {
   isLoading: boolean
   isAuthenticated: boolean
   googleLogin: (token: string) => Promise<void>
+  setUserFromToken: (token: string) => Promise<void>
   logout: () => Promise<void>
   error: string | null
 }
@@ -53,6 +54,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const setUserFromToken = useCallback(async (accessToken: string) => {
+    apiClient.setToken(accessToken)
+    try {
+      const currentUser = await apiClient.getCurrentUser()
+      setUser(currentUser)
+    } catch {
+      apiClient.clearToken()
+    }
+  }, [])
+
   const logout = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -69,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       isAuthenticated: !!user,
       googleLogin,
+      setUserFromToken,
       logout,
       error,
     }}>
