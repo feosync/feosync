@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.modules.auth.schemas import (
     GoogleTokenRequest,
+        GoogleCallbackRequest,
     LoginResponse,
     UserResponse,
     AuthError,
@@ -14,10 +15,12 @@ from app.modules.auth.schemas import (
 from app.modules.auth.service import AuthService
 from app.modules.auth.dependencies import get_current_user, get_active_user
 from app.modules.user.model import User
+from app.core.config import settings
+
+import httpx
 
 
 auth_router = APIRouter()
-
 
 @auth_router.post(
     "/google/auth",
@@ -75,6 +78,47 @@ async def google_auth(
             detail=f"Failed to authenticate user: {str(e)}",
         )
 
+
+
+
+
+
+
+@auth_router.post("/google/callback")
+async def google_callback(
+    request: GoogleCallbackRequest,
+    background_tasks: BackgroundTasks,   # ← ajoute ça
+    db: Session = Depends(get_db),
+):
+    async with httpx.AsyncClient() as client:
+        r = await client.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "code": request.code,
+                "client_id": settings.GOOGLE_CLIENT_ID,
+                "client_secret": settings.GOOGLE_CLIENT_SECRET,
+                "redirect_uri": request.redirect_uri,
+                "grant_type": "authorization_code",
+            }
+        )
+    token_data = r.json()
+    if "error" in token_data:
+        raise HTTPException(status_code=400, detail=token_data.get("error_description", "OAuth error"))
+
+    id_token = token_data.get("id_token")
+    google_user_info = AuthService.verify_google_token(id_token)
+    if not google_user_info:
+        raise HTTPException(status_code=401, detail="Token Google invalide")
+
+    user, access_token = AuthService.authenticate_google_user(
+        db, google_user_info, background_tasks  # ← passe ici
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": UserResponse.model_validate(user),
+    }
 
 @auth_router.get(
     "/me",

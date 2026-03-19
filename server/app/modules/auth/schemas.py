@@ -14,6 +14,9 @@ class GoogleTokenRequest(BaseModel):
                 "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEifQ..."
             }
         }
+class GoogleCallbackRequest(BaseModel):
+    code: str
+    redirect_uri: str
 
 
 class UserBase(BaseModel):
