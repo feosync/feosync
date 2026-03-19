@@ -92,7 +92,7 @@ export const mockCurrentUser: User = {
   id: uuidv4(),
   name: 'Anicet RANDRIANAMBININA',
   email: 'anicet@feosync.com',
-  avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
+  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocJokR2H29U_PN5Jees5Z0gJ-kqJAF84dqUP5nC4uzMakqz6fSfa=s96-c',
 };
 
 // Mock organizations
