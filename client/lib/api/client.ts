@@ -1,402 +1,234 @@
-// Typed API client with automatic Bearer token injection and error handling
-import type {
-  LoginRequest,
-  LoginResponse,
-  Organization,
-  CreateOrgRequest,
-  UpdateOrgRequest,
-  FacebookPage,
-  ConnectPageRequest,
-  Template,
-  CreateTemplateRequest,
-  Schedule,
-  CreateScheduleRequest,
-  ScheduledPost,
-  CreateScheduledPostRequest,
-  PublishedPost,
-  AIGeneratorRequest,
-  AIGeneratorResponse,
-  Notification,
-  AnalyticsData,
-  ApiResponse,
-  ApiError,
-} from './types';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export class ApiClient {
-  private static instance: ApiClient;
-  private token: string | null = null;
+  private static instance: ApiClient
+  private token: string | null = null
 
   private constructor() {
-    this.loadToken();
+    if (typeof window !== 'undefined') {
+      this.token = localStorage.getItem('feosync_token')
+    }
   }
 
   static getInstance(): ApiClient {
-    if (!ApiClient.instance) {
-      ApiClient.instance = new ApiClient();
-    }
-    return ApiClient.instance;
-  }
-
-  private loadToken(): void {
-    if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('auth_token');
-    }
+    if (!ApiClient.instance) ApiClient.instance = new ApiClient()
+    return ApiClient.instance
   }
 
   setToken(token: string): void {
-    this.token = token;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('auth_token', token);
-    }
+    this.token = token
+    if (typeof window !== 'undefined') localStorage.setItem('feosync_token', token)
   }
 
   clearToken(): void {
-    this.token = null;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth_token');
-    }
+    this.token = null
+    if (typeof window !== 'undefined') localStorage.removeItem('feosync_token')
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const headers: HeadersInit = {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
-    };
-
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+      ...(options.headers as Record<string, string> || {}),
     }
+    if (this.token) headers['Authorization'] = `Bearer ${this.token}`
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers })
+
+    if (response.status === 401) {
+      this.clearToken()
+      window.location.href = '/login'
+      throw new Error('Session expirée')
+    }
 
     if (!response.ok) {
-      const error: ApiError = {
-        message: 'API request failed',
-        code: 'API_ERROR',
-        statusCode: response.status,
-      };
-
-      try {
-        const errorData = await response.json();
-        error.message = errorData.error?.message || errorData.message || error.message;
-        error.code = errorData.error?.code || error.code;
-      } catch {
-        // Response is not JSON
-      }
-
-      throw error;
+      const err = await response.json().catch(() => ({ detail: 'Erreur inconnue' }))
+      throw new Error(err.detail || 'Erreur API')
     }
 
-    return response.json();
+    return response.json()
   }
 
-  // Auth endpoints
-  async login(data: LoginRequest): Promise<LoginResponse> {
-    const response = await this.request<ApiResponse<LoginResponse>>(
-      '/auth/login',
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }
-    );
-    if (response.data) {
-      this.setToken(response.data.token);
-    }
-    return response.data!;
-  }
+  // ── Auth ──────────────────────────────────────────────────────────────────
 
-  async googleLogin(token: string): Promise<LoginResponse> {
-    const response = await this.request<ApiResponse<LoginResponse>>(
-      '/auth/google',
-      {
-        method: 'POST',
-        body: JSON.stringify({ token }),
-      }
-    );
-    if (response.data) {
-      this.setToken(response.data.token);
-    }
-    return response.data!;
-  }
-
-  async logout(): Promise<void> {
-    try {
-      await this.request('/auth/logout', { method: 'POST' });
-    } finally {
-      this.clearToken();
-    }
+  async googleLogin(googleToken: string): Promise<{ access_token: string; user: any }> {
+    // POST /api/v1/auth/google/auth
+    const data = await this.request<{ access_token: string; token_type: string; user: any }>(
+      '/api/v1/auth/google/auth',
+      { method: 'POST', body: JSON.stringify({ token: googleToken }) }
+    )
+    this.setToken(data.access_token)
+    return data
   }
 
   async getCurrentUser(): Promise<any> {
-    const response = await this.request<ApiResponse<any>>('/auth/me');
-    return response.data;
+    return this.request('/api/v1/auth/me')
   }
 
-  // Organization endpoints
-  async getOrganizations(): Promise<Organization[]> {
-    const response = await this.request<ApiResponse<Organization[]>>(
-      '/organizations'
-    );
-    return response.data || [];
+  async logout(): Promise<void> {
+    try { await this.request('/api/v1/auth/logout', { method: 'POST' }) } finally {
+      this.clearToken()
+    }
   }
 
-  async getOrganization(id: string): Promise<Organization> {
-    const response = await this.request<ApiResponse<Organization>>(
-      `/organizations/${id}`
-    );
-    return response.data!;
+  // ── Organisations ─────────────────────────────────────────────────────────
+
+  async getOrganisations(): Promise<any[]> {
+    return this.request('/api/v1/org/')
   }
 
-  async createOrganization(data: CreateOrgRequest): Promise<Organization> {
-    const response = await this.request<ApiResponse<Organization>>(
-      '/organizations',
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }
-    );
-    return response.data!;
+  async createOrganisation(data: any): Promise<any> {
+    return this.request('/api/v1/org/', { method: 'POST', body: JSON.stringify(data) })
   }
 
-  async updateOrganization(
-    id: string,
-    data: UpdateOrgRequest
-  ): Promise<Organization> {
-    const response = await this.request<ApiResponse<Organization>>(
-      `/organizations/${id}`,
-      {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      }
-    );
-    return response.data!;
+  async updateOrganisation(id: string, data: any): Promise<any> {
+    return this.request(`/api/v1/org/${id}`, { method: 'PATCH', body: JSON.stringify(data) })
   }
 
-  async deleteOrganization(id: string): Promise<void> {
-    await this.request(`/organizations/${id}`, { method: 'DELETE' });
+  async deleteOrganisation(id: string): Promise<void> {
+    await this.request(`/api/v1/org/${id}`, { method: 'DELETE' })
   }
 
-  // Facebook Pages endpoints
-  async getFacebookPages(orgId: string): Promise<FacebookPage[]> {
-    const response = await this.request<ApiResponse<FacebookPage[]>>(
-      `/organizations/${orgId}/pages`
-    );
-    return response.data || [];
+  // ── Facebook Pages ────────────────────────────────────────────────────────
+
+  async getFacebookPages(orgId: string): Promise<any[]> {
+    return this.request(`/api/v1/fb/?org_id=${orgId}`)
   }
 
-  async connectFacebookPage(
-    orgId: string,
-    data: ConnectPageRequest
-  ): Promise<FacebookPage> {
-    const response = await this.request<ApiResponse<FacebookPage>>(
-      `/organizations/${orgId}/pages`,
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }
-    );
-    return response.data!;
+  async getFacebookOAuthUrl(orgId: string): Promise<{ oauth_url: string }> {
+    return this.request(`/api/v1/fb/oauth/url?org_id=${orgId}`)
   }
 
-  async togglePageActive(
-    orgId: string,
-    pageId: string,
-    isActive: boolean
-  ): Promise<FacebookPage> {
-    const response = await this.request<ApiResponse<FacebookPage>>(
-      `/organizations/${orgId}/pages/${pageId}`,
-      {
-        method: 'PATCH',
-        body: JSON.stringify({ isActive }),
-      }
-    );
-    return response.data!;
+  async connectFacebookPage(data: any): Promise<any> {
+    return this.request('/api/v1/fb/connect', { method: 'POST', body: JSON.stringify(data) })
   }
 
-  async deleteFacebookPage(orgId: string, pageId: string): Promise<void> {
-    await this.request(
-      `/organizations/${orgId}/pages/${pageId}`,
-      { method: 'DELETE' }
-    );
+  async toggleFacebookPage(pageId: string, orgId: string): Promise<any> {
+    return this.request(`/api/v1/fb/${pageId}/toggle?org_id=${orgId}`, { method: 'PATCH' })
   }
 
-  // Template endpoints
-  async getTemplates(orgId: string): Promise<Template[]> {
-    const response = await this.request<ApiResponse<Template[]>>(
-      `/organizations/${orgId}/templates`
-    );
-    return response.data || [];
+  async disconnectFacebookPage(pageId: string, orgId: string): Promise<void> {
+    await this.request(`/api/v1/fb/${pageId}?org_id=${orgId}`, { method: 'DELETE' })
   }
 
-  async createTemplate(
-    orgId: string,
-    data: CreateTemplateRequest
-  ): Promise<Template> {
-    const response = await this.request<ApiResponse<Template>>(
-      `/organizations/${orgId}/templates`,
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }
-    );
-    return response.data!;
+  async syncInsights(pageId: string, orgId: string): Promise<any> {
+    return this.request(`/api/v1/fb/${pageId}/insights/sync?org_id=${orgId}`, { method: 'POST' })
   }
 
-  async updateTemplate(
-    orgId: string,
-    templateId: string,
-    data: Partial<CreateTemplateRequest>
-  ): Promise<Template> {
-    const response = await this.request<ApiResponse<Template>>(
-      `/organizations/${orgId}/templates/${templateId}`,
-      {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      }
-    );
-    return response.data!;
+  async getInsights(pageId: string, orgId: string): Promise<any[]> {
+    return this.request(`/api/v1/fb/${pageId}/insights?org_id=${orgId}`)
   }
 
-  async deleteTemplate(orgId: string, templateId: string): Promise<void> {
-    await this.request(
-      `/organizations/${orgId}/templates/${templateId}`,
-      { method: 'DELETE' }
-    );
+  // ── Scheduled Posts ───────────────────────────────────────────────────────
+
+  async getScheduledPosts(orgId: string): Promise<any[]> {
+    return this.request(`/api/v1/scheduled/org/${orgId}`)
   }
 
-  // Schedule endpoints
-  async getSchedules(orgId: string): Promise<Schedule[]> {
-    const response = await this.request<ApiResponse<Schedule[]>>(
-      `/organizations/${orgId}/schedules`
-    );
-    return response.data || [];
+  async createScheduledPost(data: any): Promise<any> {
+    return this.request('/api/v1/scheduled/', { method: 'POST', body: JSON.stringify(data) })
   }
 
-  async createSchedule(
-    orgId: string,
-    data: CreateScheduleRequest
-  ): Promise<Schedule> {
-    const response = await this.request<ApiResponse<Schedule>>(
-      `/organizations/${orgId}/schedules`,
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }
-    );
-    return response.data!;
+  async patchCaption(postId: string, data: any): Promise<any> {
+    return this.request(`/api/v1/scheduled/${postId}/caption`, { method: 'PATCH', body: JSON.stringify(data) })
   }
 
-  async deleteSchedule(orgId: string, scheduleId: string): Promise<void> {
-    await this.request(
-      `/organizations/${orgId}/schedules/${scheduleId}`,
-      { method: 'DELETE' }
-    );
+  async patchImage(postId: string, data: any): Promise<any> {
+    return this.request(`/api/v1/scheduled/${postId}/image`, { method: 'PATCH', body: JSON.stringify(data) })
   }
 
-  // Scheduled Posts endpoints
-  async getScheduledPosts(orgId: string): Promise<ScheduledPost[]> {
-    const response = await this.request<ApiResponse<ScheduledPost[]>>(
-      `/organizations/${orgId}/scheduled-posts`
-    );
-    return response.data || [];
+  async uploadImage(postId: string, file: File): Promise<any> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const headers: Record<string, string> = {}
+    if (this.token) headers['Authorization'] = `Bearer ${this.token}`
+    const response = await fetch(`${API_BASE_URL}/api/v1/scheduled/${postId}/image/upload`, {
+      method: 'PATCH', body: formData, headers
+    })
+    if (!response.ok) throw new Error('Upload échoué')
+    return response.json()
   }
 
-  async createScheduledPost(
-    orgId: string,
-    data: CreateScheduledPostRequest
-  ): Promise<ScheduledPost> {
-    const response = await this.request<ApiResponse<ScheduledPost>>(
-      `/organizations/${orgId}/scheduled-posts`,
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }
-    );
-    return response.data!;
+  async confirmScheduledPost(postId: string, data: any): Promise<any> {
+    return this.request(`/api/v1/scheduled/${postId}/confirm`, { method: 'PATCH', body: JSON.stringify(data) })
   }
 
-  async deleteScheduledPost(orgId: string, postId: string): Promise<void> {
-    await this.request(
-      `/organizations/${orgId}/scheduled-posts/${postId}`,
-      { method: 'DELETE' }
-    );
+  async deleteScheduledPost(postId: string): Promise<void> {
+    await this.request(`/api/v1/scheduled/${postId}`, { method: 'DELETE' })
   }
 
-  // Published Posts endpoints
-  async getPublishedPosts(orgId: string): Promise<PublishedPost[]> {
-    const response = await this.request<ApiResponse<PublishedPost[]>>(
-      `/organizations/${orgId}/published-posts`
-    );
-    return response.data || [];
+  // ── Published Posts ───────────────────────────────────────────────────────
+
+  async getPublishedPosts(orgId: string): Promise<any[]> {
+    return this.request(`/api/v1/published/org/${orgId}`)
   }
 
-  async publishPost(orgId: string, scheduledPostId: string): Promise<PublishedPost> {
-    const response = await this.request<ApiResponse<PublishedPost>>(
-      `/organizations/${orgId}/scheduled-posts/${scheduledPostId}/publish`,
-      { method: 'POST' }
-    );
-    return response.data!;
+  async publishPost(scheduledPostId: string): Promise<any> {
+    return this.request('/api/v1/published/publish', {
+      method: 'POST',
+      body: JSON.stringify({ scheduled_post_id: scheduledPostId })
+    })
   }
 
-  async deletePublishedPost(orgId: string, postId: string): Promise<void> {
-    await this.request(
-      `/organizations/${orgId}/published-posts/${postId}`,
-      { method: 'DELETE' }
-    );
+  async syncMetrics(postId: string): Promise<any> {
+    return this.request(`/api/v1/published/${postId}/sync-metrics`, { method: 'POST' })
   }
 
-  // AI Generator endpoint
-  async generateContent(
-    orgId: string,
-    data: AIGeneratorRequest
-  ): Promise<AIGeneratorResponse> {
-    const response = await this.request<ApiResponse<AIGeneratorResponse>>(
-      `/organizations/${orgId}/ai/generate`,
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }
-    );
-    return response.data!;
+  // ── AI ────────────────────────────────────────────────────────────────────
+
+  async getAiHistory(orgId: string): Promise<any[]> {
+    return this.request(`/api/v1/ai/history/${orgId}`)
   }
 
-  // Notifications endpoints
-  async getNotifications(): Promise<Notification[]> {
-    const response = await this.request<ApiResponse<Notification[]>>(
-      '/notifications'
-    );
-    return response.data || [];
+  async getAiQuota(orgId: string): Promise<any> {
+    return this.request(`/api/v1/ai/quota?org_id=${orgId}`)
   }
 
-  async markNotificationRead(notificationId: string): Promise<Notification> {
-    const response = await this.request<ApiResponse<Notification>>(
-      `/notifications/${notificationId}/read`,
-      { method: 'PATCH' }
-    );
-    return response.data!;
+  // ── Notifications ─────────────────────────────────────────────────────────
+
+  async getNotifications(unreadOnly = false): Promise<any[]> {
+    return this.request(`/api/v1/notif/?unread_only=${unreadOnly}`)
   }
 
-  async deleteNotification(notificationId: string): Promise<void> {
-    await this.request(`/notifications/${notificationId}`, {
-      method: 'DELETE',
-    });
+  async getNotificationSummary(): Promise<{ total: number; unread: number }> {
+    return this.request('/api/v1/notif/summary')
   }
 
-  // Analytics endpoint
-  async getAnalytics(orgId: string): Promise<AnalyticsData> {
-    const response = await this.request<ApiResponse<AnalyticsData>>(
-      `/organizations/${orgId}/analytics`
-    );
-    return response.data!;
+  async markNotificationRead(id: string): Promise<any> {
+    return this.request(`/api/v1/notif/${id}/read`, { method: 'PATCH' })
+  }
+
+  async markAllNotificationsRead(): Promise<void> {
+    await this.request('/api/v1/notif/read-all', { method: 'PATCH' })
+  }
+
+  async deleteNotification(id: string): Promise<void> {
+    await this.request(`/api/v1/notif/${id}`, { method: 'DELETE' })
+  }
+
+  // ── Templates ─────────────────────────────────────────────────────────────
+
+  async getTemplates(orgId: string): Promise<any[]> {
+    return this.request(`/api/v1/post-template/available/${orgId}`)
+  }
+
+  async createTemplate(data: any): Promise<any> {
+    return this.request('/api/v1/post-template/', { method: 'POST', body: JSON.stringify(data) })
+  }
+
+  async updateTemplate(id: string, data: any): Promise<any> {
+    return this.request(`/api/v1/post-template/${id}`, { method: 'PATCH', body: JSON.stringify(data) })
+  }
+
+  async deleteTemplate(id: string): Promise<void> {
+    await this.request(`/api/v1/post-template/${id}`, { method: 'DELETE' })
+  }
+
+  // ── Post Analytics ────────────────────────────────────────────────────────
+
+  async getAnalyticsByOrg(orgId: string): Promise<any[]> {
+    return this.request(`/api/v1/post-analytics/all_post/${orgId}`)
   }
 }
 
-export const apiClient = ApiClient.getInstance();
+export const apiClient = ApiClient.getInstance()
+export const isUsingMockApi = () => false  // ← plus de mock
