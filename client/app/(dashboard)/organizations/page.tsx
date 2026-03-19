@@ -39,7 +39,6 @@ export default function OrganisationsPage() {
   }
 
   const handleDelete = (id: string) => {
-    if (!confirm('Supprimer cette organisation ?')) return
     deleteMutation.mutate(id)
   }
 

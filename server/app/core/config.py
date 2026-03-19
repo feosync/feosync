@@ -38,8 +38,9 @@ class Settings(BaseSettings):
     AI_CAPTION_LIMIT_PER_MONTH: int | None = None
     AI_IMAGE_LIMIT_PER_MONTH: int | None = None
 
-    # Server URL
+    # URL
     SERVER_URL: str | None = None
+    FRONTEND_URL: str | None = None
    
 
     @property
