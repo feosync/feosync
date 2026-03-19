@@ -47,9 +47,7 @@ export default function AuthCallbackPage() {
       if (!response.ok) throw new Error('Échec de l\'authentification')
 
       const data = await response.json()
-      // data = { access_token, token_type, user }
-
-      // ✅ setUserFromToken — stocke le token FeoSync + charge le profil
+      
       await setUserFromToken(data.access_token)
 
       toast({ title: 'Connexion réussie', description: `Bienvenue ${data.user.name} !` })
