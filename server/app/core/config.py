@@ -17,6 +17,7 @@ class Settings(BaseSettings):
 
     # Google OAuth settings
     GOOGLE_CLIENT_ID: str | None = None
+    GOOGLE_CLIENT_SECRET: str | None = None
     
     # Secret key for JWT or other purposes
     SECRET_KEY: str | None = None
