@@ -60,7 +60,7 @@ export function AppNavbar() {
         <span className="font-bold text-blue-600 md:hidden flex-1 text-center">FeoSync</span>
 
         <div className="flex items-center gap-2 ml-auto">
-          <Link href="/dashboard/notifications">
+          <Link href="/notifications">
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
@@ -90,7 +90,7 @@ export function AppNavbar() {
                 <p className="text-xs text-slate-500">{user.email}</p>
               </div>
               <DropdownMenuSeparator />
-              <Link href="/dashboard/settings">
+              <Link href="/settings">
                 <DropdownMenuItem className="cursor-pointer">Paramètres</DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />

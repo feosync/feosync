@@ -16,35 +16,35 @@ export const NAVIGATION_ITEMS = [
   {
     section: 'Main',
     items: [
-      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'Tableau de bord', href: '/overview', icon: LayoutDashboard },
     ],
   },
   {
     section: 'Management',
     items: [
-      { label: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
-      { label: 'Facebook Pages', href: '/dashboard/pages', icon: Facebook },
+      { label: 'Organizations', href: '/organizations', icon: Building2 },
+      { label: 'Facebook Pages', href: '/pages', icon: Facebook },
     ],
   },
   {
     section: 'Content',
     items: [
-      { label: 'AI Generator', href: '/dashboard/ai-generator', icon: Sparkles },
-      { label: 'Templates', href: '/dashboard/templates', icon: BookMarked },
-      { label: 'Scheduler', href: '/dashboard/scheduler', icon: Clock },
+      { label: 'AI Generator', href: '/ai-generator', icon: Sparkles },
+      { label: 'Templates', href: '/templates', icon: BookMarked },
+      { label: 'Scheduler', href: '/scheduler', icon: Clock },
     ],
   },
   {
     section: 'Publishing',
     items: [
-      { label: 'Scheduled Posts', href: '/dashboard/scheduled-posts', icon: CheckCircle2 },
-      { label: 'Published Posts', href: '/dashboard/published-posts', icon: TrendingUp },
+      { label: 'Scheduled Posts', href: '/scheduled-posts', icon: CheckCircle2 },
+      { label: 'Published Posts', href: '/published-posts', icon: TrendingUp },
     ],
   },
   {
     section: 'Analytics',
     items: [
-      { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
+      { label: 'Analytics', href: '/analytics', icon: TrendingUp },
     ],
   },
 
