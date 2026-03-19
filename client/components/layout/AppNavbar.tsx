@@ -77,7 +77,7 @@ export function AppNavbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="p-0 h-auto">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={user.profile_picture} alt={user.name} />
                   <AvatarFallback>
                     {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                   </AvatarFallback>
