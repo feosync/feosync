@@ -89,7 +89,10 @@ class FacebookService:
                     "fields": "id,name,access_token",
                 },
             )
+        
+        
         FacebookService._raise_if_meta_error(r.json(), "Récupération des pages échouée")
+
         return r.json().get("data", [])
 
     # ── CRUD Pages ────────────────────────────────────────────────────────────
