@@ -1,125 +1,90 @@
-'use client';
+'use client'
 
-import { createContext, useCallback, useState, useEffect } from 'react';
-import { apiClient, isUsingMockApi } from '@/lib/api';
-import { authService } from '@/lib/services';
-import type { User } from '@/lib/api/types';
+import { createContext, useCallback, useState, useEffect } from 'react'
+import { apiClient } from '@/lib/api/client'
 
 export interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  googleLogin: (token: string) => Promise<void>;
-  logout: () => Promise<void>;
-  error: string | null;
+  user: any | null
+  isLoading: boolean
+  isAuthenticated: boolean
+  googleLogin: (token: string) => Promise<void>
+  setUserFromToken: (token: string) => Promise<void>
+  logout: () => Promise<void>
+  error: string | null
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const useMockApi = isUsingMockApi();
+  const [user, setUser] = useState<any | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
+  // Restaure la session au chargement si token présent
   useEffect(() => {
-    // Check if user is already logged in
     const checkAuth = async () => {
+      const token = localStorage.getItem('feosync_token')
+      if (!token) { setIsLoading(false); return }
       try {
-        setError(null);
-        if (useMockApi) {
-          const currentUser = await authService.getCurrentUser();
-          setUser(currentUser as any);
-        } else {
-          const currentUser = await apiClient.getCurrentUser();
-          setUser(currentUser);
-        }
-      } catch (err) {
-        console.error('[v0] Auth check failed:', err);
-        setUser(null);
+        const currentUser = await apiClient.getCurrentUser()
+        setUser(currentUser)
+      } catch {
+        apiClient.clearToken()
+        setUser(null)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
-    checkAuth();
-  }, [useMockApi]);
-
-  const login = useCallback(async (email: string, password: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      if (useMockApi) {
-        const response = await authService.login({ email, password });
-        authService.setAuthToken(response.token);
-        setUser(response.user as any);
-      } else {
-        const response = await apiClient.login({ email, password });
-        setUser(response.user);
-      }
-    } catch (err: any) {
-      const message = err.message || 'Login failed';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
     }
-  }, [useMockApi]);
+    checkAuth()
+  }, [])
 
-  const googleLogin = useCallback(async (token: string) => {
-    setIsLoading(true);
-    setError(null);
+  const googleLogin = useCallback(async (googleToken: string) => {
+    setIsLoading(true)
+    setError(null)
     try {
-      if (useMockApi) {
-        const response = await authService.googleLogin(token);
-        authService.setAuthToken(response.token);
-        setUser(response.user as any);
-      } else {
-        const response = await apiClient.googleLogin(token);
-        setUser(response.user);
-      }
+      // Appelle POST /api/v1/auth/google/auth
+      // Stocke access_token dans localStorage automatiquement via apiClient.setToken()
+      const response = await apiClient.googleLogin(googleToken)
+      setUser(response.user)
     } catch (err: any) {
-      const message = err.message || 'Google login failed';
-      setError(message);
-      throw err;
+      setError(err.message || 'Échec de la connexion Google')
+      throw err
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [useMockApi]);
+  }, [])
+
+  const setUserFromToken = useCallback(async (accessToken: string) => {
+    apiClient.setToken(accessToken)
+    try {
+      const currentUser = await apiClient.getCurrentUser()
+      setUser(currentUser)
+    } catch {
+      apiClient.clearToken()
+    }
+  }, [])
 
   const logout = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
     try {
-      if (useMockApi) {
-        await authService.logout();
-        authService.clearAuthToken();
-      } else {
-        await apiClient.logout();
-      }
-      setUser(null);
-    } catch (err: any) {
-      const message = err.message || 'Logout failed';
-      setError(message);
-      throw err;
+      await apiClient.logout()
     } finally {
-      setIsLoading(false);
+      setUser(null)
+      setIsLoading(false)
     }
-  }, [useMockApi]);
+  }, [])
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        isAuthenticated: !!user,
-        login,
-        googleLogin,
-        logout,
-        error,
-      }}
-    >
+    <AuthContext.Provider value={{
+      user,
+      isLoading,
+      isAuthenticated: !!user,
+      googleLogin,
+      setUserFromToken,
+      logout,
+      error,
+    }}>
       {children}
     </AuthContext.Provider>
-  );
+  )
 }
