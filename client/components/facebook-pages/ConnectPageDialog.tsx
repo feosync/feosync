@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select'
 import { Loader2, ExternalLink } from 'lucide-react'
 import { apiClient } from '@/lib/api/client'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import type { Organisation } from '@/lib/api/types'
 
 interface ConnectPageDialogProps {
@@ -22,22 +22,16 @@ interface ConnectPageDialogProps {
 export function ConnectPageDialog({ open, onOpenChange, organisations }: ConnectPageDialogProps) {
   const [orgId, setOrgId] = useState('')
   const [loading, setLoading] = useState(false)
-  const { toast } = useToast()
 
   const handleConnect = async () => {
     if (!orgId) return
     setLoading(true)
     try {
-      // 1. Récupère l'URL OAuth Meta
       const { oauth_url } = await apiClient.getFacebookOAuthUrl(orgId)
-
-      // 2. Stocke l'orgId pour le callback
       sessionStorage.setItem('fb_oauth_org_id', orgId)
-
-      // 3. Redirige vers Meta — toute la page change
       window.location.href = oauth_url
     } catch (err: any) {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' })
+      toast.error('Erreur', { description: err.message })
       setLoading(false)
     }
   }
@@ -71,7 +65,6 @@ export function ConnectPageDialog({ open, onOpenChange, organisations }: Connect
             </Select>
           </div>
 
-          {/* Info box */}
           <div className="bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 rounded-lg p-3 text-xs text-blue-700 dark:text-blue-300 space-y-1">
             <p className="font-medium">Comment ça fonctionne :</p>
             <ol className="list-decimal list-inside space-y-0.5 text-blue-600 dark:text-blue-400">

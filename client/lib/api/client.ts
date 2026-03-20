@@ -123,6 +123,9 @@ export class ApiClient {
   async getScheduledPosts(orgId: string): Promise<any[]> {
     return this.request(`/api/v1/scheduled/org/${orgId}`)
   }
+  async getScheduledPostById(postId: string): Promise<any> {
+    return this.request(`/api/v1/scheduled/${postId}`)
+  }
 
   async createScheduledPost(data: any): Promise<any> {
     return this.request('/api/v1/scheduled/', { method: 'POST', body: JSON.stringify(data) })
