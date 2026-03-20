@@ -32,7 +32,7 @@ class User(Base):
 
     # un utilisateur peut avoir plusieurs organisations
     organisations: Mapped[list["Organisation"]] = relationship(
-        "Organisation", back_populates="user"
+        "Organisation", back_populates="user", cascade="all, delete-orphan"
     )
 
     refresh_tokens: Mapped[list["FreshToken"]] = relationship(

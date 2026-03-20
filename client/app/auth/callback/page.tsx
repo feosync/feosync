@@ -3,21 +3,20 @@
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { setUserFromToken } = useAuth()  // ← plus googleLogin
-  const { toast } = useToast()
+  const { setUserFromToken } = useAuth()
 
   useEffect(() => {
     const code = searchParams.get('code')
     const error = searchParams.get('error')
 
     if (error) {
-      toast({ title: 'Connexion annulée', variant: 'destructive' })
+      toast.error('Connexion annulée')
       router.replace('/login')
       return
     }
@@ -47,14 +46,13 @@ export default function AuthCallbackPage() {
       if (!response.ok) throw new Error('Échec de l\'authentification')
 
       const data = await response.json()
-      
       await setUserFromToken(data.access_token)
 
-      toast({ title: 'Connexion réussie', description: `Bienvenue ${data.user.name} !` })
+      toast.success('Connexion réussie', { description: `Bienvenue ${data.user.name} !` })
       router.replace('/overview')
 
     } catch (err: any) {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' })
+      toast.error('Erreur', { description: err.message })
       router.replace('/login')
     }
   }

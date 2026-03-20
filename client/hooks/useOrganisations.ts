@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
-import { toast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import type { Organisation, CreateOrgRequest, UpdateOrgRequest } from '@/lib/api/types'
 
 const QUERY_KEY = ['organisations']
@@ -9,7 +9,7 @@ export function useOrganisations() {
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: () => apiClient.getOrganisations(),
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 60 * 2,
   })
 }
 
@@ -19,12 +19,11 @@ export function useCreateOrganisation() {
   return useMutation({
     mutationFn: (data: CreateOrgRequest) => apiClient.createOrganisation(data),
     onSuccess: (newOrg) => {
-      // Mise à jour optimiste du cache — pas de refetch
       queryClient.setQueryData<Organisation[]>(QUERY_KEY, (prev = []) => [...prev, newOrg])
-      toast({ title: 'Organisation créée', description: newOrg.name })
+      toast.success('Organisation créée', { description: newOrg.name })
     },
     onError: (err: any) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' })
+      toast.error('Erreur', { description: err.message })
     },
   })
 }
@@ -39,10 +38,10 @@ export function useUpdateOrganisation() {
       queryClient.setQueryData<Organisation[]>(QUERY_KEY, (prev = []) =>
         prev.map(o => o.id === updated.id ? updated : o)
       )
-      toast({ title: 'Organisation mise à jour' })
+      toast.success('Organisation mise à jour')
     },
     onError: (err: any) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' })
+      toast.error('Erreur', { description: err.message })
     },
   })
 }
@@ -56,10 +55,10 @@ export function useDeleteOrganisation() {
       queryClient.setQueryData<Organisation[]>(QUERY_KEY, (prev = []) =>
         prev.filter(o => o.id !== id)
       )
-      toast({ title: 'Organisation supprimée' })
+      toast.success('Organisation supprimée')
     },
     onError: (err: any) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' })
+      toast.error('Erreur', { description: err.message })
     },
   })
 }
