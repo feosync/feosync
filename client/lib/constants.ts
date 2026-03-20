@@ -31,13 +31,13 @@ export const NAVIGATION_ITEMS = [
     items: [
       { label: 'AI Generator', href: '/ai-generator', icon: Sparkles },
       { label: 'Templates', href: '/templates', icon: BookMarked },
-      { label: 'Scheduler', href: '/scheduler', icon: Clock },
+  
     ],
   },
   {
     section: 'Publishing',
     items: [
-      { label: 'Scheduled Posts', href: '/scheduled-posts', icon: CheckCircle2 },
+      { label: 'Scheduler', href: '/posts', icon: CheckCircle2 },
       { label: 'Published Posts', href: '/published-posts', icon: TrendingUp },
     ],
   },

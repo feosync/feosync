@@ -18,7 +18,7 @@ class PostAnalytics(Base):
         ForeignKey("published_posts.id"), nullable=False
     )
     published_post = relationship(
-        "PublishedPost", back_populates="post_analytics"   , cascade="all, delete-orphan"
+        "PublishedPost", back_populates="post_analytics"   
     )
 
     mesured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

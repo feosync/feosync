@@ -43,5 +43,5 @@ class AiGeneration(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
-    organisation = relationship("Organisation", back_populates="ai_generations", cascade="all, delete-orphan")
-    post_ai_images = relationship("ScheduledPostAiImage", back_populates="ai_generation", cascade="all, delete-orphan")
+    organisation = relationship("Organisation", back_populates="ai_generations")
+    post_ai_images = relationship("ScheduledPostAiImage", back_populates="ai_generation")

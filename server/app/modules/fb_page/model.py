@@ -21,7 +21,7 @@ class Facebook(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     organisation_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False)
-    organisation = relationship("Organisation", back_populates="facebook_pages", cascade="all, delete-orphan")
+    organisation = relationship("Organisation", back_populates="facebook_pages")
 
     page_insights = relationship("PageInsights", back_populates="fb_page", cascade="all, delete-orphan")
     published_posts = relationship("PublishedPost", back_populates="facebook_page", cascade="all, delete-orphan")
@@ -39,4 +39,4 @@ class PageInsights(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
 
     fb_page_id: Mapped[UUID] = mapped_column(ForeignKey("facebook_pages.id"), nullable=False)
-    fb_page = relationship("Facebook", back_populates="page_insights", cascade="all, delete-orphan")
+    fb_page = relationship("Facebook", back_populates="page_insights")

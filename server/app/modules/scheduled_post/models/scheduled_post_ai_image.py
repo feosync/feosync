@@ -23,8 +23,8 @@ class ScheduledPostAiImage(Base):
     )
     ai_gen_id: Mapped[UUID] = mapped_column(ForeignKey("ai_generation.id"), nullable=False)
 
-    scheduled_post = relationship("ScheduledPost", back_populates="ai_images", cascade="all, delete-orphan")
-    ai_generation = relationship("AiGeneration", back_populates="post_ai_images", cascade="all, delete-orphan")
+    scheduled_post = relationship("ScheduledPost", back_populates="ai_images")
+    ai_generation = relationship("AiGeneration", back_populates="post_ai_images")
 
     __table_args__ = (
         Index(
