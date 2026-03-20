@@ -130,7 +130,7 @@ export class ApiClient {
   async createScheduledPost(data: any): Promise<any> {
     return this.request('/api/v1/scheduled/', { method: 'POST', body: JSON.stringify(data) })
   }
-
+  
   async patchCaption(postId: string, data: any): Promise<any> {
     return this.request(`/api/v1/scheduled/${postId}/caption`, { method: 'PATCH', body: JSON.stringify(data) })
   }
@@ -165,12 +165,22 @@ export class ApiClient {
     return this.request(`/api/v1/published/org/${orgId}`)
   }
 
+
+  async getPublishedPostById(postId: string): Promise<any> {
+    return this.request(`/api/v1/published/${postId}`)
+  }
+
+  async deletePublishedPost(postId: string): Promise<void> {
+      await this.request(`/api/v1/published/${postId}`, { method: 'DELETE' })
+  }
   async publishPost(scheduledPostId: string): Promise<any> {
     return this.request('/api/v1/published/publish', {
       method: 'POST',
       body: JSON.stringify({ scheduled_post_id: scheduledPostId })
     })
   }
+
+
 
   async syncMetrics(postId: string): Promise<any> {
     return this.request(`/api/v1/published/${postId}/sync-metrics`, { method: 'POST' })
@@ -218,12 +228,17 @@ export class ApiClient {
     return this.request('/api/v1/post-template/', { method: 'POST', body: JSON.stringify(data) })
   }
 
-  async updateTemplate(id: string, data: any): Promise<any> {
-    return this.request(`/api/v1/post-template/${id}`, { method: 'PATCH', body: JSON.stringify(data) })
+  async updateTemplate(id: string, orgId: string, data: any): Promise<any> {
+    return this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    })
   }
 
-  async deleteTemplate(id: string): Promise<void> {
-    await this.request(`/api/v1/post-template/${id}`, { method: 'DELETE' })
+  async deleteTemplate(id: string, orgId: string): Promise<void> {
+    await this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, {
+      method: 'DELETE'
+    })
   }
 
   // ── Post Analytics ────────────────────────────────────────────────────────

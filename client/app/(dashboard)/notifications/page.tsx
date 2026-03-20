@@ -1,174 +1,174 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Trash2, CheckCircle2 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/hooks/useAuth';
-import { notificationService } from '@/lib/services';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { formatDateTime } from '@/lib/utils';
-import { STATUS_COLORS } from '@/lib/constants';
-import type { Notification } from '@/lib/mockData';
+import { useState } from 'react'
+import { Bell, Trash2, CheckCheck, Filter, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
+import { cn } from '@/lib/utils'
+import {
+  useNotifications,
+  useMarkNotificationRead,
+  useMarkAllRead,
+  useDeleteNotification,
+} from '@/hooks/useNotifications'
+import type { Notification, NotificationType } from '@/lib/api/types'
+
+const TYPE_CONFIG: Record<NotificationType, { icon: string; color: string }> = {
+  post_published:   { icon: '✅', color: 'bg-green-50  dark:bg-green-950/50'  },
+  post_failed:      { icon: '❌', color: 'bg-red-50    dark:bg-red-950/50'    },
+  insights_updated: { icon: '📊', color: 'bg-blue-50   dark:bg-blue-950/50'   },
+  token_expiring:   { icon: '⚠️', color: 'bg-amber-50  dark:bg-amber-950/50'  },
+  welcome:          { icon: '👋', color: 'bg-indigo-50 dark:bg-indigo-950/50' },
+  schedule_created: { icon: '📅', color: 'bg-slate-50  dark:bg-slate-800/50'  },
+}
 
 export default function NotificationsPage() {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [unreadOnly, setUnreadOnly] = useState(false)
 
-  useEffect(() => {
-    loadNotifications();
-  }, [user]);
+  const { data: notifications = [], isLoading } = useNotifications(unreadOnly)
+  const markReadMutation = useMarkNotificationRead()
+  const markAllMutation  = useMarkAllRead()
+  const deleteMutation   = useDeleteNotification()
 
-  const loadNotifications = async () => {
-    try {
-      setIsLoading(true);
-      const data = await notificationService.getNotificationsByUser(user?.id || '');
-      setNotifications(data);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleMarkAsRead = async (id: string) => {
-    try {
-      const updated = await notificationService.markAsRead(id);
-      if (updated) {
-        setNotifications(
-          notifications.map((n) => (n.id === id ? updated : n))
-        );
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to mark as read',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleMarkAllAsRead = async () => {
-    try {
-      await notificationService.markAllAsRead(user?.id || '');
-      setNotifications(notifications.map((n) => ({ ...n, read: true })));
-      toast({
-        title: 'Success',
-        description: 'All notifications marked as read',
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to mark all as read',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await notificationService.deleteNotification(id);
-      setNotifications(notifications.filter((n) => n.id !== id));
-      toast({
-        title: 'Success',
-        description: 'Notification deleted',
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to delete notification',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.is_read).length
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-2xl mx-auto space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
-            Notifications
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">
-            {unreadCount > 0 ? `You have ${unreadCount} unread notification(s)` : 'You\'re all caught up!'}
+          <h1 className="text-[22px] font-medium text-slate-900 dark:text-white">Notifications</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            {unreadCount > 0
+              ? `${unreadCount} non lue${unreadCount > 1 ? 's' : ''}`
+              : 'Tout est à jour'
+            }
           </p>
         </div>
-        {unreadCount > 0 && (
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            onClick={handleMarkAllAsRead}
+            size="sm"
+            onClick={() => setUnreadOnly(v => !v)}
+            className={cn(
+              'text-[13px] border-slate-200 dark:border-slate-700 gap-1.5',
+              unreadOnly && 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300'
+            )}
           >
-            <CheckCircle2 className="w-4 h-4 mr-2" />
-            Mark All as Read
+            <Filter className="w-3.5 h-3.5" />
+            {unreadOnly ? 'Toutes' : 'Non lues'}
           </Button>
-        )}
+          {unreadCount > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => markAllMutation.mutate()}
+              disabled={markAllMutation.isPending}
+              className="text-[13px] border-slate-200 dark:border-slate-700 gap-1.5"
+            >
+              {markAllMutation.isPending
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                : <CheckCheck className="w-3.5 h-3.5" />
+              }
+              Tout lire
+            </Button>
+          )}
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <Skeleton key={i} className="h-20" />
-          ))}
+        <div className="space-y-2">
+          {[1,2,3].map(i => <Skeleton key={i} className="h-20 rounded-xl" />)}
         </div>
       ) : notifications.length === 0 ? (
-        <Card className="p-12 text-center">
-          <p className="text-slate-600 dark:text-slate-400">
-            No notifications yet. Check back later!
+        <div className="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+          <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
+            <Bell className="w-6 h-6 text-slate-400" />
+          </div>
+          <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">
+            Aucune notification
           </p>
-        </Card>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            {unreadOnly ? 'Toutes les notifications ont été lues.' : 'Vous êtes à jour !'}
+          </p>
+        </div>
       ) : (
-        <div className="space-y-3">
-          {notifications.map((notification) => (
-            <Card
-              key={notification.id}
-              className={`p-4 ${!notification.read ? 'bg-blue-50 dark:bg-blue-950 border-l-4 border-blue-600' : ''}`}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-slate-900 dark:text-white">
-                      {notification.title}
-                    </h3>
-                    <Badge className={STATUS_COLORS[notification.type as keyof typeof STATUS_COLORS]}>
-                      {notification.type}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                    {notification.message}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-500">
-                    {formatDateTime(notification.createdAt)}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  {!notification.read && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleMarkAsRead(notification.id)}
-                      className="hover:bg-blue-100 dark:hover:bg-blue-900"
-                    >
-                      <CheckCircle2 className="w-4 h-4" />
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(notification.id)}
-                    className="text-red-600 dark:text-red-400"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
+          {notifications.map(notif => (
+            <NotificationRow
+              key={notif.id}
+              notif={notif}
+              onMarkRead={() => markReadMutation.mutate(notif.id)}
+              onDelete={() => deleteMutation.mutate(notif.id)}
+              isDeleting={deleteMutation.isPending}
+            />
           ))}
         </div>
       )}
     </div>
-  );
+  )
+}
+
+function NotificationRow({
+  notif, onMarkRead, onDelete, isDeleting
+}: {
+  notif: Notification
+  onMarkRead: () => void
+  onDelete: () => void
+  isDeleting?: boolean
+}) {
+  const config = TYPE_CONFIG[notif.type] || { icon: '🔔', color: 'bg-slate-50 dark:bg-slate-800' }
+
+  return (
+    <div
+      className={cn(
+        'flex items-start gap-3 px-4 py-4 transition-colors group',
+        !notif.is_read
+          ? 'bg-blue-50/40 dark:bg-blue-950/10 hover:bg-blue-50 dark:hover:bg-blue-950/20'
+          : 'hover:bg-slate-50 dark:hover:bg-slate-800/50',
+        !notif.is_read && 'cursor-pointer'
+      )}
+      onClick={() => !notif.is_read && onMarkRead()}
+    >
+      {/* Icon */}
+      <div className={`w-9 h-9 rounded-full ${config.color} flex items-center justify-center flex-shrink-0 text-base`}>
+        {config.icon}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className={cn(
+            'text-[13px] leading-snug',
+            !notif.is_read
+              ? 'font-medium text-slate-900 dark:text-white'
+              : 'text-slate-700 dark:text-slate-300'
+          )}>
+            {notif.title}
+          </p>
+          {!notif.is_read && (
+            <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
+          )}
+        </div>
+        <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+          {notif.message}
+        </p>
+        <p className="text-[11px] text-slate-400 mt-1">
+          {format(new Date(notif.created_at), "d MMM yyyy 'à' HH:mm", { locale: fr })}
+        </p>
+      </div>
+
+      {/* Actions */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 flex-shrink-0"
+        onClick={e => { e.stopPropagation(); onDelete() }}
+        disabled={isDeleting}
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </Button>
+    </div>
+  )
 }
