@@ -130,7 +130,7 @@ export class ApiClient {
   async createScheduledPost(data: any): Promise<any> {
     return this.request('/api/v1/scheduled/', { method: 'POST', body: JSON.stringify(data) })
   }
-
+  
   async patchCaption(postId: string, data: any): Promise<any> {
     return this.request(`/api/v1/scheduled/${postId}/caption`, { method: 'PATCH', body: JSON.stringify(data) })
   }
@@ -165,12 +165,22 @@ export class ApiClient {
     return this.request(`/api/v1/published/org/${orgId}`)
   }
 
+
+  async getPublishedPostById(postId: string): Promise<any> {
+    return this.request(`/api/v1/published/${postId}`)
+  }
+
+  async deletePublishedPost(postId: string): Promise<void> {
+      await this.request(`/api/v1/published/${postId}`, { method: 'DELETE' })
+  }
   async publishPost(scheduledPostId: string): Promise<any> {
     return this.request('/api/v1/published/publish', {
       method: 'POST',
       body: JSON.stringify({ scheduled_post_id: scheduledPostId })
     })
   }
+
+
 
   async syncMetrics(postId: string): Promise<any> {
     return this.request(`/api/v1/published/${postId}/sync-metrics`, { method: 'POST' })
