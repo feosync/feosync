@@ -58,14 +58,13 @@ export default function PublishedPage() {
         </div>
       )}
 
+      {/* ✅ Sheet aussi dans un wrapper qui hydrate scheduledPost */}
       {selected && (
-        <PublishedPostDetailSheet
-          open={!!selected}
-          onClose={() => setSelected(null)}
+        <PublishedPostDetailSheetWrapper
           post={selected}
-          scheduledPost={undefined}  // hydraté dans le wrapper
-          page={pages.find(p => p.id === selected.facebook_page_id)}
-          onSyncMetrics={() => syncMutation.mutate(selected.id)}
+          pages={pages}
+          onClose={() => setSelected(null)}
+          onSync={() => syncMutation.mutate(selected.id)}
           onDelete={() => deleteMutation.mutate(selected.id)}
           isSyncing={syncMutation.isPending}
           isDeleting={deleteMutation.isPending}
@@ -75,7 +74,7 @@ export default function PublishedPage() {
   )
 }
 
-// Wrapper pour hydrater scheduledPost
+// ── Wrapper carte ─────────────────────────────────────────────────────────────
 function PublishedPostCardWrapper({
   post, pages, onSync, isSyncing, onClick
 }: {
@@ -96,6 +95,37 @@ function PublishedPostCardWrapper({
       onSyncMetrics={onSync}
       isSyncing={isSyncing}
       onClick={onClick}
+    />
+  )
+}
+
+// ── Wrapper sheet — hydrate scheduledPost au même niveau ──────────────────────
+function PublishedPostDetailSheetWrapper({
+  post, pages, onClose, onSync, onDelete, isSyncing, isDeleting
+}: {
+  post: PublishedPost
+  pages: any[]
+  onClose: () => void
+  onSync: () => void
+  onDelete: () => void
+  isSyncing?: boolean
+  isDeleting?: boolean
+}) {
+ 
+  const { data: scheduledPost } = useScheduledPost(post.scheduled_post_id)
+  const page = pages.find(p => p.id === post.facebook_page_id)
+
+  return (
+    <PublishedPostDetailSheet
+      open
+      onClose={onClose}
+      post={post}
+      scheduledPost={scheduledPost}  
+      page={page}
+      onSyncMetrics={onSync}
+      onDelete={onDelete}
+      isSyncing={isSyncing}
+      isDeleting={isDeleting}
     />
   )
 }
