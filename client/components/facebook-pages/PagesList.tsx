@@ -1,7 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Trash2, ToggleLeft, ToggleRight, RefreshCw, BarChart2, ChevronDown, ChevronUp } from 'lucide-react'
+import {
+  Trash2, ToggleLeft, ToggleRight,
+  RefreshCw, BarChart2, ChevronUp
+} from 'lucide-react'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from '@/components/ui/table'
@@ -33,6 +36,7 @@ export function PagesList({
   isToggling, isDeleting, isSyncing
 }: PagesListProps) {
   const [pageToDelete, setPageToDelete] = useState<FacebookPage | null>(null)
+  const [pageToToggle, setPageToToggle] = useState<FacebookPage | null>(null)
   const [expandedInsights, setExpandedInsights] = useState<string | null>(null)
 
   return (
@@ -93,10 +97,11 @@ export function PagesList({
                     <div className="flex items-center justify-end gap-1">
                       {/* Insights */}
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        variant="ghost" size="icon"
                         className="h-8 w-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
-                        onClick={() => setExpandedInsights(expandedInsights === page.id ? null : page.id)}
+                        onClick={() => setExpandedInsights(
+                          expandedInsights === page.id ? null : page.id
+                        )}
                         title="Voir les insights"
                       >
                         {expandedInsights === page.id
@@ -105,24 +110,22 @@ export function PagesList({
                         }
                       </Button>
 
-                      {/* Sync insights */}
+                      {/* Sync */}
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        variant="ghost" size="icon"
                         className="h-8 w-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
                         onClick={() => onSyncInsights(page.id)}
                         disabled={isSyncing}
-                        title="Synchroniser les insights"
+                        title="Synchroniser"
                       >
                         <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
                       </Button>
 
-                      {/* Toggle actif/inactif */}
+                      {/* Toggle → dialog */}
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        variant="ghost" size="icon"
                         className="h-8 w-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
-                        onClick={() => onToggle(page.id)}
+                        onClick={() => setPageToToggle(page)}
                         disabled={isToggling}
                         title={page.is_active ? 'Désactiver' : 'Activer'}
                       >
@@ -132,10 +135,9 @@ export function PagesList({
                         }
                       </Button>
 
-                      {/* Déconnecter */}
+                      {/* Delete → dialog */}
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        variant="ghost" size="icon"
                         className="h-8 w-8 text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                         onClick={() => setPageToDelete(page)}
                         disabled={isDeleting}
@@ -147,7 +149,6 @@ export function PagesList({
                   </TableCell>
                 </TableRow>
 
-                {/* Insights panel inline */}
                 {expandedInsights === page.id && (
                   <TableRow key={`insights-${page.id}`} className="bg-slate-50/50 dark:bg-slate-900/30">
                     <TableCell colSpan={5} className="p-0">
@@ -161,8 +162,64 @@ export function PagesList({
         </Table>
       </div>
 
+      {/* Dialog confirmation toggle */}
+      <AlertDialog
+        open={!!pageToToggle}
+        onOpenChange={open => !open && setPageToToggle(null)}
+      >
+        <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-slate-900 dark:text-white">
+              {pageToToggle?.is_active ? 'Désactiver la page' : 'Activer la page'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-500 dark:text-slate-400">
+              {pageToToggle?.is_active ? (
+                <>
+                  Désactiver{' '}
+                  <span className="font-medium text-slate-900 dark:text-white">
+                    {pageToToggle.page_name}
+                  </span>
+                  {' '}? Les publications planifiées seront suspendues.
+                </>
+              ) : (
+                <>
+                  Activer{' '}
+                  <span className="font-medium text-slate-900 dark:text-white">
+                    {pageToToggle?.page_name}
+                  </span>
+                  {' '}? Les publications reprendront normalement.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-slate-200 dark:border-slate-700">
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pageToToggle) {
+                  onToggle(pageToToggle.id)
+                  setPageToToggle(null)
+                }
+              }}
+              className={
+                pageToToggle?.is_active
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white border-0'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white border-0'
+              }
+            >
+              {pageToToggle?.is_active ? 'Désactiver' : 'Activer'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Dialog confirmation déconnexion */}
-      <AlertDialog open={!!pageToDelete} onOpenChange={open => !open && setPageToDelete(null)}>
+      <AlertDialog
+        open={!!pageToDelete}
+        onOpenChange={open => !open && setPageToDelete(null)}
+      >
         <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-slate-900 dark:text-white">
@@ -172,8 +229,8 @@ export function PagesList({
               Êtes-vous sûr de vouloir déconnecter{' '}
               <span className="font-medium text-slate-900 dark:text-white">
                 {pageToDelete?.page_name}
-              </span>{' '}
-              ? Les posts planifiés sur cette page seront affectés.
+              </span>
+              {' '}? Les posts planifiés sur cette page seront affectés.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -181,7 +238,12 @@ export function PagesList({
               Annuler
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => { if (pageToDelete) { onDelete(pageToDelete.id); setPageToDelete(null) } }}
+              onClick={() => {
+                if (pageToDelete) {
+                  onDelete(pageToDelete.id)
+                  setPageToDelete(null)
+                }
+              }}
               className="bg-red-600 hover:bg-red-700 text-white border-0"
             >
               Déconnecter

@@ -3,6 +3,7 @@ from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
 from app.core.contexte import current_user_id, current_user_email
 from celery.result import AsyncResult
 from app.core.redis import redis_client
+from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
 import logging
 
 logger = logging.getLogger(__name__)
@@ -24,6 +25,9 @@ def register_scheduled_post_events():
     def on_scheduled_post_change(mapper, connection, target: ScheduledPost):
         from .published_post import published_task
 
+        if target.status != PostStatus.SCHEDULED:
+            return
+        
         if not target.publish_at:
             return
 
