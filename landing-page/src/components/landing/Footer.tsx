@@ -20,12 +20,7 @@ const Footer = () => {
           <p className="text-google-gray-ui text-sm max-w-xs leading-relaxed">
             La plateforme d'automatisation marketing n°1 à Madagascar, propulsée par l'IA de Google.
           </p>
-          <p className='font-ui  text-lg text-google-dark pt-4'>Suivez nous sur:</p>
-            <div className="flex justify-start items-center gap-10 py-4">
-            <FacebookIcon></FacebookIcon>
-            <InstagramIcon></InstagramIcon>
-            <LinkedinIcon></LinkedinIcon>
-          </div>
+
         </div>
         {footerCols.map((col) => (
           <div key={col.title}>
