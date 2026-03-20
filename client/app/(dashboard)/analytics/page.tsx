@@ -1,99 +1,135 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { TrendingUp } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/hooks/useAuth';
-import { analyticsService } from '@/lib/services';
+import { TrendingUp, BarChart2, Heart, MessageCircle, Share2, Eye } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useOrganisations } from '@/hooks/useOrganisations'
+import { usePublishedPosts, useSyncMetrics } from '@/hooks/usePublishedPosts'
+import { useFacebookPages, useFacebookInsights } from '@/hooks/useFacebookPages'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
+import { Button } from '@/components/ui/button'
+import { RefreshCw } from 'lucide-react'
+
+function MetricCard({ label, value, icon: Icon, color }: {
+  label: string; value: number | string
+  icon: React.ElementType; color: string
+}) {
+  return (
+    <div className={`rounded-xl p-4 ${color}`}>
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className="w-4 h-4 opacity-70" />
+        <span className="text-[12px] font-medium opacity-80">{label}</span>
+      </div>
+      <div className="text-[24px] font-medium">{value}</div>
+    </div>
+  )
+}
+
+function PageInsightsBlock({ pageId, orgId }: { pageId: string; orgId: string }) {
+  const { data: insights = [], isLoading } = useFacebookInsights(pageId, orgId)
+
+  if (isLoading) return <Skeleton className="h-24 rounded-xl" />
+  if (!insights.length) return null
+
+  const latest = insights[0]
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <MetricCard label="Abonnés"     value={latest.fans_total}          icon={Eye}           color="bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200" />
+      <MetricCard label="Impressions" value={latest.impressions_unique}  icon={BarChart2}     color="bg-purple-50 dark:bg-purple-950/50 text-purple-800 dark:text-purple-200" />
+      <MetricCard label="Engagés"     value={latest.engaged_users}       icon={Heart}         color="bg-pink-50 dark:bg-pink-950/50 text-pink-800 dark:text-pink-200" />
+      <MetricCard label="Nouveaux"    value={latest.new_followers}       icon={TrendingUp}    color="bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-200" />
+    </div>
+  )
+}
 
 export default function AnalyticsPage() {
-  const { user } = useAuth();
-  const [metrics, setMetrics] = useState({
-    totalLikes: 0,
-    totalComments: 0,
-    totalShares: 0,
-    averageEngagement: 0,
-    postCount: 0,
-  });
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: orgs = [] }          = useOrganisations()
+  const orgId = orgs[0]?.id || ''
+  const { data: published = [], isLoading } = usePublishedPosts(orgId)
+  const { data: pages = [] }         = useFacebookPages(orgId)
+  const syncMutation = useSyncMetrics(orgId)
 
-  useEffect(() => {
-    loadMetrics();
-  }, [user]);
-
-  const loadMetrics = async () => {
-    try {
-      setIsLoading(true);
-      const data = await analyticsService.getEngagementMetrics(user?.id || '');
-      setMetrics(data);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Agrège les métriques des posts publiés
+  const totalReach       = published.reduce((s, p) => s + (p.initial_reach || 0), 0)
+  const totalImpressions = published.reduce((s, p) => s + (p.initial_impressions || 0), 0)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <TrendingUp className="w-8 h-8 text-blue-600" />
+        <h1 className="text-[22px] font-medium text-slate-900 dark:text-white flex items-center gap-2">
+          <TrendingUp className="w-5 h-5 text-blue-600" />
           Analytics
         </h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-2">
-          View your social media performance and engagement metrics
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          Performance de vos publications
         </p>
       </div>
 
+      {/* Métriques globales posts */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {[...Array(5)].map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-lg" />
-          ))}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {[1,2,3].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-0">
-            <p className="text-blue-700 dark:text-blue-300 text-sm font-medium">Total Posts</p>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
-              {metrics.postCount}
-            </p>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950 dark:to-red-900 border-0">
-            <p className="text-red-700 dark:text-red-300 text-sm font-medium">Total Likes</p>
-            <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">
-              {metrics.totalLikes}
-            </p>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-0">
-            <p className="text-green-700 dark:text-green-300 text-sm font-medium">Total Comments</p>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
-              {metrics.totalComments}
-            </p>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950 dark:to-yellow-900 border-0">
-            <p className="text-yellow-700 dark:text-yellow-300 text-sm font-medium">Total Shares</p>
-            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">
-              {metrics.totalShares}
-            </p>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-0">
-            <p className="text-purple-700 dark:text-purple-300 text-sm font-medium">Avg Engagement</p>
-            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
-              {metrics.averageEngagement}
-            </p>
-          </Card>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <MetricCard label="Posts publiés"  value={published.length}   icon={BarChart2}  color="bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200" />
+          <MetricCard label="Portée totale"  value={totalReach}         icon={Eye}        color="bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-200" />
+          <MetricCard label="Impressions"    value={totalImpressions}   icon={TrendingUp} color="bg-purple-50 dark:bg-purple-950/50 text-purple-800 dark:text-purple-200" />
         </div>
       )}
 
-      <Card className="p-8 text-center">
-        <p className="text-slate-600 dark:text-slate-400">
-          More detailed analytics charts coming soon...
-        </p>
-      </Card>
+      {/* Insights par page */}
+      {pages.map(page => (
+        <div key={page.id} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xs font-bold">f</div>
+              <h2 className="text-[14px] font-medium text-slate-900 dark:text-white">{page.page_name}</h2>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => syncMutation.mutate(page.id)}
+              disabled={syncMutation.isPending}
+              className="text-[12px] text-slate-500 gap-1.5"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
+              Sync
+            </Button>
+          </div>
+          <PageInsightsBlock pageId={page.id} orgId={orgId} />
+        </div>
+      ))}
+
+      {/* Tableau posts publiés */}
+      {published.length > 0 && (
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+            <h2 className="text-[14px] font-medium text-slate-900 dark:text-white">Détail des publications</h2>
+          </div>
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            {published.map(p => {
+              const page = pages.find(pg => pg.id === p.facebook_page_id)
+              return (
+                <div key={p.id} className="flex items-center justify-between px-4 py-3">
+                  <div>
+                    <p className="text-[13px] font-medium text-slate-900 dark:text-white">
+                      {page?.page_name || 'Page Facebook'}
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      {format(new Date(p.published_at), "d MMM yyyy 'à' HH:mm", { locale: fr })}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 text-[12px] text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{p.initial_reach}</span>
+                    <span className="flex items-center gap-1"><BarChart2 className="w-3.5 h-3.5" />{p.initial_impressions}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
-  );
+  )
 }
