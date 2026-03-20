@@ -51,7 +51,7 @@ export default function AuthCallbackPage() {
       await setUserFromToken(data.access_token)
 
       toast({ title: 'Connexion réussie', description: `Bienvenue ${data.user.name} !` })
-      router.replace('/dashboard')
+      router.replace('/overview')
 
     } catch (err: any) {
       toast({ title: 'Erreur', description: err.message, variant: 'destructive' })

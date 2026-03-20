@@ -28,17 +28,16 @@ class FacebookService:
 
     @staticmethod
     def get_oauth_url(org_id: UUID) -> str:
-        """
-        Génère l'URL OAuth Meta.
-        org_id est passé dans `state` pour le retrouver au callback.
-        """
-        params = (
-            f"client_id={settings.META_APP_ID}"
-            f"&redirect_uri={settings.META_REDIRECT_URI}"
-            f"&scope={META_SCOPES}"
-            f"&state={org_id}"
-            f"&response_type=code"
-        )
+        from urllib.parse import urlencode
+
+        params = urlencode({
+            "client_id":     settings.META_APP_ID,
+            "redirect_uri":  f"{settings.FRONTEND_URL}/auth/facebook/callback",
+            "scope":         META_SCOPES,
+            "state":         str(org_id),
+            "response_type": "code",
+        })
+
         return f"https://www.facebook.com/v19.0/dialog/oauth?{params}"
 
     @staticmethod
@@ -52,10 +51,10 @@ class FacebookService:
             r = await client.get(
                 f"{META_GRAPH_URL}/oauth/access_token",
                 params={
-                    "client_id": settings.META_APP_ID,
+                    "client_id":     settings.META_APP_ID,
                     "client_secret": settings.META_APP_SECRET,
-                    "redirect_uri": settings.META_REDIRECT_URI,
-                    "code": code,
+                    "redirect_uri":  f"{settings.FRONTEND_URL}/auth/facebook/callback",  # ← doit matcher
+                    "code":          code,
                 },
             )
         FacebookService._raise_if_meta_error(r.json(), "Échange code → token échoué")
@@ -90,7 +89,10 @@ class FacebookService:
                     "fields": "id,name,access_token",
                 },
             )
+        
+        
         FacebookService._raise_if_meta_error(r.json(), "Récupération des pages échouée")
+
         return r.json().get("data", [])
 
     # ── CRUD Pages ────────────────────────────────────────────────────────────
