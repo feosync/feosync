@@ -3,13 +3,13 @@ import { ArrowRight } from 'lucide-react';
 
 const FinalCTA = () => {
   return (
-    <section className="py-24 px-6" id="cta">
-      <div className="max-w-5xl mx-auto rounded-[32px] bg-gradient-to-br from-primary/10 to-accent/10 p-12 md:p-20 text-center border border-border">
+    <section className="py-24 px-6 w-full h-[80vh]">
+      <div id='cta' className="mx-auto max-w-5xl h-2/3 rounded-[32px] bg-gradient-to-br from-primary/10 to-accent/10 p-12 md:p-20 text-center border border-border">
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-display text-[clamp(28px,4vw,44px)] tracking-[-0.01em] text-google-dark mb-6"
+          className="font-display text-[clamp(28px,6vw,44px)] tracking-[-0.01em] text-google-dark mb-6"
         >
           Prêt à automatiser votre marketing ?
         </motion.h2>

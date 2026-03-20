@@ -313,7 +313,7 @@ const About = () => {
           <OrbitDot radius={130} speed={1.10} size={7}  color="#FBBC05" startAngle={0.5}     />
 
           {/* Nucleus */}
-          <motion.div className="absolute rounded-full flex items-center justify-center"
+          <motion.span className="absolute rounded-full flex items-center justify-center will-change-transform"
             style={{
               width: 72, height: 72, left: "50%", top: "50%",
               transform: "translate(-50%, -50%)",
@@ -324,8 +324,8 @@ const About = () => {
             }}
             animate={{ scale: [1, 1.08, 1] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}>
-            <span className="text-white font-bold text-xl">We</span>
-          </motion.div>
+            <span className="text-white font-bold text-xl will-change-auto">We</span>
+          </motion.span>
 
           {/* Desktop floating team cards */}
           {teamMembers.map((member, i) => (
@@ -443,7 +443,7 @@ const About = () => {
           Notre équipe
         </motion.h3>
 
-        <motion.p className="hidden md:block text-center w-1/3 text-lg text-muted-foreground"
+        <motion.p className="hidden md:block text-center w-2/3 lg:w-1/3 text-lg text-muted-foreground"
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.3, duration: 0.6 }}>
           We're committed to building a diverse team and a work environment that's inclusive of people of all
