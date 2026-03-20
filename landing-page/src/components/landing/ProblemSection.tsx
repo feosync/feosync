@@ -21,7 +21,7 @@ const ProblemSection = () => {
             La gestion manuelle vous coûte du temps et des clients
           </h2>
           <div className="flex items-center gap-8 p-8 bg-card rounded-2xl border border-google-border">
-            <div className="w-32 h-32 shrink-0 relative">
+            <div className="w-32 h-32 shrink-0 relative hidden se:block">
               <svg className="w-full h-full transform -rotate-90">
                 <circle cx="64" cy="64" r="58" stroke="#F1F3F4" strokeWidth="12" fill="transparent" />
                 <circle
@@ -34,6 +34,7 @@ const ProblemSection = () => {
                 80%
               </div>
             </div>
+
             <p className="text-google-gray-ui leading-relaxed">
               Des PME perdent des clients faute d'une présence régulière sur les réseaux sociaux.
             </p>

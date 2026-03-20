@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate"; // ajoute en haut du fichier
+
 
 export default {
   darkMode: ["class"],
@@ -13,6 +15,9 @@ export default {
       },
     },
     extend: {
+      screens: {
+      "se": "340px", // ici ✅
+     },
       fontFamily: {
         display: ['"Satoshi"', 'sans-serif'],
         ui: ['"Satoshi"', 'sans-serif'],
@@ -103,5 +108,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;
