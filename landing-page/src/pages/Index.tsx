@@ -36,14 +36,13 @@ const Index = () => {
 
     // ✅ ScrollTrigger dans le même useGSAP
     gsap.to("#cta", {
-      scale: 1.3,
+      scale: 1.1,
       duration: 2,
       scrollTrigger: {
         trigger: "#cta",
         start:   "top 85%",
         end:     "top 35%",
         scrub:   true,
-        markers: true,
       },
     });
 
