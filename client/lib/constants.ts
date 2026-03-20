@@ -12,42 +12,73 @@ import {
   LogOut,
 } from 'lucide-react';
 
+
 export const NAVIGATION_ITEMS = [
   {
-    section: 'Main',
+    section: 'Principal',            // ← Main
     items: [
-      { label: 'Tableau de bord', href: '/overview', icon: LayoutDashboard },
+      {
+        label: 'Tableau de bord',    // ← Dashboard
+        href: '/overview',
+        icon: LayoutDashboard,
+      },
     ],
   },
   {
-    section: 'Management',
+    section: 'Gestion',              // ← Management
     items: [
-      { label: 'Organizations', href: '/organizations', icon: Building2 },
-      { label: 'Facebook Pages', href: '/pages', icon: Facebook },
+      {
+        label: 'Organisations',      // ← Organizations
+        href: '/organizations',
+        icon: Building2,
+      },
+      {
+        label: 'Pages Facebook',     // ← Facebook Pages
+        href: '/pages',
+        icon: Facebook,
+      },
     ],
   },
   {
-    section: 'Content',
+    section: 'Contenu',              // ← Content
     items: [
-      { label: 'AI Generator', href: '/ai-generator', icon: Sparkles },
-      { label: 'Templates', href: '/templates', icon: BookMarked },
-  
+      {
+        label: 'Générateur IA',      // ← AI Generator
+        href: '/ai',
+        icon: Sparkles,
+      },
+      {
+        label: 'Modèles',            // ← Templates
+        href: '/templates',
+        icon: BookMarked,
+      },
     ],
   },
   {
-    section: 'Publishing',
+    section: 'Publication',          // ← Publishing
     items: [
-      { label: 'Scheduler', href: '/posts', icon: CheckCircle2 },
-      { label: 'Published Posts', href: '/published-posts', icon: TrendingUp },
+      {
+        label: 'Planificateur',      // ← Scheduler
+        href: '/posts',
+        icon: CheckCircle2,
+      },
+      {
+        label: 'Posts publiés',      // ← Published Posts
+        href: '/published',
+        icon: TrendingUp,
+      },
     ],
   },
   {
-    section: 'Analytics',
+    section: 'Analyses',             // ← Analytics
     items: [
-      { label: 'Analytics', href: '/analytics', icon: TrendingUp },
+      {
+        label: 'Analyses',           // ← Analytics
+        href: '/analytics',
+        icon: TrendingUp,
+      },
     ],
   },
-
 ];
 
 export const SCHEDULE_FREQUENCY = {
