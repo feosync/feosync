@@ -44,7 +44,7 @@ export const NAVIGATION_ITEMS = [
     items: [
       {
         label: 'Générateur IA',      // ← AI Generator
-        href: '/ai-generator',
+        href: '/ai',
         icon: Sparkles,
       },
       {

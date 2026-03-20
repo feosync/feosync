@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import type { PublishedPost } from '@/lib/api/types'
 
 export const PUBLISHED_KEY  = (orgId: string)  => ['published-posts', orgId]
@@ -24,24 +24,24 @@ export function usePublishedPost(postId: string) {
 
 export function usePublishNow(orgId: string) {
   const queryClient = useQueryClient()
-  const { toast } = useToast()
+  
 
   return useMutation({
     mutationFn: (scheduledPostId: string) => apiClient.publishPost(scheduledPostId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PUBLISHED_KEY(orgId) })
       queryClient.invalidateQueries({ queryKey: ['scheduled-posts', orgId] })
-      toast({ title: 'Post publié !', description: 'Visible sur Facebook.' })
+      toast.success('Post publié. Visible sur Facebook dans quelques secondes.')
     },
     onError: (err: any) => {
-      toast({ title: 'Échec', description: err.message, variant: 'destructive' })
+        toast.error('Erreur', { description: err.message })
     },
   })
 }
 
 export function useSyncMetrics(orgId: string) {
   const queryClient = useQueryClient()
-  const { toast } = useToast()
+  
 
   return useMutation({
     mutationFn: (publishedPostId: string) => apiClient.syncMetrics(publishedPostId),
@@ -50,17 +50,17 @@ export function useSyncMetrics(orgId: string) {
         prev.map(p => p.id === updated.id ? updated : p)
       )
       queryClient.setQueryData(PUBLISHED_ONE(updated.id), updated)
-      toast({ title: 'Métriques synchronisées' })
+      toast.success('Métriques synchronisées')
     },
     onError: (err: any) => {
-      toast({ title: 'Erreur sync', description: err.message, variant: 'destructive' })
+      toast.error('Erreur', { description: err.message })
     },
   })
 }
 
 export function useDeletePublishedPost(orgId: string) {
   const queryClient = useQueryClient()
-  const { toast } = useToast()
+  
 
   return useMutation({
     mutationFn: (postId: string) => apiClient.deletePublishedPost(postId),
@@ -68,10 +68,10 @@ export function useDeletePublishedPost(orgId: string) {
       queryClient.setQueryData<PublishedPost[]>(PUBLISHED_KEY(orgId), (prev = []) =>
         prev.filter(p => p.id !== postId)
       )
-      toast({ title: 'Post supprimé localement' })
+      toast.success('Post supprimé localement. Il peut rester visible sur Facebook.')        
     },
     onError: (err: any) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' })
+        toast.error('Erreur', { description: err.message })
     },
   })
 }
