@@ -59,13 +59,14 @@ class ScheduledPost(Base):
     post_template_id: Mapped[UUID | None] = mapped_column(ForeignKey("post_templates.id"), nullable=True)
 
     # ── Relations ─────────────────────────────────────────────────────────────
-    organisation = relationship("Organisation", back_populates="scheduled_posts")
-    post_template = relationship("PostTemplate", back_populates="scheduled_posts")
-    published_posts = relationship("PublishedPost", back_populates="scheduled_post")
+    organisation = relationship("Organisation", back_populates="scheduled_posts", cascade="all, delete-orphan")
+    post_template = relationship("PostTemplate", back_populates="scheduled_posts", cascade="all, delete-orphan")
+    published_posts = relationship("PublishedPost", back_populates="scheduled_post", cascade="all, delete-orphan")
     ai_images = relationship(
         "ScheduledPostAiImage",
         back_populates="scheduled_post",
         order_by="ScheduledPostAiImage.linked_at",
+        cascade="all, delete-orphan"
     )
 
     @property
