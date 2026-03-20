@@ -38,7 +38,7 @@ const values = [
     icon: Zap,
     title: "Vitesse & rigueur",
     description:
-      "Nous livrons vite, mais jamais au détriment de la qualité. L'excellence et l'agilité ne s'opposent pas — elles se renforcent.",
+      "Nous Agissons vite, mais jamais au détriment de la qualité. L'excellence et l'agilité ne s'opposent pas — elles se renforcent.",
     color: "#FBBC05",
     accent: "#FBBC0515",
   },
@@ -258,48 +258,7 @@ const OurValues = () => {
           {/* Row 2 : normal + normal + large (2 cols) */}
           <ValueCard value={values[2]} index={2} dark={dark} />
           <ValueCard value={values[3]} index={3} dark={dark} />
-          <ValueCard value={values[4]} index={4} dark={dark} />
 
-          {/* Row 3 : full width card */}
-          <motion.div
-            className="md:col-span-3"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div
-              className="relative rounded-2xl p-7 overflow-hidden group flex flex-col md:flex-row items-start md:items-center gap-6"
-              style={{
-                background: dark
-                  ? "linear-gradient(120deg, rgba(234,67,53,0.12) 0%, rgba(18,22,34,0.9) 50%)"
-                  : "linear-gradient(120deg, rgba(234,67,53,0.07) 0%, rgba(255,255,255,0.92) 50%)",
-                border: dark ? "1px solid rgba(234,67,53,0.18)" : "1px solid rgba(234,67,53,0.12)",
-                boxShadow: dark ? "0 8px 32px rgba(0,0,0,0.35)" : "0 8px 32px rgba(0,0,0,0.06)",
-              }}
-            >
-              {/* Icon */}
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: "#EA433515", border: "1px solid #EA433330" }}>
-                <Heart size={22} style={{ color: "#EA4335" }} strokeWidth={1.8} />
-              </div>
-              {/* Text */}
-              <div className="flex-1">
-                <h3 className="text-lg font-ui font-bold text-foreground mb-1">{values[5].title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: dark ? "#8b90a8" : "#6b7280" }}>
-                  {values[5].description}
-                </p>
-              </div>
-              {/* Number */}
-              <span className="hidden md:block font-ui font-black select-none text-8xl leading-none"
-                style={{ color: dark ? "#EA433510" : "#EA43530d" }}>
-                06
-              </span>
-              {/* Hover line */}
-              <div className="absolute bottom-0 left-0 h-0.5 w-0 group-hover:w-full transition-all duration-500 rounded-full"
-                style={{ background: "linear-gradient(90deg, #EA4335, transparent)" }} />
-            </div>
-          </motion.div>
         </div>
       </div>
     </section>
