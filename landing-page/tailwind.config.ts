@@ -16,7 +16,7 @@ export default {
     },
     extend: {
       screens: {
-      "se": "340px", // ici ✅
+      "se": "340px", 
      },
       fontFamily: {
         display: ['"Satoshi"', 'sans-serif'],
