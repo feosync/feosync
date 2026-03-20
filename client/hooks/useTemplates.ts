@@ -27,9 +27,10 @@ export function useCreateTemplate(orgId: string) {
 
 export function useUpdateTemplate(orgId: string) {
   const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<CreateTemplateRequest> }) =>
-      apiClient.updateTemplate(id, data),
+      apiClient.updateTemplate(id, orgId, data),  // ← passe orgId
     onSuccess: (updated: PostTemplate) => {
       queryClient.setQueryData<PostTemplate[]>(TEMPLATES_KEY(orgId), (prev = []) =>
         prev.map(t => t.id === updated.id ? updated : t)
@@ -42,8 +43,9 @@ export function useUpdateTemplate(orgId: string) {
 
 export function useDeleteTemplate(orgId: string) {
   const queryClient = useQueryClient()
+
   return useMutation({
-    mutationFn: (id: string) => apiClient.deleteTemplate(id),
+    mutationFn: (id: string) => apiClient.deleteTemplate(id, orgId),  // ← passe orgId
     onSuccess: (_, id) => {
       queryClient.setQueryData<PostTemplate[]>(TEMPLATES_KEY(orgId), (prev = []) =>
         prev.filter(t => t.id !== id)
