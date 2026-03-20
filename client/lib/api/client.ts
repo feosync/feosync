@@ -228,12 +228,17 @@ export class ApiClient {
     return this.request('/api/v1/post-template/', { method: 'POST', body: JSON.stringify(data) })
   }
 
-  async updateTemplate(id: string, data: any): Promise<any> {
-    return this.request(`/api/v1/post-template/${id}`, { method: 'PATCH', body: JSON.stringify(data) })
+  async updateTemplate(id: string, orgId: string, data: any): Promise<any> {
+    return this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    })
   }
 
-  async deleteTemplate(id: string): Promise<void> {
-    await this.request(`/api/v1/post-template/${id}`, { method: 'DELETE' })
+  async deleteTemplate(id: string, orgId: string): Promise<void> {
+    await this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, {
+      method: 'DELETE'
+    })
   }
 
   // ── Post Analytics ────────────────────────────────────────────────────────
