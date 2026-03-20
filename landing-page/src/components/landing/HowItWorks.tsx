@@ -3,7 +3,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 
 const steps = [
   { num: '01', title: 'Connectez vos pages', desc: 'Liez vos pages Facebook & WhatsApp Business en un clic.' },
-  { num: '02', title: "L'IA génère tout", desc: "Gemini crée visuels 1080×1080 + 3 variantes de légendes." },
+  { num: '02', title: "L'IA vous aide (Votre Assistance)", desc: "l'IA vous propose des visuels des qualité avec des variantes de légendes." },
   { num: '03', title: 'Publiez & analysez', desc: 'Planifiez, publiez et suivez vos performances automatiquement.' },
 ];
 
