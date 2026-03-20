@@ -37,8 +37,8 @@ class PostTemplate(Base):
     organisation_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("organisations.id"), nullable=True
     )
-    organisation = relationship("Organisation", back_populates="post_templates", cascade="all, delete-orphan")
+    organisation = relationship("Organisation", back_populates="post_templates")
 
     scheduled_posts = relationship(
-        "ScheduledPost", back_populates="post_template", cascade="all, delete-orphan"
+        "ScheduledPost", back_populates="post_template"
     )

@@ -14,11 +14,11 @@ class PublishedPost(Base):
 
     # === Relation avec ScheduledPost ===
     scheduled_post_id: Mapped[UUID] = mapped_column(ForeignKey("scheduled_post.id"), nullable=False)
-    scheduled_post = relationship("ScheduledPost", back_populates="published_posts", cascade="all, delete-orphan")
+    scheduled_post = relationship("ScheduledPost", back_populates="published_posts")
 
     # === Relation avec Facebook (MANQUANTE AVANT) ===
     facebook_page_id: Mapped[UUID] = mapped_column(ForeignKey("facebook_pages.id"), nullable=False)
-    facebook_page = relationship("Facebook", back_populates="published_posts", cascade="all, delete-orphan")
+    facebook_page = relationship("Facebook", back_populates="published_posts")
 
     post_id: Mapped[str] = mapped_column(String(255), nullable=True)
     channel: Mapped[str] = mapped_column(String(255), nullable=True)         

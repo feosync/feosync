@@ -46,4 +46,4 @@ class Notification(Base):
     )
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
-    user = relationship("User", back_populates="notifications", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="notifications")
