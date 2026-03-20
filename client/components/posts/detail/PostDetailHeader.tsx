@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
@@ -18,11 +18,13 @@ interface Props {
   post: ScheduledPost
   onBack: () => void
   onDelete: () => void
+  onPublishNow: () => void   // ← nouveau
   isDeleting?: boolean
 }
 
-export function PostDetailHeader({ post, onBack, onDelete, isDeleting }: Props) {
+export function PostDetailHeader({ post, onBack, onDelete, onPublishNow, isDeleting }: Props) {
   const s = STATUS[post.status as PostStatus]
+  const canPublishNow = post.status === 'DRAFT' || post.status === 'SCHEDULED'
 
   return (
     <div className="flex items-center justify-between">
@@ -43,17 +45,31 @@ export function PostDetailHeader({ post, onBack, onDelete, isDeleting }: Props) 
         </div>
       </div>
 
-      {post.status !== 'PUBLISHED' && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950 text-[13px]"
-          onClick={onDelete}
-          disabled={isDeleting}
-        >
-          Supprimer
-        </Button>
-      )}
+      <div className="flex items-center gap-2">
+        {/* Publier maintenant — DRAFT ou SCHEDULED */}
+        {canPublishNow && (
+          <Button
+            size="sm"
+            onClick={onPublishNow}
+            className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5 text-[13px]"
+          >
+            <Send className="w-3.5 h-3.5" />
+            Publier maintenant
+          </Button>
+        )}
+
+        {post.status !== 'PUBLISHED' && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950 text-[13px]"
+            onClick={onDelete}
+            disabled={isDeleting}
+          >
+            Supprimer
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

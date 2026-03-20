@@ -27,6 +27,9 @@ import { useOrganisations }  from '@/hooks/useOrganisations'
 import { useFacebookPages }  from '@/hooks/useFacebookPages'
 import type { PostStatus }   from '@/lib/api/types'
 
+import { PublishNowDialog }  from '@/components/posts/detail/PublishNowDialog'
+import { usePublishNow }     from '@/hooks/usePublishedPosts'
+
 const canEdit = (status: PostStatus) => status === 'DRAFT' || status === 'SCHEDULED'
 
 export default function PostDetailPage() {
@@ -43,6 +46,9 @@ export default function PostDetailPage() {
   const uploadMutation  = useUploadImage(orgId)
   const confirmMutation = useConfirmPost(orgId)
   const deleteMutation  = useDeleteScheduledPost(orgId)
+
+  const publishNowMutation = usePublishNow(orgId)
+  const [publishDialog, setPublishDialog] = useState(false)
 
   // ── Sheet ──
   const [sheetMode, setSheetMode] = useState<'caption' | 'image' | 'date' | null>(null)
@@ -120,6 +126,15 @@ export default function PostDetailPage() {
     router.push('/posts')
   }
 
+  
+
+  const handlePublishNow = async () => {
+    if (!post) return
+    await publishNowMutation.mutateAsync(post.id)
+    setPublishDialog(false)
+    router.push('/published')
+  }
+
   // ── Loading ──
   if (isLoading) return (
     <div className="max-w-2xl mx-auto space-y-4">
@@ -143,6 +158,7 @@ export default function PostDetailPage() {
         post={post}
         onBack={() => router.push('/posts')}
         onDelete={() => setConfirmDelete(true)}
+        onPublishNow={() => setPublishDialog(true)} 
         isDeleting={deleteMutation.isPending}
       />
 
@@ -205,6 +221,15 @@ export default function PostDetailPage() {
         onSave={handleSaveDate}     // DRAFT → local
         onConfirm={handleConfirm}   // SCHEDULED → API
         isPending={confirmMutation.isPending}
+      />
+
+      <PublishNowDialog
+        open={publishDialog}
+        onOpenChange={setPublishDialog}
+        post={post}
+        page={page}
+        onConfirm={handlePublishNow}
+        isPending={publishNowMutation.isPending}
       />
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
