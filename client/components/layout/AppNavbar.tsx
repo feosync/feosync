@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
-import { notificationService } from '@/lib/services';
+
 import { useSidebar } from '@/hooks/useSidebar'; // ← hook partagé
 
 export function AppNavbar() {
@@ -30,11 +30,7 @@ export function AppNavbar() {
     document.documentElement.classList.toggle('dark', prefersDark);
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
-    notificationService.getUnreadNotificationCount(user.id).then(setUnreadCount);
-  }, [user]);
-
+  
   const toggleTheme = () => {
     setIsDark(v => !v);
     document.documentElement.classList.toggle('dark');
