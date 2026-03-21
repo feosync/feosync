@@ -12,7 +12,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'FeoSync - Social Media Automation',
   description: 'Automate your social media posting with AI-powered content generation and scheduling',
-  generator: 'v0.app',
+  generator: 'FeoSync',
   icons: {
     icon: [
       {
