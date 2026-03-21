@@ -1,27 +1,35 @@
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: dream_postgres
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+
     ports:
-      - "5432:5432"
+      - "5434:${DB_PORT}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - dream_network
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6380:6379"
+    networks:
+      - dream_network
+    command: redis-server --appendonly yes
+    volumes:
+    - redis_data:/data
+
 
   api:
     build: .
     container_name: feoSync_api
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     environment:
@@ -34,13 +42,13 @@ services:
     volumes:
       - .:/app
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     networks:
       - dream_network
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   dream_network:
