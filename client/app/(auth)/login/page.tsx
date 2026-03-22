@@ -2,39 +2,39 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, Zap } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-// LeftPanel — focus sur les preuves (chiffres, features courtes)
+
 export function LeftPanel() {
   return (
-    <div className="w-full p-12 lg:p-14 text-white flex flex-col justify-between relative overflow-hidden bg-[#080C14]/60 h-full">
+    <div className="w-full p-12 lg:p-14 text-foreground flex flex-col justify-between relative overflow-hidden bg-background/60 h-full">
       <div className="relative z-10 flex flex-col gap-5">
-        <div className="flex items-center gap-2 w-fit px-3 py-1 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-400 text-[11px] font-semibold tracking-widest uppercase">
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+        {/* Badge IA */}
+        <div className="flex items-center gap-2 w-fit px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary text-[11px] font-semibold tracking-widest uppercase">
+          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           PROPULSÉ PAR L'IA
         </div>
 
+        {/* Headlines */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-5xl font-bold tracking-tight leading-none text-white">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 pr-2">
+          <h2 className="text-5xl font-bold tracking-tight leading-none text-foreground">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-3 pr-2">
               Moins de
             </span>
             temps
           </h2>
-
-          <h2 className="text-5xl font-bold tracking-tight leading-none text-white">
+          <h2 className="text-5xl font-bold tracking-tight leading-none text-foreground">
             Plus
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 pl-2">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-3 pl-2">
               d'impact
             </span>
           </h2>
-          {/* ✅ Tagline courte et différente du header */}
         </div>
 
-        <div className="w-10 h-0.5 bg-gradient-to-r from-cyan-500 to-transparent rounded-full" />
+        <div className="w-10 h-0.5 bg-gradient-to-r from-primary to-transparent rounded-full" />
 
-        {/* ✅ Features réécrites : courtes, orientées bénéfice, sans répéter le header */}
+        {/* Feature list */}
         <ul className="flex flex-col gap-3">
           {[
             "Planifiez toutes vos publications",
@@ -44,13 +44,14 @@ export function LeftPanel() {
           ].map((f) => (
             <li
               key={f}
-              className="flex items-center gap-3 text-slate-400 text-xs"
+              className="flex items-center gap-3 text-muted-foreground text-xs"
             >
-              <div className="w-4 h-4 flex-shrink-0 rounded-full border border-cyan-400/30 bg-cyan-400/10 flex items-center justify-center">
+              <div className="w-4 h-4 flex-shrink-0 rounded-full border border-primary/30 bg-primary/10 flex items-center justify-center">
                 <svg viewBox="0 0 10 8" className="w-2" fill="none">
                   <path
                     d="M1 4l2.5 2.5L9 1"
-                    stroke="#22d3ee"
+                    stroke="currentColor"
+                    className="text-primary"
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -62,8 +63,6 @@ export function LeftPanel() {
           ))}
         </ul>
       </div>
-
-      {/* Stats inchangées */}
     </div>
   );
 }
@@ -89,55 +88,59 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080C14]/95 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Logo */}
       <div className="absolute top-6 left-6 flex flex-col gap-1">
-        <h2 className="text-2xl lg:text-5xl font-bold tracking-tight leading-none text-white">
+        <h2 className="text-2xl lg:text-5xl font-bold tracking-tight leading-none text-foreground">
           Feo
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-3">
             Sync
           </span>
         </h2>
-        <p className="text-slate-400 text-xs tracking-widest font-light lowercase">
-          Synchronisez votre voix digitale{" "}
+        <p className="text-muted-foreground text-xs tracking-widest font-light lowercase">
+          Synchronisez votre voix digitale
         </p>
       </div>
-      {/* Ambient glow */}
+
+      {/* Ambient glow — couleurs issues du thème */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 -right-40 w-[500px] h-[500px] bg-violet-600/6 rounded-full blur-3xl" />
-        <div className="absolute -bottom-20 left-1/3 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 -right-40 w-[500px] h-[500px] bg-chart-2/5 rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 left-1/3 w-[400px] h-[400px] bg-chart-3/5 rounded-full blur-3xl" />
       </div>
 
       <div className="relative flex flex-1 p-6 lg:p-8 gap-6">
-        {/* ── Left — form ── */}
+        {/* ── Colonne gauche — formulaire ── */}
         <div className="flex-1 lg:w-[42%] flex items-center justify-center p-4 lg:p-10">
           <div className="w-full max-w-sm">
             <div className="mb-10 flex flex-col items-center">
-              <h2 className="text-2xl font-semibold text-white text-center leading-tight">
+              <h2 className="text-2xl font-semibold text-foreground text-center leading-tight">
                 Connectez vous & Continuer
               </h2>
             </div>
 
             {error && (
-              <div className="mb-5 bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-red-400 backdrop-blur-sm">
+              <div className="mb-5 bg-destructive/10 border border-destructive/20 rounded-xl p-3 text-sm text-destructive-foreground backdrop-blur-sm">
                 {error}
               </div>
             )}
 
             <div className="flex flex-col gap-3">
+              {/* Bouton Google */}
               <button
                 onClick={handleGoogleLogin}
                 disabled={loading}
                 className="group w-full flex items-center justify-center gap-3 h-12 relative
-                  bg-white/[0.04] hover:bg-white/[0.08]
-                  border border-white/10 hover:border-cyan-500/40
-                  rounded-xl text-sm font-medium text-slate-200
+                  bg-input hover:bg-input/[1.5]
+                  cursor-pointer
+                  border border-border hover:border-primary/40
+                  rounded-xl text-sm font-medium text-foreground
                   transition-all duration-200
-                  hover:shadow-[0_0_20px_rgba(6,182,212,0.08)]
+                  hover:shadow-[0_0_20px_hsl(var(--ring)/0.08)]
                   disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
               >
                 {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 ) : (
                   <svg width="18" height="18" viewBox="0 0 48 48">
                     <path
@@ -163,18 +166,20 @@ export default function LoginPage() {
                   : "Continuer avec Google"}
               </button>
 
+              {/* Bouton Microsoft */}
               <button
                 disabled={loading}
                 className="group w-full flex items-center justify-center gap-3 h-12 relative
-                  bg-white/[0.04] hover:bg-white/[0.08]
-                  border border-white/10 hover:border-violet-500/40
-                  rounded-xl text-sm font-medium text-slate-200
+                  bg-input hover:bg-input/[1.5]
+                  cursor-pointer
+                  border border-border hover:border-chart-2/40
+                  rounded-xl text-sm font-medium text-foreground
                   transition-all duration-200
-                  hover:shadow-[0_0_20px_rgba(139,92,246,0.08)]
+                  hover:shadow-[0_0_20px_hsl(var(--chart-2)/0.08)]
                   disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
               >
                 {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 ) : (
                   <svg
                     width="18"
@@ -194,14 +199,16 @@ export default function LoginPage() {
               </button>
             </div>
 
+            {/* Séparateur */}
             <div className="flex items-center gap-3 my-6">
-              <div className="flex-1 h-px bg-white/[0.06]" />
-              <span className="text-[10px] text-slate-600 uppercase tracking-widest font-medium">
+              <div className="flex-1 h-px bg-border/60" />
+              <span className="text-[10px] text-muted-foreground/50 uppercase tracking-widest font-medium">
                 Connexion sécurisée
               </span>
-              <div className="flex-1 h-px bg-white/[0.06]" />
+              <div className="flex-1 h-px bg-border/60" />
             </div>
 
+            {/* Badges de confiance */}
             <div className="grid grid-cols-3 gap-2 mb-6">
               {[
                 { label: "SSL chiffré", icon: "🔒" },
@@ -210,51 +217,61 @@ export default function LoginPage() {
               ].map((b) => (
                 <div
                   key={b.label}
-                  className="flex flex-col items-center gap-1.5 p-2.5 bg-white/[0.03] hover:bg-white/[0.06] rounded-xl border border-white/[0.06] hover:border-white/10 transition-colors duration-200"
+                  className="flex flex-col items-center gap-1.5 p-2.5
+                    bg-input hover:bg-secondary
+                    rounded-xl border border-border hover:border-border/80
+                    transition-colors duration-200"
                 >
                   <span className="text-sm">{b.icon}</span>
-                  <span className="text-[10px] text-slate-500 text-center leading-tight">
+                  <span className="text-[10px] text-muted-foreground/70 text-center leading-tight">
                     {b.label}
                   </span>
                 </div>
               ))}
             </div>
 
-            <p className="text-center text-[11px] text-slate-600">
+            {/* Mentions légales */}
+            <p className="text-center text-[11px] text-muted-foreground/50">
               En continuant, vous acceptez nos{" "}
               <Link
                 href="#cgu"
-                className="text-cyan-500/70 hover:text-cyan-400 transition-colors"
+                className="text-accent/70 hover:text-primary transition-colors"
               >
                 conditions d'utilisation
               </Link>{" "}
               et notre{" "}
               <Link
                 href="#confidentialite"
-                className="text-cyan-500/70 hover:text-cyan-400 transition-colors"
+                className="text-accent/70 hover:text-primary transition-colors"
               >
                 politique de confidentialité
               </Link>
             </p>
           </div>
         </div>
-        {/* ── Right — visual panel ── */}
+
+        {/* ── Colonne droite — panneau visuel ── */}
         <div className="hidden lg:flex lg:w-[58%] relative overflow-hidden rounded-3xl justify-center items-start">
-          <div className="absolute inset-0 bg-[#0D1320]" />
+          {/* Fond */}
+          <div className="absolute inset-0 bg-card" />
+
+          {/* Grille cyber */}
           <div
             className="absolute inset-0 opacity-[0.04]"
             style={{
-              backgroundImage: `linear-gradient(rgba(6,182,212,1) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,1) 1px, transparent 1px)`,
+              backgroundImage: `linear-gradient(var(--primary) 1px, transparent 1px), linear-gradient(90deg, var(--primary) 1px, transparent 1px)`,
               backgroundSize: "40px 40px",
             }}
           />
-          <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-violet-600/12 rounded-full blur-3xl" />
 
-          <div className="relative z-10 flex flex-col  w-full h-full">
-            {/* ── IMAGE PREVIEW ── */}
+          {/* Glow intérieur */}
+          <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-chart-2/10 rounded-full blur-3xl" />
+
+          <div className="relative z-10 flex flex-col w-full h-full">
+            {/* Image */}
             <div className="h-[100%] w-full flex justify-end items-end absolute bottom-0">
-              <div className="w-[600px] h-[800px]  relative">
+              <div className="w-[600px] h-[800px] relative">
                 <Image
                   src="/images/social.png"
                   alt="social network (instagram, facebook, whatsapp)"
@@ -264,14 +281,13 @@ export default function LoginPage() {
                 />
               </div>
             </div>
-            {/* END IMAGE PREVIEW */}
 
             <LeftPanel />
           </div>
 
-          {/* Corner accents */}
-          <div className="absolute bottom-0 right-0 w-32 h-32 border-b-2 border-r-2 border-cyan-500/40 rounded-br-3xl" />
-          <div className="absolute top-0 left-0 w-24 h-24 border-t-2 border-l-2 border-violet-500/40 rounded-tl-3xl" />
+          {/* Coins décoratifs */}
+          <div className="absolute bottom-0 right-0 w-32 h-32 border-b-2 border-r-2 border-primary/40 rounded-br-3xl" />
+          <div className="absolute top-0 left-0 w-24 h-24 border-t-2 border-l-2 border-chart-2/40 rounded-tl-3xl" />
         </div>
       </div>
     </div>

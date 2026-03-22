@@ -6,7 +6,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { AppNavbar } from '@/components/layout/AppNavbar';
 import { Spinner } from '@/components/ui/spinner';
-import { cn } from '@/lib/utils';
 
 export default function DashboardLayout({
   children,
