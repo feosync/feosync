@@ -8,7 +8,7 @@ import Image from "next/image";
 // LeftPanel — focus sur les preuves (chiffres, features courtes)
 export function LeftPanel() {
   return (
-    <div className="w-full p-12 lg:p-14 text-white flex flex-col justify-between relative overflow-hidden bg-[#080C14]/65 h-full">
+    <div className="w-full p-12 lg:p-14 text-white flex flex-col justify-between relative overflow-hidden bg-[#080C14]/60 h-full">
       <div className="relative z-10 flex flex-col gap-5">
         <div className="flex items-center gap-2 w-fit px-3 py-1 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-400 text-[11px] font-semibold tracking-widest uppercase">
           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
@@ -16,18 +16,6 @@ export function LeftPanel() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-5xl font-bold tracking-tight leading-none text-white">
-              Feo
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                Sync
-              </span>
-            </h2>
-            <p className="text-slate-400 text-xs tracking-widest font-light uppercase">
-              Synchronisez votre voix digitale{" "}
-            </p>
-          </div>
-
           <h2 className="text-5xl font-bold tracking-tight leading-none text-white">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 pr-2">
               Moins de
@@ -49,6 +37,7 @@ export function LeftPanel() {
         {/* ✅ Features réécrites : courtes, orientées bénéfice, sans répéter le header */}
         <ul className="flex flex-col gap-3">
           {[
+            "Planifiez toutes vos publications",
             "Publiez sur tous vos réseaux en un clic",
             "Insights actionnables, pas juste des stats",
             "Contenu IA adapté à chaque plateforme",
@@ -100,7 +89,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080C14] flex flex-col">
+    <div className="min-h-screen bg-[#080C14]/95 flex flex-col">
+      <div className="absolute top-6 left-6 flex flex-col gap-1">
+        <h2 className="text-2xl lg:text-5xl font-bold tracking-tight leading-none text-white">
+          Feo
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+            Sync
+          </span>
+        </h2>
+        <p className="text-slate-400 text-xs tracking-widest font-light lowercase">
+          Synchronisez votre voix digitale{" "}
+        </p>
+      </div>
       {/* Ambient glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl" />
@@ -253,7 +253,7 @@ export default function LoginPage() {
 
           <div className="relative z-10 flex flex-col  w-full h-full">
             {/* ── IMAGE PREVIEW ── */}
-            <div className="h-[100%] w-full flex justify-end items-center absolute bottom-0">
+            <div className="h-[100%] w-full flex justify-end items-end absolute bottom-0">
               <div className="w-[600px] h-[800px]  relative">
                 <Image
                   src="/images/social.png"
@@ -270,8 +270,8 @@ export default function LoginPage() {
           </div>
 
           {/* Corner accents */}
-          <div className="absolute bottom-0 right-0 w-32 h-32 border-b-2 border-r-2 border-cyan-500/10 rounded-br-3xl" />
-          <div className="absolute top-0 left-0 w-24 h-24 border-t-2 border-l-2 border-violet-500/10 rounded-tl-3xl" />
+          <div className="absolute bottom-0 right-0 w-32 h-32 border-b-2 border-r-2 border-cyan-500/40 rounded-br-3xl" />
+          <div className="absolute top-0 left-0 w-24 h-24 border-t-2 border-l-2 border-violet-500/40 rounded-tl-3xl" />
         </div>
       </div>
     </div>
