@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from "react";
 
 import { useDarkMode } from '@/hooks/useDarkMode'
 import { X, MapPin, Mail, Twitter, Github, Linkedin } from "lucide-react";
-import OurValues from "./Values";
+
 
 const teamMembers = [
   {
