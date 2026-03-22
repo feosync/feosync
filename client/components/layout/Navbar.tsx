@@ -69,15 +69,6 @@ export const Navbar = () => {
             }
           </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/login')}
-            className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm"
-          >
-            Connexion
-          </Button>
-
           <motion.div whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }}>
             <Button
               size="sm"

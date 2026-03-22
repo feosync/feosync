@@ -1,28 +1,28 @@
 "use client";
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2 } from 'lucide-react';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2 } from "lucide-react";
 
 const plans = [
   {
-    name: 'Starter',
-    monthly: '0',
-    annual: '0',
-    features: ['1 page Facebook', '10 posts / mois', 'Templates de base'],
+    name: "Starter",
+    monthly: "0",
+    annual: "0",
+    features: ["1 page Facebook", "10 posts / mois", "Templates de base"],
   },
   {
-    name: 'Pro',
-    monthly: '29 000',
-    annual: '23 200',
+    name: "Pro",
+    monthly: "29 000",
+    annual: "23 200",
     featured: true,
-    features: ['3 pages Facebook', 'WhatsApp Business', 'IA Gemini illimitée', 'Analytics avancés'],
+    features: ["3 pages Facebook", "WhatsApp Business", "IA Gemini illimitée", "Analytics avancés"],
   },
   {
-    name: 'Agency',
-    monthly: '79 000',
-    annual: '63 200',
-    features: ['Pages illimitées', 'Multi-clients', 'Accès API', 'Support prioritaire'],
+    name: "Agency",
+    monthly: "79 000",
+    annual: "63 200",
+    features: ["Pages illimitées", "Multi-clients", "Accès API", "Support prioritaire"],
   },
 ];
 
@@ -30,37 +30,46 @@ const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(false);
 
   return (
-    <section className="py-24 px-6" id="pricing">
+    <section className="py-24 px-6 bg-background" id="pricing">
       <div className="max-w-7xl mx-auto text-center">
+
+        {/* ── Titre ── */}
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-display text-[clamp(28px,4vw,44px)] tracking-[-0.01em] text-google-dark mb-4"
+          className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.01em] text-foreground mb-4"
         >
           Tarifs transparents. Aucune surprise.
         </motion.h2>
 
+        {/* ── Toggle mensuel / annuel ── */}
         <div className="flex items-center justify-center gap-4 mb-16">
-          <span className={`text-sm font-ui ${!isAnnual ? 'text-google-dark' : 'text-google-gray-ui'}`}>
+          <span className={`text-sm transition-colors ${!isAnnual ? "text-foreground" : "text-muted-foreground"}`}>
             Mensuel
           </span>
+
           <button
             onClick={() => setIsAnnual(!isAnnual)}
-            className="w-12 h-6 rounded-full bg-google-bg-chip relative transition-colors"
+            className={`w-12 h-6 rounded-full relative transition-colors ${
+              isAnnual ? "bg-primary" : "bg-secondary"
+            }`}
             aria-label="Toggle annual pricing"
           >
             <motion.div
               animate={{ x: isAnnual ? 26 : 4 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-              className="absolute top-1 w-4 h-4 rounded-full bg-google-blue"
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              className="absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm"
             />
           </button>
-          <span className={`text-sm font-ui ${isAnnual ? 'text-google-dark' : 'text-google-gray-ui'}`}>
-            Annuel <span className="text-google-teal font-bold ml-1">−20%</span>
+
+          <span className={`text-sm transition-colors ${isAnnual ? "text-foreground" : "text-muted-foreground"}`}>
+            Annuel{" "}
+            <span className="text-chart-1 font-bold ml-1">−20%</span>
           </span>
         </div>
 
+        {/* ── Grille plans ── */}
         <div className="grid md:grid-cols-3 gap-8">
           {plans.map((plan) => (
             <motion.div
@@ -69,44 +78,55 @@ const Pricing = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               whileHover={{ y: -4 }}
-              className={`bg-card border rounded-xl p-6 transition-shadow hover:shadow-md relative ${
-                plan.featured ? 'border-2 border-google-blue' : 'border-google-border'
+              className={`bg-card rounded-xl p-6 transition-all hover:shadow-md relative ${
+                plan.featured
+                  ? "border-2 border-primary shadow-[0_0_30px_hsl(var(--primary)/0.12)]"
+                  : "border border-border"
               }`}
             >
+              {/* Badge recommandé */}
               {plan.featured && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-google-bg-chip text-google-blue px-4 py-1 rounded-full text-xs font-bold font-ui">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-xs font-bold">
                   RECOMMANDÉ
                 </span>
               )}
-              <h3 className="font-ui text-xl font-medium text-google-dark mb-2">{plan.name}</h3>
+
+              <h3 className="text-xl font-semibold text-foreground mb-2">{plan.name}</h3>
+
+              {/* Prix animé */}
               <div className="mb-6">
                 <AnimatePresence mode="wait">
                   <motion.span
-                    key={isAnnual ? 'annual' : 'monthly'}
+                    key={isAnnual ? "annual" : "monthly"}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="text-3xl font-display font-bold text-google-dark inline-block"
+                    className="text-3xl font-bold text-foreground inline-block"
                   >
                     {isAnnual ? plan.annual : plan.monthly} Ar
                   </motion.span>
                 </AnimatePresence>
-                <span className="text-google-gray-ui text-sm">/mois</span>
+                <span className="text-muted-foreground text-sm">/mois</span>
               </div>
+
+              {/* Features */}
               <ul className="text-left space-y-4 mb-8">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-center gap-3 text-sm text-google-gray-ui">
-                    <CheckCircle2 size={16} className="text-google-green shrink-0" /> {f}
+                  <li key={f} className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <CheckCircle2 size={16} className="text-chart-1 shrink-0" />
+                    {f}
                   </li>
                 ))}
               </ul>
+
+              {/* CTA */}
               <motion.button
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className={`w-full py-3 rounded-[24px] font-ui text-sm font-medium transition-all ${
+                className={`w-full py-3 rounded-[24px] text-sm font-medium transition-all ${
                   plan.featured
-                    ? 'bg-google-blue text-primary-foreground hover:shadow-lg hover:shadow-google-blue/20'
-                    : 'border border-google-border text-google-blue hover:bg-google-bg-chip'
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
+                    : "border border-border text-primary hover:bg-secondary"
                 }`}
               >
                 Choisir {plan.name}
@@ -114,6 +134,7 @@ const Pricing = () => {
             </motion.div>
           ))}
         </div>
+
       </div>
     </section>
   );
