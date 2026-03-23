@@ -58,7 +58,7 @@ class PublishedPostService:
                 detail="This scheduled post has already been published"
             )
             
-        # ✅ Accès direct par channel — plus besoin de chercher par index
+        #  Accès direct par channel 
         fb_id  = scheduled_post.page_ids.get("facebook")
         
 
