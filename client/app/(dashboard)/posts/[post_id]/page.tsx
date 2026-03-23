@@ -105,18 +105,21 @@ export default function PostDetailPage() {
     closeSheet()
   }
 
-  const handleConfirm = async () => {
-    if (!post) return
-    await confirmMutation.mutateAsync({
-      postId: post.id,
-      publish_at: newDate ? new Date(newDate).toISOString() : post.publish_at || undefined
-    })
+
+
+  // DRAFT → juste fermer la sheet, la date sera utilisée au moment de confirmer
+  const handleSaveDate = (utcIso: string) => {
+    if (utcIso) setNewDate(utcIso)   // ← stocke l'UTC pour le confirm ultérieur
+    toast.success('Date enregistrée')
     closeSheet()
   }
 
-  // DRAFT → juste fermer la sheet, la date sera utilisée au moment de confirmer
-  const handleSaveDate = () => {
-    toast.success('Date enregistrée')
+  const handleConfirm = async (utcIso?: string) => {
+    if (!post) return
+    await confirmMutation.mutateAsync({
+      postId: post.id,
+      publish_at: utcIso || post.publish_at || undefined
+    })
     closeSheet()
   }
 
@@ -182,7 +185,7 @@ export default function PostDetailPage() {
       {post.status === 'DRAFT' && (
         <PostScheduleCard
           post={post}
-          onConfirm={handleConfirm}
+          onConfirm={() => handleConfirm()}
           onAddCaption={() => openSheet('caption')}
           onAddImage={()   => openSheet('image')}
           onAddDate={() => openSheet('date')}
