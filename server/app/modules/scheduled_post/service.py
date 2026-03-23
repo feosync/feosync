@@ -239,43 +239,30 @@ class ScheduledPostService:
         payload: ConfirmRequest,
         current_user: User,
     ) -> ScheduledPost:
-        """
-        DRAFT → SCHEDULED.
-        Vérifie que caption et image_url sont présents.
-        Crée la Celery task avec eta=publish_at.
-        """
         post = ScheduledPostService._get_post_owned(db, post_id, current_user)
 
-        if post.status != PostStatus.DRAFT:
+        if post.status in (PostStatus.PUBLISHED, PostStatus.FAILED):
             raise HTTPException(
                 status_code=400,
-                detail=f"Post is already {post.status} — cannot confirm"
+                detail=f"Post déjà {post.status} — impossible de modifier"
             )
+
         if not post.caption:
             raise HTTPException(status_code=400, detail="Caption manquant")
-        if not post.publish_at and not payload.publish_at:
+
+        publish_at = payload.publish_at or post.publish_at
+        if not publish_at:
             raise HTTPException(status_code=400, detail="publish_at manquant")
 
         update_data: dict = {"status": PostStatus.SCHEDULED}
         if payload.publish_at:
             update_data["publish_at"] = payload.publish_at
 
+    
         post = ScheduledPostRepository.update(db, post, update_data)
 
-        # # ── Celery task ───────────────────────────────────────────────────────
-        # try:
-        #     from app.celery.tasks.published_post import published_task
-        #     published_task.apply_async(
-        #         args=[str(post.id), str(current_user.id), current_user.email],
-        #         eta=post.publish_at,
-        #         task_id=f"publish-{post.id}",
-        #     )
-        # except Exception as e:
-        #     # Si Celery indispo → rollback du status
-        #     ScheduledPostRepository.update(db, post, {"status": PostStatus.DRAFT})
-        #     raise HTTPException(status_code=500, detail=f"Scheduling failed: {e}")
-
         return post
+
 
     # ── DELETE ────────────────────────────────────────────────────────────────
 
@@ -283,16 +270,14 @@ class ScheduledPostService:
     def delete(db: Session, post_id: UUID, current_user: User) -> dict:
         post = ScheduledPostService._get_post_owned(db, post_id, current_user)
 
-        # Annule la Celery task si SCHEDULED
         if post.status == PostStatus.SCHEDULED:
-            try:
-                from app.celery_app import celery_app
-                celery_app.control.revoke(f"publish-{post.id}", terminate=True)
-            except Exception:
-                pass
+            from app.celery.task.scheduled_post_events import _safe_revoke
+            _safe_revoke(str(post.id))
 
         ScheduledPostRepository.delete(db, post)
         return {"detail": "Deleted successfully"}
+
+
 
 
 def _upload_file(contents: bytes, filename: str, org_id: UUID) -> str:

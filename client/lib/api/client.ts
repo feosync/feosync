@@ -249,4 +249,3 @@ export class ApiClient {
 }
 
 export const apiClient = ApiClient.getInstance()
-export const isUsingMockApi = () => false  // ← plus de mock
