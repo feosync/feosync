@@ -1,52 +1,97 @@
 from sqlalchemy import event
-from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
-from app.core.contexte import current_user_id, current_user_email
-from celery.result import AsyncResult
-from app.core.redis import redis_client
-from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
+from sqlalchemy.orm import attributes
+from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost, PostStatus
 import logging
 
 logger = logging.getLogger(__name__)
 
-def cancel_scheduled_task(post_id: str) -> bool:
-    task_id = redis_client.get(f"celery_task:{post_id}")
-    if not task_id:
-        return False
-    AsyncResult(task_id).revoke(terminate=True)
-    redis_client.delete(f"celery_task:{post_id}")
-    logger.info(f"🗑️ Task {task_id} revoked for post {post_id}")
-    return True
-
 
 def register_scheduled_post_events():
 
-    @event.listens_for(ScheduledPost, "after_insert")
     @event.listens_for(ScheduledPost, "after_update")
-    def on_scheduled_post_change(mapper, connection, target: ScheduledPost):
-        from .published_post import published_task
+    def on_post_updated(mapper, connection, target: ScheduledPost):
 
-        if target.status != PostStatus.SCHEDULED:
-            return
-        
+        # ── Cas 1 : DRAFT → SCHEDULED (première planification) ───────────────
+        status_history = attributes.get_history(target, "status")
+        just_scheduled = (
+            status_history.added
+            and PostStatus.SCHEDULED in status_history.added
+        )
+
+        # ── Cas 2 : déjà SCHEDULED + publish_at vient de changer ─────────────
+        date_history = attributes.get_history(target, "publish_at")
+        date_changed = (
+            target.status == PostStatus.SCHEDULED
+            and date_history.added  # publish_at a une nouvelle valeur
+        )
+
+        if not just_scheduled and not date_changed:
+            return  # caption, image → on ne fait rien
+
         if not target.publish_at:
+            logger.warning(f"Post {target.id} SCHEDULED sans publish_at")
             return
 
-        # ✅ Révoquer l'ancienne tâche si elle existe (update)
-        cancel_scheduled_task(str(target.id)) 
+        try:
+            from app.core.contexte import current_user_id, current_user_email
+            user_id    = current_user_id.get()
+            user_email = current_user_email.get()
+        except Exception:
+            user_id    = None
+            user_email = ""
 
-        user_id = current_user_id.get()
-        user_email = current_user_email.get()
+        # ── Révoque l'ancienne task ───────────────────────────────────────────
+        _safe_revoke(str(target.id))
 
-        # ✅ Planifier la nouvelle tâche
-        result = published_task.apply_async( 
-            args=[str(target.id), str(user_id), user_email],
-            eta=target.publish_at
+        # ── Planifie avec le nouveau publish_at ───────────────────────────────
+        _safe_schedule(str(target.id), str(user_id), user_email, target.publish_at)
+        logger.info(
+            f"{'Nouvelle' if just_scheduled else 'Replanification'} task "
+            f"pour post {target.id} à {target.publish_at}"
         )
 
-        # ✅ Sauvegarder le task_id pour révocation future
-        redis_client.set(              
-            f"celery_task:{target.id}",
-            result.id
+def _safe_revoke(post_id: str) -> None:
+    try:
+        from app.celery.celery_app import celery_app
+        from app.core.redis import redis_client
+
+        task_id = redis_client.get(f"celery_task:{post_id}")
+        if not task_id:
+            logger.info(f"Aucune task Redis pour post {post_id}")
+            return
+
+        # Decode si bytes
+        if isinstance(task_id, bytes):
+            task_id = task_id.decode()
+
+        celery_app.control.revoke(task_id, terminate=True)
+        redis_client.delete(f"celery_task:{post_id}")
+        logger.info(f"Task {task_id} révoquée pour post {post_id}")
+
+    except Exception as e:
+        logger.warning(f"Révocation impossible pour {post_id}: {e}")
+
+
+def _safe_schedule(post_id: str, user_id: str, user_email: str, publish_at) -> None:
+    try:
+        from app.celery.task.published_post import published_task
+        from app.core.redis import redis_client
+        from uuid import uuid4
+
+        # ✅ task_id unique — jamais dans la blacklist de révocation
+        task_id = f"publish-{post_id}-{uuid4().hex[:8]}"
+
+        result = published_task.apply_async(
+            args=[post_id, user_id, user_email],
+            eta=publish_at,
+            task_id=task_id,
         )
 
-        logger.info(f"⏰ Task scheduled at {target.publish_at} for post {target.id}")
+        # Stocke le nouveau task_id pour révocation future
+        redis_client.set(f"celery_task:{post_id}", result.id)
+        logger.info(f"Task planifiée : post {post_id} à {publish_at} (task_id={task_id})")
+
+    except (ConnectionRefusedError, OSError):
+        logger.warning(f"Redis indisponible — post {post_id} sans task Celery")
+    except Exception as e:
+        logger.warning(f"Celery erreur ({type(e).__name__}): {e}")
