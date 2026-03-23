@@ -5,10 +5,12 @@ import { ArrowRight } from "lucide-react";
 
 const FinalCTA = () => {
   return (
-    <section id="cta" className="py-24 px-6 w-full lg:h-[80vh] bg-background">
-      <div className="mx-auto w-full lg:max-w-5xl h-2/3 rounded-[32px]
+    <section id="cta" className=" px-6 w-full lg:h-max bg-background min-h-[500px]">
+      <div className="mx-auto w-full lg:max-w-5xl h-full rounded-[32px]
                       bg-gradient-to-br from-primary/10 to-chart-2/10
-                      p-12 md:p-20 text-center border border-border">
+                      p-12 md:p-20 text-center border border-border
+                      flex flex-col items-center justify-center
+                      ">
 
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
