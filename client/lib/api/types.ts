@@ -295,14 +295,15 @@ export interface NotificationSummary {
 }
 
 
+
 // ── Plans ─────────────────────────────────────────────────────────────────────
 
 export interface Plan {
   id: number
   name: string
-  price_ariary: number
-  max_pages: number
-  max_posts_month: number
+  price: number
+  max_page: number
+  max_post_month: number
   max_ai_gen: number
   features: Record<string, unknown>
   is_active: boolean
@@ -312,9 +313,9 @@ export interface Plan {
 
 export interface CreatePlanRequest {
   name: string
-  price_ariary: number
-  max_pages: number
-  max_posts_month: number
+  price: number
+  max_page: number
+  max_post_month: number
   max_ai_gen: number
   features?: Record<string, unknown>
   is_active?: boolean
