@@ -4,78 +4,92 @@ import {
   Facebook,
   Sparkles,
   BookMarked,
-  Clock,
   CheckCircle2,
   TrendingUp,
-  Bell,
-  Settings,
-  LogOut,
+  Users,
+  CreditCard,
+  ShieldCheck,
 } from 'lucide-react';
-
 
 export const NAVIGATION_ITEMS = [
   {
-    section: 'Principal',            // ← Main
+    section: 'Principal',
     items: [
       {
-        label: 'Tableau de bord',    // ← Dashboard
+        label: 'Tableau de bord',
         href: '/overview',
         icon: LayoutDashboard,
       },
     ],
   },
   {
-    section: 'Gestion',              // ← Management
+    section: 'Gestion',
     items: [
       {
-        label: 'Organisations',      // ← Organizations
+        label: 'Organisations',
         href: '/organizations',
         icon: Building2,
       },
       {
-        label: 'Pages Facebook',     // ← Facebook Pages
+        label: 'Pages Facebook',
         href: '/pages',
         icon: Facebook,
       },
     ],
   },
   {
-    section: 'Contenu',              // ← Content
+    section: 'Contenu',
     items: [
       {
-        label: 'Générateur IA',      // ← AI Generator
+        label: 'Générateur IA',
         href: '/ai',
         icon: Sparkles,
       },
       {
-        label: 'Modèles',            // ← Templates
+        label: 'Modèles',
         href: '/templates',
         icon: BookMarked,
       },
     ],
   },
   {
-    section: 'Publication',          // ← Publishing
+    section: 'Publication',
     items: [
       {
-        label: 'Planificateur',      // ← Scheduler
+        label: 'Planificateur',
         href: '/posts',
         icon: CheckCircle2,
       },
       {
-        label: 'Posts publiés',      // ← Published Posts
+        label: 'Posts publiés',
         href: '/published',
         icon: TrendingUp,
       },
     ],
   },
   {
-    section: 'Analyses',             // ← Analytics
+    section: 'Analyses',
     items: [
       {
-        label: 'Analyses',           // ← Analytics
+        label: 'Analyses',
         href: '/analytics',
         icon: TrendingUp,
+      },
+    ],
+  },
+  {
+    section: 'Administration',
+    adminOnly: true,            
+    items: [
+      {
+        label: 'Utilisateurs',
+        href: '/admin/users',
+        icon: Users,
+      },
+      {
+        label: 'Plans',
+        href: '/admin/plans',
+        icon: CreditCard,
       },
     ],
   },
