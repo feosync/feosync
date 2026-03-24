@@ -8,6 +8,10 @@ from app.core.base import Base
 from app.core.config import settings
 from app.celery.task.scheduled_post_events import register_scheduled_post_events
 from pathlib import Path
+from app.core.logger import configure_logging, get_logger
+
+configure_logging()
+logger = get_logger(__name__)
 
 Base.metadata.create_all(bind=engine)
 
@@ -16,6 +20,7 @@ app = FastAPI(
     description="FeoSync - Social Media Management Platform API",
     version="1.0.0",
 )
+
 register_scheduled_post_events()
 
 
@@ -29,6 +34,7 @@ app.add_middleware(
 )
 
 templates = Jinja2Templates(directory="app/templates")
+
 
 # Routes avant le mount static
 @app.get("/")
