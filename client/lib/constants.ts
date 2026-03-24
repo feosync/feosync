@@ -9,6 +9,8 @@ import {
   Users,
   CreditCard,
   ShieldCheck,
+  Calendar
+  
 } from 'lucide-react';
 
 export const NAVIGATION_ITEMS = [
@@ -58,12 +60,12 @@ export const NAVIGATION_ITEMS = [
       {
         label: 'Planificateur',
         href: '/posts',
-        icon: CheckCircle2,
+        icon: Calendar,
       },
       {
         label: 'Posts publiés',
         href: '/published',
-        icon: TrendingUp,
+        icon: CheckCircle2,
       },
     ],
   },

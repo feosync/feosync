@@ -5,13 +5,14 @@ from fastapi import HTTPException, status
 from app.modules.user.model import User
 from app.modules.user.repository import UserRepository
 from app.modules.user.schemas import UserUpdate
+from app.shared.pagination.paginator import PaginationParams
 
 
 class UserService:
 
     @staticmethod
-    def get_all(db: Session) -> list[User]:
-        return UserRepository.get_all(db)
+    def get_all(db: Session, params: PaginationParams, search: str | None = None) -> tuple[list[User], int]:
+        return UserRepository.get_all_paginated(db, params, search=search)
 
     @staticmethod
     def get_by_id(db: Session, user_id: UUID) -> User:
