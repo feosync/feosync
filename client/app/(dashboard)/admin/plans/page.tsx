@@ -29,7 +29,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import type { Plan } from '@/lib/api/types'
-import { PlanDialog } from '@/components/admin/PlanDialog'
+import { PlanDialog } from '@/components/admin/plans/PlanDialog'
 
 
 // ── Page ──────────────────────────────────────────────────────────────────────
