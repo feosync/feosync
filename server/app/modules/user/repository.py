@@ -1,13 +1,37 @@
 from uuid import UUID
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.modules.user.model import User
-
+from app.shared.pagination.paginator import PaginationParams
 
 class UserRepository:
 
     @staticmethod
-    def get_all(db: Session) -> list[User]:
-        return db.query(User).order_by(User.created_at.desc()).all()
+    def get_all_paginated(
+        db: Session,
+        params: PaginationParams,
+        search: str | None = None,
+    ) -> tuple[list[User], int]:
+        query = db.query(User)
+
+        if search:
+            term = f"%{search.strip()}%"
+            query = query.filter(
+                or_(
+                    User.name.ilike(term),
+                    User.email.ilike(term),
+                )
+            )
+
+        total = query.count()
+        users = (
+            query
+            .order_by(User.created_at.desc())
+            .offset(params.offset)
+            .limit(params.limit)
+            .all()
+        )
+        return users, total
 
     @staticmethod
     def get_by_id(db: Session, user_id: UUID) -> User | None:

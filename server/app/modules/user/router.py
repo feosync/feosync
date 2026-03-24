@@ -1,5 +1,6 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -7,6 +8,8 @@ from app.modules.auth.dependencies import get_active_user, get_admin_user
 from app.modules.user.model import User
 from app.modules.user.schemas import UserResponse, UserUpdate, UserSummary
 from app.modules.user.service import UserService
+from app.shared.pagination.paginator import PaginatedResponse, Pagination
+
 
 user_router = APIRouter()
 
@@ -68,11 +71,19 @@ admin_user_router = APIRouter(dependencies=[Depends(get_admin_user)])
 
 @admin_user_router.get(
     "/",
-    response_model=list[UserSummary],
+    response_model=PaginatedResponse[UserSummary],
     summary="Lister tous les utilisateurs (Admin)",
 )
-async def get_all_users(db: Session = Depends(get_db)):
-    return UserService.get_all(db)
+async def get_all_users(
+    
+    params: Pagination ,
+    search: str | None = Query(None, description="Recherche par nom ou email"),
+    db: Session = Depends(get_db),
+):
+    
+    users, total = UserService.get_all(db, params, search=search)
+    items = [UserSummary.model_validate(u) for u in users]
+    return PaginatedResponse.build(items, total, params)
 
 
 @admin_user_router.patch(

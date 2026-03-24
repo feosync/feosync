@@ -1,3 +1,5 @@
+import { UserSummary, PaginatedResponse } from "./types"
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export class ApiClient {
@@ -106,10 +108,18 @@ export class ApiClient {
 
   // ── Admin — Users ─────────────────────────────────────────────────────────
 
-  async adminGetAllUsers(): Promise<any[]> {
-    return this.request('/api/v1/admin/users/')
+  async adminGetAllUsers(params?: {
+    page?: number
+    page_size?: number
+    search?: string
+  }): Promise<PaginatedResponse<UserSummary>> {
+    const query = new URLSearchParams()
+    if (params?.page) query.set('page', String(params.page))
+    if (params?.page_size) query.set('page_size', String(params.page_size))
+    if (params?.search) query.set('search', params.search)
+    return this.request(`/api/v1/admin/users/?${query.toString()}`)
   }
-
+  
   async adminGetUserById(userId: string): Promise<any> {
     return this.request(`/api/v1/admin/users/${userId}`)
   }

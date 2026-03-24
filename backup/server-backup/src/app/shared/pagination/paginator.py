@@ -43,3 +43,6 @@ class PaginatedResponse(BaseModel, Generic[T]):
             page_size=params.page_size,
             total_pages=total_pages,
         )
+
+
+        
