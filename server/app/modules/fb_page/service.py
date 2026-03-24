@@ -96,6 +96,9 @@ class FacebookService:
         return r.json().get("data", [])
 
     # ── CRUD Pages ────────────────────────────────────────────────────────────
+    
+    def get_by_fb_page_id(db:Session, post_id:str)->Facebook:
+        return FacebookPageRepository.get_by_fb_page_id(db=db, post_id=post_id)
 
     @staticmethod
     def get_all(db: Session, org_id: UUID) -> list[Facebook]:
