@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     META_APP_ID: str | None = None
     META_APP_SECRET: str | None = None
     META_REDIRECT_URI: str | None = None
+    META_GRAPH_URL: str
 
     # Mail settings
     MAIL_USERNAME: str | None = None
