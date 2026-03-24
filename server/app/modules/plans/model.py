@@ -1,8 +1,8 @@
 from typing import List, TYPE_CHECKING
-from sqlalchemy import Column, Integer, String, Float, ARRAY, ForeignKey  # type: ignore
+from sqlalchemy import  Integer, String, Float, ARRAY, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.base import Base
-from uuid import UUID
+
 
 class Plan(Base):
     __tablename__ = "plans"
@@ -13,5 +13,7 @@ class Plan(Base):
     max_page: Mapped[int] = mapped_column(Integer, nullable=False)
     max_post_month:Mapped[int] = mapped_column(Integer, nullable=False)  
     max_ai_gen: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True) 
+
     user = relationship("User", back_populates="plan")
     
