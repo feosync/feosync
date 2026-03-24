@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
@@ -97,3 +97,45 @@ class PublishedPostResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+
+# 🔹 value des réactions (like, love, etc.)
+class ReactionValue(BaseModel):
+    like: Optional[int] = 0
+    love: Optional[int] = 0
+    wow: Optional[int] = 0
+    haha: Optional[int] = 0
+    sad: Optional[int] = 0
+    angry: Optional[int] = 0
+
+
+# 🔹 chaque entrée dans values[]
+class InsightValue(BaseModel):
+    value: ReactionValue
+    end_time: Optional[datetime] = None
+
+
+# 🔹 chaque bloc (day, week, etc.)
+class InsightItem(BaseModel):
+    name: str
+    period: str
+    values: List[InsightValue]
+    title: Optional[str] = None
+    description: Optional[str] = None
+    id: str
+
+
+# 🔹 pagination
+class Paging(BaseModel):
+    previous: Optional[str] = None
+
+
+# 🔹 réponse complète
+class PageInsightsResponse(BaseModel):
+    data: List[InsightItem]
+    paging: Optional[Paging] = None
+    
+    
+#======================SCHEMA ENGAGEMENT===========================
+
