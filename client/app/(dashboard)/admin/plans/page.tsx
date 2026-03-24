@@ -45,9 +45,9 @@ import type { Plan, CreatePlanRequest } from '@/lib/api/types'
 
 const EMPTY_FORM: CreatePlanRequest = {
   name: '',
-  price_ariary: 0,
-  max_pages: 1,
-  max_posts_month: 10,
+  price: 0,
+  max_page: 1,
+  max_post_month: 10,
   max_ai_gen: 5,
   features: {},
   is_active: true,
@@ -70,9 +70,9 @@ function PlanDialog({
     initial
       ? {
           name: initial.name,
-          price_ariary: initial.price_ariary,
-          max_pages: initial.max_pages,
-          max_posts_month: initial.max_posts_month,
+          price: initial.price,
+          max_page: initial.max_page,
+          max_post_month: initial.max_post_month,
           max_ai_gen: initial.max_ai_gen,
           features: initial.features ?? {},
           is_active: initial.is_active,
@@ -112,8 +112,8 @@ function PlanDialog({
               <Input
                 type="number"
                 min={0}
-                value={form.price_ariary}
-                onChange={e => set('price_ariary', Number(e.target.value))}
+                value={form.price}
+                onChange={e => set('price', Number(e.target.value))}
               />
             </div>
             <div className="space-y-1.5">
@@ -121,8 +121,8 @@ function PlanDialog({
               <Input
                 type="number"
                 min={1}
-                value={form.max_pages}
-                onChange={e => set('max_pages', Number(e.target.value))}
+                value={form.max_page}
+                onChange={e => set('max_page', Number(e.target.value))}
               />
             </div>
           </div>
@@ -133,8 +133,8 @@ function PlanDialog({
               <Input
                 type="number"
                 min={1}
-                value={form.max_posts_month}
-                onChange={e => set('max_posts_month', Number(e.target.value))}
+                value={form.max_post_month}
+                onChange={e => set('max_post_month', Number(e.target.value))}
               />
             </div>
             <div className="space-y-1.5">
@@ -187,7 +187,8 @@ export default function AdminPlansPage() {
   const openEdit = (p: Plan) => { setEditing(p); setDialogOpen(true) }
   const closeDialog = () => { setDialogOpen(false); setEditing(undefined) }
 
-  const fmt = (n: number) => n.toLocaleString('fr-MG') + ' Ar'
+  const fmt = (n: number | undefined | null) => 
+  (n ?? 0).toLocaleString('fr-MG') + ' Ar'
 
   return (
     <div className="p-6 space-y-6">
@@ -248,13 +249,13 @@ export default function AdminPlansPage() {
                     {p.name}
                   </TableCell>
                   <TableCell className="text-sm font-mono">
-                    {fmt(p.price_ariary)}
+                    {fmt(p?.price)}
                   </TableCell>
                   <TableCell className="text-sm text-slate-600 dark:text-slate-400">
-                    {p.max_pages}
+                    {p.max_page}
                   </TableCell>
                   <TableCell className="text-sm text-slate-600 dark:text-slate-400">
-                    {p.max_posts_month}
+                    {p.max_post_month}
                   </TableCell>
                   <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                     {p.max_ai_gen}
