@@ -1,15 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
-import type { User, UserSummary } from '@/lib/api/types'
+import type { User, UserSummary, PaginatedResponse } from '@/lib/api/types'
 
 const QUERY_KEY = ['admin', 'users']
 
-export function useAdminUsers() {
+export function useAdminUsers(params?: {
+  page?: number
+  page_size?: number
+  search?: string
+}) {
   return useQuery({
-    queryKey: QUERY_KEY,
-    queryFn: () => apiClient.adminGetAllUsers() as Promise<UserSummary[]>,
+    queryKey: [...QUERY_KEY, params],
+    queryFn: () => apiClient.adminGetAllUsers(params) as Promise<PaginatedResponse<UserSummary>>,
     staleTime: 1000 * 60 * 2,
+    placeholderData: (prev) => prev,  
   })
 }
 
