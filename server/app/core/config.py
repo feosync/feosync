@@ -1,5 +1,8 @@
 from pydantic_settings import BaseSettings # type: ignore
 class Settings(BaseSettings):
+    APP_NAME: str = "FeoSync"
+    APP_ENV: str = "development"
+
     GEMINI_API_KEY: str
     DB_HOST: str
     DB_PORT: str
