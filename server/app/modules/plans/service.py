@@ -49,7 +49,7 @@ class PlanService:
     @staticmethod
     def get_all_admin(db: Session, current_user: User) -> list[Plan]:
         """Retourne tous les plans y compris inactifs (vue admin)"""
-        _require_admin(current_user)
+        
         return PlanRepository.get_all(db, active_only=False)
 
     @staticmethod

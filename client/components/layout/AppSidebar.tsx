@@ -2,17 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, X } from 'lucide-react'
+import { ChevronDown, X, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils';
 import { NAVIGATION_ITEMS } from '@/lib/constants';
 import { useSidebar } from '@/hooks/useSidebar';
+import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { isOpen, close } = useSidebar();
+  const { user } = useAuth();
 
-  // Toutes les sections étendues par défaut
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(NAVIGATION_ITEMS.map(s => s.section))
   );
@@ -24,6 +25,11 @@ export function AppSidebar() {
       return next;
     });
   };
+
+  // Filtrer les sections admin si l'utilisateur n'est pas admin
+  const visibleSections = NAVIGATION_ITEMS.filter(
+    section => !section.adminOnly || user?.is_admin
+  );
 
   return (
     <>
@@ -46,7 +52,6 @@ export function AppSidebar() {
           {isOpen ? (
             <>
               <span className="font-bold text-blue-600 text-lg">FeoSync</span>
-              {/* X visible uniquement sur mobile */}
               <button
                 onClick={close}
                 className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -64,14 +69,22 @@ export function AppSidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-3 space-y-3 px-2">
-          {NAVIGATION_ITEMS.map(section => (
+          {visibleSections.map(section => (
             <div key={section.section}>
               {isOpen && (
                 <button
                   onClick={() => toggleSection(section.section)}
-                  className="flex items-center justify-between w-full px-2 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                  className={cn(
+                    'flex items-center justify-between w-full px-2 py-1 text-xs font-semibold hover:text-slate-800 dark:hover:text-slate-200',
+                    section.adminOnly
+                      ? 'text-amber-500 dark:text-amber-400'
+                      : 'text-slate-500 dark:text-slate-400'
+                  )}
                 >
-                  {section.section}
+                  <span className="flex items-center gap-1.5">
+                    {section.adminOnly && <ShieldCheck className="w-3 h-3" />}
+                    {section.section}
+                  </span>
                   <ChevronDown className={cn(
                     'w-3 h-3 transition-transform duration-200',
                     expandedSections.has(section.section) ? 'rotate-0' : '-rotate-90'
@@ -96,7 +109,9 @@ export function AppSidebar() {
                       <div className={cn(
                         'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                         isActive
-                          ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400'
+                          ? section.adminOnly
+                            ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400'
+                            : 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400'
                           : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-slate-200',
                         !isOpen && 'md:justify-center md:px-2'
                       )}>

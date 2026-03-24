@@ -51,7 +51,6 @@ export class ApiClient {
   // ── Auth ──────────────────────────────────────────────────────────────────
 
   async googleLogin(googleToken: string): Promise<{ access_token: string; user: any }> {
-    // POST /api/v1/auth/google/auth
     const data = await this.request<{ access_token: string; token_type: string; user: any }>(
       '/api/v1/auth/google/auth',
       { method: 'POST', body: JSON.stringify({ token: googleToken }) }
@@ -68,6 +67,63 @@ export class ApiClient {
     try { await this.request('/api/v1/auth/logout', { method: 'POST' }) } finally {
       this.clearToken()
     }
+  }
+
+  // ── Plans ─────────────────────────────────────────────────────────────────
+
+  async getPlans(): Promise<any[]> {
+    return this.request('/api/v1/plans/')
+  }
+
+  async getPlanById(planId: string): Promise<any> {
+    return this.request(`/api/v1/plans/${planId}`)
+  }
+
+  async subscribeToPlan(planId: string): Promise<any> {
+    return this.request(`/api/v1/plans/${planId}/subscribe`, { method: 'POST' })
+  }
+
+  async unsubscribeFromPlan(): Promise<any> {
+    return this.request('/api/v1/plans/me/unsubscribe', { method: 'DELETE' })
+  }
+
+  // [Admin] Plans
+  async adminGetAllPlans(): Promise<any[]> {
+    return this.request('/api/v1/plans/admin/all')
+  }
+
+  async adminCreatePlan(data: any): Promise<any> {
+    return this.request('/api/v1/plans/', { method: 'POST', body: JSON.stringify(data) })
+  }
+
+  async adminUpdatePlan(planId: string, data: any): Promise<any> {
+    return this.request(`/api/v1/plans/${planId}`, { method: 'PATCH', body: JSON.stringify(data) })
+  }
+
+  async adminDeletePlan(planId: string): Promise<void> {
+    await this.request(`/api/v1/plans/${planId}`, { method: 'DELETE' })
+  }
+
+  // ── Admin — Users ─────────────────────────────────────────────────────────
+
+  async adminGetAllUsers(): Promise<any[]> {
+    return this.request('/api/v1/admin/users/')
+  }
+
+  async adminGetUserById(userId: string): Promise<any> {
+    return this.request(`/api/v1/admin/users/${userId}`)
+  }
+
+  async adminPromoteUser(userId: string): Promise<any> {
+    return this.request(`/api/v1/admin/users/${userId}/promote`, { method: 'PATCH' })
+  }
+
+  async adminDemoteUser(userId: string): Promise<any> {
+    return this.request(`/api/v1/admin/users/${userId}/demote`, { method: 'PATCH' })
+  }
+
+  async adminDeleteUser(userId: string): Promise<void> {
+    await this.request(`/api/v1/admin/users/${userId}`, { method: 'DELETE' })
   }
 
   // ── Organisations ─────────────────────────────────────────────────────────
@@ -123,6 +179,7 @@ export class ApiClient {
   async getScheduledPosts(orgId: string): Promise<any[]> {
     return this.request(`/api/v1/scheduled/org/${orgId}`)
   }
+
   async getScheduledPostById(postId: string): Promise<any> {
     return this.request(`/api/v1/scheduled/${postId}`)
   }
@@ -130,7 +187,7 @@ export class ApiClient {
   async createScheduledPost(data: any): Promise<any> {
     return this.request('/api/v1/scheduled/', { method: 'POST', body: JSON.stringify(data) })
   }
-  
+
   async patchCaption(postId: string, data: any): Promise<any> {
     return this.request(`/api/v1/scheduled/${postId}/caption`, { method: 'PATCH', body: JSON.stringify(data) })
   }
@@ -165,22 +222,20 @@ export class ApiClient {
     return this.request(`/api/v1/published/org/${orgId}`)
   }
 
-
   async getPublishedPostById(postId: string): Promise<any> {
     return this.request(`/api/v1/published/${postId}`)
   }
 
   async deletePublishedPost(postId: string): Promise<void> {
-      await this.request(`/api/v1/published/${postId}`, { method: 'DELETE' })
+    await this.request(`/api/v1/published/${postId}`, { method: 'DELETE' })
   }
+
   async publishPost(scheduledPostId: string): Promise<any> {
     return this.request('/api/v1/published/publish', {
       method: 'POST',
       body: JSON.stringify({ scheduled_post_id: scheduledPostId })
     })
   }
-
-
 
   async syncMetrics(postId: string): Promise<any> {
     return this.request(`/api/v1/published/${postId}/sync-metrics`, { method: 'POST' })
@@ -236,9 +291,7 @@ export class ApiClient {
   }
 
   async deleteTemplate(id: string, orgId: string): Promise<void> {
-    await this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, {
-      method: 'DELETE'
-    })
+    await this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, { method: 'DELETE' })
   }
 
   // ── Post Analytics ────────────────────────────────────────────────────────
