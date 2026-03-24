@@ -29,6 +29,7 @@ class UserCreate(UserBase):
     """User creation schema"""
     google_id: str
     profile_picture: Optional[str] = None
+    is_admin: bool = False
 
 
 class UserResponse(UserBase):
@@ -37,6 +38,7 @@ class UserResponse(UserBase):
     google_id: Optional[str]
     profile_picture: Optional[str]
     is_active: bool
+    is_admin: bool
     created_at: datetime
     updated_at: datetime
 
@@ -69,6 +71,7 @@ class LoginResponse(BaseModel):
                     "google_id": "123456789",
                     "profile_picture": "https://example.com/profile.jpg",
                     "is_active": True,
+                    "is_admin": False,
                     "created_at": "2026-03-12T10:00:00",
                     "updated_at": "2026-03-12T10:00:00"
                 }
