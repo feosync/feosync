@@ -305,7 +305,7 @@ export interface Plan {
   max_page: number
   max_post_month: number
   max_ai_gen: number
-  features: Record<string, unknown>
+  features: string[]
   is_active: boolean
   created_at: string
   updated_at: string
@@ -317,7 +317,7 @@ export interface CreatePlanRequest {
   max_page: number
   max_post_month: number
   max_ai_gen: number
-  features?: Record<string, unknown>
+  features?: string[]
   is_active?: boolean
 }
 
