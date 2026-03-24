@@ -1,7 +1,16 @@
-from pydantic_settings import BaseSettings # type: ignore
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings 
+from typing import Literal
+
 class Settings(BaseSettings):
+     # ── Application ───────────────────────────────────────────────────────────
     APP_NAME: str = "FeoSync"
-    APP_ENV: str = "development"
+    APP_ENV: Literal["development", "staging", "production"] = "development"
+    APP_DEBUG: bool = False
+    SECRET_KEY: str | None = None
+
+    FIRST_ADMIN_EMAIL : str = "anicet22.aps2a@gmail.com"
 
     GEMINI_API_KEY: str
     DB_HOST: str
@@ -22,8 +31,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str | None = None
     GOOGLE_CLIENT_SECRET: str | None = None
     
-    # Secret key for JWT or other purposes
-    SECRET_KEY: str | None = None
+    
 
     # Facebook API Credentials
     META_APP_ID: str | None = None
@@ -52,4 +60,14 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         
-settings = Settings()
+    @property
+    def is_production(self) -> bool:
+        return self.APP_ENV == "production"
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+
+settings = get_settings()

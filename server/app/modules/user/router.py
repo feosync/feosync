@@ -75,6 +75,24 @@ async def get_all_users(db: Session = Depends(get_db)):
     return UserService.get_all(db)
 
 
+@admin_user_router.patch(
+    "/{user_id}/promote",
+    status_code=status.HTTP_200_OK,
+    summary="Promouvoir un utilisateur en admin",
+)
+async def promote_user(user_id: UUID, db: Session = Depends(get_db)):
+    return UserService.set_admin(db, user_id, True)
+
+
+@admin_user_router.patch(
+    "/{user_id}/demote",
+    status_code=status.HTTP_200_OK,
+    summary="Rétrograder un admin en utilisateur",
+)
+async def demote_user(user_id: UUID, db: Session = Depends(get_db)):
+    return UserService.set_admin(db, user_id, False)
+
+
 @admin_user_router.get(
     "/{user_id}",
     response_model=UserResponse,
