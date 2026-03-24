@@ -49,7 +49,7 @@ const EMPTY_FORM: CreatePlanRequest = {
   max_page: 1,
   max_post_month: 10,
   max_ai_gen: 5,
-  features: {},
+  features: [],
   is_active: true,
 }
 
@@ -74,7 +74,7 @@ function PlanDialog({
           max_page: initial.max_page,
           max_post_month: initial.max_post_month,
           max_ai_gen: initial.max_ai_gen,
-          features: initial.features ?? {},
+          features: initial.features ?? [],
           is_active: initial.is_active,
         }
       : EMPTY_FORM

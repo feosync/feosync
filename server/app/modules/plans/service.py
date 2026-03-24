@@ -31,10 +31,10 @@ class PlanService:
         plan = _get_or_404(db, plan_id)
 
         # Vérifie qu'aucun utilisateur actif n'est sur ce plan
-        if plan.users:
+        if plan.user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"{len(plan.users)} utilisateur(s) sont sur ce plan — désactivez-le plutôt"
+                detail=f"{len(plan.user)} utilisateur(s) sont sur ce plan — désactivez-le plutôt"
             )
         PlanRepository.delete(db, plan)
         return {"detail": f"Plan '{plan.name}' supprimé"}
