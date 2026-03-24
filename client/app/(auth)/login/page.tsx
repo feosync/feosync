@@ -123,7 +123,7 @@ export default function LoginPage() {
             Sync
           </span>
         </h2>
-        <p className="text-muted-foreground text-xs tracking-widest font-light lowercase">
+        <p className="text-muted-foreground text-xs tracking-widest font-light">
           Synchronisez votre voix digitale
         </p>
       </div>
@@ -233,11 +233,11 @@ export default function LoginPage() {
             {/* Mentions légales */}
             <p className="text-center text-[11px] text-muted-foreground/50">
               En continuant, vous acceptez nos{" "}
-              <Link href="#cgu" className="text-accent/70 hover:text-primary transition-colors">
+              <Link href="/#cgu" className="text-accent/70 hover:text-primary transition-colors">
                 conditions d'utilisation
               </Link>{" "}
               et notre{" "}
-              <Link href="#confidentialite" className="text-accent/70 hover:text-primary transition-colors">
+              <Link href="/#confidentialite" className="text-accent/70 hover:text-primary transition-colors">
                 politique de confidentialité
               </Link>
             </p>
