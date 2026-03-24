@@ -10,10 +10,10 @@ export interface User {
   google_email: string | null
   profile_picture: string | null
   is_active: boolean
+  is_admin: boolean
   plan_id: number | null
   created_at: string
   updated_at: string
-  // compatibilité mock v0
   avatar?: string
 }
 
@@ -26,6 +26,20 @@ export interface LoginResponse {
 export interface GoogleCallbackRequest {
   code: string
   redirect_uri: string
+}
+
+export interface UserSummary {
+  id: string
+  name: string
+  email: string
+  is_active: boolean
+  is_admin: boolean
+  plan_id: number | null
+  created_at: string
+}
+
+export interface PromoteDemoteResponse {
+  detail: string
 }
 
 // ── Organisation ──────────────────────────────────────────────────────────────
@@ -280,16 +294,42 @@ export interface NotificationSummary {
   unread: number
 }
 
+
+
 // ── Plans ─────────────────────────────────────────────────────────────────────
 
 export interface Plan {
   id: number
   name: string
-  price_ariary: number
-  max_pages: number
-  max_posts_month: number
+  price: number
+  max_page: number
+  max_post_month: number
   max_ai_gen: number
   features: Record<string, unknown>
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface CreatePlanRequest {
+  name: string
+  price: number
+  max_page: number
+  max_post_month: number
+  max_ai_gen: number
+  features?: Record<string, unknown>
+  is_active?: boolean
+}
+
+export interface UpdatePlanRequest extends Partial<CreatePlanRequest> {}
+
+export interface SubscribeResponse {
+  detail: string
+  plan: Plan
+}
+
+export interface UnsubscribeResponse {
+  detail: string
 }
 
 // ── Errors ────────────────────────────────────────────────────────────────────
