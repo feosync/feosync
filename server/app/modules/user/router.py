@@ -1,9 +1,9 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.modules.auth.dependencies import get_active_user
+from app.modules.auth.dependencies import get_active_user, get_admin_user
 from app.modules.user.model import User
 from app.modules.user.schemas import UserResponse, UserUpdate, UserSummary
 from app.modules.user.service import UserService
@@ -64,26 +64,30 @@ async def delete_me(
 
 # ── Admin ─────────────────────────────────────────────────────────────────────
 
-@user_router.get(
+admin_user_router = APIRouter(dependencies=[Depends(get_admin_user)])
+
+@admin_user_router.get(
     "/",
     response_model=list[UserSummary],
-    summary="Lister tous les utilisateurs",
+    summary="Lister tous les utilisateurs (Admin)",
 )
-async def get_all_users(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_active_user),
-):
+async def get_all_users(db: Session = Depends(get_db)):
     return UserService.get_all(db)
 
 
-@user_router.get(
+@admin_user_router.get(
     "/{user_id}",
     response_model=UserResponse,
-    summary="Détail d'un utilisateur",
+    summary="Détail d'un utilisateur (Admin)",
 )
-async def get_user(
-    user_id: UUID,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_active_user),
-):
+async def get_user(user_id: UUID, db: Session = Depends(get_db)):
     return UserService.get_by_id(db, user_id)
+
+
+@admin_user_router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Supprimer un utilisateur (Admin)",
+)
+async def admin_delete_user(user_id: UUID, db: Session = Depends(get_db)):
+    return UserService.admin_delete(db, user_id)

@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-from app.modules import auth_router,user_router,  ai_router, fb_page_router, organisation_router, notif_router, plans_router, scheduled_post_router, post_template_router, post_analytics_router,published_post_router
+from app.modules import auth_router,user_router, admin_user_router, ai_router, fb_page_router, organisation_router, notif_router, plans_router, scheduled_post_router, post_template_router, post_analytics_router,published_post_router
 from app.core.database import engine
 from app.core.base import Base
 from app.core.config import settings
@@ -44,6 +44,7 @@ async def get_token_page(request: Request):
 
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(user_router, prefix="/api/v1/user", tags=["user"])
+app.include_router(admin_user_router, prefix="/api/v1/admin/users", tags=["admin"])
 app.include_router(plans_router, prefix="/api/v1/plans", tags=["plans"])
 app.include_router(organisation_router, prefix="/api/v1/org", tags=["org"])
 app.include_router(fb_page_router, prefix="/api/v1/fb", tags=["fb"])
