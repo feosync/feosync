@@ -1,16 +1,20 @@
-"""Generic cursor/offset pagination for list endpoints."""
+# app/shared/pagination/paginator.py
 from __future__ import annotations
-
-from typing import Generic, TypeVar
-
-from pydantic import BaseModel, Field
+from typing import Generic, TypeVar, Annotated
+from pydantic import BaseModel
+from fastapi import Query, Depends
 
 T = TypeVar("T")
 
 
-class PaginationParams(BaseModel):
-    page: int = Field(default=1, ge=1, description="Page number (1-based)")
-    page_size: int = Field(default=20, ge=1, le=100, description="Items per page")
+class PaginationParams:
+    def __init__(
+        self,
+        page: int = Query(1, ge=1, description="Page number (1-based)"),
+        page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+    ):
+        self.page = page
+        self.page_size = page_size
 
     @property
     def offset(self) -> int:
@@ -21,12 +25,18 @@ class PaginationParams(BaseModel):
         return self.page_size
 
 
+# Alias réutilisable partout — c'est ça le gain
+Pagination = Annotated[PaginationParams, Depends(PaginationParams)]
+
+
 class PaginatedResponse(BaseModel, Generic[T]):
     items: list[T]
     total: int
     page: int
     page_size: int
     total_pages: int
+
+    model_config = {"arbitrary_types_allowed": True}
 
     @classmethod
     def build(
@@ -35,7 +45,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
         total: int,
         params: PaginationParams,
     ) -> "PaginatedResponse[T]":
-        total_pages = max(1, -(-total // params.page_size))  # ceiling division
+        total_pages = max(1, -(-total // params.page_size))
         return cls(
             items=items,
             total=total,
