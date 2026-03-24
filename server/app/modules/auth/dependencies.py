@@ -81,3 +81,16 @@ async def get_active_user(
     current_user_id.set(current_user.id)
     current_user_email.set(current_user.email)
     return current_user
+
+
+
+async def get_admin_user(
+    current_user: User = Depends(get_active_user),
+) -> User:
+    """Vérifie que l'utilisateur est admin"""
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Accès réservé aux administrateurs"
+        )
+    return current_user

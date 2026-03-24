@@ -39,3 +39,21 @@ class UserService:
     def delete_me(db: Session, current_user: User) -> dict:
         UserRepository.delete(db, current_user.id)
         return {"detail": "Account deleted successfully"}
+    
+    @staticmethod
+    def admin_delete(db: Session, user_id: UUID) -> dict:
+        user = UserRepository.get_by_id(db, user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        UserRepository.delete(db, user_id)
+        return {"detail": f"Utilisateur {user.email} supprimé"}
+
+
+    @staticmethod
+    def set_admin(db: Session, user_id: UUID, is_admin: bool) -> dict:
+        user = UserRepository.get_by_id(db, user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        UserRepository.update(db, user, {"is_admin": is_admin})
+        action = "promu admin" if is_admin else "rétrogradé utilisateur"
+        return {"detail": f"Utilisateur {user.email} {action}"}
