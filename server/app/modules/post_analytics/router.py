@@ -36,6 +36,7 @@ post_analytics_router = APIRouter()
 def create_analytics(
     payload: PostAnalyticsCreate,
     db: Session = Depends(get_db),
+    user:User=Depends(get_active_user)
 ) -> PostAnalyticsResponse:
     service = PostAnalyticsService()
     return service.create(db=db, post_analytics_create=payload)
@@ -69,17 +70,39 @@ async def get_analyse_for_published_post_by_organisation(
 def get_by_published(
     published_id: UUID,
     db: Session = Depends(get_db),
+    user:User=Depends(get_active_user)
+
 ) -> list[PostAnalyticsResponse]:
     service = PostAnalyticsService()
     return service.get_by_published(db=db, published_id=published_id)
 
 
+@post_analytics_router.get("/page/{fb_model_id}/posts-reactions")
+async def get_posts_reactions(
+    fb_model_id: UUID,
+    org_id: UUID,
+    limit: int = Query(default=10, ge=1, le=50),
+    after: str | None = Query(default=None),   # ✅ curseur optionnel
+    db: Session = Depends(get_db),
+    user: User = Depends(get_active_user)
+):
+    service = PostAnalyticsService()
+    return await service.get_all_posts_with_reactions(
+        fb_model_id=fb_model_id,
+        org_id=org_id,
+        db=db,
+        limit=limit,
+        after=after
+    )
+    
 # 🔥 Réactions
 @post_analytics_router.get("/reaction/{fb_model_id}", response_model=PageInsightsResponse)
 async def get_page_actions_post_reactions_total(
     fb_model_id: UUID,
     org_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user:User=Depends(get_active_user)
+
 ):
     """
     Total par jour et par type des réactions sur une page.
@@ -97,7 +120,9 @@ async def get_page_actions_post_reactions_total(
 async def get_page_post_engagements(
     fb_model_id: UUID,
     org_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user:User=Depends(get_active_user)
+
 ):
     """
     Nombre d'interactions (likes, commentaires, partages, etc.)
@@ -115,7 +140,9 @@ async def get_page_post_engagements(
 async def get_page_views_total(
     fb_model_id: UUID,
     org_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user:User=Depends(get_active_user)
+
 ):
     """
     Nombre total de vues de la page.
@@ -133,7 +160,9 @@ async def get_page_views_total(
 async def get_page_follows(
     fb_model_id: UUID,
     org_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user:User=Depends(get_active_user)
+
 ):
     """
     Nombre de nouveaux abonnés.
@@ -151,7 +180,9 @@ async def get_page_follows(
 async def get_page_daily_unfollows_unique(
     fb_model_id: UUID,
     org_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user:User=Depends(get_active_user)
+
 ):
     """
     Nombre de désabonnements par jour.
@@ -163,6 +194,7 @@ async def get_page_daily_unfollows_unique(
         db=db
     )
 
+
 @post_analytics_router.get(
     "/{analytics_id}",                        
     response_model=PostAnalyticsResponse,
@@ -172,6 +204,8 @@ async def get_page_daily_unfollows_unique(
 def get_analytics_by_id(
     analytics_id: UUID,
     db: Session = Depends(get_db),
+    user:User=Depends(get_active_user)
+
 ) -> PostAnalyticsResponse:
     service = PostAnalyticsService()
     return service.get_by_id(db=db, analytics_id=analytics_id)
