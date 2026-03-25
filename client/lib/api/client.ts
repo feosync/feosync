@@ -138,7 +138,6 @@ export class ApiClient {
 
   // ── Organisations ─────────────────────────────────────────────────────────
 
-  // Dans ton api client.ts
 
   async getOrganisations(params?: {
     page?: number
