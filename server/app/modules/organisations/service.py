@@ -5,12 +5,22 @@ from fastapi import HTTPException, status
 from app.modules.organisations.repository import OrganisationRepository
 from app.modules.organisations.schemas import OrganisationCreate, OrganisationUpdate
 from app.modules.organisations.model import Organisation
+from app.shared.pagination.paginator import PaginationParams
 
 
 class OrganisationService:
+    
     @staticmethod
-    def get_all(db: Session, user_id: UUID) -> list[Organisation]:
-        return OrganisationRepository.get_all(db, user_id)
+    def get_all(
+        db: Session,
+        user_id: UUID,
+        params: PaginationParams,
+        search: str | None = None,
+    ) -> tuple[list[Organisation], int]:
+        
+        return OrganisationRepository.get_all_paginated(
+            db, user_id, params, search=search
+        )
 
     @staticmethod
     def get_by_id(db: Session, org_id: UUID, user_id: UUID) -> Organisation:

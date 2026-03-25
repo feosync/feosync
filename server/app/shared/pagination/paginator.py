@@ -1,4 +1,4 @@
-# app/shared/pagination/paginator.py
+
 from __future__ import annotations
 from typing import Generic, TypeVar, Annotated
 from pydantic import BaseModel
