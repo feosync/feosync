@@ -2,6 +2,7 @@ from uuid import UUID
 from datetime import datetime
 from sqlalchemy.orm import Session
 from app.modules.fb_page.model import Facebook, PageInsights
+from app.shared.pagination.paginator import PaginationParams
 
 
 class FacebookPageRepository:
@@ -14,6 +15,33 @@ class FacebookPageRepository:
             .order_by(Facebook.created_at.desc())
             .all()
         )
+    
+    @staticmethod
+    def get_all_paginated(
+        db: Session,
+        org_id: UUID,
+        params: PaginationParams,
+        search: str | None = None,
+    ) -> tuple[list[Facebook], int]:
+        
+        query = db.query(Facebook).filter(Facebook.organisation_id == org_id)
+
+        # Recherche par nom de page
+        if search:
+            term = f"%{search.strip()}%"
+            query = query.filter(Facebook.page_name.ilike(term))
+
+        total = query.count()
+
+        pages = (
+            query
+            .order_by(Facebook.created_at.desc())
+            .offset(params.offset)
+            .limit(params.limit)
+            .all()
+        )
+
+        return pages, total
 
     @staticmethod
     def get_by_id(db: Session, page_id: UUID, org_id: UUID) -> Facebook | None:

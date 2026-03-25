@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.modules.fb_page.repository import FacebookPageRepository, PageInsightsRepository
 from app.modules.fb_page.schemas import FacebookPageConnect
 from app.modules.fb_page.model import Facebook, PageInsights
+from app.shared.pagination.paginator import PaginationParams
 
 META_GRAPH_URL = "https://graph.facebook.com/v19.0"
 META_SCOPES = (
@@ -101,8 +102,14 @@ class FacebookService:
         return FacebookPageRepository.get_by_fb_page_id(db=db, post_id=post_id)
 
     @staticmethod
-    def get_all(db: Session, org_id: UUID) -> list[Facebook]:
-        return FacebookPageRepository.get_all_by_org(db, org_id)
+    def get_all(
+        db: Session,
+        org_id: UUID,
+        params: PaginationParams,
+        search: str | None = None,
+    ) -> tuple[list[Facebook], int]:
+        
+        return FacebookPageRepository.get_all_paginated(db, org_id, params, search)
 
     @staticmethod
     def get_by_id(db: Session, page_id: UUID, org_id: UUID) -> Facebook:

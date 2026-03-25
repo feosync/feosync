@@ -14,14 +14,17 @@ import { useOrganisations } from '@/hooks/useOrganisations'
 import { PagesList } from '@/components/facebook-pages/PagesList'
 import { ConnectPageDialog } from '@/components/facebook-pages/ConnectPageDialog'
 
-const DEFAULT_ORG_ID = '' // TODO: récupérer depuis le store/context org active
+const DEFAULT_ORG_ID = '4bbdc31f-3dcb-48f4-b219-0d60fb27af16' // TODO: récupérer depuis le store/context org active
 
 export default function FacebookPagesPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   // TODO: remplacer par l'org active sélectionnée
-  const { data: organisations = [] } = useOrganisations()
-  const orgId = organisations[0]?.id || DEFAULT_ORG_ID
+   const { data } = useOrganisations()
+  
+  const organisations = data?.items ?? []
+  const orgId = DEFAULT_ORG_ID || organisations[0]?.id 
+  
 
   const { data: pages = [], isLoading } = useFacebookPages(orgId)
   const toggleMutation = useToggleFacebookPage(orgId)
