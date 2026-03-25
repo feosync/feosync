@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -13,6 +13,7 @@ from app.modules.fb_page.schemas import (
     PageInsightsResponse,
 )
 from app.modules.fb_page.service import FacebookService
+from app.shared.pagination.paginator import PaginatedResponse, Pagination
 
 fb_page_router = APIRouter()
 
@@ -65,15 +66,23 @@ async def oauth_callback(
 
 @fb_page_router.get(
     "/",
-    response_model=list[FacebookPageResponse],
-    summary="Lister les pages d'une organisation",
+    response_model=PaginatedResponse[FacebookPageResponse],
+    summary="Lister les pages Facebook d'une organisation (avec pagination)",
 )
 async def get_pages(
     org_id: UUID,
+    params: Pagination ,        
+    search: str | None = Query(None, description="Recherche par nom de page"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    return FacebookService.get_all(db, org_id)
+    
+
+    pages, total = FacebookService.get_all(db, org_id, params, search=search)
+
+    items = [FacebookPageResponse.model_validate(p) for p in pages]
+
+    return PaginatedResponse.build(items, total, params)
 
 
 @fb_page_router.get(
