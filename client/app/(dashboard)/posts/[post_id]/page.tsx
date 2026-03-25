@@ -29,6 +29,7 @@ import type { PostStatus }   from '@/lib/api/types'
 
 import { PublishNowDialog }  from '@/components/posts/detail/PublishNowDialog'
 import { usePublishNow }     from '@/hooks/usePublishedPosts'
+import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 
 const canEdit = (status: PostStatus) => status === 'DRAFT' || status === 'SCHEDULED'
 
@@ -36,8 +37,13 @@ export default function PostDetailPage() {
   const { post_id } = useParams<{ post_id: string }>()
   const router = useRouter()
 
-  const { data: orgs  = [] } = useOrganisations()
-  const orgId = orgs[0]?.id || ''
+   const [selectedOrgId, setSelectedOrgId] = useState<string>('')
+  
+    // Chargement des organisations
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+  const organisations = orgData?.items ?? []
+  
+  const orgId = selectedOrgId || organisations[0]?.id || ''
   const { data: pages = [] } = useFacebookPages(orgId)
   const { data: post, isLoading } = useScheduledPost(post_id)
 
@@ -164,6 +170,8 @@ export default function PostDetailPage() {
         onPublishNow={() => setPublishDialog(true)} 
         isDeleting={deleteMutation.isPending}
       />
+
+      
 
       <PostPreviewCard
         post={post}
