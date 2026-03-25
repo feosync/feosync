@@ -10,6 +10,7 @@ import { PostCard } from '@/components/posts/PostCard'
 import { EmptyState } from '@/components/posts/EmptyState'
 import { useRouter } from 'next/navigation'
 import type { PostStatus } from '@/lib/api/types'
+import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 
 const TABS: { label: string; value: PostStatus | 'all'; icon: any }[] = [
   { label: 'Tous',       value: 'all',       icon: FileText     },
@@ -23,8 +24,13 @@ export default function PostsPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<PostStatus | 'all'>('all')
 
-  const { data: orgs = [] } = useOrganisations()
-  const orgId = orgs[0]?.id || ''
+   const [selectedOrgId, setSelectedOrgId] = useState<string>('')
+  
+    // Chargement des organisations
+    const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+    const organisations = orgData?.items ?? []
+  
+    const orgId = selectedOrgId || organisations[0]?.id || ''
 
   const { data: posts = [], isLoading } = useScheduledPosts(orgId)
   const deleteMutation = useDeleteScheduledPost(orgId)
@@ -52,6 +58,18 @@ export default function PostsPage() {
           <Plus className="w-4 h-4" /> Nouveau post
         </Button>
       </div>
+
+        {/* Sélecteur d'organisation */}
+        <div className="max-w-md">
+          <label className="text-sm text-slate-500 mb-1.5 block">
+            Organisation
+          </label>
+          <OrganisationSelector
+            value={selectedOrgId}
+            onChange={setSelectedOrgId}
+            placeholder="Sélectionner une organisation"
+          />
+        </div>
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-slate-200 dark:border-slate-800">

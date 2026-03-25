@@ -11,6 +11,7 @@ import {
   useTemplates, useCreateTemplate, useUpdateTemplate, useDeleteTemplate
 } from '@/hooks/useTemplates'
 import { TemplateSheet } from '@/components/templates/TemplateSheet'
+import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 import type { PostTemplate, SectorEnum } from '@/lib/api/types'
 
 const SECTORS: { value: SectorEnum | 'all'; label: string }[] = [
@@ -24,8 +25,13 @@ const SECTORS: { value: SectorEnum | 'all'; label: string }[] = [
 ]
 
 export default function TemplatesPage() {
-  const { data: orgs = [] } = useOrganisations()
-  const orgId = orgs[0]?.id || ''
+   const [selectedOrgId, setSelectedOrgId] = useState<string>('')
+
+  // Chargement des organisations
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+  const organisations = orgData?.items ?? []
+
+  const orgId = selectedOrgId || organisations[0]?.id || ''
 
   const { data: templates = [], isLoading } = useTemplates(orgId)
   const createMutation = useCreateTemplate(orgId)
@@ -108,8 +114,19 @@ export default function TemplatesPage() {
       </div>
 
       {/* Filtres */}
+
       <div className="flex items-center gap-2 flex-wrap">
+        { /* Sélecteur d'organisation si tab selector*/}
+        {tab === 'org' && (
+           <OrganisationSelector
+              value={selectedOrgId}
+              onChange={setSelectedOrgId}
+              placeholder="Sélectionner une organisation"
+           />
+        )}
+        
         <div className="relative flex-1 min-w-48">
+
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             value={search}

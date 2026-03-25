@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Check, ChevronsUpDown, Building2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -42,6 +42,12 @@ export function OrganisationSelector({
 
   const organisations = data?.items ?? []
   const totalPages = data?.total_pages ?? 1
+
+  useEffect(() => {
+    if (!value && organisations.length > 0) {
+      onChange(organisations[0].id)
+    }
+  }, [organisations, value, onChange])
 
   const selectedOrg = organisations.find((org) => org.id === value)
 
