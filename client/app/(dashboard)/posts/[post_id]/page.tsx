@@ -36,16 +36,11 @@ const canEdit = (status: PostStatus) => status === 'DRAFT' || status === 'SCHEDU
 export default function PostDetailPage() {
   const { post_id } = useParams<{ post_id: string }>()
   const router = useRouter()
-
-   const [selectedOrgId, setSelectedOrgId] = useState<string>('')
-  
-    // Chargement des organisations
-  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
-  const organisations = orgData?.items ?? []
-  
-  const orgId = selectedOrgId || organisations[0]?.id || ''
-  const { data: pages = [] } = useFacebookPages(orgId)
+ 
   const { data: post, isLoading } = useScheduledPost(post_id)
+
+  const orgId = post?.organisation_id || ''
+  const { data: pages = [] } = useFacebookPages(orgId)
 
   const captionMutation = usePatchCaption(orgId)
   const imageMutation   = usePatchImage(orgId)
