@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { TrendingUp, BarChart2, Heart, MessageCircle, Share2, Eye } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useOrganisations } from '@/hooks/useOrganisations'
@@ -9,6 +10,7 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
 import { RefreshCw } from 'lucide-react'
+import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 
 function MetricCard({ label, value, icon: Icon, color }: {
   label: string; value: number | string
@@ -43,8 +45,13 @@ function PageInsightsBlock({ pageId, orgId }: { pageId: string; orgId: string })
 }
 
 export default function AnalyticsPage() {
-  const { data: orgs = [] }          = useOrganisations()
-  const orgId = orgs[0]?.id || ''
+  const [selectedOrgId, setSelectedOrgId] = useState<string>('')
+
+  // Chargement des organisations
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+  const organisations = orgData?.items ?? []
+
+  const orgId = selectedOrgId || organisations[0]?.id || ''
   const { data: published = [], isLoading } = usePublishedPosts(orgId)
   const { data: pages = [] }         = useFacebookPages(orgId)
   const syncMutation = useSyncMetrics(orgId)
@@ -63,6 +70,18 @@ export default function AnalyticsPage() {
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Performance de vos publications
         </p>
+      </div>
+
+      {/* Sélecteur d'organisation */}
+      <div className="max-w-md">
+        <label className="text-sm text-slate-500 mb-1.5 block">
+          Organisation
+        </label>
+        <OrganisationSelector
+          value={orgId}
+          onChange={setSelectedOrgId}
+          placeholder="Sélectionner une organisation"
+        />
       </div>
 
       {/* Métriques globales posts */}
