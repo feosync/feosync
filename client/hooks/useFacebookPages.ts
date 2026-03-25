@@ -3,14 +3,16 @@ import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
 import type { FacebookPage } from '@/lib/api/types'
 
-export const FB_QUERY_KEY = (orgId: string) => ['facebook-pages', orgId]
+export const FB_QUERY_KEY = (orgId: string) => ['facebook-pages', orgId] as const
 export const FB_INSIGHTS_KEY = (pageId: string) => ['fb-insights', pageId]
 
 export function useFacebookPages(orgId: string) {
   return useQuery({
     queryKey: FB_QUERY_KEY(orgId),
-    queryFn: () => apiClient.getFacebookPages(orgId),
+    queryFn: () => apiClient.getFacebookPages(orgId),  
     enabled: !!orgId,
+    staleTime: 1000 * 60 * 2,     
+    placeholderData: (prev) => prev, 
   })
 }
 

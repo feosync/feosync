@@ -1,29 +1,56 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, Image as ImageIcon, Type, Zap, Clock, BarChart2 } from 'lucide-react'
+import {
+  Sparkles,
+  Image as ImageIcon,
+  Type,
+  Zap,
+  Clock,
+  BarChart2,
+} from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Badge } from '@/components/ui/badge'
 import { useAiHistory, useAiQuota } from '@/hooks/useAi'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 import type { AiGeneration } from '@/lib/api/types'
 
 export default function AiPage() {
-  const { data: orgs = [] } = useOrganisations()
-  const orgId = orgs[0]?.id || ''
+  const [selectedOrgId, setSelectedOrgId] = useState<string>('')
 
-  const { data: quota,   isLoading: quotaLoading }   = useAiQuota(orgId)
+
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+  const organisations = orgData?.items ?? []
+
+ 
+  const orgId = selectedOrgId || organisations[0]?.id || ''
+
+  const { data: quota, isLoading: quotaLoading } = useAiQuota(orgId)
   const { data: history, isLoading: historyLoading } = useAiHistory(orgId)
 
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-[22px] font-medium text-slate-900 dark:text-white">IA & Quota</h1>
+        <h1 className="text-[22px] font-medium text-slate-900 dark:text-white">
+          IA & Quota
+        </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Suivi de votre utilisation de l'intelligence artificielle
         </p>
+      </div>
+
+      {/* Sélecteur d'organisation */}
+      <div className="max-w-md">
+        <label className="text-sm text-slate-500 mb-1.5 block">
+          Organisation
+        </label>
+        <OrganisationSelector
+          value={orgId}
+          onChange={setSelectedOrgId}
+          placeholder="Sélectionner une organisation"
+        />
       </div>
 
       {/* ── Quota ── */}
@@ -78,7 +105,9 @@ export default function AiPage() {
 
         {historyLoading ? (
           <div className="space-y-2">
-            {[1,2,3].map(i => <Skeleton key={i} className="h-14 rounded-xl" />)}
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-14 rounded-xl" />
+            ))}
           </div>
         ) : !history?.length ? (
           <div className="py-12 text-center bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
@@ -99,8 +128,15 @@ export default function AiPage() {
   )
 }
 
+/* ==================== Composants internes (inchangés) ==================== */
+
 function QuotaCard({
-  icon: Icon, label, used, limit, remaining, color
+  icon: Icon,
+  label,
+  used,
+  limit,
+  remaining,
+  color,
 }: {
   icon: any
   label: string
@@ -114,8 +150,16 @@ function QuotaCard({
   const warning = pct >= 70 && pct < 90
 
   const colors = {
-    blue:   { bg: 'bg-blue-600',   light: 'bg-blue-50 dark:bg-blue-950/50',   icon: 'text-blue-600 dark:text-blue-400' },
-    indigo: { bg: 'bg-indigo-600', light: 'bg-indigo-50 dark:bg-indigo-950/50', icon: 'text-indigo-600 dark:text-indigo-400' },
+    blue: {
+      bg: 'bg-blue-600',
+      light: 'bg-blue-50 dark:bg-blue-950/50',
+      icon: 'text-blue-600 dark:text-blue-400',
+    },
+    indigo: {
+      bg: 'bg-indigo-600',
+      light: 'bg-indigo-50 dark:bg-indigo-950/50',
+      icon: 'text-indigo-600 dark:text-indigo-400',
+    },
   }
   const c = colors[color]
 
@@ -125,11 +169,15 @@ function QuotaCard({
         <div className={`w-8 h-8 rounded-lg ${c.light} flex items-center justify-center`}>
           <Icon className={`w-4 h-4 ${c.icon}`} />
         </div>
-        <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-          danger  ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300' :
-          warning ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300' :
-                    'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300'
-        }`}>
+        <span
+          className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+            danger
+              ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300'
+              : warning
+              ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
+              : 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300'
+          }`}
+        >
           {remaining} restants
         </span>
       </div>
@@ -159,15 +207,18 @@ function AiHistoryRow({ gen }: { gen: AiGeneration }) {
 
   return (
     <div className="flex items-center gap-3 px-4 py-3">
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-        isCaption
-          ? 'bg-blue-50 dark:bg-blue-950/50'
-          : 'bg-purple-50 dark:bg-purple-950/50'
-      }`}>
-        {isCaption
-          ? <Type className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          : <ImageIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-        }
+      <div
+        className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+          isCaption
+            ? 'bg-blue-50 dark:bg-blue-950/50'
+            : 'bg-purple-50 dark:bg-purple-950/50'
+        }`}
+      >
+        {isCaption ? (
+          <Type className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+        ) : (
+          <ImageIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+        )}
       </div>
 
       <div className="flex-1 min-w-0">
