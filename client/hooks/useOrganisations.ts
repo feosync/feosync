@@ -1,15 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
-import type { Organisation, CreateOrgRequest, UpdateOrgRequest } from '@/lib/api/types'
+import type { Organisation, CreateOrgRequest, UpdateOrgRequest, PaginatedResponse } from '@/lib/api/types'
 
 const QUERY_KEY = ['organisations']
 
-export function useOrganisations() {
+
+
+export function useOrganisations(params?: {
+  page?: number
+  page_size?: number
+  search?: string
+}) {
   return useQuery({
-    queryKey: QUERY_KEY,
-    queryFn: () => apiClient.getOrganisations(),
-    staleTime: 1000 * 60 * 2,
+    queryKey: [...QUERY_KEY, params],
+    queryFn: () => apiClient.getOrganisations(params) as Promise<PaginatedResponse<Organisation>>,
+    staleTime: 1000 * 60 * 2,           
+    placeholderData: (prev) => prev,    
   })
 }
 

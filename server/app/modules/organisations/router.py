@@ -11,16 +11,41 @@ from app.modules.organisations.schemas import (
     OrganisationResponse,
 )
 from app.modules.organisations.service import OrganisationService
+from app.shared.pagination.paginator import PaginatedResponse, Pagination
 
 organisation_router = APIRouter()
 
 
-@organisation_router.get("/", response_model=list[OrganisationResponse])
+from fastapi import APIRouter, Query, Depends
+from uuid import UUID
+# ... tes autres imports
+
+@organisation_router.get(
+    "/",
+    response_model=PaginatedResponse[OrganisationResponse],
+    summary="Lister les organisations de l'utilisateur connecté (avec pagination)",
+)
 async def get_organisations(
+    params: Pagination,                                   
+    search: str | None = Query(
+        None, 
+        description="Recherche par nom ou description"
+    ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    return OrganisationService.get_all(db, current_user.id)
+    
+    organisations, total = OrganisationService.get_all(
+        db, 
+        current_user.id, 
+        params, 
+        search=search
+    )
+
+    # Conversion en Pydantic (si OrganisationResponse est un modèle Pydantic)
+    items = [OrganisationResponse.model_validate(org) for org in organisations]
+
+    return PaginatedResponse.build(items, total, params)
 
 
 @organisation_router.get("/{org_id}", response_model=OrganisationResponse)

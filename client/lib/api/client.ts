@@ -1,4 +1,4 @@
-import { UserSummary, PaginatedResponse } from "./types"
+import { UserSummary, PaginatedResponse, Organisation } from "./types"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -138,8 +138,22 @@ export class ApiClient {
 
   // ── Organisations ─────────────────────────────────────────────────────────
 
-  async getOrganisations(): Promise<any[]> {
-    return this.request('/api/v1/org/')
+
+  async getOrganisations(params?: {
+    page?: number
+    page_size?: number
+    search?: string
+  }): Promise<PaginatedResponse<Organisation>> {   
+    const query = new URLSearchParams()
+    if (params?.page) query.set('page', String(params.page))
+    if (params?.page_size) query.set('page_size', String(params.page_size))
+    if (params?.search) query.set('search', params.search)
+
+    return this.request(`/api/v1/org/?${query.toString()}`)
+  }
+
+  async getOrganisationById(orgId: string): Promise<any> {
+    return this.request(`/api/v1/org/${orgId}`)
   }
 
   async createOrganisation(data: any): Promise<any> {
