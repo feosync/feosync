@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { useScheduledPosts } from '@/hooks/useScheduledPosts'
 import { usePublishedPosts } from '@/hooks/usePublishedPosts'
@@ -13,6 +15,7 @@ import { Calendar, CheckCircle, FileEdit, XCircle, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import type { PostStatus } from '@/lib/api/types'
+import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 
 function StatCard({ label, value, icon: Icon, color }: {
   label: string; value: number
@@ -31,8 +34,13 @@ function StatCard({ label, value, icon: Icon, color }: {
 
 export default function OverviewPage() {
   const { user } = useAuth()
-  const { data: orgs = [] }         = useOrganisations()
-  const orgId = orgs[0]?.id || ''
+  const [selectedOrgId, setSelectedOrgId] = useState<string>('')
+  
+    // Chargement des organisations
+    const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+    const organisations = orgData?.items ?? []
+  
+    const orgId = selectedOrgId || organisations[0]?.id || ''
   const { data: posts = [],    isLoading: loadingPosts }     = useScheduledPosts(orgId)
   const { data: published = [], isLoading: loadingPublished } = usePublishedPosts(orgId)
   const { data: pages = [] }        = useFacebookPages(orgId)
@@ -62,6 +70,12 @@ export default function OverviewPage() {
           </Button>
         </Link>
       </div>
+
+      <OrganisationSelector
+        value={selectedOrgId}
+        onChange={setSelectedOrgId}
+      />
+
 
       {/* Stats */}
       {isLoading ? (

@@ -28,9 +28,15 @@ export default function NewPostPage() {
   const [post, setPost] = useState<ScheduledPost | null>(null)
   const [publishAt, setPublishAt] = useState('')
 
-  const { data: orgs = [] }  = useOrganisations()
-  const orgId = orgs[0]?.id || ''
-  const { data: pages = [] } = useFacebookPages(orgId)
+  
+  const [selectedOrgId, setSelectedOrgId] = useState<string>('')
+
+  // Chargement des organisations
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+  const organisations = orgData?.items ?? []
+
+  const orgId = selectedOrgId || organisations[0]?.id || ''
+  const { data: pages = [], isLoading: pagesLoading } = useFacebookPages(orgId)
 
   const createMutation  = useCreateScheduledPost()
   const captionMutation = usePatchCaption(orgId)
@@ -38,12 +44,18 @@ export default function NewPostPage() {
   const uploadMutation  = useUploadImage(orgId)
   const confirmMutation = useConfirmPost(orgId)
 
-  const handleCreateDraft = async (data: { facebook_page_id: string; publish_at?: string }) => {
-    const created = await createMutation.mutateAsync(data)
-    setPost(created)
-    setPublishAt(data.publish_at || '')
-    setStep(1)
-  }
+  const handleCreateDraft = async (data: { 
+      organization_id: string; 
+      facebook_page_id: string; 
+      publish_at?: string 
+    }) => {
+      const created = await createMutation.mutateAsync({
+        ...data,
+      })
+      setPost(created)
+      setPublishAt(data.publish_at || '')
+      setStep(1)
+    }
 
   const handleSaveCaption = async (data: any) => {
     if (!post) return
@@ -120,7 +132,8 @@ export default function NewPostPage() {
         {step === 0 && (
           <StepTarget
             pages={pages}
-            isLoading={createMutation.isPending}
+            isLoading={createMutation.isPending || pagesLoading}
+            onOrgChange={setSelectedOrgId}      
             onNext={handleCreateDraft}
           />
         )}

@@ -10,12 +10,18 @@ import { useFacebookPages }  from '@/hooks/useFacebookPages'
 import { PublishedPostCard } from '@/components/published/PublishedPostCard'
 import { PublishedPostDetailSheet } from '@/components/published/PublishedPostDetailSheet'
 import type { PublishedPost } from '@/lib/api/types'
+import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 
 export default function PublishedPage() {
   const [selected, setSelected] = useState<PublishedPost | null>(null)
 
-  const { data: orgs  = [] } = useOrganisations()
-  const orgId = orgs[0]?.id || ''
+    const [selectedOrgId, setSelectedOrgId] = useState<string>('')
+  
+    // Chargement des organisations
+    const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+    const organisations = orgData?.items ?? []
+  
+    const orgId = selectedOrgId || organisations[0]?.id || ''
 
   const { data: posts  = [], isLoading } = usePublishedPosts(orgId)
   const { data: pages  = [] }            = useFacebookPages(orgId)
@@ -30,6 +36,11 @@ export default function PublishedPage() {
           {posts.length} publication{posts.length > 1 ? 's' : ''}
         </p>
       </div>
+      <OrganisationSelector
+        value={selectedOrgId}
+        onChange={setSelectedOrgId}
+      />
+
 
       {isLoading ? (
         <div className="space-y-3">
