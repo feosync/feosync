@@ -97,6 +97,7 @@ export default function LoginPage() {
   const { error } = useAuth();
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [loading_microsoft, setloading_microsoft] = useState(false)
 
   useEffect(() => setMounted(true), []);
 
@@ -195,7 +196,7 @@ export default function LoginPage() {
                   <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
                   <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
                 </svg>
-                {loading ? "Redirection vers Microsoft..." : "Continuer avec Microsoft"}
+                {loading_microsoft ? "Redirection vers Microsoft..." : "Continuer avec Microsoft"}
               </button>
             </div>
 
