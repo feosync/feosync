@@ -1,4 +1,4 @@
-import { UserSummary, PaginatedResponse, Organisation, ScheduledPost } from "./types"
+import { UserSummary, PaginatedResponse, Organisation, ScheduledPost , PublishedPost} from "./types"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -261,8 +261,25 @@ export class ApiClient {
 
   // ── Published Posts ───────────────────────────────────────────────────────
 
-  async getPublishedPosts(orgId: string): Promise<any[]> {
-    return this.request(`/api/v1/published/org/${orgId}`)
+  async getPublishedPosts(
+    orgId: string,
+    params?: {
+      page?: number
+      page_size?: number
+      search?: string
+      year?: number
+      month?: number
+      week?: number
+    }
+  ): Promise<PaginatedResponse<PublishedPost>> {
+    const query = new URLSearchParams()
+    if (params?.page)      query.set('page',      String(params.page))
+    if (params?.page_size) query.set('page_size', String(params.page_size))
+    if (params?.search)    query.set('search',    params.search)
+    if (params?.year)      query.set('year',      String(params.year))
+    if (params?.month)     query.set('month',     String(params.month))
+    if (params?.week)      query.set('week',      String(params.week))
+    return this.request(`/api/v1/published/org/${orgId}?${query.toString()}`)
   }
 
   async getPublishedPostById(postId: string): Promise<any> {

@@ -42,7 +42,9 @@ export default function OverviewPage() {
   const { data: scheduledData, isLoading: l2 } = useScheduledPosts(orgId, { status: 'SCHEDULED', page: 1, page_size: 3 })
   const { data: failedData,    isLoading: l3 } = useScheduledPosts(orgId, { status: 'FAILED',    page: 1, page_size: 1 })
 
-  const { data: published = [], isLoading: l4 } = usePublishedPosts(orgId)
+  const { data: publishedData, isLoading: l4 } = usePublishedPosts(orgId, { page: 1, page_size: 3 })
+  const published = publishedData?.items ?? []
+  const publishedTotal = publishedData?.total ?? 0
   const { data: pages = [] }                    = useFacebookPages(orgId)
 
   const isLoading = l1 || l2 || l3 || l4
@@ -82,7 +84,7 @@ export default function OverviewPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard
             label="Publiés"
-            value={published.length}
+            value={publishedTotal}
             icon={CheckCircle}
             color="bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-200"
           />

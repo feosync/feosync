@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, status, BackgroundTasks
+from fastapi import APIRouter, Depends, Query, status, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -11,6 +11,9 @@ from app.modules.published_post.schemas import (
 )
 from app.modules.published_post.service import PublishedPostService
 
+from app.shared.pagination.paginator import Pagination, PaginatedResponse
+
+
 published_post_router = APIRouter()
 
 
@@ -18,15 +21,25 @@ published_post_router = APIRouter()
 
 @published_post_router.get(
     "/org/{org_id}",
-    response_model=list[PublishedPostResponse],
-    summary="Tous les posts publiés d'une organisation",
+    response_model=PaginatedResponse[PublishedPostResponse],
+    summary="Posts publiés d'une organisation (filtrés + paginés)",
 )
 async def get_published_posts(
     org_id: UUID,
+    params: Pagination,
+    search: str | None = Query(None, description="Recherche sur post_id ou channel"),
+    year: int | None = Query(None, description="Filtrer par année"),
+    month: int | None = Query(None, description="Filtrer par mois"),
+    week: int | None = Query(None, description="Filtrer par semaine ISO"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    return PublishedPostService.get_all_by_org(db, org_id)
+    posts, total = PublishedPostService.get_all_by_org(
+        db, org_id, params,
+        search=search, year=year, month=month, week=week,
+    )
+    items = [PublishedPostResponse.model_validate(p) for p in posts]
+    return PaginatedResponse.build(items, total, params)
 
 
 @published_post_router.get(
