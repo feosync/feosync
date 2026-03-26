@@ -367,3 +367,87 @@ export interface PaginatedResponse<T> {
   page_size: number
   total_pages: number
 }
+
+
+// ================  ENGAGEMENT INTERFACE =============
+
+export interface EngagementValue {
+  value: number;
+  end_time: string; // ISO 8601 — ex: "2026-03-21T07:00:00Z"
+}
+ 
+/** Bloc d'engagement pour une période (day | week | days_28) */
+export interface EngagementItem {
+  name: string;
+  period: "day" | "week" | "days_28" | string;
+  values: EngagementValue[];
+  title?: string | null;
+  description?: string | null;
+  id: string;
+}
+ 
+/** Pagination (curseur previous) */
+export interface Paging {
+  previous?: string | null;
+}
+ 
+/** Réponse complète de l'API */
+export interface PagePostEngagementsResponse {
+  data: EngagementItem[];
+  paging?: Paging | null;
+}
+
+
+// ================= FOLLOW INTERFACE ================
+
+export interface FollowValue {
+  value: number;
+  end_time?: string | null
+}
+
+export interface FollowItem{
+  name:string;
+  period: string;
+  values: FollowValue[];
+  description?: string | null;
+  id: string;
+}
+
+export interface PageFollowsResponse{
+  data:  FollowItem[];
+  paging?:  Paging | null;
+}
+
+
+// 🔹 value des réactions (like, love, etc.)
+export interface ReactionValue {
+  like?: number;
+  love?: number;
+  wow?: number;
+  haha?: number;
+  sad?: number;
+  angry?: number;
+}
+
+// 🔹 chaque entrée dans values[]
+export interface InsightValue {
+  value: ReactionValue;
+  // On utilise string car les dates JSON arrivent sous forme de chaînes ISO
+  end_time?: string; 
+}
+
+// 🔹 chaque bloc (day, week, etc.)
+export interface InsightItem {
+  id: string;
+  name: string;
+  period: string;
+  values: InsightValue[];
+  title?: string;
+  description?: string;
+}
+
+// 🔹 réponse complète
+export interface PageInsightsResponse {
+  data: InsightItem[];
+  paging?: Paging;
+}
