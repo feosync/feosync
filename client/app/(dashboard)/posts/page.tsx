@@ -22,9 +22,34 @@ import { useRouter } from 'next/navigation'
 import { useDebounce } from '@/hooks/useDebounce'
 import type { PostStatus } from '@/lib/api/types'
 
+// ── Utils ─────────────────────────────────────────────────────────────────────
+
+function getISOWeekNumber(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7))
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+}
+
+function getCurrentISOWeek(): number {
+  return getISOWeekNumber(new Date())
+}
+
+function getWeeksOfMonth(year: number, month: number): number[] {
+  const weeks = new Set<number>()
+  const lastDay = new Date(year, month, 0).getDate()
+  for (let day = 1; day <= lastDay; day++) {
+    weeks.add(getISOWeekNumber(new Date(year, month - 1, day)))
+  }
+  return Array.from(weeks).sort((a, b) => a - b)
+}
+
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const PAGE_SIZE = 9   // 3 colonnes × 3 lignes
+const PAGE_SIZE    = 9
+const THIS_YEAR    = new Date().getFullYear()
+const THIS_MONTH   = new Date().getMonth() + 1
+const CURRENT_WEEK = getCurrentISOWeek()
 
 const TABS: { label: string; value: PostStatus | 'all'; icon: any }[] = [
   { label: 'Tous',       value: 'all',       icon: FileText     },
@@ -34,9 +59,8 @@ const TABS: { label: string; value: PostStatus | 'all'; icon: any }[] = [
   { label: 'Échoués',    value: 'FAILED',    icon: XCircle      },
 ]
 
-const THIS_YEAR  = new Date().getFullYear()
-const THIS_MONTH = new Date().getMonth() + 1
-const YEARS  = Array.from({ length: 3 }, (_, i) => THIS_YEAR - i)
+const YEARS = Array.from({ length: 3 }, (_, i) => THIS_YEAR - i)
+
 const MONTHS = [
   { value: 1,  label: 'Janvier'   }, { value: 2,  label: 'Février'   },
   { value: 3,  label: 'Mars'      }, { value: 4,  label: 'Avril'     },
@@ -58,20 +82,37 @@ export default function PostsPage() {
   const orgId = selectedOrgId || organisations[0]?.id || ''
 
   // ── Filtres ───────────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab]   = useState<PostStatus | 'all'>('all')
+  const [activeTab,   setActiveTab]   = useState<PostStatus | 'all'>('all')
   const [searchInput, setSearchInput] = useState('')
   const search = useDebounce(searchInput, 400)
   const [year,  setYear]  = useState<number | undefined>(THIS_YEAR)
   const [month, setMonth] = useState<number | undefined>(THIS_MONTH)
-  const [week,  setWeek]  = useState<number | undefined>(undefined)
+  const [week,  setWeek]  = useState<number | undefined>(CURRENT_WEEK)
   const [page,  setPage]  = useState(1)
 
-  // reset page si filtre change
+  // semaines disponibles selon year+month courants
+  const availableWeeks = year && month ? getWeeksOfMonth(year, month) : []
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleTabChange = (tab: PostStatus | 'all') => { setActiveTab(tab); setPage(1) }
-  const handleSearch    = useCallback((v: string)  => { setSearchInput(v); setPage(1) }, [])
-  const handleYear      = (v: string) => { setYear(v ? Number(v) : undefined);  setPage(1) }
-  const handleMonth     = (v: string) => { setMonth(v ? Number(v) : undefined); setPage(1) }
-  const handleWeek      = (v: string) => { setWeek(v ? Number(v) : undefined);  setPage(1) }
+  const handleSearch    = useCallback((v: string)   => { setSearchInput(v); setPage(1) }, [])
+
+  const handleYear = (v: string) => {
+    setYear(v !== 'all' ? Number(v) : undefined)
+    setWeek(undefined)
+    setPage(1)
+  }
+
+  const handleMonth = (v: string) => {
+    setMonth(v !== 'all' ? Number(v) : undefined)
+    setWeek(undefined)   // reset semaine — elle peut ne plus être dans le nouveau mois
+    setPage(1)
+  }
+
+  const handleWeek = (v: string) => {
+    setWeek(v !== 'all' ? Number(v) : undefined)
+    setPage(1)
+  }
 
   // ── Query ─────────────────────────────────────────────────────────────────
   const { data, isLoading, isFetching } = useScheduledPosts(orgId, {
@@ -90,10 +131,10 @@ export default function PostsPage() {
 
   const deleteMutation = useDeleteScheduledPost(orgId)
 
-  // ── Pagination helper ─────────────────────────────────────────────────────
-  const disabled = (cond: boolean) =>
+  const disabledClass = (cond: boolean) =>
     cond ? 'pointer-events-none opacity-50' : 'cursor-pointer'
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5">
 
@@ -126,6 +167,7 @@ export default function PostsPage() {
 
       {/* Filtres date + search */}
       <div className="flex flex-wrap items-center gap-3">
+
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -137,44 +179,55 @@ export default function PostsPage() {
           />
         </div>
 
-     
-      <Select value={year ? String(year) : 'all'} onValueChange={v => handleYear(v === 'all' ? '' : v)}>
-        <SelectTrigger className="w-28">
-          <SelectValue placeholder="Année" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Toutes</SelectItem>
-          {YEARS.map(y => (
-            <SelectItem key={y} value={String(y)}>{y}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        {/* Année */}
+        <Select
+          value={year ? String(year) : 'all'}
+          onValueChange={handleYear}
+        >
+          <SelectTrigger className="w-28">
+            <SelectValue placeholder="Année" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes</SelectItem>
+            {YEARS.map(y => (
+              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
+        {/* Mois */}
+        <Select
+          value={month ? String(month) : 'all'}
+          onValueChange={handleMonth}
+        >
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder="Mois" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tous</SelectItem>
+            {MONTHS.map(m => (
+              <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      <Select value={month ? String(month) : 'all'} onValueChange={v => handleMonth(v === 'all' ? '' : v)}>
-        <SelectTrigger className="w-36">
-          <SelectValue placeholder="Mois" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tous</SelectItem>
-          {MONTHS.map(m => (
-            <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        {/* Semaine — dépend du mois sélectionné */}
+        <Select
+          value={week ? String(week) : 'all'}
+          onValueChange={handleWeek}
+          disabled={!month}
+        >
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder={month ? 'Semaine' : 'Choisir un mois'} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes</SelectItem>
+            {availableWeeks.map(w => (
+              <SelectItem key={w} value={String(w)}>Semaine {w}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-
-      <Select value={week ? String(week) : 'all'} onValueChange={v => handleWeek(v === 'all' ? '' : v)}>
-        <SelectTrigger className="w-36">
-          <SelectValue placeholder="Semaine" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Toutes</SelectItem>
-          {Array.from({ length: 53 }, (_, i) => i + 1).map(w => (
-            <SelectItem key={w} value={String(w)}>Semaine {w}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
       </div>
 
       {/* Tabs statut */}
@@ -230,10 +283,11 @@ export default function PostsPage() {
           </p>
           <Pagination>
             <PaginationContent>
+
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => setPage(p => Math.max(1, p - 1))}
-                  className={disabled(page === 1 || isFetching)}
+                  className={disabledClass(page === 1 || isFetching)}
                 />
               </PaginationItem>
 
@@ -280,13 +334,15 @@ export default function PostsPage() {
               <PaginationItem>
                 <PaginationNext
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  className={disabled(page === totalPages || isFetching)}
+                  className={disabledClass(page === totalPages || isFetching)}
                 />
               </PaginationItem>
+
             </PaginationContent>
           </Pagination>
         </div>
       )}
+
     </div>
   )
 }
