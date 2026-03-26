@@ -52,7 +52,8 @@ export default function AnalyticsPage() {
   const organisations = orgData?.items ?? []
 
   const orgId = selectedOrgId || organisations[0]?.id || ''
-  const { data: published = [], isLoading } = usePublishedPosts(orgId)
+  const { data: publishedData, isLoading } = usePublishedPosts(orgId, { page: 1, page_size: 100 })
+  const published = publishedData?.items ?? []
   const { data: pages = [] }         = useFacebookPages(orgId)
   const syncMutation = useSyncMetrics(orgId)
 

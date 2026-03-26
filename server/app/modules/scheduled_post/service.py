@@ -18,6 +18,7 @@ from app.modules.ai_generation.llm_service import AiGenerationService
 from app.modules.organisations.model import Organisation
 from app.modules.fb_page.model import Facebook
 from app.modules.user.model import User
+from app.shared.pagination.paginator import PaginationParams
 
 
 class ScheduledPostService:
@@ -98,15 +99,32 @@ class ScheduledPostService:
     def get_by_id(db: Session, post_id: UUID, current_user: User) -> ScheduledPost:
         return ScheduledPostService._get_post_owned(db, post_id, current_user)
 
+    
+
     @staticmethod
-    def get_by_org(db: Session, org_id: UUID, current_user: User) -> list[ScheduledPost]:
+    def get_by_org(
+        db: Session,
+        org_id: UUID,
+        current_user: User,
+        params: PaginationParams,
+        status: PostStatus | None = None,
+        search: str | None = None,
+        year: int | None = None,
+        month: int | None = None,
+        week: int | None = None,
+    ) -> tuple[list[ScheduledPost], int]:
         org = db.query(Organisation).filter(
             Organisation.id == org_id,
             Organisation.user_id == current_user.id,
         ).first()
         if not org:
             raise HTTPException(status_code=403, detail="Not your organisation")
-        return ScheduledPostRepository.get_by_org(db, org_id)
+
+        return ScheduledPostRepository.get_by_org_paginated(
+            db, org_id, params,
+            status=status, search=search,
+            year=year, month=month, week=week,
+        )
 
     # ── PATCH caption ─────────────────────────────────────────────────────────
 

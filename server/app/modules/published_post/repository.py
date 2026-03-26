@@ -1,20 +1,66 @@
 from uuid import UUID
 from sqlalchemy.orm import Session
 from app.modules.published_post.model import PublishedPost
+from datetime import date, timedelta
+from sqlalchemy import extract, or_
+from app.shared.pagination.paginator import PaginationParams
 
 
 class PublishedPostRepository:
 
+
+
     @staticmethod
-    def get_all_by_org(db: Session, org_id: UUID) -> list[PublishedPost]:
+    def get_all_by_org(
+        db: Session,
+        org_id: UUID,
+        params: PaginationParams,
+        search: str | None = None,
+        year: int | None = None,
+        month: int | None = None,
+        week: int | None = None,
+    ) -> tuple[list[PublishedPost], int]:
         from app.modules.fb_page.model import Facebook
-        return (
+
+        query = (
             db.query(PublishedPost)
             .join(Facebook, PublishedPost.facebook_page_id == Facebook.id)
             .filter(Facebook.organisation_id == org_id)
+        )
+
+        if search:
+            # recherche sur post_id ou channel — adapte selon tes besoins
+            term = f"%{search.strip()}%"
+            query = query.filter(
+                or_(
+                    PublishedPost.post_id.ilike(term),
+                    PublishedPost.channel.ilike(term),
+                )
+            )
+
+        if year:
+            query = query.filter(extract("year", PublishedPost.published_at) == year)
+
+        if month:
+            query = query.filter(extract("month", PublishedPost.published_at) == month)
+
+        if week and year:
+            week_start = date.fromisocalendar(year, week, 1)
+            week_end   = date.fromisocalendar(year, week, 7)
+            query = query.filter(
+                PublishedPost.published_at >= week_start,
+                PublishedPost.published_at <  week_end + timedelta(days=1),
+            )
+
+        total = query.count()
+        items = (
+            query
             .order_by(PublishedPost.published_at.desc())
+            .offset(params.offset)
+            .limit(params.limit)
             .all()
         )
+        return items, total
 
     @staticmethod
     def get_by_id(db: Session, post_id: UUID) -> PublishedPost | None:
