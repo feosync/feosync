@@ -6,11 +6,22 @@ import type { PublishedPost } from '@/lib/api/types'
 export const PUBLISHED_KEY  = (orgId: string)  => ['published-posts', orgId]
 export const PUBLISHED_ONE  = (postId: string) => ['published-post', postId]
 
-export function usePublishedPosts(orgId: string) {
+export interface PublishedPostsParams {
+  page?: number
+  page_size?: number
+  search?: string
+  year?: number
+  month?: number
+  week?: number
+}
+
+export function usePublishedPosts(orgId: string, params?: PublishedPostsParams) {
   return useQuery({
-    queryKey: PUBLISHED_KEY(orgId),
-    queryFn: () => apiClient.getPublishedPosts(orgId),
+    queryKey: [...PUBLISHED_KEY(orgId), params],
+    queryFn: () => apiClient.getPublishedPosts(orgId, params),
     enabled: !!orgId,
+    placeholderData: (prev) => prev,
+    staleTime: 1000 * 60 * 2,
   })
 }
 
