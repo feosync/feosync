@@ -6,6 +6,7 @@ import {
   XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
 } from "recharts";
+import { useParams } from "next/navigation";
 
 // ─── shadcn/ui components ──────────────────────────────────────────────────────
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -277,11 +278,9 @@ function ChartLegend({ series, isBar }: {
 }
 
 // ─── Page Component ────────────────────────────────────────────────────────────
-interface Props {
-  params: { id: string };
-}
 
-export default function PageDeepAnalis({ params }: Props) {
+export default function PageDeepAnalis() {
+  const params = useParams()
   const [period, setPeriod] = useState<Period>("week");
 
   // Derived KPIs
