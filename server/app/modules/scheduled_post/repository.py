@@ -3,7 +3,10 @@ from uuid import UUID
 from datetime import datetime, timezone
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
 from app.modules.scheduled_post.models.scheduled_post_ai_image import ScheduledPostAiImage
-
+from datetime import date, timedelta
+from sqlalchemy import extract, and_
+from app.shared.pagination.paginator import PaginationParams
+from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
 
 class ScheduledPostRepository:
 
@@ -27,6 +30,54 @@ class ScheduledPostRepository:
             .order_by(ScheduledPost.created_at.desc())
             .all()
         )
+
+
+
+    @staticmethod
+    def get_by_org_paginated(
+        db: Session,
+        org_id: UUID,
+        params: PaginationParams,
+        status: PostStatus | None = None,
+        search: str | None = None,
+        year: int | None = None,
+        month: int | None = None,
+        week: int | None = None,
+    ) -> tuple[list[ScheduledPost], int]:
+        query = db.query(ScheduledPost).filter(
+            ScheduledPost.organisation_id == org_id
+        )
+
+        if status:
+            query = query.filter(ScheduledPost.status == status)
+
+        if search:
+            term = f"%{search.strip()}%"
+            query = query.filter(ScheduledPost.caption.ilike(term))
+
+        if year:
+            query = query.filter(extract("year", ScheduledPost.created_at) == year)
+
+        if month:
+            query = query.filter(extract("month", ScheduledPost.created_at) == month)
+
+        if week and year:
+            week_start = date.fromisocalendar(year, week, 1)   
+            week_end   = date.fromisocalendar(year, week, 7)   
+            query = query.filter(
+                ScheduledPost.created_at >= week_start,
+                ScheduledPost.created_at <  week_end + timedelta(days=1),
+            )
+
+        total = query.count()
+        items = (
+            query
+            .order_by(ScheduledPost.created_at.desc())
+            .offset(params.offset)
+            .limit(params.limit)
+            .all()
+        )
+        return items, total
 
     @staticmethod
     def update(db: Session, post: ScheduledPost, data: dict) -> ScheduledPost:

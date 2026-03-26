@@ -1,16 +1,35 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
-import type { ScheduledPost, CaptionPatchRequest, ImagePatchRequest } from '@/lib/api/types'
+import type { ScheduledPost, CaptionPatchRequest, ImagePatchRequest, PostStatus } from '@/lib/api/types'
 
 export const POSTS_QUERY_KEY = (orgId: string) => ['scheduled-posts', orgId]
 export const POST_QUERY_KEY  = (postId: string) => ['scheduled-post', postId]
 
-export function useScheduledPosts(orgId: string) {
+
+export interface ScheduledPostsParams {
+  page?: number
+  page_size?: number
+  status?: PostStatus | 'all'
+  search?: string
+  year?: number
+  month?: number
+  week?: number
+}
+
+export function useScheduledPosts(orgId: string, params?: ScheduledPostsParams) {
+  // on retire 'all' avant d'envoyer à l'API
+  const apiParams = {
+    ...params,
+    status: params?.status === 'all' ? undefined : params?.status,
+  }
+
   return useQuery({
-    queryKey: POSTS_QUERY_KEY(orgId),
-    queryFn:  () => apiClient.getScheduledPosts(orgId),
-    enabled:  !!orgId,
+    queryKey: [...POSTS_QUERY_KEY(orgId), apiParams],
+    queryFn: () => apiClient.getScheduledPosts(orgId, apiParams),
+    enabled: !!orgId,
+    placeholderData: (prev) => prev,
+    staleTime: 1000 * 60 * 2,
   })
 }
 

@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.modules.published_post.repository import PublishedPostRepository
 from app.modules.published_post.model import PublishedPost
 from app.modules.fb_page.model import Facebook
+from app.shared.pagination.paginator import PaginationParams
 
 META_GRAPH_URL = "https://graph.facebook.com/v19.0"
 META_TIMEOUT = httpx.Timeout(30.0, connect=10.0)
@@ -16,8 +17,19 @@ META_TIMEOUT = httpx.Timeout(30.0, connect=10.0)
 class PublishedPostService:
 
     @staticmethod
-    def get_all_by_org(db: Session, org_id: UUID) -> list[PublishedPost]:
-        return PublishedPostRepository.get_all_by_org(db, org_id)
+    def get_all_by_org(
+        db: Session,
+        org_id: UUID,
+        params: PaginationParams,
+        search: str | None = None,
+        year: int | None = None,
+        month: int | None = None,
+        week: int | None = None,
+    ) -> tuple[list[PublishedPost], int]:
+        return PublishedPostRepository.get_all_by_org(
+            db, org_id, params,
+            search=search, year=year, month=month, week=week,
+        )
 
     @staticmethod
     def get_by_id(db: Session, post_id: UUID) -> PublishedPost:
