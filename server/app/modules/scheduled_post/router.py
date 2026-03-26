@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, status
+from fastapi import APIRouter, Depends, Query, UploadFile, File, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 
@@ -12,6 +12,10 @@ from app.modules.scheduled_post.schemas import (
     ConfirmRequest,
 )
 from app.modules.scheduled_post.service import ScheduledPostService
+
+from datetime import date
+from app.shared.pagination.paginator import Pagination, PaginatedResponse
+from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
 
 scheduled_post_router = APIRouter()
 
@@ -34,17 +38,30 @@ def create(
 
 # ── READ ──────────────────────────────────────────────────────────────────────
 
+
 @scheduled_post_router.get(
     "/org/{org_id}",
-    response_model=list[ScheduledPostResponse],
-    summary="Tous les posts d'une organisation",
+    response_model=PaginatedResponse[ScheduledPostResponse],
+    summary="Posts d'une organisation (filtrés + paginés)",
 )
 def get_by_org(
     org_id: UUID,
+    params: Pagination,
+    status: PostStatus | None = Query(None, description="Filtrer par statut"),
+    search: str | None = Query(None, description="Recherche dans la caption"),
+    year: int | None = Query(None, description="Filtrer par année"),
+    month: int | None = Query(None, description="Filtrer par mois"),
+    week: int | None = Query(None, description="Filtrer par semaine ISO"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    return ScheduledPostService.get_by_org(db, org_id, current_user)
+    posts, total = ScheduledPostService.get_by_org(
+        db, org_id, current_user, params,
+        status=status, search=search,
+        year=year, month=month, week=week,
+    )
+    items = [ScheduledPostResponse.model_validate(p) for p in posts]
+    return PaginatedResponse.build(items, total, params)
 
 
 @scheduled_post_router.get(
