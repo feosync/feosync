@@ -1,20 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { useScheduledPosts } from '@/hooks/useScheduledPosts'
 import { usePublishedPosts } from '@/hooks/usePublishedPosts'
 import { useFacebookPages } from '@/hooks/useFacebookPages'
 import { useAuth } from '@/hooks/useAuth'
 import { Skeleton } from '@/components/ui/skeleton'
-import { PostCard } from '@/components/posts/PostCard'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Calendar, CheckCircle, FileEdit, XCircle, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import type { PostStatus } from '@/lib/api/types'
 import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 
 function StatCard({ label, value, icon: Icon, color }: {
@@ -35,22 +32,26 @@ function StatCard({ label, value, icon: Icon, color }: {
 export default function OverviewPage() {
   const { user } = useAuth()
   const [selectedOrgId, setSelectedOrgId] = useState<string>('')
-  
-    // Chargement des organisations
-    const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
-    const organisations = orgData?.items ?? []
-  
-    const orgId = selectedOrgId || organisations[0]?.id || ''
-  const { data: posts = [],    isLoading: loadingPosts }     = useScheduledPosts(orgId)
-  const { data: published = [], isLoading: loadingPublished } = usePublishedPosts(orgId)
-  const { data: pages = [] }        = useFacebookPages(orgId)
 
-  const byStatus = (s: PostStatus) => posts.filter(p => p.status === s)
-  const upcoming = byStatus('SCHEDULED')
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+  const organisations = orgData?.items ?? []
+  const orgId = selectedOrgId || organisations[0]?.id || ''
+
+  // ── Un appel par statut → total fiable sans charger tous les posts ─────────
+  const { data: draftData,     isLoading: l1 } = useScheduledPosts(orgId, { status: 'DRAFT',     page: 1, page_size: 1 })
+  const { data: scheduledData, isLoading: l2 } = useScheduledPosts(orgId, { status: 'SCHEDULED', page: 1, page_size: 3 })
+  const { data: failedData,    isLoading: l3 } = useScheduledPosts(orgId, { status: 'FAILED',    page: 1, page_size: 1 })
+
+  const { data: published = [], isLoading: l4 } = usePublishedPosts(orgId)
+  const { data: pages = [] }                    = useFacebookPages(orgId)
+
+  const isLoading = l1 || l2 || l3 || l4
+
+  // Les 3 prochains planifiés, triés par date
+  const upcoming = (scheduledData?.items ?? [])
+    .filter(p => p.publish_at)
     .sort((a, b) => new Date(a.publish_at!).getTime() - new Date(b.publish_at!).getTime())
     .slice(0, 3)
-
-  const isLoading = loadingPosts || loadingPublished
 
   return (
     <div className="space-y-6">
@@ -65,17 +66,12 @@ export default function OverviewPage() {
         </div>
         <Link href="/posts/new">
           <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5">
-            <Plus className="w-4 h-4" />
-            Nouveau post
+            <Plus className="w-4 h-4" /> Nouveau post
           </Button>
         </Link>
       </div>
 
-      <OrganisationSelector
-        value={selectedOrgId}
-        onChange={setSelectedOrgId}
-      />
-
+      <OrganisationSelector value={selectedOrgId} onChange={setSelectedOrgId} />
 
       {/* Stats */}
       {isLoading ? (
@@ -92,19 +88,19 @@ export default function OverviewPage() {
           />
           <StatCard
             label="Planifiés"
-            value={byStatus('SCHEDULED').length}
+            value={scheduledData?.total ?? 0}   // ← total réel depuis l'API
             icon={Calendar}
             color="bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200"
           />
           <StatCard
             label="Brouillons"
-            value={byStatus('DRAFT').length}
+            value={draftData?.total ?? 0}        // ← idem
             icon={FileEdit}
             color="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
           />
           <StatCard
             label="Échoués"
-            value={byStatus('FAILED').length}
+            value={failedData?.total ?? 0}       // ← idem
             icon={XCircle}
             color="bg-red-50 dark:bg-red-950/50 text-red-800 dark:text-red-200"
           />
@@ -118,9 +114,7 @@ export default function OverviewPage() {
             <h2 className="text-[14px] font-medium text-slate-900 dark:text-white">
               Prochaines publications
             </h2>
-            <Link href="/posts" className="text-[12px] text-blue-600 hover:underline">
-              Voir tout
-            </Link>
+            <Link href="/posts" className="text-[12px] text-blue-600 hover:underline">Voir tout</Link>
           </div>
           {isLoading ? (
             <div className="space-y-2">
@@ -133,8 +127,7 @@ export default function OverviewPage() {
               </p>
               <Link href="/posts/new">
                 <Button variant="outline" size="sm" className="text-[12px]">
-                  <Plus className="w-3.5 h-3.5 mr-1.5" />
-                  Créer un post
+                  <Plus className="w-3.5 h-3.5 mr-1.5" /> Créer un post
                 </Button>
               </Link>
             </div>
@@ -165,12 +158,8 @@ export default function OverviewPage() {
         {/* Activité récente */}
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[14px] font-medium text-slate-900 dark:text-white">
-              Activité récente
-            </h2>
-            <Link href="/published" className="text-[12px] text-blue-600 hover:underline">
-              Voir tout
-            </Link>
+            <h2 className="text-[14px] font-medium text-slate-900 dark:text-white">Activité récente</h2>
+            <Link href="/published" className="text-[12px] text-blue-600 hover:underline">Voir tout</Link>
           </div>
           {isLoading ? (
             <div className="space-y-2">
@@ -185,17 +174,13 @@ export default function OverviewPage() {
               {published.slice(0, 3).map(p => (
                 <div key={p.id} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
                   <div>
-                    <p className="text-[13px] font-medium text-slate-900 dark:text-white">
-                      Post publié
-                    </p>
+                    <p className="text-[13px] font-medium text-slate-900 dark:text-white">Post publié</p>
                     <p className="text-[11px] text-slate-400">
                       {format(new Date(p.published_at), "d MMM yyyy 'à' HH:mm", { locale: fr })}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[12px] text-blue-600 dark:text-blue-400 font-medium">
-                      {p.initial_reach}
-                    </p>
+                    <p className="text-[12px] text-blue-600 dark:text-blue-400 font-medium">{p.initial_reach}</p>
                     <p className="text-[10px] text-slate-400">portée</p>
                   </div>
                 </div>

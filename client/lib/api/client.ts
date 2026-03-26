@@ -1,4 +1,4 @@
-import { UserSummary, PaginatedResponse, Organisation } from "./types"
+import { UserSummary, PaginatedResponse, Organisation, ScheduledPost } from "./types"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -200,8 +200,27 @@ export class ApiClient {
 
   // ── Scheduled Posts ───────────────────────────────────────────────────────
 
-  async getScheduledPosts(orgId: string): Promise<any[]> {
-    return this.request(`/api/v1/scheduled/org/${orgId}`)
+  async getScheduledPosts(
+    orgId: string,
+    params?: {
+      page?: number
+      page_size?: number
+      status?: string
+      search?: string
+      year?: number
+      month?: number
+      week?: number
+    }
+  ): Promise<PaginatedResponse<ScheduledPost>> {
+    const query = new URLSearchParams()
+    if (params?.page)      query.set('page',      String(params.page))
+    if (params?.page_size) query.set('page_size', String(params.page_size))
+    if (params?.status)    query.set('status',    params.status)
+    if (params?.search)    query.set('search',    params.search)
+    if (params?.year)      query.set('year',      String(params.year))
+    if (params?.month)     query.set('month',     String(params.month))
+    if (params?.week)      query.set('week',      String(params.week))
+    return this.request(`/api/v1/scheduled/org/${orgId}?${query.toString()}`)
   }
 
   async getScheduledPostById(postId: string): Promise<any> {
