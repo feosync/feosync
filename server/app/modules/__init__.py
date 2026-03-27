@@ -19,6 +19,7 @@ from app.modules.post_template.router import post_template_router
 from app.modules.published_post.router import published_post_router
 from app.modules.post_analytics.router import  post_analytics_router
 from app.modules.user.router import user_router, admin_user_router
+from app.modules.Webhooks.router import app_webhooks_router
 
 from app.modules.organisations.model import Organisation
 from app.modules.plans.model import Plan

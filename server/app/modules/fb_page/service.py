@@ -101,9 +101,13 @@ class FacebookService:
         return FacebookPageRepository.get_by_fb_page_id(db=db, post_id=post_id)
 
     @staticmethod
-    def get_all(db: Session, org_id: UUID) -> list[Facebook]:
+    def get_all_by_org(db: Session, org_id: UUID) -> list[Facebook]:
         return FacebookPageRepository.get_all_by_org(db, org_id)
-
+    
+    @staticmethod
+    def get_all(db:Session)->list[Facebook]:
+        return FacebookPageRepository.get_all(db=db)
+    
     @staticmethod
     def get_by_id(db: Session, page_id: UUID, org_id: UUID) -> Facebook:
         page = FacebookPageRepository.get_by_id(db, page_id, org_id)
