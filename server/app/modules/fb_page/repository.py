@@ -14,6 +14,11 @@ class FacebookPageRepository:
             .order_by(Facebook.created_at.desc())
             .all()
         )
+        
+    @staticmethod
+    def get_all(db:Session)->list[Facebook]:
+        return db.query(Facebook).all()
+    
 
     @staticmethod
     def get_by_id(db: Session, page_id: UUID, org_id: UUID) -> Facebook | None:

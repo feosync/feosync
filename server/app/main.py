@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-
-from app.core.config import settings
+from app.modules.Webhooks.service import WebhooksService
 from app.core.database import engine, get_db
 from app.core.base import Base
 from app.core.logger import configure_logging, get_logger
@@ -13,7 +12,7 @@ from app.modules import (
     auth_router, user_router, admin_user_router,
     ai_router, fb_page_router, organisation_router,
     notif_router, plans_router, scheduled_post_router,
-    post_template_router, post_analytics_router, published_post_router,
+    post_template_router, post_analytics_router, published_post_router,app_webhooks_router
 )
 
 # ── Logging ───────────────────────────────────────────────────────────────────
@@ -25,6 +24,8 @@ logger = get_logger(__name__)
 
 Base.metadata.create_all(bind=engine)
 
+webhooks_service = WebhooksService()
+
 # ── Lifespan ──────────────────────────────────────────────────────────────────
 
 @asynccontextmanager
@@ -35,6 +36,7 @@ async def lifespan(app: FastAPI):
     try:
         seed_first_admin(db)
         register_scheduled_post_events()
+        await webhooks_service.startup()  
         logger.info("Startup complete.")
     finally:
         db.close()
@@ -87,7 +89,7 @@ def _register_routes(app: FastAPI) -> None:
     app.include_router(published_post_router, prefix="/api/v1/published",      tags=["publishedPost"])
     app.include_router(post_analytics_router, prefix="/api/v1/post-analytics", tags=["PostAnalytics"])
     app.include_router(notif_router,          prefix="/api/v1/notif",          tags=["notif"])
-
+    app.include_router(app_webhooks_router, prefix="/api/v1/webhook", tags= ["webhook"] )
 
 def _register_static(app: FastAPI) -> None:
     from fastapi.staticfiles import StaticFiles
@@ -98,3 +100,4 @@ def _register_static(app: FastAPI) -> None:
 
 
 app = create_app()
+
