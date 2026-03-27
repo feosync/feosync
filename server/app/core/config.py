@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str | None = None
 
     FIRST_ADMIN_EMAIL : str = "anicet22.aps2a@gmail.com"
+    
+    WEBHOOK_TOKEN: str | None = None
 
     GEMINI_API_KEY: str
     DB_HOST: str
