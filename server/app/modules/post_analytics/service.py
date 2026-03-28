@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 import httpx
 from app.core.config import settings
+import asyncio
 
 from .model import PostAnalytics
 from .repository import PostAnalyticsRepository as analyse_repository
@@ -144,3 +145,72 @@ class PostAnalyticsService:
                     "has_previous": "previous" in data.get("paging", {}),
                 }
             }
+
+
+  
+
+    async def get_full_page_analytics(
+        self,
+        fb_model_id: UUID,
+        org_id: UUID,
+        db: Session,
+    ) -> dict:
+        """
+        Agrège toutes les métriques d'une page en une seule méthode.
+        Les 5 appels Meta sont faits en parallèle via asyncio.gather.
+        """
+        page: Facebook = fb_service.get_by_id(db=db, page_id=fb_model_id, org_id=org_id)
+
+        METRICS = [
+            "page_actions_post_reactions_total",
+            "page_post_engagements",
+            "page_views_total",
+            "page_follows",
+            "page_daily_unfollows_unique",
+        ]
+
+        base_params = {
+            "access_token": page.access_token,
+            "since": page.created_at.isoformat(),
+            "until": datetime.now().isoformat(),
+        }
+
+        async def fetch_metric(metric: str) -> tuple[str, dict]:
+            params = {**base_params, "metric": metric}
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                r = await client.get(
+                    f"{settings.META_GRAPH_URL}/{page.fb_page_id}/insights",
+                    params=params
+                )
+            data = r.json()
+            if "error" in data:
+                # Ne plante pas tout — retourne des données vides
+                import logging
+                logging.warning(f"Meta error pour {metric}: {data['error']['message']}")
+                return metric, {"data": [], "error": data["error"]["message"]}
+            return metric, data
+
+        # ── Tous les appels en parallèle ──────────────────────────────────────
+        results = await asyncio.gather(
+            *[fetch_metric(m) for m in METRICS],
+            return_exceptions=False,
+        )
+
+        metrics_map = dict(results)
+
+        return {
+            "page_id":    str(page.id),
+            "fb_page_id": page.fb_page_id,
+            "page_name":  page.page_name,
+            "last_sync":  page.last_sync_at.isoformat() if page.last_sync_at else None,
+            "metrics": {
+                "reactions":  metrics_map.get("page_actions_post_reactions_total", {}),
+                "engagements":metrics_map.get("page_post_engagements", {}),
+                "views":      metrics_map.get("page_views_total", {}),
+                "follows":    metrics_map.get("page_follows", {}),
+                "unfollows":  metrics_map.get("page_daily_unfollows_unique", {}),
+            }
+        }
+
+        
+        
