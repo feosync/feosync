@@ -32,7 +32,7 @@ class FacebookPageRepository:
         return db.query(Facebook).filter(
             Facebook.fb_page_id == fb_page_id
         ).first()
-
+    
     @staticmethod
     def create(db: Session, data: dict) -> Facebook:
         page = Facebook(**data)
