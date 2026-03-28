@@ -194,6 +194,24 @@ async def get_page_daily_unfollows_unique(
         db=db
     )
 
+@post_analytics_router.get(
+    "/page/{fb_model_id}/full",
+    summary="Toutes les métriques d'une page en une requête",
+    description="Appels Meta en parallèle — réactions, engagements, vues, follows, unfollows",
+)
+async def get_full_analytics(
+    fb_model_id: UUID,
+    org_id: UUID,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_active_user),
+):
+    service = PostAnalyticsService()
+    return await service.get_full_page_analytics(
+        fb_model_id=fb_model_id,
+        org_id=org_id,
+        db=db,
+    )
+
 
 @post_analytics_router.get(
     "/{analytics_id}",                        
