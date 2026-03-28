@@ -29,12 +29,6 @@ async def verify_webhook(
 async def receive_webhook(request: Request):
     # 👀 Logger TOUT ce que Meta envoie
     raw_body = await request.body()
-    headers  = dict(request.headers)
-    
-    print(f"📥 Headers : {headers}")
-    print(f"📥 Body brut : {raw_body}")
-    print(f"📥 Body taille : {len(raw_body)} octets")
-
     if not raw_body:
         print("⚠️ Body vide reçu")
         return "EVENT_RECEIVED"
@@ -46,7 +40,6 @@ async def receive_webhook(request: Request):
         print(f"❌ Contenu reçu : {raw_body.decode('utf-8', errors='replace')}")
         return "EVENT_RECEIVED"
 
-    print(f"✅ Body parsé : {body}")
 
     if body.get("object") != "page":
         return "IGNORED"

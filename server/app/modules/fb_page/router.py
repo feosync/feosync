@@ -87,7 +87,7 @@ async def get_page(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    return FacebookService.get_by_id(db, page_id, org_id)
+    return FacebookService.get_by_id_and_org(db, page_id, org_id)
 
 
 @fb_page_router.post(
