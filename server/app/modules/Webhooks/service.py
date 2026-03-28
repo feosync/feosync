@@ -21,9 +21,9 @@ class WebhooksService:
             )
             data = res.json()
             if data.get("success"):
-                print(f"✅ Page {page_id} abonnée au webhook")
+               logger.info(f"Page {page_id} abonnée au webhook")
             else:
-                print(f"❌ Erreur page {page_id}: {data}")
+               logger.info(f"❌ Erreur page {page_id}: {data}")
 
     async def startup(self):
         # ✅ appel direct de get_db() sans Depends()
@@ -41,10 +41,8 @@ class WebhooksService:
         for entry in entries:
             page_id = entry.get("id")
 
-            # Récupérer la page depuis votre DB
-            page: Facebook = self.fb_service.get_by_page_id(db, page_id)
+            page: Facebook = FacebookService.get_by_fb_page_id(db=db, fb_page_id=page_id)
             if page is None:
-                print(f"⏭️ Page {page_id} inconnue, ignorée")
                 continue
 
             for change in entry.get("changes", []):
@@ -52,11 +50,17 @@ class WebhooksService:
                     value = change.get("value", {})
 
                     if value.get("item") == "comment" and value.get("verb") == "add":
+                        
+                        from_id      = value.get("from", {}).get("id")
+                        from_name    = value.get("from", {}).get("name", "quelqu'un")
                         comment_id   = value.get("comment_id")
                         comment_text = value.get("message", "")
-                        from_name    = value.get("from", {}).get("name", "quelqu'un")
 
-                        print(f"💬 [{page.name}] {from_name}: {comment_text}")
+                        # ✅ Ignorer les commentaires de la page elle-même
+                        if from_id == page_id:
+                            continue
+
+                        logger.info(f"💬 [{page.page_name}] {from_name}: {comment_text}")
                         await self.repondre_commentaire(
                             comment_id=comment_id,
                             nom=from_name,
