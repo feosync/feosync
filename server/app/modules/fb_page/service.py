@@ -111,7 +111,7 @@ class FacebookService:
     
     @staticmethod
     def get_by_id_and_org(db: Session, page_id: UUID, org_id: UUID) -> Facebook:
-        page = FacebookPageRepository.get_by_id(db, page_id, org_id)
+        page = FacebookPageRepository.get_by_id_and_org(db, page_id, org_id)
         if not page:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -152,13 +152,13 @@ class FacebookService:
 
     @staticmethod
     def disconnect_page(db: Session, page_id: UUID, org_id: UUID) -> dict:
-        page = FacebookService.get_by_id(db, page_id, org_id)
+        page = FacebookService.get_by_id_and_org(db, page_id, org_id)
         FacebookPageRepository.delete(db, page)
         return {"detail": "Facebook page disconnected successfully"}
 
     @staticmethod
     def toggle_active(db: Session, page_id: UUID, org_id: UUID) -> Facebook:
-        page = FacebookService.get_by_id(db, page_id, org_id)
+        page = FacebookService.get_by_id_and_org(db, page_id, org_id)
         return FacebookPageRepository.update(db, page, {
             "is_active": not page.is_active,
             "updated_at": datetime.now(timezone.utc),
@@ -168,7 +168,7 @@ class FacebookService:
 
     @staticmethod
     async def sync_insights(db: Session, page_id: UUID, org_id: UUID) -> dict:
-        page = FacebookService.get_by_id(db, page_id, org_id)
+        page = FacebookService.get_by_id_and_org(db, page_id, org_id)
 
         METRICS = [
             ("page_post_engagements", "day"),
@@ -232,7 +232,7 @@ class FacebookService:
 
     @staticmethod
     def get_insights(db: Session, page_id: UUID, org_id: UUID) -> list:
-        FacebookService.get_by_id(db, page_id, org_id)  # vérifie accès
+        FacebookService.get_by_id_and_org(db, page_id, org_id)  # vérifie accès
         return PageInsightsRepository.get_by_page(db, page_id)
 
     # ── Helper ────────────────────────────────────────────────────────────────
