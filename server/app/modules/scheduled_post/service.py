@@ -99,8 +99,6 @@ class ScheduledPostService:
     def get_by_id(db: Session, post_id: UUID, current_user: User) -> ScheduledPost:
         return ScheduledPostService._get_post_owned(db, post_id, current_user)
 
-    
-
     @staticmethod
     def get_by_org(
         db: Session,
@@ -296,7 +294,10 @@ class ScheduledPostService:
         return {"detail": "Deleted successfully"}
 
 
-
+    @staticmethod 
+    def get_by_published_post(db: Session, published_post_id: UUID) -> ScheduledPost | None:
+            return ScheduledPostRepository.get_by_published_post(db, published_post_id)
+        
 
 def _upload_file(contents: bytes, filename: str, org_id: UUID) -> str:
     """
@@ -326,3 +327,4 @@ def _upload_file(contents: bytes, filename: str, org_id: UUID) -> str:
     # import cloudinary.uploader
     # result = cloudinary.uploader.upload(contents, folder=f"feosync/{org_id}")
     # return result["secure_url"]
+    
