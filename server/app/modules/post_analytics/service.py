@@ -166,7 +166,7 @@ class PostAnalyticsService:
         db: Session,
         period: str = "week",
     ) -> PageAnalysisResponse:
-        page: Facebook = fb_service.get_by_id(db=db, page_id=fb_model_id, org_id=org_id)
+        page: Facebook = fb_service.get_by_id_and_org(db=db, page_id=fb_model_id, org_id=org_id)
 
         days  = PERIOD_WINDOWS.get(period, 7)
         until = datetime.now(timezone.utc)
@@ -269,7 +269,7 @@ class PostAnalyticsService:
         limit: int = 10,
         after: str | None = None,
     ) -> PostsWithReactionsResponse:
-        page: Facebook = fb_service.get_by_id(db=db, page_id=fb_model_id, org_id=org_id)
+        page: Facebook = fb_service.get_by_id_and_org(db=db, page_id=fb_model_id, org_id=org_id)
         url = f"{settings.META_GRAPH_URL}/{page.fb_page_id}/posts"
         params = {
             "fields": (
