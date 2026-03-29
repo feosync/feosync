@@ -3,6 +3,7 @@ from app.modules.fb_page.model import Facebook
 from app.core.database import get_db
 import httpx
 from app.core.logger import get_logger
+from app.modules.published_post.service import PublishedPostService as pub_service
 
 logger = get_logger(__name__)
 
@@ -40,11 +41,16 @@ class WebhooksService:
     async def process_entries(self, entries: list, db):
         for entry in entries:
             page_id = entry.get("id")
-
+            post_id= entry.get("changes", [{}])[0].get("value", {}).get("post_id")
             page: Facebook = FacebookService.get_by_fb_page_id(db=db, fb_page_id=page_id)
             if page is None:
                 continue
-
+            published_post = pub_service.get_by_post_id(db, post_id)  # Vérifie si le post existe déjà dans notre DB
+            if not published_post:
+                continue
+            if not published_post.is_auto_comment:  # Vérifie si le post est configuré pour les commentaires automatiques
+                continue
+            
             for change in entry.get("changes", []):
                 if change.get("field") == "feed":
                     value = change.get("value", {})
@@ -55,8 +61,6 @@ class WebhooksService:
                         from_name    = value.get("from", {}).get("name", "quelqu'un")
                         comment_id   = value.get("comment_id")
                         comment_text = value.get("message", "")
-
-                        # ✅ Ignorer les commentaires de la page elle-même
                         if from_id == page_id:
                             continue
 

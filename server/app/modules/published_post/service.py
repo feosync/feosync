@@ -32,8 +32,15 @@ class PublishedPostService:
         )
 
     @staticmethod
-    def get_by_id(db: Session, post_id: UUID) -> PublishedPost:
-        post = PublishedPostRepository.get_by_id(db, post_id)
+    def get_by_id(db: Session, post_id_model: UUID) -> PublishedPost:
+        post = PublishedPostRepository.get_by_post_model_id(db, post_id_model)
+        if not post:
+            raise HTTPException(status_code=404, detail="Published post not found")
+        return post
+    
+    @staticmethod
+    def get_by_post_id(db: Session, post_id: str) -> PublishedPost:
+        post = PublishedPostRepository.get_by_post_id(db, post_id)
         if not post:
             raise HTTPException(status_code=404, detail="Published post not found")
         return post

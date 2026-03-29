@@ -62,11 +62,11 @@ async def get_posts_by_page(
     summary="Détail d'un post publié",
 )
 async def get_published_post(
-    post_id: UUID,
+    post_id_model: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    return PublishedPostService.get_by_id(db, post_id)
+    return PublishedPostService.get_by_id(db, post_id_model)
 
 
 # ── Publication ───────────────────────────────────────────────────────────────
