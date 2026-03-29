@@ -32,7 +32,12 @@ class ScheduledPostRepository:
         )
 
 
-
+    @staticmethod
+    def get_by_published_post(db: Session, published_post_id: UUID) -> ScheduledPost | None:
+        return db.query(ScheduledPost).join(ScheduledPost.published_posts).filter(
+            ScheduledPost.published_posts.any(id=published_post_id)
+        ).first()
+    
     @staticmethod
     def get_by_org_paginated(
         db: Session,

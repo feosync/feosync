@@ -63,6 +63,7 @@ class WebhooksService:
                         comment_text = value.get("message", "")
                         if from_id == page_id:
                             continue
+                        
 
                         logger.info(f"💬 [{page.page_name}] {from_name}: {comment_text}")
                         await self.repondre_commentaire(

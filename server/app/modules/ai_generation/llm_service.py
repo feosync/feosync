@@ -34,7 +34,15 @@ class GeminiProvider(LLMProvider):
         from google.genai import types
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
         self.types = types
-
+        
+    async def response_to_text(self, question: str)-> str:
+        response = await self.client.aio.models.generate_content(
+            model=self.TEXT_MODEL,
+            contents=question,
+        )
+        return response.text.strip()
+    
+    
     async def generate_caption(self, prompt: str) -> tuple[str, int]:
         response = await self.client.aio.models.generate_content(
             model=self.TEXT_MODEL,
