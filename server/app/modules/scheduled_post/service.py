@@ -14,7 +14,7 @@ from app.modules.scheduled_post.schemas import (
     CaptionPatchResponse, ImagePatchResponse,
 )
 from app.modules.ai_generation.schemas import AiContext, CaptionRequest, ImageRequest
-from app.modules.ai_generation.llm_service import AiGenerationService
+from app.modules.ai_generation.services.llm_service import AiGenerationService
 from app.modules.organisations.model import Organisation
 from app.modules.fb_page.model import Facebook
 from app.modules.user.model import User
