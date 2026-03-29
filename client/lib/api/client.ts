@@ -1,5 +1,14 @@
-import { UserSummary, PaginatedResponse, Organisation, ScheduledPost , PublishedPost} from "./types"
-
+import { 
+  UserSummary,
+  PaginatedResponse,
+  Organisation,
+  ScheduledPost,
+  PublishedPost,
+  PostAnalytics,
+  PageAnalysisResponse,
+  PostsWithReactionsResponse,
+  AnalyticsPeriod
+} from "./types"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export class ApiClient {
@@ -354,10 +363,31 @@ export class ApiClient {
     await this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, { method: 'DELETE' })
   }
 
-  // ── Post Analytics ────────────────────────────────────────────────────────
+  // ── Post Analytics ────────────────────────────────────────────────────────────
 
-  async getAnalyticsByOrg(orgId: string): Promise<any[]> {
-    return this.request(`/api/v1/post-analytics/all_post/${orgId}`)
+  async getAnalyticsByOrg(orgId: string): Promise<PostAnalytics[]> {
+    return this.request(`/api/v1/post-analytics/org/${orgId}`)
+  }
+
+  async getPageAnalysis(
+    fbModelId: string,
+    orgId: string,
+    period: AnalyticsPeriod = 'week'
+  ): Promise<PageAnalysisResponse> {
+    return this.request(
+      `/api/v1/post-analytics/page/${fbModelId}/analysis?org_id=${orgId}&period=${period}`
+    )
+  }
+
+  async getPostsWithReactions(
+    fbModelId: string,
+    orgId: string,
+    params?: { limit?: number; after?: string }
+  ): Promise<PostsWithReactionsResponse> {
+    const query = new URLSearchParams({ org_id: orgId })
+    if (params?.limit)  query.set('limit', String(params.limit))
+    if (params?.after)  query.set('after', params.after)
+    return this.request(`/api/v1/post-analytics/page/${fbModelId}/posts?${query}`)
   }
 }
 
