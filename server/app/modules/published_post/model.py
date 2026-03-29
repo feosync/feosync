@@ -11,7 +11,9 @@ class PublishedPost(Base):
     __tablename__ = "published_posts"
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-
+    is_auto_comment: Mapped[bool] = mapped_column(nullable=False, default=False)
+    instructions: Mapped[str] = mapped_column(String(255), nullable=True)
+    keywords: Mapped[str] = mapped_column(String(255), nullable=True)
     # === Relation avec ScheduledPost ===
     scheduled_post_id: Mapped[UUID] = mapped_column(ForeignKey("scheduled_post.id"), nullable=False)
     scheduled_post = relationship("ScheduledPost", back_populates="published_posts")
