@@ -17,6 +17,6 @@ class CommentService:
     
     async def generate_reply(self, comment:str, db:Session)-> str:
         scheduled_post = scheduled_post_service.get_by_published_post(db=db, published_post_id=self.publised_post.id)
-        prompt = f"Génère une réponse pertinente et engageante pour un commentaire d'une publication à base du contexte suivant: {self.publised_post.instructions} et la légende: {self.publised_post.caption} . Commentaire: {comment}"
+        prompt = f"Génère une réponse pertinente et engageante pour un commentaire d'une publication à base du contexte suivant: {self.publised_post.instructions} et la légende: {scheduled_post.caption} . Commentaire: {comment}"
         reply = await self.llm.response_to_text(prompt)
         return reply.strip()
