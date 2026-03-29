@@ -21,7 +21,7 @@ class FacebookPageRepository:
     
 
     @staticmethod
-    def get_by_id(db: Session, page_id: UUID, org_id: UUID) -> Facebook | None:
+    def get_by_id_and_org(db: Session, page_id: UUID, org_id: UUID) -> Facebook | None:
         return db.query(Facebook).filter(
             Facebook.id == page_id,
             Facebook.organisation_id == org_id
