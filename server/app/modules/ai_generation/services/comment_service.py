@@ -13,6 +13,7 @@ class CommentService:
     async def comment_classification(self, comment:str)-> str:
         prompt = f"classifier ce commentaire parmis le mot clés suivants: {self.publised_post.keywords} et retourne le mot clé correspondant. Commentaire: {comment}"
         classification = await self.llm.response_to_text(prompt)
+        print(f"classification: {classification}")
         return classification.strip()
     
     async def generate_reply(self, comment:str, db:Session)-> str:

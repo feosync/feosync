@@ -24,6 +24,14 @@ published_post_router = APIRouter()
     response_model=PaginatedResponse[PublishedPostResponse],
     summary="Posts publiés d'une organisation (filtrés + paginés)",
 )
+
+@published_post_router.get("/post/{post_id}", response_model=PublishedPostResponse, summary="Détail d'un post publié")
+async def get_published_post(
+    post_id: str,
+    db: Session = Depends(get_db),
+):
+    return PublishedPostService.get_by_post_id(db, post_id)
+
 async def get_published_posts(
     org_id: UUID,
     params: Pagination,
