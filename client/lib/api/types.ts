@@ -451,3 +451,80 @@ export interface PageInsightsResponse {
   data: InsightItem[];
   paging?: Paging;
 }
+
+
+// ── Page Analytics (Meta Live) ────────────────────────────────────────────────
+
+export interface DailyMetric {
+  date: string
+  views: number
+  engagements: number
+  follows: number
+  unfollows: number
+  like: number
+  love: number
+  haha: number
+  wow: number
+  sad: number
+  angry: number
+  care: number
+  total_reactions: number
+}
+
+export interface PeriodSummary {
+  total_views: number
+  total_engagements: number
+  net_followers: number
+  total_reactions: number
+  engagement_rate: number
+  avg_daily_views: number
+  avg_daily_engagements: number
+  top_reaction: string
+  reaction_breakdown: Record<string, number>
+}
+
+export interface PageAnalysisResponse {
+  page_id: string
+  fb_page_id: string
+  page_name: string
+  period: string
+  since: string
+  until: string
+  summary: PeriodSummary
+  daily: DailyMetric[]
+  followers_total: number
+  errors: Record<string, string>
+  generated_at: string
+}
+
+export interface PostReaction {
+  like: number
+  love: number
+  haha: number
+  wow: number
+  sad: number
+  angry: number
+  care: number
+}
+
+export interface PostWithReactions {
+  post_id: string
+  message: string
+  created_time: string
+  reactions: PostReaction
+  total_reactions: number
+}
+
+export interface PostsPagination {
+  after: string | null
+  before: string | null
+  has_next: boolean
+  has_previous: boolean
+}
+
+export interface PostsWithReactionsResponse {
+  data: PostWithReactions[]
+  pagination: PostsPagination
+}
+
+export type AnalyticsPeriod = "day" | "week" | "days_28"
