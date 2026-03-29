@@ -4,6 +4,7 @@ from app.core.database import get_db
 import httpx
 from app.core.logger import get_logger
 from app.modules.published_post.service import PublishedPostService as pub_service
+from app.modules.ai_generation.services.comment_service import CommentService 
 
 logger = get_logger(__name__)
 
@@ -41,45 +42,67 @@ class WebhooksService:
     async def process_entries(self, entries: list, db):
         for entry in entries:
             page_id = entry.get("id")
-            post_id= entry.get("changes", [{}])[0].get("value", {}).get("post_id")
+
             page: Facebook = FacebookService.get_by_fb_page_id(db=db, fb_page_id=page_id)
             if page is None:
                 continue
-            published_post = pub_service.get_by_post_id(db, post_id)  # Vérifie si le post existe déjà dans notre DB
-            if not published_post:
-                continue
-            if not published_post.is_auto_comment:  # Vérifie si le post est configuré pour les commentaires automatiques
-                continue
-            
+
             for change in entry.get("changes", []):
-                if change.get("field") == "feed":
-                    value = change.get("value", {})
+                if change.get("field") != "feed":
+                    continue
 
-                    if value.get("item") == "comment" and value.get("verb") == "add":
+                value = change.get("value", {})
+
+                if value.get("item") != "comment" or value.get("verb") != "add":
+                    continue
+
+                # ✅ post_id récupéré ici dans la boucle, pas avant
+                post_id      = value.get("post_id")
+                from_id      = value.get("from", {}).get("id")
+                from_name    = value.get("from", {}).get("name", "quelqu'un")
+                comment_id   = value.get("comment_id")
+                comment_text = value.get("message", "")
+
+                # Ignorer les commentaires de la page elle-même
+                if from_id == page_id:
+                    continue
+
+                # Vérifier si le post existe dans notre DB
+                if post_id and "_" in post_id:
+                        real_post_id = post_id.split("_")[1]
+                        print(real_post_id)
+                        published_post = pub_service.get_by_post_id(db, real_post_id)
+                else:
+                        published_post = None
                         
-                        from_id      = value.get("from", {}).get("id")
-                        from_name    = value.get("from", {}).get("name", "quelqu'un")
-                        comment_id   = value.get("comment_id")
-                        comment_text = value.get("message", "")
-                        if from_id == page_id:
-                            continue
-                        
+                if not published_post:
+                    continue
 
-                        logger.info(f"💬 [{page.page_name}] {from_name}: {comment_text}")
-                        await self.repondre_commentaire(
-                            comment_id=comment_id,
-                            nom=from_name,
-                            page_access_token=page.access_token
-                        )
+                # Vérifier si les commentaires automatiques sont activés
+                if not published_post.is_auto_comment:
+                    continue
 
-    async def repondre_commentaire(self, comment_id: str, nom: str, page_access_token: str):
-        reponse = f"Merci {nom} pour votre commentaire ! 🙏"
+                comment_service = CommentService(published_post)
+
+                # Générer et poster la réponse
+                response = await comment_service.generate_reply(comment_text, db)
+                await self.repondre_commentaire(
+                    comment_id=comment_id,
+                    nom=from_name,
+                    page_access_token=page.access_token,
+                    reponse=response
+                )
+
+            # Classification en parallèle (pas besoin d'await si c'est sync)
+            comment_service.comment_classification(comment=comment_text)
+
+    async def repondre_commentaire(self, comment_id: str, nom: str, page_access_token: str, reponse:str="Merci pour votre commentaire ! 🙏"):
         async with httpx.AsyncClient() as client:
             try:
                 res = await client.post(
                     f"https://graph.facebook.com/v25.0/{comment_id}/comments",
                     json={
-                        "message": reponse,
+                        "message": f"@{nom}, {reponse}" ,
                         "access_token": page_access_token
                     }
                 )
