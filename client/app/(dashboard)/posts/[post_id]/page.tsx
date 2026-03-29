@@ -23,13 +23,13 @@ import {
   useScheduledPost, usePatchCaption, usePatchImage,
   useUploadImage, useConfirmPost, useDeleteScheduledPost
 } from '@/hooks/useScheduledPosts'
-import { useOrganisations }  from '@/hooks/useOrganisations'
+
 import { useFacebookPages }  from '@/hooks/useFacebookPages'
 import type { PostStatus }   from '@/lib/api/types'
 
 import { PublishNowDialog }  from '@/components/posts/detail/PublishNowDialog'
 import { usePublishNow }     from '@/hooks/usePublishedPosts'
-import { OrganisationSelector } from '@/components/organizations/OrgSelector'
+
 
 const canEdit = (status: PostStatus) => status === 'DRAFT' || status === 'SCHEDULED'
 
