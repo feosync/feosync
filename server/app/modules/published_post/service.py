@@ -117,7 +117,18 @@ class PublishedPostService:
                 detail=f"Meta API error: {data['error']['message']}"
             )
 
-        meta_post_id = data.get("id") or data.get("post_id")
+        if "post_id" in data and data["post_id"]:
+            meta_post_id = data["post_id"]
+        elif "id" in data and data["id"]:
+            meta_post_id = data["id"]
+        else:
+
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="Impossible de récupérer l'ID du post depuis Meta"
+            )
+        
+        
 
         # Crée le PublishedPost
         published = PublishedPostRepository.create(db, {

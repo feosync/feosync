@@ -50,13 +50,14 @@ class WebhooksService:
                     value = change.get("value", {})
 
                     if value.get("item") == "comment" and value.get("verb") == "add":
-                        
+                        post_id     = value.get("post_id")
                         from_id      = value.get("from", {}).get("id")
                         from_name    = value.get("from", {}).get("name", "quelqu'un")
                         comment_id   = value.get("comment_id")
                         comment_text = value.get("message", "")
 
                         # ✅ Ignorer les commentaires de la page elle-même
+                        print(f"Received comment on page {post_id} from {from_name}: {comment_text}")
                         if from_id == page_id:
                             continue
 
@@ -68,7 +69,7 @@ class WebhooksService:
                         )
 
     async def repondre_commentaire(self, comment_id: str, nom: str, page_access_token: str):
-        reponse = f"Merci {nom} pour votre commentaire ! 🙏"
+        reponse = f"Merci @{nom} pour votre commentaire ! 🙏"
         async with httpx.AsyncClient() as client:
             try:
                 res = await client.post(
