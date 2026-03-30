@@ -15,7 +15,9 @@ class PublishedPost(Base):
     # === Relation avec ScheduledPost ===
     scheduled_post_id: Mapped[UUID] = mapped_column(ForeignKey("scheduled_post.id"), nullable=False)
     scheduled_post = relationship("ScheduledPost", back_populates="published_posts")
-
+    is_auto_comment: Mapped[bool] = mapped_column(nullable=False, default=False)  # Indique si le post est un auto-commentaire
+    instructions: Mapped[str] = mapped_column(String(255), nullable=True)  # Instructions pour l'auto-commentaire
+    keywords: Mapped[str] = mapped_column(String(255), nullable=True)  # Mots-clés pour l'auto-commentaire
     # === Relation avec Facebook (MANQUANTE AVANT) ===
     facebook_page_id: Mapped[UUID] = mapped_column(ForeignKey("facebook_pages.id"), nullable=False)
     facebook_page = relationship("Facebook", back_populates="published_posts")
