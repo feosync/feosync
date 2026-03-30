@@ -45,7 +45,13 @@ class PublishedPostService:
         if not page:
             raise HTTPException(status_code=404, detail="Facebook page not found")
         return PublishedPostRepository.get_by_page(db, facebook_page_id)
-
+    @staticmethod
+    def get_by_post_id_with_page_id(db:Session, post_id:str):
+        post = PublishedPostRepository.get_by_post_id_with_page_id(db, post_id)
+        if not post:
+            raise HTTPException(status_code=404, detail="Published post not found")
+        return post
+    
     @staticmethod
     async def publish_to_facebook(
         db: Session,

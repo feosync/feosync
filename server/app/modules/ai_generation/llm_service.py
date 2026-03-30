@@ -42,6 +42,7 @@ class GeminiProvider(LLMProvider):
         )
         tokens = response.usage_metadata.total_token_count if response.usage_metadata else 0
         return response.text.strip(), tokens
+    
     async def generate_response(self, prompt: str) -> str:
         response = await self.client.aio.models.generate_content(
             model=self.TEXT_MODEL,
