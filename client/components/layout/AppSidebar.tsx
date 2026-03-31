@@ -2,18 +2,21 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, X, ShieldCheck } from 'lucide-react'
+import { ChevronDown, X, ShieldCheck, Crown } from 'lucide-react'
 import { cn } from '@/lib/utils';
 import { NAVIGATION_ITEMS } from '@/lib/constants';
 import { useSidebar } from '@/hooks/useSidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
+import { SubscriptionDialog } from '@/components/plans/SubscriptionDialog';
+import { Button } from  '@/components/ui/button';
+
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { isOpen, close } = useSidebar();
   const { user } = useAuth();
-
+  const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(NAVIGATION_ITEMS.map(s => s.section))
   );
@@ -125,7 +128,22 @@ export function AppSidebar() {
             </div>
           ))}
         </nav>
+          
+        {/*  bouton d'abonnement */}
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+          <Button
+            
+            size="sm"
+            className="w-full"      onClick={() => setShowSubscriptionDialog(true)}
+          >
+            <Crown className="w-4 h-4 mr-2" />
+            {isOpen && 'Souscrire à un plan'}
+          </Button>
+        </div>
+        
       </aside>
+      {/* Subscription Dialog */}
+        <SubscriptionDialog open={showSubscriptionDialog} onOpenChange={setShowSubscriptionDialog} />
     </>
   );
 }
