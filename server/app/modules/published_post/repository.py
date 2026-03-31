@@ -65,7 +65,11 @@ class PublishedPostRepository:
     @staticmethod
     def get_by_id(db: Session, post_id: UUID) -> PublishedPost | None:
         return db.query(PublishedPost).filter(PublishedPost.id == post_id).first()
-
+    
+    @staticmethod
+    def get_by_post_id_with_page_id(db:Session, post_id:str):
+        return db.query(PublishedPost).filter(PublishedPost.post_id == post_id).first()
+    
     @staticmethod
     def get_by_scheduled_post(db: Session, scheduled_post_id: UUID) -> PublishedPost | None:
         return db.query(PublishedPost).filter(
