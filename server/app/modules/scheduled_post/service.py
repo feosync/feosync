@@ -98,7 +98,10 @@ class ScheduledPostService:
     @staticmethod
     def get_by_id(db: Session, post_id: UUID, current_user: User) -> ScheduledPost:
         return ScheduledPostService._get_post_owned(db, post_id, current_user)
-
+    @staticmethod
+    def get_by_id_internal(db: Session, post_id: UUID) -> ScheduledPost:
+        """Récupère un post sans vérifier l'user (pour usage interne, ex: Webhooks)"""
+        return ScheduledPostRepository.get_by_id(db, post_id)
     
 
     @staticmethod
