@@ -102,10 +102,10 @@ export function AnalyticsCharts({ daily }: Props) {
             </CardDescription>
           </div>
           <TabsList className="h-8 bg-slate-100 dark:bg-slate-800">
-            <TabsTrigger value="lines" className="text-[12px] h-7 gap-1.5">
+            <TabsTrigger value="lines" className="text-[12px] h-7 gap-1.5 cursor-pointer">
               <TrendingUp className="w-3 h-3" /> Tendances
             </TabsTrigger>
-            <TabsTrigger value="bars" className="text-[12px] h-7 gap-1.5">
+            <TabsTrigger value="bars" className="text-[12px] h-7 gap-1.5 cursor-pointer ">
               <span className="font-mono text-[10px]">▌▌</span> Réactions
             </TabsTrigger>
           </TabsList>

@@ -24,14 +24,20 @@ export function usePlanById(planId: string) {
   })
 }
 
+
+
 export function useSubscribeToPlan() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (planId: string) => apiClient.subscribeToPlan(planId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
-      toast.success('Abonnement souscrit avec succès')
+    onSuccess: (updatedUser) => {
+      // Met à jour le cache auth directement avec le user retourné
+      queryClient.setQueryData(['auth', 'me'], updatedUser)
+      //  Invalide aussi la liste admin users (plan_id affiché dans le tableau)
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+      queryClient.invalidateQueries({ queryKey: ['plans'] })
+      toast.success('Abonnement mis à jour')
     },
     onError: (err: any) => {
       toast.error('Erreur', { description: err.message })
@@ -44,8 +50,11 @@ export function useUnsubscribeFromPlan() {
 
   return useMutation({
     mutationFn: () => apiClient.unsubscribeFromPlan(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+    onSuccess: (updatedUser) => {
+      // Met à jour le cache auth directement
+      queryClient.setQueryData(['auth', 'me'], updatedUser)
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+      queryClient.invalidateQueries({ queryKey: ['plans'] })
       toast.success('Désabonnement effectué')
     },
     onError: (err: any) => {
