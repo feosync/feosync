@@ -32,26 +32,9 @@ const integrations = [
       </svg>
     ),
   },
+  
   {
-    name: "Cloudflare",
-    logo: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="#F48120">
-        <path d="M16.5 15.9c.1-.4.1-.7-.1-1-.2-.3-.5-.5-.9-.5l-9.1-.1c-.1 0-.2-.1-.1-.2.1-.1.1-.2.2-.2l9.2.1c1.1.1 2.3-.8 2.7-1.9l.5-1.5c0-.1 0-.2-.1-.3C17.9 8 15.3 6 12.3 6 9.8 6 7.6 7.4 6.5 9.5c-.8-.6-1.8-.9-2.8-.8C1.7 8.9 0 10.7 0 12.9c0 .2 0 .5.1.7C.1 13.7 0 13.8 0 14c0 1.1.9 2 2 2h14.2c.1 0 .2-.1.3-.1z"/>
-      </svg>
-    ),
-  },
-  {
-    name: "Google Ads",
-    logo: (
-      <svg width="18" height="18" viewBox="0 0 24 24">
-        <path d="M1.05 19.65l7.08-12.27 3.54 2.05-7.08 12.26z" fill="#FBBC04"/>
-        <path d="M15.87 19.65l-7.08-12.27L12.33 5.1l7.08 12.27z" fill="#4285F4"/>
-        <circle cx="20.95" cy="18.4" r="2.6" fill="#34A853"/>
-      </svg>
-    ),
-  },
-  {
-    name: "Gemini AI",
+    name: "AI",
     logo: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <defs>
@@ -80,14 +63,6 @@ const integrations = [
       </svg>
     ),
   },
-  {
-    name: "Zapier",
-    logo: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="#FF4A00">
-        <path d="M14.9 12c0 .6-.1 1.2-.2 1.8l4.6 2.6c.8-1.3 1.3-2.8 1.3-4.4H14.9zm-1.8 5.8c-1.2.4-2.4.4-3.7 0l-2.3 4.4c1.3.5 2.6.8 4.1.8 1.5 0 2.9-.3 4.2-.8l-2.3-4.4zm-5.5-4c-.1-.6-.2-1.2-.2-1.8H1.7c0 1.6.5 3.1 1.3 4.4l4.6-2.6zM12 9.1c1.6 0 3 .9 3.7 2.2h5.6C20.5 7.6 16.6 4.4 12 4.4S3.5 7.6 2.7 11.3h5.6C9 10 10.4 9.1 12 9.1zm0-7.1C5.9 2 1 6.9 1 13s4.9 11 11 11 11-4.9 11-11S18.1 2 12 2z"/>
-      </svg>
-    ),
-  },
 ];
 
 // Rangée inversée pour la deuxième ligne (décalée + sens opposé)
@@ -99,7 +74,7 @@ const Pill = ({ item }: { item: (typeof integrations)[0] }) => (
                bg-card border border-border rounded-full
                text-sm text-muted-foreground whitespace-nowrap
                hover:border-primary/50 hover:text-foreground
-               hover:[animation-play-state:paused]
+               hover:paused
                transition-colors duration-200 cursor-default select-none"
   >
     {item.logo}

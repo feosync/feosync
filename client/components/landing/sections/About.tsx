@@ -8,34 +8,34 @@ import { X, MapPin, Mail, Twitter, Github, Linkedin } from "lucide-react";
 
 const teamMembers = [
   {
-    name: "Sophie Martin",
+    name: "THE Audio Nandraina",
     role: "CEO & Co-founder",
-    avatar: "SM",
+    avatar: "TH",
     color: "#4285F4",
     delay: 0,
-    location: "Paris, France",
-    email: "sophie@feosync.com",
-    bio: "Visionnaire passionnée par l'IA et l'innovation produit. 10 ans d'expérience en startup B2B SaaS.",
+    location: "Tananarive, Madagascar",
+    email: "theaudio@feosync.com",
+    bio: "Visionnaire passionnée par l'IA et l'innovation produit.",
     skills: ["Stratégie", "Leadership", "Product"],
     social: {
-      twitter: "@sophiemartin",
-      linkedin: "sophiemartin",
-      github: "sophiem",
+      twitter: "@theaudiomartin",
+      linkedin: "theaudiomartin",
+      github: "theaudio",
     },
-    joined: "Fondatrice · 2020",
+    joined: "Fondateur · 2026",
   },
   {
-    name: "Alex Dubois",
-    role: "CTO",
-    avatar: "AD",
+    name: "Anicet Jhoniah Randrianambinina",
+    role: "CTO & Co-founder",
+    avatar: "AJ",
     color: "#EA4335",
     delay: 0.1,
-    location: "Lyon, France",
-    email: "alex@feosync.com",
-    bio: "Architecte logiciel full-stack avec une expertise en systèmes distribués et en infrastructure cloud à grande échelle.",
+    location: "Tananarive, Madagascar",
+    email: "anicet@feosync.com",
+    bio: "Architecte logiciel full-stack avec une expertise en IA.",
     skills: ["Architecture", "Cloud", "Rust"],
-    social: { twitter: "@alexdubois", linkedin: "alexdubois", github: "alexd" },
-    joined: "Membre · Jan 2021",
+    social: { twitter: "@anicetrandrianambinina", linkedin: "anicetrandrianambinina", github: "anicet" },
+    joined: "Fondateur · 2026",
   },
   {
     name: "Camille Roy",
@@ -736,10 +736,10 @@ const About = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.3, duration: 0.6 }}
         >
-          We're committed to building a diverse team and a work environment
-          that's inclusive of people of all backgrounds. Get to know the
-          wonderful team who's building our product, supporting our customers,
-          and creating educational content.
+          Avant tout, nous sommes une équipe passionnée, portée par la vision de
+          réinventer la gestion des réseaux sociaux grâce à l’intelligence
+          artificielle, pour offrir une expérience toujours plus simple et
+          efficace à nos utilisateurs.{" "}
         </motion.p>
 
         {/* Mobile description */}

@@ -5,7 +5,7 @@ import { motion, useInView } from "framer-motion";
 
 const stats = [
   {
-    value: 500,
+    value: 0,
     suffix: "+",
     label: "Publications automatisées",
     description: "Posts générés et publiés par notre IA",
@@ -14,7 +14,7 @@ const stats = [
     to: "to-chart-1",
   },
   {
-    value: 98.4,
+    value: 0,
     suffix: "%",
     label: "Taux de succès",
     description: "De publications livrées sans erreur",
@@ -23,7 +23,7 @@ const stats = [
     to: "to-chart-2",
   },
   {
-    value: 6,
+    value: 0,
     suffix: "h",
     prefix: "~",
     label: "Temps économisé",
