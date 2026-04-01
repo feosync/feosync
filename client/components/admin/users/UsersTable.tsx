@@ -7,10 +7,11 @@ import {
   TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
 import { UsersTableSkeleton } from './UsersTableSkeleton'
-import type { UserSummary } from '@/lib/api/types'
+import type { UserSummary , Plan} from '@/lib/api/types'
 
 interface Props {
-  users: UserSummary[]
+  users: UserSummary[],
+  plans: Plan[]
   currentUserId: string | undefined
   isLoading: boolean
   isFetching: boolean
@@ -25,7 +26,7 @@ const initials = (name: string) =>
   name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
 
 export function UsersTable({
-  users, currentUserId, isLoading, isFetching,
+  users,plans, currentUserId, isLoading, isFetching,
   isPromoting, isDemoting, onPromote, onDemote, onDelete,
 }: Props) {
   return (
@@ -84,7 +85,10 @@ export function UsersTable({
                     )}
                   </TableCell>
                   <TableCell className="text-sm text-slate-500">
-                    {u.plan_id ? `Plan #${u.plan_id}` : '—'}
+                     {u.plan_id
+                      ? plans.find(p => p.id === u.plan_id)?.name ?? `Plan #${u.plan_id}`
+                      : <span className="text-slate-400 text-xs">Gratuit</span>
+                    }
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-2">
