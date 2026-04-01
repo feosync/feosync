@@ -52,15 +52,23 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
 
   const handleConfirmSubscribe = async () => {
     if (!confirmPlan) return
-    await subscribeMutation.mutateAsync(String(confirmPlan.id))
-    setConfirmPlan(null)
-    onOpenChange(false)
+    try {
+      await subscribeMutation.mutateAsync(String(confirmPlan.id))
+      setConfirmPlan(null)
+      onOpenChange(false)
+    } catch  {
+     // erreur déjà gérée dans le hook
+    }
   }
 
   const handleConfirmUnsubscribe = async () => {
-    await unsubscribeMutation.mutateAsync()
-    setConfirmUnsubscribe(false)
-    onOpenChange(false)
+    try{
+      await unsubscribeMutation.mutateAsync()
+      setConfirmUnsubscribe(false)
+      onOpenChange(false)
+    } catch {
+      // erreur déjà gérée dans le hook
+    }
   }
 
   return (
