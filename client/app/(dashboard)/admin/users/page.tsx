@@ -10,6 +10,7 @@ import { UsersTable } from '@/components/admin/users/UsersTable'
 import { UsersPagination } from '@/components/admin/users/UsersPagination'
 import { DeleteUserDialog } from  '@/components/admin/users/DeleteUserDialog'
 import type { UserSummary } from '@/lib/api/types'
+import { useAdminAllPlans } from '@/hooks/usePlans'
 
 const PAGE_SIZE = 10
 
@@ -28,6 +29,7 @@ export default function AdminUsersPage() {
   const promote = useAdminPromoteUser()
   const demote = useAdminDemoteUser()
   const deleteUser = useAdminDeleteUser()
+  const { data: plans = [] } = useAdminAllPlans() 
 
   const handleSearch = useCallback((v: string) => {
     setSearchInput(v)
@@ -70,6 +72,7 @@ export default function AdminUsersPage() {
 
       <UsersTable
         users={users}
+         plans={plans} 
         currentUserId={currentUser?.id}
         isLoading={isLoading}
         isFetching={isFetching}

@@ -63,9 +63,9 @@ export function AnalyticsHeader({
           </span>
         </div>
         <Tabs value={period} onValueChange={v => onPeriodChange(v as AnalyticsPeriod)}>
-          <TabsList className="h-8 bg-slate-100 dark:bg-slate-800">
+          <TabsList className="h-8 bg-slate-100 dark:bg-slate-800 ">
             {(Object.entries(PERIOD_LABELS) as [AnalyticsPeriod, string][]).map(([p, label]) => (
-              <TabsTrigger key={p} value={p} className="text-[12px] h-7">{label}</TabsTrigger>
+              <TabsTrigger key={p} value={p} className="text-[12px] h-7 cursor-pointer">{label}</TabsTrigger>
             ))}
           </TabsList>
         </Tabs>
