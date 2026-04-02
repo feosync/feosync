@@ -1,30 +1,53 @@
 "use client";
 
 import { motion } from "framer-motion";
-
 const testimonials = [
   {
-    initials: "RN",
-    name: "Rina Nomena",
-    role: "Gérante, Café Meva",
-    quote: "Depuis que j'utilise AutoPost Pro, mes ventes ont augmenté de 40%. Je ne passe plus mes soirées à créer des posts.",
+    initials: "IA",
+    name: "Intelligence Locale",
+    role: "Intélligence Artificielle",
+    quote: "Nos algorithmes sont optimisés pour comprendre le contexte du marché malgache et générer du contenu qui résonne avec votre audience locale.",
     colorClass: "bg-primary",
   },
   {
-    initials: "JA",
-    name: "Jean-André",
-    role: "Directeur, Agence DigiMada",
-    quote: "On gère 15 clients avec un seul outil. L'IA Gemini produit du contenu de qualité professionnelle en secondes.",
+    initials: "SÉ",
+    name: "Sécurité & Meta",
+    role: "Conformité API",
+    quote: "Nous utilisons les accès officiels Meta pour garantir que votre page Facebook reste en sécurité. Vos données sont chiffrées et protégées.",
     colorClass: "bg-chart-1",
   },
   {
-    initials: "SR",
-    name: "Sarah R.",
-    role: "Fondatrice, TanaBoutic",
-    quote: "La planification automatique a transformé notre workflow. Plus besoin de se réveiller à 6h pour poster.",
+    initials: "SU",
+    name: "Support de Proximité",
+    role: "Basé à Madagascar",
+    quote: "Une question ? Notre équipe vous accompagne en français et en malgache pour configurer vos automatisations et booster vos ventes.",
     colorClass: "bg-chart-2",
   },
 ];
+
+// const testimonials = [
+//   {
+//     initials: "RN",
+//     name: "Rina Nomena",
+//     role: "Gérante, Café Meva",
+//     quote: "Depuis que j'utilise AutoPost Pro, mes ventes ont augmenté de 40%. Je ne passe plus mes soirées à créer des posts.",
+//     colorClass: "bg-primary",
+//   },
+//   {
+//     initials: "JA",
+//     name: "Jean-André",
+//     role: "Directeur, Agence DigiMada",
+//     quote: "On gère 15 clients avec un seul outil. L'IA Gemini produit du contenu de qualité professionnelle en secondes.",
+//     colorClass: "bg-chart-1",
+//   },
+//   {
+//     initials: "SR",
+//     name: "Sarah R.",
+//     role: "Fondatrice, TanaBoutic",
+//     quote: "La planification automatique a transformé notre workflow. Plus besoin de se réveiller à 6h pour poster.",
+//     colorClass: "bg-chart-2",
+//   },
+// ];
 
 const Testimonials = () => {
   return (
@@ -37,7 +60,8 @@ const Testimonials = () => {
           viewport={{ once: true }}
           className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.01em] text-foreground text-center mb-16"
         >
-          Ils nous font confiance
+          {/* Ils nous font confiance */}
+          Pourquoi choisir FeoSync?
         </motion.h2>
 
         <div className="grid md:grid-cols-3 gap-8">
