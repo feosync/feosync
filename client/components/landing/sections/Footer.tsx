@@ -65,16 +65,16 @@ const Footer = () => {
           </Link>
 
           <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs leading-relaxed mb-6">
-            La plateforme d'automatisation marketing n°1 à Madagascar, propulsée par l'IA de Google.
+            La plateforme d'automatisation marketing n°1 à Madagascar, propulsée par l'Intéligence Artificielle.
           </p>
 
           {/* CTA */}
-          <button
+          {/* <button
             onClick={() => router.push('/login')}
             className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-full transition-colors shadow-sm"
           >
             Démarrer gratuitement
-          </button>
+          </button> */}
         </div>
 
         {/* Colonnes liens */}
