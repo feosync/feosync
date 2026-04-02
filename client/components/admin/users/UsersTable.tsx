@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/table'
 import { UsersTableSkeleton } from './UsersTableSkeleton'
 import type { UserSummary , Plan} from '@/lib/api/types'
+import { el } from 'date-fns/locale'
 
 interface Props {
   users: UserSummary[],
@@ -29,6 +30,8 @@ export function UsersTable({
   users,plans, currentUserId, isLoading, isFetching,
   isPromoting, isDemoting, onPromote, onDemote, onDelete,
 }: Props) {
+
+  
   return (
     <div className={`rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden transition-opacity ${isFetching ? 'opacity-60' : 'opacity-100'}`}>
       <Table>

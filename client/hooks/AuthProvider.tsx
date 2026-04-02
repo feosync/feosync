@@ -2,9 +2,10 @@
 
 import { createContext, useCallback, useState, useEffect } from 'react'
 import { apiClient } from '@/lib/api/client'
+import { User } from '@/lib/api/types'
 
 export interface AuthContextType {
-  user: any | null
+  user: User | null
   isLoading: boolean
   isAuthenticated: boolean
   googleLogin: (token: string) => Promise<void>
@@ -16,7 +17,7 @@ export interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<any | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

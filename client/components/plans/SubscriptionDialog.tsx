@@ -45,6 +45,8 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
   const currentPlan     = plans.find(p => p.id === currentPlanId) ?? null
   const isSubscribed    = !!currentPlanId
 
+  
+
   const handleSubscribeClick = (plan: Plan) => {
     if (plan.id === currentPlanId) return
     setConfirmPlan(plan)
