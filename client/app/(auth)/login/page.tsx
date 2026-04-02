@@ -33,20 +33,30 @@ export function LeftPanel() {
 
         {/* Headlines */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-5xl font-bold tracking-tight leading-none" style={{ color: "#f7f7f7" }}>
+          <h2
+            className="text-5xl font-bold tracking-tight leading-none"
+            style={{ color: "#f7f7f7" }}
+          >
             <span
               className="text-transparent bg-clip-text pr-2"
-              style={{ backgroundImage: "linear-gradient(to right, #22d3ee, #3b62e0)" }}
+              style={{
+                backgroundImage: "linear-gradient(to right, #22d3ee, #3b62e0)",
+              }}
             >
               Moins de
             </span>
             temps
           </h2>
-          <h2 className="text-5xl font-bold tracking-tight leading-none" style={{ color: "#f7f7f7" }}>
+          <h2
+            className="text-5xl font-bold tracking-tight leading-none"
+            style={{ color: "#f7f7f7" }}
+          >
             Plus
             <span
               className="text-transparent bg-clip-text pl-2"
-              style={{ backgroundImage: "linear-gradient(to right, #22d3ee, #3b62e0)" }}
+              style={{
+                backgroundImage: "linear-gradient(to right, #22d3ee, #3b62e0)",
+              }}
             >
               d'impact
             </span>
@@ -55,7 +65,9 @@ export function LeftPanel() {
 
         <div
           className="w-10 h-0.5 rounded-full"
-          style={{ backgroundImage: "linear-gradient(to right, #22d3ee, transparent)" }}
+          style={{
+            backgroundImage: "linear-gradient(to right, #22d3ee, transparent)",
+          }}
         />
 
         {/* Feature list */}
@@ -66,7 +78,11 @@ export function LeftPanel() {
             "Insights actionnables, pas juste des stats",
             "Contenu IA adapté à chaque plateforme",
           ].map((f) => (
-            <li key={f} className="flex items-center gap-3 text-xs" style={{ color: "#7a9ab5" }}>
+            <li
+              key={f}
+              className="flex items-center gap-3 text-xs"
+              style={{ color: "#7a9ab5" }}
+            >
               <div
                 className="w-4 h-4 shrink-0 rounded-full flex items-center justify-center"
                 style={{
@@ -97,7 +113,7 @@ export default function LoginPage() {
   const { error } = useAuth();
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [loading_microsoft, setloading_microsoft] = useState(false)
+  const [loading_microsoft, setloading_microsoft] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -139,10 +155,10 @@ export default function LoginPage() {
       <div className="relative flex flex-1 p-6 lg:p-8 gap-6">
         {/* ── Colonne gauche — formulaire ── */}
         <div className="flex-1 lg:w-[42%] flex items-center justify-center p-4 lg:p-10">
-          <div className="w-full max-w-sm">
+          <div className="w-full max-w-md">
             <div className="mb-10 flex flex-col items-center">
-              <h2 className="text-2xl font-semibold text-foreground text-center leading-tight">
-                Connectez vous & Continuer
+              <h2 className="text-3xl text-foreground text-center leading-tight font-bold">
+               En quleques clics, <br/> Automatisez <span className="text-primary text-3xl">votre croissance.</span>
               </h2>
             </div>
 
@@ -152,16 +168,16 @@ export default function LoginPage() {
               </div>
             )}
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col items-center gap-5">
               {/* Bouton Google */}
               <button
                 onClick={handleGoogleLogin}
                 disabled={loading}
-                className="group w-full flex items-center justify-center gap-3 h-12 relative
-                  bg-input hover:bg-input/[1.5]
+                className="group w-[90%] flex items-center justify-center gap-3 h-12 relative
+                  bg-input hover:bg-input/150
                   cursor-pointer
                   border border-border hover:border-primary/40
-                  rounded-xl text-sm font-medium text-foreground
+                  rounded-full text-lg font-medium text-foreground
                   transition-all duration-200
                   hover:shadow-[0_0_20px_hsl(var(--ring)/0.08)]
                   disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
@@ -169,34 +185,55 @@ export default function LoginPage() {
                 {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 ) : (
-                  <svg width="18" height="18" viewBox="0 0 48 48">
-                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                  <svg width="20" height="20" viewBox="0 0 48 48">
+                    <path
+                      fill="#EA4335"
+                      d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+                    />
+                    <path
+                      fill="#4285F4"
+                      d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                    />
                   </svg>
                 )}
-                {loading ? "Redirection vers Google..." : "Continuer avec Google"}
+                {loading
+                  ? "Redirection vers Google..."
+                  : "Continuer avec Google"}
               </button>
 
               {/* Bouton Microsoft */}
               <button
-                className="group w-full flex items-center justify-center gap-3 h-12 relative
-                  bg-input hover:bg-input/[1.5]
+                className="group w-[90%] flex items-center justify-center gap-3 h-12 relative
+                  bg-input hover:bg-input/150
                   cursor-pointer
                   border border-border hover:border-chart-2/40
-                  rounded-xl text-sm font-medium text-foreground
+                  rounded-full text-lg font-medium text-foreground
                   transition-all duration-200
                   hover:shadow-[0_0_20px_hsl(var(--chart-2)/0.08)]
                   disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
               >
-                <svg width="18" height="18" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 21 21"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <rect x="1" y="1" width="9" height="9" fill="#F25022" />
                   <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
                   <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
                   <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
                 </svg>
-                {loading_microsoft ? "Redirection vers Microsoft..." : "Continuer avec Microsoft"}
+                {loading_microsoft
+                  ? "Redirection vers Microsoft..."
+                  : "Continuer avec Microsoft"}
               </button>
             </div>
 
@@ -210,7 +247,7 @@ export default function LoginPage() {
             </div>
 
             {/* Badges de confiance */}
-            <div className="grid grid-cols-3 gap-2 mb-6">
+            {/* <div className="grid grid-cols-3 gap-2 mb-6">
               {[
                 { label: "SSL chiffré", icon: "🔒" },
                 { label: "RGPD conforme", icon: "🇪🇺" },
@@ -229,16 +266,22 @@ export default function LoginPage() {
                   </span>
                 </div>
               ))}
-            </div>
+            </div> */}
 
             {/* Mentions légales */}
-            <p className="text-center text-[11px] text-muted-foreground/50">
+            <p className="text-center text-[14px] text-muted-foreground">
               En continuant, vous acceptez nos{" "}
-              <Link href="/#cgu" className="text-accent/70 hover:text-primary transition-colors">
+              <Link
+                href="/#cgu"
+                className="text-primary dark:text-accent/70 hover:text-primary transition-colors"
+              >
                 conditions d'utilisation
               </Link>{" "}
               et notre{" "}
-              <Link href="/#confidentialite" className="text-accent/70 hover:text-primary transition-colors">
+              <Link
+                href="/#confidentialite"
+                className="text-primary dark:text-accent/70 hover:text-primary transition-colors"
+              >
                 politique de confidentialité
               </Link>
             </p>
@@ -261,8 +304,14 @@ export default function LoginPage() {
           />
 
           {/* Glow intérieur */}
-          <div className="absolute top-1/4 left-1/3 w-72 h-72 rounded-full blur-3xl" style={{ background: "rgba(34,211,238,0.10)" }} />
-          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full blur-3xl" style={{ background: "rgba(124,58,237,0.10)" }} />
+          <div
+            className="absolute top-1/4 left-1/3 w-72 h-72 rounded-full blur-3xl"
+            style={{ background: "rgba(34,211,238,0.10)" }}
+          />
+          <div
+            className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full blur-3xl"
+            style={{ background: "rgba(124,58,237,0.10)" }}
+          />
 
           <div className="relative z-10 flex flex-col w-full h-full">
             {/* Image */}
