@@ -108,45 +108,6 @@ const stats = [
 
 type TeamMember = (typeof teamMembers)[0];
 
-// ── Orbit dot (desktop only) ─────────────────────────────────────────────────
-const OrbitDot = ({
-  radius,
-  speed,
-  size,
-  color,
-  startAngle,
-}: {
-  radius: number;
-  speed: number;
-  size: number;
-  color: string;
-  startAngle: number;
-}) => {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const angleRef = useRef(startAngle);
-  useAnimationFrame((_, delta) => {
-    angleRef.current += (delta / 1000) * speed;
-    setPos({
-      x: Math.cos(angleRef.current) * radius,
-      y: Math.sin(angleRef.current) * radius * 0.35,
-    });
-  });
-  return (
-    <motion.div
-      className="absolute rounded-full pointer-events-none"
-      style={{
-        width: size,
-        height: size,
-        background: color,
-        boxShadow: `0 0 ${size * 2}px ${color}80`,
-        left: `calc(50% + ${pos.x}px)`,
-        top: `calc(50% + ${pos.y}px)`,
-        transform: "translate(-50%, -50%)",
-        opacity: 0.75,
-      }}
-    />
-  );
-};
 
 const desktopPositions = [
   { left: "8%", top: "12%" },
