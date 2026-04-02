@@ -24,6 +24,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useRouter } from 'next/navigation'
+
 
 /* ── Données ── */
 const chartData = [
@@ -175,6 +177,7 @@ const WhatsAppBubble = () => (
    HERO
 ══════════════════════════════════════ */
 const Hero = () => {
+  const router = useRouter();
   return (
     <section id="#" className="pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 overflow-hidden">
       <div className="max-w-7xl h-max lg:h-[90vh] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
@@ -188,24 +191,24 @@ const Hero = () => {
         >
           <h1 className="text-[clamp(36px,7vw,75px)] leading-[1.05] tracking-[-0.02em] font-bold text-foreground mb-5 sm:mb-6">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-3">
-              Automatisez votre présence.
+              Automatisez votre présence
             </span>
             <br />
-            Sur les Réseaux.
+            Sur les Réseaux
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-3">
-              Pilotés par l'IA.
+              Grâce a l'IA.
             </span>
           </h1>
 
           <p className="text-base sm:text-lg text-muted-foreground max-w-lg mb-8 sm:mb-10 leading-relaxed mx-auto lg:mx-0">
-            AutoPost Pro génère vos visuels, rédige vos légendes et publie
+            FeoSync génère vos visuels, rédige vos légendes et publie
             automatiquement — pendant que vous gérez votre business.
           </p>
 
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-center lg:items-start justify-center lg:justify-start">
-            <motion.a
-              href="#cta"
+            <motion.button
+             onClick={() => router.push('/login')}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
               className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-[24px]
@@ -216,7 +219,7 @@ const Hero = () => {
                          hover:shadow-lg hover:shadow-primary/20 transition-all"
             >
               Commencer gratuitement <ArrowRight size={18} />
-            </motion.a>
+            </motion.button>
 
             <motion.a
               href="#demo"
