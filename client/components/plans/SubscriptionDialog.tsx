@@ -45,9 +45,7 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
   const currentPlan     = plans.find(p => p.id === currentPlanId) ?? null
   const isSubscribed    = !!currentPlanId
 
-  console.log('User plan:', currentPlanId, currentPlan?.name)
-  // plan id
-  console.log('Available plans:', activePlans.map(p => `${p.name} (${p.id})`).join(', '))
+  
 
   const handleSubscribeClick = (plan: Plan) => {
     if (plan.id === currentPlanId) return
