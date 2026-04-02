@@ -8,145 +8,46 @@ import { X, MapPin, Mail, Twitter, Github, Linkedin } from "lucide-react";
 
 const teamMembers = [
   {
-    name: "Sophie Martin",
+    name: "THE Audio Nandraina",
     role: "CEO & Co-founder",
-    avatar: "SM",
+    avatar: "TH",
     color: "#4285F4",
     delay: 0,
-    location: "Paris, France",
-    email: "sophie@feosync.com",
-    bio: "Visionnaire passionnée par l'IA et l'innovation produit. 10 ans d'expérience en startup B2B SaaS.",
+    location: "Tananarive, Madagascar",
+    email: "theaudio@feosync.com",
+    bio: "Visionnaire passionnée par l'IA et l'innovation produit.",
     skills: ["Stratégie", "Leadership", "Product"],
     social: {
-      twitter: "@sophiemartin",
-      linkedin: "sophiemartin",
-      github: "sophiem",
+      twitter: "@theaudiomartin",
+      linkedin: "theaudiomartin",
+      github: "theaudio",
     },
-    joined: "Fondatrice · 2020",
+    joined: "Fondateur · 2026",
   },
   {
-    name: "Alex Dubois",
-    role: "CTO",
-    avatar: "AD",
+    name: "Anicet Jhoniah Randrianambinina",
+    role: "CTO & Co-founder",
+    avatar: "AJ",
     color: "#EA4335",
     delay: 0.1,
-    location: "Lyon, France",
-    email: "alex@feosync.com",
-    bio: "Architecte logiciel full-stack avec une expertise en systèmes distribués et en infrastructure cloud à grande échelle.",
+    location: "Tananarive, Madagascar",
+    email: "anicet@feosync.com",
+    bio: "Architecte logiciel full-stack avec une expertise en IA.",
     skills: ["Architecture", "Cloud", "Rust"],
-    social: { twitter: "@alexdubois", linkedin: "alexdubois", github: "alexd" },
-    joined: "Membre · Jan 2021",
-  },
-  {
-    name: "Camille Roy",
-    role: "Head of Design",
-    avatar: "CR",
-    color: "#34A853",
-    delay: 0.2,
-    location: "Bordeaux, France",
-    email: "camille@feosync.com",
-    bio: "Designer UI/UX primée, obsédée par les micro-interactions et les systèmes de design cohérents.",
-    skills: ["Figma", "Motion", "Design System"],
-    social: {
-      twitter: "@camilleroy",
-      linkedin: "camilleroy",
-      github: "camilledesign",
-    },
-    joined: "Membre · Mars 2021",
-  },
-  {
-    name: "Luca Bianchi",
-    role: "Lead Engineer",
-    avatar: "LB",
-    color: "#FBBC05",
-    delay: 0.3,
-    location: "Milan, Italie",
-    email: "luca@feosync.com",
-    bio: "Ingénieur backend spécialisé en performance et scalabilité. Contributeur open-source actif.",
-    skills: ["Go", "Kubernetes", "PostgreSQL"],
-    social: {
-      twitter: "@lucabianchi",
-      linkedin: "lucabianchi",
-      github: "lucab",
-    },
-    joined: "Membre · Juin 2021",
-  },
-  {
-    name: "Nina Chen",
-    role: "Product Manager",
-    avatar: "NC",
-    color: "#4285F4",
-    delay: 0.4,
-    location: "Singapour",
-    email: "nina@feosync.com",
-    bio: "PM data-driven avec une expérience chez Google et Stripe. Traduit la vision en roadmap exécutable.",
-    skills: ["Roadmap", "Analytics", "Agile"],
-    social: { twitter: "@ninachen", linkedin: "ninachen", github: "ninac" },
-    joined: "Membre · Sep 2021",
-  },
-  {
-    name: "Omar Haddad",
-    role: "Data Scientist",
-    avatar: "OH",
-    color: "#EA4335",
-    delay: 0.5,
-    location: "Casablanca, Maroc",
-    email: "omar@feosync.com",
-    bio: "Expert ML/AI avec un doctorat en statistiques. Construit les modèles prédictifs au cœur de FeoSync.",
-    skills: ["Python", "ML", "NLP"],
-    social: { twitter: "@omarhaddad", linkedin: "omarhaddad", github: "omarh" },
-    joined: "Membre · Déc 2021",
-  },
+    social: { twitter: "@anicetrandrianambinina", linkedin: "anicetrandrianambinina", github: "anicet" },
+    joined: "Fondateur · 2026",
+  }
 ];
 
 const stats = [
-  { value: "48+", label: "Membres" },
-  { value: "12", label: "Pays" },
+  { value: "2", label: "Membres" },
+  { value: "1", label: "Pays" },
   { value: "99%", label: "Satisfaction" },
   { value: "4ans", label: "Expérience" },
 ];
 
 type TeamMember = (typeof teamMembers)[0];
 
-// ── Orbit dot (desktop only) ─────────────────────────────────────────────────
-const OrbitDot = ({
-  radius,
-  speed,
-  size,
-  color,
-  startAngle,
-}: {
-  radius: number;
-  speed: number;
-  size: number;
-  color: string;
-  startAngle: number;
-}) => {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const angleRef = useRef(startAngle);
-  useAnimationFrame((_, delta) => {
-    angleRef.current += (delta / 1000) * speed;
-    setPos({
-      x: Math.cos(angleRef.current) * radius,
-      y: Math.sin(angleRef.current) * radius * 0.35,
-    });
-  });
-  return (
-    <motion.div
-      className="absolute rounded-full pointer-events-none"
-      style={{
-        width: size,
-        height: size,
-        background: color,
-        boxShadow: `0 0 ${size * 2}px ${color}80`,
-        left: `calc(50% + ${pos.x}px)`,
-        top: `calc(50% + ${pos.y}px)`,
-        transform: "translate(-50%, -50%)",
-        opacity: 0.75,
-      }}
-    />
-  );
-};
 
 const desktopPositions = [
   { left: "8%", top: "12%" },
@@ -580,7 +481,7 @@ const About = () => {
           ))}
 
           {/* Stats strip */}
-          <motion.div
+          {/* <motion.div
             className="absolute bottom-0 left-0 right-0 flex justify-around items-center py-3 px-6"
             style={{
               backdropFilter: "blur(10px)",
@@ -605,7 +506,7 @@ const About = () => {
                 </p>
               </div>
             ))}
-          </motion.div>
+          </motion.div> */}
         </div>
 
         {/* ── MOBILE layout ── */}
@@ -736,10 +637,10 @@ const About = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.3, duration: 0.6 }}
         >
-          We're committed to building a diverse team and a work environment
-          that's inclusive of people of all backgrounds. Get to know the
-          wonderful team who's building our product, supporting our customers,
-          and creating educational content.
+          Avant tout, nous sommes une équipe passionnée, portée par la vision de
+          réinventer la gestion des réseaux sociaux grâce à l’intelligence
+          artificielle, pour offrir une expérience toujours plus simple et
+          efficace à nos utilisateurs.{" "}
         </motion.p>
 
         {/* Mobile description */}

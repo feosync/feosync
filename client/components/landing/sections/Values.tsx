@@ -38,28 +38,10 @@ const values = [
   },
   {
     number: "04",
-    icon: Zap,
-    title: "Vitesse & rigueur",
-    description:
-      "Nous Agissons vite, mais jamais au détriment de la qualité. L'excellence et l'agilité ne s'opposent pas — elles se renforcent.",
-    color: "#FBBC05",
-    accent: "#FBBC0515",
-  },
-  {
-    number: "05",
-    icon: Globe,
-    title: "Impact global",
-    description:
-      "Notre ambition dépasse les frontières. Chaque ligne de code, chaque décision produit est pensée pour avoir un impact positif à l'échelle mondiale.",
-    color: "#4285F4",
-    accent: "#4285F415",
-  },
-  {
-    number: "06",
     icon: Heart,
     title: "Passion authentique",
     description:
-      "Nous ne faisons pas ce métier par obligation. Nous le faisons parce que nous croyons sincèrement pouvoir changer quelque chose.",
+      "Nous avons créer FeoSync pour changer la façon dont les gens interagissent avec les réseaux sociaux. Nous avons créer FeoSync parce que nous croyons sincèrement pouvoir changer quelque chose.",
     color: "#EA4335",
     accent: "#EA433515",
   },
@@ -222,7 +204,7 @@ const SectionHeader = ({ dark }: { dark: boolean }) => {
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        Six principes fondateurs qui guident chacune de nos décisions, de la
+        Quatre principes fondateurs qui guident chacune de nos décisions, de la
         première ligne de code à la dernière interaction utilisateur.
       </motion.p>
     </div>
