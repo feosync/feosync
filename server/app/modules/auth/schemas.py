@@ -39,6 +39,7 @@ class UserResponse(UserBase):
     profile_picture: Optional[str]
     is_active: bool
     is_admin: bool
+    plan_id: Optional[int]
     created_at: datetime
     updated_at: datetime
 
