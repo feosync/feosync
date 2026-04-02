@@ -12,6 +12,9 @@ const navLinks = [
   { label: 'Comment ça marche', href: '/#how-it-works' },
   { label: 'Fonctionnalités',   href: '/#features' },
   { label: 'Tarifs',            href: '/#pricing' },
+  { label: 'Intégrations',      href: '/#integrations' },
+  { label: 'À propos',          href: '/#about' },
+  { label: 'Valeurs',          href: '/#values' },
 ]
 
 export const Navbar = () => {
