@@ -269,7 +269,7 @@ export default function LoginPage() {
             </div> */}
 
             {/* Mentions légales */}
-            <p className="text-center text-[14px] text-muted-foreground">
+            <p className="text-center text-[13px] text-muted-foreground">
               En continuant, vous acceptez nos{" "}
               <Link
                 href="/#cgu"
