@@ -31,6 +31,7 @@ class UserSummary(BaseModel):
     name: str
     email: EmailStr
     profile_picture: Optional[str]
+    plan_id: Optional[int]
     is_active: bool
     is_admin: bool
 
