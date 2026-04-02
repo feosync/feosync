@@ -36,72 +36,12 @@ const teamMembers = [
     skills: ["Architecture", "Cloud", "Rust"],
     social: { twitter: "@anicetrandrianambinina", linkedin: "anicetrandrianambinina", github: "anicet" },
     joined: "Fondateur · 2026",
-  },
-  {
-    name: "Camille Roy",
-    role: "Head of Design",
-    avatar: "CR",
-    color: "#34A853",
-    delay: 0.2,
-    location: "Bordeaux, France",
-    email: "camille@feosync.com",
-    bio: "Designer UI/UX primée, obsédée par les micro-interactions et les systèmes de design cohérents.",
-    skills: ["Figma", "Motion", "Design System"],
-    social: {
-      twitter: "@camilleroy",
-      linkedin: "camilleroy",
-      github: "camilledesign",
-    },
-    joined: "Membre · Mars 2021",
-  },
-  {
-    name: "Luca Bianchi",
-    role: "Lead Engineer",
-    avatar: "LB",
-    color: "#FBBC05",
-    delay: 0.3,
-    location: "Milan, Italie",
-    email: "luca@feosync.com",
-    bio: "Ingénieur backend spécialisé en performance et scalabilité. Contributeur open-source actif.",
-    skills: ["Go", "Kubernetes", "PostgreSQL"],
-    social: {
-      twitter: "@lucabianchi",
-      linkedin: "lucabianchi",
-      github: "lucab",
-    },
-    joined: "Membre · Juin 2021",
-  },
-  {
-    name: "Nina Chen",
-    role: "Product Manager",
-    avatar: "NC",
-    color: "#4285F4",
-    delay: 0.4,
-    location: "Singapour",
-    email: "nina@feosync.com",
-    bio: "PM data-driven avec une expérience chez Google et Stripe. Traduit la vision en roadmap exécutable.",
-    skills: ["Roadmap", "Analytics", "Agile"],
-    social: { twitter: "@ninachen", linkedin: "ninachen", github: "ninac" },
-    joined: "Membre · Sep 2021",
-  },
-  {
-    name: "Omar Haddad",
-    role: "Data Scientist",
-    avatar: "OH",
-    color: "#EA4335",
-    delay: 0.5,
-    location: "Casablanca, Maroc",
-    email: "omar@feosync.com",
-    bio: "Expert ML/AI avec un doctorat en statistiques. Construit les modèles prédictifs au cœur de FeoSync.",
-    skills: ["Python", "ML", "NLP"],
-    social: { twitter: "@omarhaddad", linkedin: "omarhaddad", github: "omarh" },
-    joined: "Membre · Déc 2021",
-  },
+  }
 ];
 
 const stats = [
-  { value: "48+", label: "Membres" },
-  { value: "12", label: "Pays" },
+  { value: "2", label: "Membres" },
+  { value: "1", label: "Pays" },
   { value: "99%", label: "Satisfaction" },
   { value: "4ans", label: "Expérience" },
 ];
@@ -541,7 +481,7 @@ const About = () => {
           ))}
 
           {/* Stats strip */}
-          <motion.div
+          {/* <motion.div
             className="absolute bottom-0 left-0 right-0 flex justify-around items-center py-3 px-6"
             style={{
               backdropFilter: "blur(10px)",
@@ -566,7 +506,7 @@ const About = () => {
                 </p>
               </div>
             ))}
-          </motion.div>
+          </motion.div> */}
         </div>
 
         {/* ── MOBILE layout ── */}
