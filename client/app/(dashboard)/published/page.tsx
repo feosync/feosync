@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle, Search } from 'lucide-react'
+import { CheckCircle, Search , X} from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import {
@@ -21,6 +21,7 @@ import { PublishedPostDetailSheet } from '@/components/published/PublishedPostDe
 import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 import { useDebounce } from '@/hooks/useDebounce'
 import type { PublishedPost } from '@/lib/api/types'
+import { Button } from '@/components/ui/button'
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 
@@ -129,14 +130,24 @@ export default function PublishedPage() {
       <div className="flex flex-wrap items-center gap-3">
 
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input
-            placeholder="Rechercher…"
-            value={searchInput}
-            onChange={e => handleSearch(e.target.value)}
-            className="pl-9 w-52"
-          />
-        </div>
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Input
+          placeholder="Rechercher…"
+          value={searchInput}
+          onChange={e => handleSearch(e.target.value)}
+          className="pl-9 pr-9 w-52"
+        />
+        {searchInput && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleSearch('')}
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
 
         <Select value={year ? String(year) : 'all'} onValueChange={handleYear}>
           <SelectTrigger className="w-28">
