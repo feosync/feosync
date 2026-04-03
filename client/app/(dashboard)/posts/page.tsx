@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Plus, Calendar, FileText, CheckCircle2, XCircle, Search } from 'lucide-react'
+import { Plus, Calendar, FileText, CheckCircle2, XCircle, Search,X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -175,8 +175,18 @@ export default function PostsPage() {
             placeholder="Rechercher…"
             value={searchInput}
             onChange={e => handleSearch(e.target.value)}
-            className="pl-9 w-52"
+            className="pl-9 pr-9 w-52"
           />
+          {searchInput && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleSearch('')}
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          )}
         </div>
 
         {/* Année */}
