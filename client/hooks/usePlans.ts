@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
 import type { Plan, CreatePlanRequest, UpdatePlanRequest } from '@/lib/api/types'
+import  { useAuth } from '@/hooks/useAuth'
 
 const QUERY_KEY = ['plans']
 const ADMIN_QUERY_KEY = ['admin', 'plans']
@@ -28,12 +29,12 @@ export function usePlanById(planId: string) {
 
 export function useSubscribeToPlan() {
   const queryClient = useQueryClient()
+  const {updateUser} = useAuth()
 
   return useMutation({
     mutationFn: (planId: string) => apiClient.subscribeToPlan(planId),
     onSuccess: (updatedUser) => {
-      // Met à jour le cache auth directement avec le user retourné
-      queryClient.setQueryData(['auth', 'me'], updatedUser)
+      updateUser(updatedUser)      
       //  Invalide aussi la liste admin users (plan_id affiché dans le tableau)
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
       queryClient.invalidateQueries({ queryKey: ['plans'] })
@@ -47,12 +48,12 @@ export function useSubscribeToPlan() {
 
 export function useUnsubscribeFromPlan() {
   const queryClient = useQueryClient()
+  const {updateUser} = useAuth()
 
   return useMutation({
     mutationFn: () => apiClient.unsubscribeFromPlan(),
     onSuccess: (updatedUser) => {
-      // Met à jour le cache auth directement
-      queryClient.setQueryData(['auth', 'me'], updatedUser)
+      updateUser(updatedUser)      
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
       queryClient.invalidateQueries({ queryKey: ['plans'] })
       toast.success('Désabonnement effectué')

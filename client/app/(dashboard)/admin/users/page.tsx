@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Search, Users } from 'lucide-react'
+import { Search, Users, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/hooks/useAuth'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -11,6 +11,7 @@ import { UsersPagination } from '@/components/admin/users/UsersPagination'
 import { DeleteUserDialog } from  '@/components/admin/users/DeleteUserDialog'
 import type { UserSummary } from '@/lib/api/types'
 import { useAdminAllPlans } from '@/hooks/usePlans'
+import { Button } from '@/components/ui/button'
 
 const PAGE_SIZE = 10
 
@@ -63,14 +64,24 @@ export default function AdminUsersPage() {
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <Input
-          placeholder="Rechercher par nom ou email…"
-          value={searchInput}
-          onChange={e => handleSearch(e.target.value)}
-          className="pl-9"
-        />
-      </div>
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <Input
+        placeholder="Rechercher par nom ou email…"
+        value={searchInput}
+        onChange={e => handleSearch(e.target.value)}
+        className="pl-9 pr-9"
+      />
+      {searchInput && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleSearch('')}
+          className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
+        >
+          <X className="w-4 h-4" />
+        </Button>
+      )}
+    </div>
 
       <UsersTable
         users={users}

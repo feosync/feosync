@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, LayoutTemplate, Search } from 'lucide-react'
+import { Plus, LayoutTemplate, Search , X} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -126,15 +126,24 @@ export default function TemplatesPage() {
         )}
         
         <div className="relative flex-1 min-w-48">
-
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Rechercher un template..."
-            className="w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Rechercher un template..."
+          className="w-full pl-9 pr-9 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {search && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSearch('')}
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
         <div className="flex gap-1 flex-wrap">
           {SECTORS.map(s => (
             <button
