@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Plus, Building2, Search } from 'lucide-react'
+import { Plus, Building2, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -93,15 +93,25 @@ export default function OrganisationsPage() {
       </div>
 
       {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <Input
-          placeholder="Rechercher par nom ou description…"
-          value={searchInput}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="pl-9"
-        />
-      </div>
+    <div className="relative max-w-sm">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <Input
+        placeholder="Rechercher par nom ou description…"
+        value={searchInput}
+        onChange={(e) => handleSearch(e.target.value)}
+        className="pl-9 pr-9"
+      />
+      {searchInput && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleSearch('')}
+          className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
+        >
+          <X className="w-4 h-4" />
+        </Button>
+      )}
+    </div>
 
       {isLoading ? (
         <div className="space-y-3">
