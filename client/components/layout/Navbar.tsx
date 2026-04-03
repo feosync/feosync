@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Zap, Menu, X, Moon, Sun } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { useDarkMode } from '@/hooks/useDarkMode'
 
@@ -37,16 +38,11 @@ export const Navbar = () => {
     }`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
 
-        <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-          <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-sm">
-            <Zap size={16} className="text-primary-foreground fill-current" />
-          </div>
-          <span className="font-semibold text-[18px] tracking-tight text-slate-900 dark:text-white">
-            FeoSync
-          </span>
-        </Link>
+        <div  className="w-56 h-16 relative">
+          <Image src={dark ? '/images/dark/feosync_logo.png' : '/images/light/feosync_logo.png'} alt="FeoSync" width={32} height={32} className="w-full h-full" />
+        </div>
 
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-1">
           {navLinks.map(item => (
             <a
               key={item.label}
@@ -67,8 +63,8 @@ export const Navbar = () => {
             aria-label="Basculer le thème"
           >
             {dark
-              ? <Sun className="w-[18px] h-[18px] text-yellow-500" />
-              : <Moon className="w-[18px] h-[18px]" />
+              ? <Sun className="w-4.5 h-4.5 text-white" />
+              : <Moon className="w-4.5 h-4.5 text-slate-800" />
             }
           </Button>
 
@@ -92,8 +88,8 @@ export const Navbar = () => {
             aria-label="Basculer le thème"
           >
             {dark
-              ? <Sun className="w-[18px] h-[18px] text-yellow-500" />
-              : <Moon className="w-[18px] h-[18px]" />
+              ? <Sun className="w-4.5 h-4.5 text-white" />
+              : <Moon className="w-4.5 h-4.5 text-slate-800" />
             }
           </Button>
           <Button

@@ -16,16 +16,16 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/images/logo.png',
+        url: '/images/light/feosync_icon.png',
         media: '(prefers-color-scheme: light)',
       },
       {
-        url: '/images/logo-dark.png',
+        url: '/images/dark/feosync_icon.png',
         media: '(prefers-color-scheme: dark)',
       }
       
     ],
-    apple: '/images/logo.png',
+    apple: '/images/light/feosync_icon.png',
   },
 }
 
