@@ -6,12 +6,14 @@ import { User } from '@/lib/api/types'
 
 export interface AuthContextType {
   user: User | null
+  updateUser: (user: User) => void
   isLoading: boolean
   isAuthenticated: boolean
   googleLogin: (token: string) => Promise<void>
   setUserFromToken: (token: string) => Promise<void>
   logout: () => Promise<void>
   error: string | null
+
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -75,15 +77,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  
+  const updateUser = useCallback((updatedUser: User) => {
+    setUser(updatedUser)
+  }, [])
+
   return (
     <AuthContext.Provider value={{
       user,
+      updateUser,
       isLoading,
       isAuthenticated: !!user,
       googleLogin,
       setUserFromToken,
       logout,
-      error,
+      error
+      
     }}>
       {children}
     </AuthContext.Provider>
