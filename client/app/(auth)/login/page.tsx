@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // LeftPanel vit TOUJOURS sur fond sombre (#0d1520)
 // → toutes les couleurs sont hardcodées en dark, sans dark: conditionnel
@@ -110,6 +111,7 @@ export function LeftPanel() {
 }
 
 export default function LoginPage() {
+  const { dark, toggle } = useDarkMode(); // ← destructure les deux
   const { error } = useAuth();
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -134,15 +136,19 @@ export default function LoginPage() {
     <div className="min-h-screen h-screen bg-background flex flex-col">
       {/* Logo */}
       <div className="absolute top-6 left-6 flex flex-col gap-1">
-        <h2 className="text-2xl lg:text-5xl font-bold tracking-tight leading-none text-foreground">
-          Feo
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-3">
-            Sync
-          </span>
-        </h2>
-        <p className="text-muted-foreground text-xs tracking-widest font-light">
-          Synchronisez votre voix digitale
-        </p>
+        <div className="w-56 h-16 relative mb-8">
+          <Image
+            src={
+              dark
+                ? "/images/dark/feosync_logo.png"
+                : "/images/light/feosync_logo.png"
+            }
+            alt="FeoSync"
+            width={32}
+            height={32}
+            className="w-full h-full"
+          />
+        </div>
       </div>
 
       {/* Ambient glow */}
@@ -158,7 +164,8 @@ export default function LoginPage() {
           <div className="w-full max-w-md">
             <div className="mb-10 flex flex-col items-center">
               <h2 className="text-3xl text-foreground text-center leading-tight font-bold">
-               En quleques clics, <br/> Automatisez <span className="text-primary text-3xl">votre croissance.</span>
+                En quleques clics, <br /> Automatisez{" "}
+                <span className="text-primary text-3xl">votre croissance.</span>
               </h2>
             </div>
 

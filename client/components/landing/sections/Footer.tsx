@@ -1,50 +1,54 @@
-"use client"
+"use client";
 
-import { Zap } from 'lucide-react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { Zap } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useTheme } from "next-themes";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 const footerCols = [
   {
-    title: 'Produit',
+    title: "Produit",
     links: [
-      { label: 'Fonctionnalités',  href: '#features' },
-      { label: 'Tarifs',           href: '#pricing' },
-      { label: 'Intégrations',     href: '#integrations' },
-      { label: 'Comment ça marche',href: '#how-it-works' },
-    ]
+      { label: "Fonctionnalités", href: "#features" },
+      { label: "Tarifs", href: "#pricing" },
+      { label: "Intégrations", href: "#integrations" },
+      { label: "Comment ça marche", href: "#how-it-works" },
+    ],
   },
   {
-    title: 'Légal',
+    title: "Légal",
     links: [
-      { label: 'Confidentialité',  href: '#' },
-      { label: 'CGU',              href: '#' },
-      { label: 'Cookies',          href: '#' },
-      { label: 'RGPD',             href: '#' },
-    ]
+      { label: "Confidentialité", href: "#" },
+      { label: "CGU", href: "#" },
+      { label: "Cookies", href: "#" },
+      { label: "RGPD", href: "#" },
+    ],
   },
   {
-    title: 'Canaux',
+    title: "Canaux",
     links: [
-      { label: 'Facebook',   href: '#' },
-      { label: 'WhatsApp',   href: '#' },
-      { label: 'Instagram',  href: '#' },
-      { label: 'LinkedIn',   href: '#' },
-    ]
+      { label: "Facebook", href: "#" },
+      { label: "WhatsApp", href: "#" },
+      { label: "Instagram", href: "#" },
+      { label: "LinkedIn", href: "#" },
+    ],
   },
   {
-    title: 'Entreprise',
+    title: "Entreprise",
     links: [
-      { label: 'À propos',     href: '#about' },
-      { label: 'Valeurs',    href: '#values' },
-      { label: 'Contact',      href: '#contact' },
-      { label: 'Partenaires',  href: '#' },
-    ]
+      { label: "À propos", href: "#about" },
+      { label: "Valeurs", href: "#values" },
+      { label: "Contact", href: "#contact" },
+      { label: "Partenaires", href: "#" },
+    ],
   },
-]
+];
 
 const Footer = () => {
-  const router = useRouter()
+  const router = useRouter();
+  const { dark, toggle } = useDarkMode()   // ← destructure les deux
 
   return (
     <footer
@@ -52,20 +56,25 @@ const Footer = () => {
       id="contact"
     >
       <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-12 mb-16">
-
         {/* Brand */}
         <div className="col-span-2">
-          <Link href="/" className="flex items-center gap-2 mb-6">
-            <div className="w-7 h-7 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-              <Zap size={14} className="text-primary-foreground fill-current" />
-            </div>
-            <span className="font-semibold text-xl text-slate-900 dark:text-white">
-              FeoSync
-            </span>
-          </Link>
+          <div className="w-56 h-16 relative mb-8">
+            <Image
+              src={
+                dark
+                  ? "/images/dark/feosync_logo.png"
+                  : "/images/light/feosync_logo.png"
+              }
+              alt="FeoSync"
+              width={32}
+              height={32}
+              className="w-full h-full"
+            />
+          </div>
 
           <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs leading-relaxed mb-6">
-            La plateforme d'automatisation marketing n°1 à Madagascar, propulsée par l'Intéligence Artificielle.
+            La plateforme d'automatisation marketing n°1 à Madagascar, propulsée
+            par l'Intéligence Artificielle.
           </p>
 
           {/* CTA */}
@@ -78,13 +87,13 @@ const Footer = () => {
         </div>
 
         {/* Colonnes liens */}
-        {footerCols.map(col => (
+        {footerCols.map((col) => (
           <div key={col.title}>
             <h4 className="font-medium text-sm text-slate-900 dark:text-white mb-5">
               {col.title}
             </h4>
             <ul className="space-y-3">
-              {col.links.map(link => (
+              {col.links.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
@@ -103,13 +112,22 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] text-slate-400 dark:text-slate-500">
         <p>© 2025 FeoSync · Made with ❤️ in Madagascar 🇲🇬</p>
         <div className="flex gap-6">
-          <a href="#confidentialite" className="hover:text-blue-600 transition-colors">Confidentialité</a>
-          <a href="#cgu"             className="hover:text-blue-600 transition-colors">Conditions</a>
-          <a href="#cookies"         className="hover:text-blue-600 transition-colors">Cookies</a>
+          <a
+            href="#confidentialite"
+            className="hover:text-blue-600 transition-colors"
+          >
+            Confidentialité
+          </a>
+          <a href="#cgu" className="hover:text-blue-600 transition-colors">
+            Conditions
+          </a>
+          <a href="#cookies" className="hover:text-blue-600 transition-colors">
+            Cookies
+          </a>
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;
