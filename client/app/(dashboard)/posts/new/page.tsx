@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, Loader2, ArrowLeft } from 'lucide-react'
+import { Check, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useOrganisations } from '@/hooks/useOrganisations'
@@ -10,8 +10,6 @@ import { useFacebookPages } from '@/hooks/useFacebookPages'
 import {
   useCreateScheduledPost,
   usePatchCaption,
-  usePatchImage,
-  useUploadImage,
   useConfirmPost,
 } from '@/hooks/useScheduledPosts'
 import { StepTarget }  from '@/components/posts/wizard/StepTarget'
@@ -24,56 +22,36 @@ const STEPS = ['Cible', 'Caption', 'Image', 'Confirmer']
 
 export default function NewPostPage() {
   const router = useRouter()
-  const [step, setStep] = useState(0)
-  const [post, setPost] = useState<ScheduledPost | null>(null)
+  const [step, setStep]       = useState(0)
+  const [post, setPost]       = useState<ScheduledPost | null>(null)
   const [publishAt, setPublishAt] = useState('')
-
-  
   const [selectedOrgId, setSelectedOrgId] = useState<string>('')
 
-  // Chargement des organisations
-  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
-  const organisations = orgData?.items ?? []
-
-  const orgId = selectedOrgId || organisations[0]?.id || ''
+  const { data: orgData }  = useOrganisations({ page: 1, page_size: 10 })
+  const organisations      = orgData?.items ?? []
+  const orgId              = selectedOrgId || organisations[0]?.id || ''
   const { data: pages = [], isLoading: pagesLoading } = useFacebookPages(orgId)
 
   const createMutation  = useCreateScheduledPost()
   const captionMutation = usePatchCaption(orgId)
-  const imageMutation   = usePatchImage(orgId)
-  const uploadMutation  = useUploadImage(orgId)
   const confirmMutation = useConfirmPost(orgId)
 
-  const handleCreateDraft = async (data: { 
-      organization_id: string; 
-      facebook_page_id: string; 
-      publish_at?: string 
-    }) => {
-      const created = await createMutation.mutateAsync({
-        ...data,
-      })
-      setPost(created)
-      setPublishAt(data.publish_at || '')
-      setStep(1)
-    }
+  const handleCreateDraft = async (data: {
+    organization_id: string
+    facebook_page_id: string
+    publish_at?: string
+  }) => {
+    const created = await createMutation.mutateAsync(data)
+    setPost(created)
+    setPublishAt(data.publish_at || '')
+    setStep(1)
+  }
 
   const handleSaveCaption = async (data: any) => {
     if (!post) return
     const res = await captionMutation.mutateAsync({ postId: post.id, data })
     setPost(res.scheduled_post)
     setStep(2)
-  }
-
-  const handleSaveImage = async (data: any, file?: File) => {
-    if (!post) return
-    if (file) {
-      const res = await uploadMutation.mutateAsync({ postId: post.id, file })
-      setPost(res.scheduled_post)
-    } else {
-      const res = await imageMutation.mutateAsync({ postId: post.id, data })
-      setPost(res.scheduled_post)
-    }
-    setStep(3)
   }
 
   const handleConfirm = async () => {
@@ -91,9 +69,7 @@ export default function NewPostPage() {
         </Button>
         <div>
           <h1 className="text-[18px] font-medium text-slate-900 dark:text-white">Nouveau post</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Étape {step + 1} sur {STEPS.length}
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Étape {step + 1} sur {STEPS.length}</p>
         </div>
       </div>
 
@@ -104,7 +80,7 @@ export default function NewPostPage() {
             <div className="flex items-center gap-2">
               <div className={cn(
                 'w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-medium transition-all',
-                i < step  ? 'bg-blue-600 text-white' :
+                i < step   ? 'bg-blue-600 text-white' :
                 i === step ? 'bg-blue-600 text-white ring-4 ring-blue-100 dark:ring-blue-950' :
                              'bg-slate-100 dark:bg-slate-800 text-slate-400'
               )}>
@@ -133,7 +109,7 @@ export default function NewPostPage() {
           <StepTarget
             pages={pages}
             isLoading={createMutation.isPending || pagesLoading}
-            onOrgChange={setSelectedOrgId}      
+            onOrgChange={setSelectedOrgId}
             onNext={handleCreateDraft}
           />
         )}
@@ -148,8 +124,10 @@ export default function NewPostPage() {
         {step === 2 && post && (
           <StepImage
             post={post}
-            isLoading={imageMutation.isPending || uploadMutation.isPending}
-            onNext={handleSaveImage}
+            orgId={orgId}
+            onImageAdded={setPost}
+            onImageRemoved={setPost}
+            onNext={() => setStep(3)}
             onBack={() => setStep(1)}
           />
         )}

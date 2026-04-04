@@ -44,4 +44,4 @@ class AiGeneration(Base):
     )
 
     organisation = relationship("Organisation", back_populates="ai_generations")
-    post_ai_images = relationship("ScheduledPostAiImage", back_populates="ai_generation")
+    post_images = relationship("ScheduledPostImage", back_populates="ai_generation")

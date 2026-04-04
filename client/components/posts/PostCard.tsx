@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MoreVertical, Trash2, Eye, Calendar, ImageIcon } from 'lucide-react'
+import { MoreVertical, Trash2, Eye, Calendar, Images } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import {
   DropdownMenu, DropdownMenuContent,
-  DropdownMenuItem, DropdownMenuTrigger
+  DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -19,10 +19,10 @@ import Image from 'next/image'
 import type { ScheduledPost, PostStatus } from '@/lib/api/types'
 
 const STATUS: Record<PostStatus, { label: string; className: string }> = {
-  DRAFT:     { label: 'Brouillon',  className: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-0' },
-  SCHEDULED: { label: 'Planifié',   className: 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-0' },
-  PUBLISHED: { label: 'Publié',     className: 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 border-0' },
-  FAILED:    { label: 'Échoué',     className: 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border-0' },
+  DRAFT:     { label: 'Brouillon', className: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-0' },
+  SCHEDULED: { label: 'Planifié',  className: 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-0' },
+  PUBLISHED: { label: 'Publié',    className: 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 border-0' },
+  FAILED:    { label: 'Échoué',    className: 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border-0' },
 }
 
 interface PostCardProps {
@@ -35,6 +35,9 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const s = STATUS[post.status]
 
+  const coverImage = post.images?.[0] ?? null
+  const imageCount = post.images?.length ?? 0
+
   return (
     <>
       <div
@@ -43,18 +46,28 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
       >
         {/* Image preview */}
         <div className="relative h-36 bg-slate-100 dark:bg-slate-800">
-          {post.image_url ? (
-            <Image src={post.image_url} alt="post" fill className="object-cover" unoptimized />
+          {coverImage ? (
+            <Image src={coverImage.image_url} alt="post" fill className="object-cover" unoptimized />
           ) : (
             <div className="h-full flex flex-col items-center justify-center gap-1.5 text-slate-400">
-              <ImageIcon className="w-8 h-8 opacity-40" />
+              <Images className="w-8 h-8 opacity-40" />
               <span className="text-xs">Aucune image</span>
             </div>
           )}
-          {/* Status badge flottant */}
+
+          {/* Status badge */}
           <div className="absolute top-2 left-2">
             <Badge className={s.className}>{s.label}</Badge>
           </div>
+
+          {/* Image count badge */}
+          {imageCount > 1 && (
+            <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+              <Images className="w-3 h-3" />
+              {imageCount}
+            </div>
+          )}
+
           {/* Actions menu */}
           <div
             className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -87,9 +100,7 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
         {/* Body */}
         <div className="p-3.5">
           <p className={`text-[13px] line-clamp-2 min-h-[38px] mb-3 leading-relaxed ${
-            post.caption
-              ? 'text-slate-800 dark:text-slate-200'
-              : 'text-slate-400 italic'
+            post.caption ? 'text-slate-800 dark:text-slate-200' : 'text-slate-400 italic'
           }`}>
             {post.caption || 'Aucun caption rédigé...'}
           </p>
@@ -105,10 +116,9 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
                 <span className="text-slate-400">Pas de date</span>
               )}
             </div>
-            {/* Indicateur source image */}
-            {post.image_source && (
+            {coverImage && (
               <span className="text-[10px] text-slate-400 uppercase tracking-wide">
-                {post.image_source}
+                {imageCount > 1 ? `${imageCount} images` : coverImage.image_source}
               </span>
             )}
           </div>
@@ -118,17 +128,13 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-900 dark:text-white">
-              Supprimer ce post ?
-            </AlertDialogTitle>
+            <AlertDialogTitle className="text-slate-900 dark:text-white">Supprimer ce post ?</AlertDialogTitle>
             <AlertDialogDescription className="text-slate-500 dark:text-slate-400">
               Cette action est irréversible. Si le post est planifié, la tâche Celery sera annulée.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-slate-200 dark:border-slate-700">
-              Annuler
-            </AlertDialogCancel>
+            <AlertDialogCancel className="border-slate-200 dark:border-slate-700">Annuler</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => { onDelete(); setConfirmDelete(false) }}
               className="bg-red-600 hover:bg-red-700 text-white border-0"
