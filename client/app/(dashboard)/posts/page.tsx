@@ -9,7 +9,7 @@ import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import { useScheduledPosts, useDeleteScheduledPost } from '@/hooks/useScheduledPosts'
+import { useScheduledPosts, useScheduledPost,useDeleteScheduledPost } from '@/hooks/useScheduledPosts'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { PostCard } from '@/components/posts/PostCard'
 import { EmptyState } from '@/components/posts/EmptyState'
@@ -21,6 +21,9 @@ import {
 import { useRouter } from 'next/navigation'
 import { useDebounce } from '@/hooks/useDebounce'
 import type { PostStatus } from '@/lib/api/types'
+import { usePublishedPosts, useSyncMetrics, useDeletePublishedPost } from '@/hooks/usePublishedPosts'
+import { useFacebookPages } from '@/hooks/useFacebookPages'
+import { PublishedPostDetailSheet } from '@/components/published/PublishedPostDetailSheet'
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 
@@ -80,6 +83,12 @@ export default function PostsPage() {
   const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
   const organisations = orgData?.items ?? []
   const orgId = selectedOrgId || organisations[0]?.id || ''
+
+
+  const { data: pages = [] } = useFacebookPages(orgId)
+  const [publishedSheetPostId, setPublishedSheetPostId] = useState<string | null>(null)
+  const syncMutation      = useSyncMetrics(orgId)
+  const pubDeleteMutation = useDeletePublishedPost(orgId)
 
   // ── Filtres ───────────────────────────────────────────────────────────────
   const [activeTab,   setActiveTab]   = useState<PostStatus | 'all'>('all')
@@ -277,7 +286,11 @@ export default function PostsPage() {
               <PostCard
                 key={post.id}
                 post={post}
-                onClick={() => router.push(`/posts/${post.id}`)}
+                onClick={() =>
+                  post.status === 'PUBLISHED'
+                    ? setPublishedSheetPostId(post.id)
+                    : router.push(`/posts/${post.id}`)
+                }
                 onDelete={() => deleteMutation.mutate(post.id)}
               />
             ))}
@@ -353,6 +366,55 @@ export default function PostsPage() {
         </div>
       )}
 
+      {publishedSheetPostId && (
+        <PublishedSheetFromScheduled
+          scheduledPostId={publishedSheetPostId}
+          orgId={orgId}
+          pages={pages}
+          onClose={() => setPublishedSheetPostId(null)}
+          onSync={id => syncMutation.mutate(id)}
+          onDelete={id => { pubDeleteMutation.mutate(id); setPublishedSheetPostId(null) }}
+          isSyncing={syncMutation.isPending}
+          isDeleting={pubDeleteMutation.isPending}
+        />
+      )}
+
     </div>
+  )
+}
+
+function PublishedSheetFromScheduled({
+  scheduledPostId, orgId, pages, onClose, onSync, onDelete, isSyncing, isDeleting,
+}: {
+  scheduledPostId: string
+  orgId: string
+  pages: any[]
+  onClose: () => void
+  onSync: (id: string) => void
+  onDelete: (id: string) => void
+  isSyncing?: boolean
+  isDeleting?: boolean
+}) {
+  const { data: scheduledPost } = useScheduledPost(scheduledPostId)
+
+  const { data } = usePublishedPosts(orgId, { page: 1, page_size: 50 })
+  const publishedPost = data?.items.find(p => p.scheduled_post_id === scheduledPostId) ?? null
+
+  const page = pages.find(p => p.id === publishedPost?.facebook_page_id)
+
+  if (!publishedPost) return null
+
+  return (
+    <PublishedPostDetailSheet
+      open
+      onClose={onClose}
+      post={publishedPost}
+      scheduledPost={scheduledPost}
+      page={page}
+      onSyncMetrics={() => onSync(publishedPost.id)}
+      onDelete={() => onDelete(publishedPost.id)}
+      isSyncing={isSyncing}
+      isDeleting={isDeleting}
+    />
   )
 }

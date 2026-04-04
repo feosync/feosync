@@ -18,7 +18,7 @@ import type { Organisation } from '@/lib/api/types'
 interface ConnectPageDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  // organisations n'est plus nécessaire car on le charge directement dans le selector
+  
 }
 
 export function ConnectPageDialog({ open, onOpenChange }: ConnectPageDialogProps) {

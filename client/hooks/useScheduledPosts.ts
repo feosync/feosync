@@ -1,11 +1,15 @@
+'use client'
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
-import type { ScheduledPost, CaptionPatchRequest, ImagePatchRequest, PostStatus } from '@/lib/api/types'
+import type {
+  ScheduledPost, CaptionPatchRequest, ImageAddRequest,
+  AddImageResponse, PostStatus,
+} from '@/lib/api/types'
 
 export const POSTS_QUERY_KEY = (orgId: string) => ['scheduled-posts', orgId]
 export const POST_QUERY_KEY  = (postId: string) => ['scheduled-post', postId]
-
 
 export interface ScheduledPostsParams {
   page?: number
@@ -18,12 +22,10 @@ export interface ScheduledPostsParams {
 }
 
 export function useScheduledPosts(orgId: string, params?: ScheduledPostsParams) {
-  // on retire 'all' avant d'envoyer à l'API
   const apiParams = {
     ...params,
     status: params?.status === 'all' ? undefined : params?.status,
   }
-
   return useQuery({
     queryKey: [...POSTS_QUERY_KEY(orgId), apiParams],
     queryFn: () => apiClient.getScheduledPosts(orgId, apiParams),
@@ -61,40 +63,71 @@ export function usePatchCaption(orgId: string) {
       apiClient.patchCaption(postId, data),
     onSuccess: (res: any) => {
       queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY(orgId) })
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEY(res.scheduled_post.id) })
+      queryClient.setQueryData(POST_QUERY_KEY(res.scheduled_post.id), res.scheduled_post)
       toast.success('Caption enregistré')
     },
     onError: (err: any) => toast.error('Erreur', { description: err.message }),
   })
 }
 
-export function usePatchImage(orgId: string) {
+// ── Image mutations ───────────────────────────────────────────────────────────
+
+export function useAddImage(orgId: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ postId, data }: { postId: string; data: ImagePatchRequest }) =>
-      apiClient.patchImage(postId, data),
-    onSuccess: (res: any) => {
+    mutationFn: ({ postId, data }: { postId: string; data: ImageAddRequest }) =>
+      apiClient.addImage(postId, data),
+    onSuccess: (res: AddImageResponse) => {
       queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY(orgId) })
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEY(res.scheduled_post.id) })
-      toast.success('Image enregistrée')
+      queryClient.setQueryData(POST_QUERY_KEY(res.scheduled_post.id), res.scheduled_post)
+      toast.success('Image ajoutée')
     },
     onError: (err: any) => toast.error('Erreur', { description: err.message }),
   })
 }
 
-export function useUploadImage(orgId: string) {
+export function useAddImageUpload(orgId: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ postId, file }: { postId: string; file: File }) =>
-      apiClient.uploadImage(postId, file),
-    onSuccess: (res: any) => {
+      apiClient.addImageUpload(postId, file),
+    onSuccess: (res: AddImageResponse) => {
       queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY(orgId) })
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEY(res.scheduled_post.id) })
+      queryClient.setQueryData(POST_QUERY_KEY(res.scheduled_post.id), res.scheduled_post)
       toast.success('Image uploadée')
     },
     onError: (err: any) => toast.error('Erreur upload', { description: err.message }),
   })
 }
+
+export function useRemoveImage(orgId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ postId, imageId }: { postId: string; imageId: string }) =>
+      apiClient.removeImage(postId, imageId),
+    onSuccess: (updatedPost: ScheduledPost) => {
+      queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY(orgId) })
+      queryClient.setQueryData(POST_QUERY_KEY(updatedPost.id), updatedPost)
+      toast.success('Image supprimée')
+    },
+    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+  })
+}
+
+export function useReorderImages(orgId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ postId, orderedIds }: { postId: string; orderedIds: string[] }) =>
+      apiClient.reorderImages(postId, orderedIds),
+    onSuccess: (updatedPost: ScheduledPost) => {
+      queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY(orgId) })
+      queryClient.setQueryData(POST_QUERY_KEY(updatedPost.id), updatedPost)
+    },
+    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+  })
+}
+
+// ── Confirm / Delete ──────────────────────────────────────────────────────────
 
 export function useConfirmPost(orgId: string) {
   const queryClient = useQueryClient()
@@ -120,3 +153,5 @@ export function useDeleteScheduledPost(orgId: string) {
     onError: (err: any) => toast.error('Erreur', { description: err.message }),
   })
 }
+
+
