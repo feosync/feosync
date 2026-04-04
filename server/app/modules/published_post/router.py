@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.modules.auth.dependencies import get_active_user
 from app.modules.user.model import User
 from app.modules.published_post.schemas import (
+    AutoCommentRequest,
     PublishedPostResponse,
     ManualPublishRequest,
 )
@@ -93,6 +94,25 @@ async def publish_post(
         background_tasks=background_tasks,    
         user_id=current_user.id,              
         user_email=current_user.email,    
+    )
+
+@published_post_router.patch(
+    "/{post_id}/auto-comment",
+    response_model=PublishedPostResponse,
+    summary="Activer / désactiver l'auto-commentaire",
+)
+async def set_auto_comment(
+    post_id: UUID,
+    payload: AutoCommentRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_active_user),
+):
+    return PublishedPostService.set_auto_comment(
+        db,
+        post_id=post_id,
+        is_auto_comment=payload.is_auto_comment,
+        instructions=payload.instructions,
+        keywords=payload.keywords,
     )
 
 

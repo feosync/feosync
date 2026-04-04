@@ -102,6 +102,22 @@ class PublishedPostRepository:
         db.refresh(post)
         return post
 
+
+    @staticmethod
+    def set_auto_comment(
+        db: Session,
+        post: PublishedPost,
+        is_auto_comment: bool,
+        instructions: str | None,
+        keywords: str | None,
+    ) -> PublishedPost:
+        post.is_auto_comment = is_auto_comment
+        post.instructions    = instructions
+        post.keywords        = keywords
+        db.commit()
+        db.refresh(post)
+        return post
+
     @staticmethod
     def delete(db: Session, post: PublishedPost) -> None:
         db.delete(post)
