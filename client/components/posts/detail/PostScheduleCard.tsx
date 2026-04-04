@@ -17,9 +17,9 @@ export function PostScheduleCard({
   post, onConfirm, onAddCaption, onAddImage, onAddDate, isPending
 }: Props) {
   const items = [
-    { label: 'Caption', ok: !!post.caption,    action: onAddCaption, optional: false },
-    { label: 'Image',   ok: !!post.image_url,  action: onAddImage,   optional: true  },
-    { label: 'Date',    ok: !!post.publish_at, action: onAddDate,    optional: false },
+    { label: 'Caption', ok: !!post.caption,          action: onAddCaption, optional: false },
+    { label: 'Image',   ok: post.images?.length > 0, action: onAddImage,   optional: true  },
+    { label: 'Date',    ok: !!post.publish_at,        action: onAddDate,    optional: false },
   ]
 
   const canConfirm = !!post.caption && !!post.publish_at
@@ -27,13 +27,9 @@ export function PostScheduleCard({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-[13px] font-medium text-slate-900 dark:text-white">
-          Prêt à planifier ?
-        </h3>
+        <h3 className="text-[13px] font-medium text-slate-900 dark:text-white">Prêt à planifier ?</h3>
         {!post.caption && (
-          <span className="text-[11px] text-amber-600 dark:text-amber-400">
-            ⚠️ Caption manquant
-          </span>
+          <span className="text-[11px] text-amber-600 dark:text-amber-400">⚠️ Caption manquant</span>
         )}
       </div>
 
@@ -50,16 +46,11 @@ export function PostScheduleCard({
               </div>
               <span className="text-[13px] text-slate-600 dark:text-slate-400">
                 {item.label}
-                {item.optional && (
-                  <span className="text-[11px] text-slate-400 ml-1">(optionnel)</span>
-                )}
+                {item.optional && <span className="text-[11px] text-slate-400 ml-1">(optionnel)</span>}
               </span>
             </div>
             {!item.ok && (
-              <button
-                onClick={item.action}
-                className="text-[11px] text-blue-600 hover:underline"
-              >
+              <button onClick={item.action} className="text-[11px] text-blue-600 hover:underline">
                 Ajouter
               </button>
             )}

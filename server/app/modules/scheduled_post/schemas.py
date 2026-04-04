@@ -2,30 +2,22 @@ from pydantic import BaseModel, Field, model_validator
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, Literal
+
 from app.modules.scheduled_post.models.scheduled_post_model import PostStatus, ImageSource
 
 
 # ── CREATE ────────────────────────────────────────────────────────────────────
 
 class ScheduledPostCreate(BaseModel):
-    """
-    Minimum requis pour créer un post.
-    org_id déduit depuis facebook_page_id en service.
-    Status = DRAFT automatiquement.
-    """
-    facebook_page_id: UUID          # org_id déduit depuis la page
+    facebook_page_id: UUID
     publish_at: Optional[datetime] = None
-    caption: Optional[str] = None   # optionnel au create
+    caption: Optional[str] = None
     post_template_id: Optional[UUID] = None
 
 
 # ── PATCH caption ─────────────────────────────────────────────────────────────
 
 class CaptionPatchRequest(BaseModel):
-    """
-    mode=manual → text obligatoire
-    mode=llm    → topic obligatoire
-    """
     mode: Literal["manual", "llm"]
     text: Optional[str] = None
     topic: Optional[str] = None
@@ -42,14 +34,9 @@ class CaptionPatchRequest(BaseModel):
         return self
 
 
-# ── PATCH image ───────────────────────────────────────────────────────────────
+# ── PATCH / ADD image ─────────────────────────────────────────────────────────
 
 class ImagePatchRequest(BaseModel):
-    """
-    mode=url    → url obligatoire
-    mode=llm    → description obligatoire
-    mode=upload → géré via multipart (endpoint séparé)
-    """
     mode: Literal["url", "llm"]
     url: Optional[str] = None
     description: Optional[str] = None
@@ -64,25 +51,48 @@ class ImagePatchRequest(BaseModel):
         return self
 
 
-# ── PATCH confirm ─────────────────────────────────────────────────────────────
+# ── REORDER ───────────────────────────────────────────────────────────────────
+
+class ReorderRequest(BaseModel):
+    ordered_ids: list[UUID]
+
+
+# ── CONFIRM ───────────────────────────────────────────────────────────────────
 
 class ConfirmRequest(BaseModel):
-    """
-    Optionnel : permet de changer publish_at au moment de confirmer.
-    Tout le reste est déjà dans le post.
-    """
     publish_at: Optional[datetime] = None
 
 
-# ── RESPONSE ──────────────────────────────────────────────────────────────────
+# ── RESPONSES ─────────────────────────────────────────────────────────────────
+
+class ScheduledPostImageResponse(BaseModel):
+    id: UUID
+    image_url: str
+    image_source: ImageSource
+    position: int
+    ai_generation_id: Optional[UUID] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+    @classmethod
+    def from_orm_image(cls, img) -> "ScheduledPostImageResponse":
+        return cls(
+            id=img.id,
+            image_url=img.image_url,
+            image_source=img.image_source,
+            position=img.position,
+            ai_generation_id=img.ai_gen_id,
+            created_at=img.created_at,
+        )
+
 
 class ScheduledPostResponse(BaseModel):
     id: UUID
     organisation_id: UUID
     page_ids: dict
     caption: Optional[str] = None
-    image_url: Optional[str] = None
-    image_source: Optional[ImageSource] = None
+    images: list[ScheduledPostImageResponse] = []
     publish_at: Optional[datetime] = None
     status: PostStatus
     post_template_id: Optional[UUID] = None
@@ -95,11 +105,10 @@ class ScheduledPostResponse(BaseModel):
 class CaptionPatchResponse(BaseModel):
     scheduled_post: ScheduledPostResponse
     caption: str
-    ai_generation_id: Optional[UUID] = None  # None si mode=manual
+    ai_generation_id: Optional[UUID] = None
 
 
-class ImagePatchResponse(BaseModel):
+class AddImageResponse(BaseModel):
     scheduled_post: ScheduledPostResponse
-    image_url: str
-    image_source: ImageSource
-    ai_generation_id: Optional[UUID] = None  # None si mode=url
+    image: ScheduledPostImageResponse
+    ai_generation_id: Optional[UUID] = None
