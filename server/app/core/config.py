@@ -15,11 +15,6 @@ class Settings(BaseSettings):
     WEBHOOK_TOKEN: str | None = None
 
     GEMINI_API_KEY: str
-    DB_HOST: str
-    DB_PORT: str
-    DB_USER: str
-    DB_PASSWORD: str
-    DB_NAME: str
     
     #Redis setting
     REDIS_HOST:str
@@ -57,9 +52,11 @@ class Settings(BaseSettings):
     FRONTEND_URL: str | None = None
    
 
-    @property
-    def DATABASE_URL(self) -> str:
-        return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+    # @property
+    # def DATABASE_URL(self) -> str:
+    #     return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+    
+    DATABASE_URL: str | None = None
     class Config:
         env_file = ".env"
         
