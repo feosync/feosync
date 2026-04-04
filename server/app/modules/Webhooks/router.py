@@ -6,7 +6,9 @@ from app.core.config import settings
 from app.core.database import get_db
 from .service import WebhooksService
 import asyncio
+from app.core.logger import get_logger
 
+logger = get_logger(__name__)
 app_webhooks_router = APIRouter()
 webhooks_service = WebhooksService()
 
@@ -27,17 +29,17 @@ async def verify_webhook(
 # router.py
 @app_webhooks_router.post("/", response_class=PlainTextResponse)
 async def receive_webhook(request: Request):
-    # 👀 Logger TOUT ce que Meta envoie
+    logger.info("📩 Webhook reçu, traitement en cours...")
     raw_body = await request.body()
     if not raw_body:
-        print("⚠️ Body vide reçu")
+        logger.warning("⚠️ Body vide reçu")
         return "EVENT_RECEIVED"
 
     try:
         body = json.loads(raw_body)
     except Exception as e:
-        print(f"❌ JSON invalide : {e}")
-        print(f"❌ Contenu reçu : {raw_body.decode('utf-8', errors='replace')}")
+        logger.error(f"❌ JSON invalide : {e}")
+        logger.error(f"❌ Contenu reçu : {raw_body.decode('utf-8', errors='replace')}")
         return "EVENT_RECEIVED"
 
 

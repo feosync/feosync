@@ -1,6 +1,7 @@
 """Structured JSON logging via structlog."""
 import logging
 import sys
+from typing import Any
 
 import structlog
 from structlog.types import EventDict, Processor
@@ -8,11 +9,55 @@ from structlog.types import EventDict, Processor
 from app.core.config import settings
 
 
-def _add_app_info(logger: logging.Logger, method: str, event_dict: EventDict) -> EventDict:  # noqa: ARG001
+# ── Helpers ──────────────────────────────────────────────────────────────────
+
+def _add_app_info(
+    logger: logging.Logger,  # noqa: ARG001
+    method: str,             # noqa: ARG001
+    event_dict: EventDict,
+) -> EventDict:
     event_dict["app"] = settings.APP_NAME
     event_dict["env"] = settings.APP_ENV
     return event_dict
 
+
+class _MinLevelFilter(logging.Filter):
+    """Keeps only records at or above *level* (blocks DEBUG & noisy WARNING)."""
+
+    def __init__(self, level: int = logging.INFO) -> None:
+        super().__init__()
+        self.min_level = level
+
+    def filter(self, record: logging.LogRecord) -> bool:  # noqa: A003
+        return record.levelno >= self.min_level
+
+
+# ── Noisy third-party loggers ─────────────────────────────────────────────────
+
+_NOISY_LOGGERS: tuple[str, ...] = (
+    # Web / ASGI
+    "uvicorn",
+    "uvicorn.access",
+    "uvicorn.error",
+    # Database
+    "sqlalchemy.engine",
+    "sqlalchemy.pool",
+    "alembic",
+    # Task queue
+    "celery",
+    "celery.worker",
+    "celery.app.trace",
+    # HTTP clients
+    "httpx",
+    "httpcore",
+    "urllib3",
+    # Auth / security
+    "passlib",
+    "multipart",
+)
+
+
+# ── Public API ────────────────────────────────────────────────────────────────
 
 def configure_logging() -> None:
     log_level = logging.DEBUG if settings.APP_DEBUG else logging.INFO
@@ -25,8 +70,8 @@ def configure_logging() -> None:
     ]
 
     if settings.is_production:
-        # JSON output for log aggregators (Datadog, Loki, etc.)
-        renderer = structlog.processors.JSONRenderer()
+        # JSON compact pour Datadog / Loki
+        renderer: Any = structlog.processors.JSONRenderer()
     else:
         renderer = structlog.dev.ConsoleRenderer(colors=True)
 
@@ -35,7 +80,7 @@ def configure_logging() -> None:
             *shared_processors,
             structlog.stdlib.PositionalArgumentsFormatter(),
             structlog.processors.StackInfoRenderer(),
-            structlog.processors.format_exc_info,
+            structlog.processors.ExceptionRenderer(),   # remplace format_exc_info
             renderer,
         ],
         context_class=dict,
@@ -44,14 +89,22 @@ def configure_logging() -> None:
         cache_logger_on_first_use=True,
     )
 
-    logging.basicConfig(
-        format="%(message)s",
-        stream=sys.stdout,
-        level=log_level,
-    )
-    # Silence noisy third-party loggers
-    for noisy in ("uvicorn.access", "sqlalchemy.engine", "celery"):
-        logging.getLogger(noisy).setLevel(logging.WARNING)
+    # Filtre global : INFO + ERROR uniquement dans le terminal
+    min_filter = _MinLevelFilter(log_level)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(log_level)
+    handler.addFilter(min_filter)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+
+    root = logging.getLogger()
+    root.setLevel(log_level)
+    root.handlers.clear()          # évite les doublons si appelé plusieurs fois
+    root.addHandler(handler)
+
+    # Silence totale des librairies tierces (ERROR only)
+    for name in _NOISY_LOGGERS:
+        logging.getLogger(name).setLevel(logging.ERROR)
 
 
 def get_logger(name: str = __name__) -> structlog.BoundLogger:
