@@ -10,7 +10,8 @@ import {
   AnalyticsPeriod,
   CaptionPatchResponse,
   AddImageResponse,
-  ImageAddRequest
+  ImageAddRequest,
+  AutoCommentRequest
 } from "./types"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -306,6 +307,16 @@ export class ApiClient {
   async publishPost(scheduledPostId: string): Promise<PublishedPost> {
     return this.request('/api/v1/published/publish', {
       method: 'POST', body: JSON.stringify({ scheduled_post_id: scheduledPostId }),
+    })
+  }
+
+  async setAutoComment(
+    postId: string,
+    payload: AutoCommentRequest
+  ): Promise<PublishedPost> {
+    return this.request(`/api/v1/published/${postId}/auto-comment`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
     })
   }
 

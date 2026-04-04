@@ -198,13 +198,19 @@ export interface PublishedPost {
   channel: string
   image_count: number                 // ← nouveau
   published_at: string
-  is_auto_commented: boolean         // ← nouveau
+  is_auto_comment: boolean         // ← nouveau
   instructions: string | null 
   keywords: string | null
   initial_reach: number
   initial_impressions: number
   created_at: string
   updated_at: string
+}
+
+export interface AutoCommentRequest{
+  is_auto_comment: boolean
+  instructions?: string | null
+  keywords?: string | null
 }
 
 export interface ManualPublishRequest {

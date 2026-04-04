@@ -20,8 +20,8 @@ import {
 } from '@/components/ui/pagination'
 import { useRouter } from 'next/navigation'
 import { useDebounce } from '@/hooks/useDebounce'
-import type { PostStatus } from '@/lib/api/types'
-import { usePublishedPosts, useSyncMetrics, useDeletePublishedPost } from '@/hooks/usePublishedPosts'
+import type { AutoCommentRequest, PostStatus } from '@/lib/api/types'
+import { usePublishedPosts, useSyncMetrics, useDeletePublishedPost, useSetAutoComment } from '@/hooks/usePublishedPosts'
 import { useFacebookPages } from '@/hooks/useFacebookPages'
 import { PublishedPostDetailSheet } from '@/components/published/PublishedPostDetailSheet'
 
@@ -89,6 +89,8 @@ export default function PostsPage() {
   const [publishedSheetPostId, setPublishedSheetPostId] = useState<string | null>(null)
   const syncMutation      = useSyncMetrics(orgId)
   const pubDeleteMutation = useDeletePublishedPost(orgId)
+
+  const autoCommentMutation = useSetAutoComment(orgId)
 
   // ── Filtres ───────────────────────────────────────────────────────────────
   const [activeTab,   setActiveTab]   = useState<PostStatus | 'all'>('all')
@@ -376,6 +378,11 @@ export default function PostsPage() {
           onDelete={id => { pubDeleteMutation.mutate(id); setPublishedSheetPostId(null) }}
           isSyncing={syncMutation.isPending}
           isDeleting={pubDeleteMutation.isPending}
+          onAutoComment={payload => autoCommentMutation.mutate({ postId: publishedSheetPostId, payload })}
+          isAutoCommenting={autoCommentMutation.isPending}
+
+
+          
         />
       )}
 
@@ -384,7 +391,7 @@ export default function PostsPage() {
 }
 
 function PublishedSheetFromScheduled({
-  scheduledPostId, orgId, pages, onClose, onSync, onDelete, isSyncing, isDeleting,
+  scheduledPostId, orgId, pages, onClose, onSync, onDelete, isSyncing, isDeleting,onAutoComment, isAutoCommenting
 }: {
   scheduledPostId: string
   orgId: string
@@ -394,6 +401,8 @@ function PublishedSheetFromScheduled({
   onDelete: (id: string) => void
   isSyncing?: boolean
   isDeleting?: boolean
+  onAutoComment?: (payload: AutoCommentRequest) => void
+  isAutoCommenting?: boolean
 }) {
   const { data: scheduledPost } = useScheduledPost(scheduledPostId)
 
@@ -415,6 +424,8 @@ function PublishedSheetFromScheduled({
       onDelete={() => onDelete(publishedPost.id)}
       isSyncing={isSyncing}
       isDeleting={isDeleting}
+      onAutoComment={onAutoComment}
+      isAutoCommenting={isAutoCommenting}
     />
   )
 }
