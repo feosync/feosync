@@ -14,11 +14,17 @@ import {
   RefreshCw, ExternalLink, Trash2, Loader2,
   ThumbsUp, MessageCircle, Share2, Eye, Users,
   BarChart2, Clock, Globe, Link2, Images, ChevronLeft, ChevronRight,
+  Bot, ChevronUp, ChevronDown,
 } from 'lucide-react'
+import {Label} from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
+
+
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import Image from 'next/image'
-import type { PublishedPost, ScheduledPost, FacebookPage } from '@/lib/api/types'
+import type { PublishedPost, ScheduledPost, FacebookPage, AutoCommentRequest } from '@/lib/api/types'
 
 interface Props {
   open: boolean
@@ -30,6 +36,8 @@ interface Props {
   onDelete: () => void
   isSyncing?: boolean
   isDeleting?: boolean
+  onAutoComment: (payload: AutoCommentRequest) => void
+  isAutoCommenting?: boolean
 }
 
 export function PublishedPostDetailSheet({
@@ -37,9 +45,17 @@ export function PublishedPostDetailSheet({
   post, scheduledPost, page,
   onSyncMetrics, onDelete,
   isSyncing, isDeleting,
+  onAutoComment, isAutoCommenting,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [imgIndex, setImgIndex] = useState(0)
+
+  const [autoEnabled, setAutoEnabled]     = useState(post.is_auto_comment)
+  const [instructions, setInstructions]   = useState(post.instructions ?? '')
+  const [keywords, setKeywords]           = useState(post.keywords ?? '')
+  const [showFields, setShowFields]       = useState(!!(post.instructions || post.keywords))
+  const [autoChanged, setAutoChanged]     = useState(false)
+
 
   const images    = scheduledPost?.images ?? []
   const hasImages = images.length > 0
@@ -47,6 +63,17 @@ export function PublishedPostDetailSheet({
 
   const prevImg = () => setImgIndex(i => Math.max(0, i - 1))
   const nextImg = () => setImgIndex(i => Math.min(images.length - 1, i + 1))
+
+
+  const handleAutoToggle = (v: boolean) => { setAutoEnabled(v); setAutoChanged(true) }
+  const handleAutoSave = () => {
+    onAutoComment({
+      is_auto_comment: autoEnabled,
+      instructions: instructions.trim() || null,
+      keywords: keywords.trim() || null,
+    })
+    setAutoChanged(false)
+  }
 
   return (
     <>
@@ -188,6 +215,78 @@ export function PublishedPostDetailSheet({
 
           {/* ── Métriques détaillées ── */}
           <div className="mx-5 mt-4 mb-6 space-y-3">
+
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3 border border-slate-200 dark:border-slate-800">
+              
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                    autoEnabled
+                      ? 'bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-400'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                  }`}>
+                    <Bot className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-medium text-slate-900 dark:text-white">Auto-commentaire</p>
+                    <p className="text-[11px] text-slate-400">Claude répond aux commentaires</p>
+                  </div>
+                </div>
+                <Switch checked={autoEnabled} onCheckedChange={handleAutoToggle} />
+              </div>
+
+              {/* Champs optionnels — visible si activé */}
+              {autoEnabled && (
+                <div className="space-y-2.5 pt-1">
+                  <button
+                    className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-violet-600 transition-colors"
+                    onClick={() => setShowFields(v => !v)}
+                  >
+                    {showFields ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    {showFields ? 'Masquer les options' : 'Personnaliser (optionnel)'}
+                  </button>
+
+                  {showFields && (
+                    <div className="space-y-2.5">
+                      <div className="space-y-1">
+                        <Label className="text-[11px] text-slate-500">Instructions</Label>
+                        <Textarea
+                          value={instructions}
+                          onChange={e => { setInstructions(e.target.value); setAutoChanged(true) }}
+                          placeholder="Ex : Réponds de manière professionnelle et chaleureuse…"
+                          className="text-[12px] min-h-[72px] resize-none bg-white dark:bg-slate-900"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[11px] text-slate-500">Mots-clés</Label>
+                        <Textarea
+                          value={keywords}
+                          onChange={e => { setKeywords(e.target.value); setAutoChanged(true) }}
+                          placeholder="Ex : engagement, communauté, fidélité"
+                          className="text-[12px] min-h-[48px] resize-none bg-white dark:bg-slate-900"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Bouton save — apparaît seulement si modifié */}
+              {autoChanged && (
+                <Button
+                  size="sm"
+                  onClick={handleAutoSave}
+                  disabled={isAutoCommenting}
+                  className="w-full bg-violet-600 hover:bg-violet-700 text-white text-[12px]"
+                >
+                  {isAutoCommenting ? 'Sauvegarde…' : 'Enregistrer'}
+                </Button>
+              )}
+            </div>
+              
+
+
             <div className="flex items-center gap-2">
               <BarChart2 className="w-4 h-4 text-slate-400" />
               <h3 className="text-[13px] font-medium text-slate-900 dark:text-white">Métriques de performance</h3>

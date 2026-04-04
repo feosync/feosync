@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
-import type { PublishedPost } from '@/lib/api/types'
+import type { AutoCommentRequest, PublishedPost } from '@/lib/api/types'
 
 export const PUBLISHED_KEY  = (orgId: string)  => ['published-posts', orgId]
 export const PUBLISHED_ONE  = (postId: string) => ['published-post', postId]
@@ -84,5 +84,35 @@ export function useDeletePublishedPost(orgId: string) {
     onError: (err: any) => {
         toast.error('Erreur', { description: err.message })
     },
+  })
+}
+
+
+
+export function useSetAutoComment(orgId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      postId,
+      payload,
+    }: {
+      postId: string
+      payload: AutoCommentRequest
+    }) => apiClient.setAutoComment(postId, payload),
+    onSuccess: (updated: PublishedPost) => {
+      // Met à jour la liste paginée
+      queryClient.setQueryData<any>([...PUBLISHED_KEY(orgId)], (prev: any) => {
+        if (!prev?.items) return prev
+        return {
+          ...prev,
+          items: prev.items.map((p: PublishedPost) => p.id === updated.id ? updated : p),
+        }
+      })
+      queryClient.setQueryData(PUBLISHED_ONE(updated.id), updated)
+      toast.success(
+        updated.is_auto_comment ? 'Auto-commentaire activé' : 'Auto-commentaire désactivé'
+      )
+    },
+    onError: (err: any) => toast.error('Erreur', { description: err.message }),
   })
 }

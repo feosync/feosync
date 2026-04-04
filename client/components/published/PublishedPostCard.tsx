@@ -1,11 +1,12 @@
 'use client'
 
-import { RefreshCw, ExternalLink, Eye, Users, Images } from 'lucide-react'
+import { RefreshCw, ExternalLink, Eye, Users, Images, Bot } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import Image from 'next/image'
-import type { PublishedPost, ScheduledPost, FacebookPage } from '@/lib/api/types'
+import type { PublishedPost, ScheduledPost, FacebookPage, AutoCommentRequest } from '@/lib/api/types'
+import { AutoCommentPopover } from '@/components/published/AutoCommentPopover'
 
 interface Props {
   post: PublishedPost
@@ -13,10 +14,17 @@ interface Props {
   page?: FacebookPage
   onSyncMetrics: () => void
   isSyncing?: boolean
+  onAutoComment: (payload: AutoCommentRequest) => void
+  isAutoCommenting?: boolean
   onClick: () => void
 }
 
-export function PublishedPostCard({ post, scheduledPost, page, onSyncMetrics, isSyncing, onClick }: Props) {
+export function PublishedPostCard({
+  post, scheduledPost, page,
+  onSyncMetrics, isSyncing,
+  onAutoComment, isAutoCommenting,
+  onClick,
+}: Props) {
   const coverImage = scheduledPost?.images?.[0] ?? null
   const imageCount = scheduledPost?.images?.length ?? post.image_count ?? 0
   const permalink  = post.meta_permalink ?? (post.post_id ? `https://facebook.com/${post.post_id}` : null)
@@ -27,6 +35,7 @@ export function PublishedPostCard({ post, scheduledPost, page, onSyncMetrics, is
       className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden cursor-pointer hover:border-blue-200 dark:hover:border-blue-800 hover:shadow-sm transition-all"
     >
       <div className="flex gap-4 p-4">
+
         {/* Thumbnail */}
         <div className="relative w-20 h-16 sm:w-28 sm:h-20 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800">
           {coverImage ? (
@@ -81,6 +90,15 @@ export function PublishedPostCard({ post, scheduledPost, page, onSyncMetrics, is
 
         {/* Actions */}
         <div className="flex flex-col gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
+          
+
+           <AutoCommentPopover
+            post={post}
+            onSave={onAutoComment}
+            isPending={isAutoCommenting}
+            variant="icon"
+          />
+          
           <Button
             variant="ghost" size="icon"
             className="h-7 w-7 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
@@ -90,6 +108,9 @@ export function PublishedPostCard({ post, scheduledPost, page, onSyncMetrics, is
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
           </Button>
+
+         
+
           {permalink && (
             <Button
               variant="ghost" size="icon"
@@ -101,6 +122,7 @@ export function PublishedPostCard({ post, scheduledPost, page, onSyncMetrics, is
               </a>
             </Button>
           )}
+
         </div>
       </div>
     </div>
