@@ -198,6 +198,9 @@ export interface PublishedPost {
   channel: string
   image_count: number                 // ← nouveau
   published_at: string
+  is_auto_commented: boolean         // ← nouveau
+  instructions: string | null 
+  keywords: string | null
   initial_reach: number
   initial_impressions: number
   created_at: string
