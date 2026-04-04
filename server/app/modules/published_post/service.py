@@ -59,6 +59,23 @@ class PublishedPostService:
         if not post:
             raise HTTPException(status_code=404, detail="Published post not found")
         return post
+    
+    @staticmethod
+    def set_auto_comment(
+        db: Session,
+        post_id: UUID,
+        is_auto_comment: bool,
+        instructions: str | None = None,
+        keywords: str | None = None,
+    ) -> PublishedPost:
+        post = PublishedPostService.get_by_id(db, post_id)
+        return PublishedPostRepository.set_auto_comment(
+            db,
+            post=post,
+            is_auto_comment=is_auto_comment,
+            instructions=instructions,
+            keywords=keywords,
+        )
 
     # ── PUBLISH ───────────────────────────────────────────────────────────────
 
