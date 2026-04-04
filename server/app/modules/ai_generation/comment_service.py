@@ -2,8 +2,11 @@ from .llm_service import GeminiProvider as gemini_provider
 from app.modules.published_post.model import PublishedPost
 from app.modules.scheduled_post.service import ScheduledPostService as scheduled_post_service
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
+from google.genai.errors import ServerError
 from sqlalchemy.orm import Session
 import logging
+import re
+
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +14,24 @@ class CommentService:
     def __init__(self):
         self.llm = gemini_provider()
         self.publised_post: PublishedPost
+        
+    def strip_markdown(self, text: str) -> str:
+        """Convertit le Markdown en texte brut lisible pour Facebook."""
+        # Gras / italique → texte nu
+        text = re.sub(r'\*{1,2}(.+?)\*{1,2}', r'\1', text)
+        text = re.sub(r'_{1,2}(.+?)_{1,2}', r'\1', text)
+        # Titres → texte nu
+        text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)
+        # Listes → emoji bullet
+        text = re.sub(r'^\s*[-*]\s+', '👉 ', text, flags=re.MULTILINE)
+        text = re.sub(r'^\s*\d+\.\s+', '👉 ', text, flags=re.MULTILINE)
+        # Code inline → texte nu
+        text = re.sub(r'`(.+?)`', r'\1', text)
+        # Liens → texte nu
+        text = re.sub(r'\[(.+?)\]\(.+?\)', r'\1', text)
+        # Nettoyer les espaces multiples
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        return text.strip()
 
     async def comment_classification(self, comment: str) -> str:
         prompt = (
@@ -22,6 +43,7 @@ class CommentService:
         )
         classification: str = await self.llm.generate_response(prompt)
         return classification.strip()
+     
 
     async def generate_reply(self, comment: str, db: Session) -> str:
         scheduled_post: ScheduledPost = scheduled_post_service.get_by_id_internal(
@@ -47,5 +69,13 @@ class CommentService:
             f"- Ne répète pas le commentaire dans ta réponse\n"
             f"- Si le commentaire est négatif ou une critique, reste professionnel et constructif"
         )
-        reply: str = await self.llm.generate_response(prompt)
-        return reply.strip()
+
+        try:
+            reply: str = await self.llm.generate_response(prompt)
+            return reply.strip()
+        except ServerError as e:
+            logger.warning(f"⚠️ Gemini indisponible (503) — fallback utilisé : {e}")
+            return "Merci pour votre commentaire ! 😊"
+        except Exception as e:
+            logger.error(f"❌ Erreur inattendue lors de la génération : {e}")
+            return "Merci pour votre commentaire ! 😊"
