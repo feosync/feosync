@@ -14,15 +14,16 @@ class Settings(BaseSettings):
     
     WEBHOOK_TOKEN: str | None = None
 
-    GEMINI_API_KEY: str
+    GEMINI_API_KEY: str | None = None
+    GROQ_API_KEY: str | None = None
     
     #Redis setting
-    REDIS_HOST:str
-    REDIS_PORT: int
-    
+    REDIS_HOST:str | None = None
+    REDIS_PORT: int | None = None
+
     #Celery setting
-    BROKER:str
-    BACKEND: str
+    BROKER:str | None = None
+    BACKEND: str | None = None
 
     # Google OAuth settings
     GOOGLE_CLIENT_ID: str | None = None
@@ -51,12 +52,9 @@ class Settings(BaseSettings):
     SERVER_URL: str | None = None
     FRONTEND_URL: str | None = None
    
-
-    # @property
-    # def DATABASE_URL(self) -> str:
-    #     return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
     
     DATABASE_URL: str | None = None
+    
     class Config:
         env_file = ".env"
         
