@@ -1,6 +1,6 @@
 from __future__ import annotations
 from app.core.base import Base
-from sqlalchemy import  ForeignKey, DateTime, Text
+from sqlalchemy import ForeignKey, DateTime, Text
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -11,16 +11,16 @@ from enum import Enum
 
 
 class PostStatus(str, Enum):
-    DRAFT      = "DRAFT"       # créé, pas encore planifié
-    SCHEDULED  = "SCHEDULED"   # confirmé → Celery task créée
-    PUBLISHED  = "PUBLISHED"   # publié sur Meta
-    FAILED     = "FAILED"      # échec publication
+    DRAFT     = "DRAFT"
+    SCHEDULED = "SCHEDULED"
+    PUBLISHED = "PUBLISHED"
+    FAILED    = "FAILED"
 
 
 class ImageSource(str, Enum):
-    URL    = "url"      # lien externe fourni par l'user
-    UPLOAD = "upload"   # fichier uploadé → stocké en interne
-    AI     = "ai"       # généré par Gemini
+    URL    = "url"
+    UPLOAD = "upload"
+    AI     = "ai"
 
 
 class ScheduledPost(Base):
@@ -30,11 +30,6 @@ class ScheduledPost(Base):
 
     # ── Contenu ───────────────────────────────────────────────────────────────
     caption: Mapped[str | None] = mapped_column(Text, nullable=True)
-    image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
-    image_source: Mapped[str | None] = mapped_column(
-        SAEnum(ImageSource, name="image_source", native_enum=False),
-        nullable=True
-    )
 
     # ── Planification ─────────────────────────────────────────────────────────
     publish_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -46,28 +41,34 @@ class ScheduledPost(Base):
 
     # ── Cibles de publication ─────────────────────────────────────────────────
     page_ids: Mapped[dict] = mapped_column(JSONB, nullable=False)
-    # ex: {"facebook": "uuid_fb_page"}
 
     # ── Timestamps ────────────────────────────────────────────────────────────
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     # ── FK ────────────────────────────────────────────────────────────────────
-    organisation_id: Mapped[UUID] = mapped_column(ForeignKey("organisations.id"), nullable=False)
-    post_template_id: Mapped[UUID | None] = mapped_column(ForeignKey("post_templates.id"), nullable=True)
+    organisation_id: Mapped[UUID] = mapped_column(
+        ForeignKey("organisations.id"), nullable=False
+    )
+    post_template_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("post_templates.id"), nullable=True
+    )
 
     # ── Relations ─────────────────────────────────────────────────────────────
-    organisation = relationship("Organisation", back_populates="scheduled_posts")
+    organisation  = relationship("Organisation", back_populates="scheduled_posts")
     post_template = relationship("PostTemplate", back_populates="scheduled_posts")
     published_posts = relationship("PublishedPost", back_populates="scheduled_post")
-    ai_images = relationship(
-        "ScheduledPostAiImage",
+    images = relationship(
+        "ScheduledPostImage",
         back_populates="scheduled_post",
-        order_by="ScheduledPostAiImage.linked_at",
+        order_by="ScheduledPostImage.position",
+        cascade="all, delete-orphan",
     )
 
     @property
-    def active_ai_image(self) -> "ScheduledPostAiImage | None":
-        return next((img for img in self.ai_images if img.is_active), None)
+    def cover_image(self) -> "ScheduledPostImage | None":
+        return self.images[0] if self.images else None

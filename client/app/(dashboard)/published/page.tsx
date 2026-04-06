@@ -20,8 +20,9 @@ import { PublishedPostCard } from '@/components/published/PublishedPostCard'
 import { PublishedPostDetailSheet } from '@/components/published/PublishedPostDetailSheet'
 import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 import { useDebounce } from '@/hooks/useDebounce'
-import type { PublishedPost } from '@/lib/api/types'
+import type { AutoCommentRequest, PublishedPost } from '@/lib/api/types'
 import { Button } from '@/components/ui/button'
+import { useSetAutoComment } from '@/hooks/usePublishedPosts'
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 
@@ -69,6 +70,8 @@ export default function PublishedPage() {
   const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
   const orgId = selectedOrgId || orgData?.items[0]?.id || ''
   const { data: pages = [] } = useFacebookPages(orgId)
+
+  const autoCommentMutation = useSetAutoComment(orgId)
 
   // ── Filtres ───────────────────────────────────────────────────────────────
   const [searchInput, setSearchInput] = useState('')
@@ -219,6 +222,8 @@ export default function PublishedPage() {
                 onSync={() => syncMutation.mutate(post.id)}
                 isSyncing={syncMutation.isPending}
                 onClick={() => setSelected(post)}
+                onAutoComment={payload => autoCommentMutation.mutate({ postId: post.id, payload })}
+                 isAutoCommenting={autoCommentMutation.isPending}
               />
             ))}
           </div>
@@ -301,6 +306,8 @@ export default function PublishedPage() {
           onDelete={() => { deleteMutation.mutate(selected.id); setSelected(null) }}
           isSyncing={syncMutation.isPending}
           isDeleting={deleteMutation.isPending}
+          onAutoComment={payload => autoCommentMutation.mutate({ postId: selected.id, payload })}
+          isAutoCommenting={autoCommentMutation.isPending}
         />
       )}
     </div>
@@ -309,23 +316,27 @@ export default function PublishedPage() {
 
 // ── Wrappers ──────────────────────────────────────────────────────────────────
 
-function PublishedPostCardWrapper({ post, pages, onSync, isSyncing, onClick }: {
+function PublishedPostCardWrapper({ post, pages, onSync, isSyncing,onAutoComment, isAutoCommenting,  onClick }: {
   post: PublishedPost; pages: any[]
-  onSync: () => void; isSyncing?: boolean; onClick: () => void
+  onSync: () => void; isSyncing?: boolean;
+  onAutoComment?: (payload: AutoCommentRequest) => void; isAutoCommenting?: boolean;
+   onClick: () => void
 }) {
   const { data: scheduledPost } = useScheduledPost(post.scheduled_post_id)
   const page = pages.find(p => p.id === post.facebook_page_id)
   return (
     <PublishedPostCard
       post={post} scheduledPost={scheduledPost} page={page}
-      onSyncMetrics={onSync} isSyncing={isSyncing} onClick={onClick}
+      onSyncMetrics={onSync} isSyncing={isSyncing}
+      onAutoComment={onAutoComment} isAutoCommenting={isAutoCommenting}
+      onClick={onClick}
     />
   )
 }
 
-function PublishedPostDetailSheetWrapper({ post, pages, onClose, onSync, onDelete, isSyncing, isDeleting }: {
+function PublishedPostDetailSheetWrapper({ post, pages, onClose, onSync, onDelete, isSyncing, isDeleting, onAutoComment, isAutoCommenting }: {
   post: PublishedPost; pages: any[]; onClose: () => void
-  onSync: () => void; onDelete: () => void; isSyncing?: boolean; isDeleting?: boolean
+  onSync: () => void; onDelete: () => void; isSyncing?: boolean; isDeleting?: boolean; onAutoComment?: (payload: AutoCommentRequest) => void; isAutoCommenting?: boolean
 }) {
   const { data: scheduledPost } = useScheduledPost(post.scheduled_post_id)
   const page = pages.find(p => p.id === post.facebook_page_id)
@@ -334,6 +345,7 @@ function PublishedPostDetailSheetWrapper({ post, pages, onClose, onSync, onDelet
       open onClose={onClose} post={post} scheduledPost={scheduledPost}
       page={page} onSyncMetrics={onSync} onDelete={onDelete}
       isSyncing={isSyncing} isDeleting={isDeleting}
+      onAutoComment={onAutoComment} isAutoCommenting={isAutoCommenting}
     />
   )
 }

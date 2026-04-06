@@ -1,12 +1,13 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 from datetime import datetime, timezone
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
-from app.modules.scheduled_post.models.scheduled_post_ai_image import ScheduledPostAiImage
 from datetime import date, timedelta
 from sqlalchemy import extract, and_
 from app.shared.pagination.paginator import PaginationParams
 from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
+from app.modules.scheduled_post.models.scheduled_post_image import ScheduledPostImage
 
 class ScheduledPostRepository:
 
@@ -94,23 +95,60 @@ class ScheduledPostRepository:
         db.commit()
 
 
-class AiImageRepository:
+class ImageRepository:
 
     @staticmethod
-    def deactivate_all(db: Session, post_id: UUID) -> None:
-        db.query(ScheduledPostAiImage).filter(
-            ScheduledPostAiImage.scheduled_post_id == post_id,
-            ScheduledPostAiImage.is_active == True,
-        ).update({
-            "is_active": False,
-            "replaced_at": datetime.now(timezone.utc),
-        })
-        db.commit()
-
-    @staticmethod
-    def create(db: Session, data: dict) -> ScheduledPostAiImage:
-        img = ScheduledPostAiImage(**data)
+    def add(db: Session, data: dict) -> ScheduledPostImage:
+        """Ajoute une image — position auto si non fournie"""
+        if "position" not in data:
+            count = db.query(ScheduledPostImage).filter(
+                ScheduledPostImage.scheduled_post_id == data["scheduled_post_id"]
+            ).count()
+            data["position"] = count  # append à la fin
+        img = ScheduledPostImage(**data)
         db.add(img)
         db.commit()
         db.refresh(img)
         return img
+
+    @staticmethod
+    def remove(db: Session, image_id: UUID, post_id: UUID) -> None:
+        img = db.query(ScheduledPostImage).filter(
+            ScheduledPostImage.id == image_id,
+            ScheduledPostImage.scheduled_post_id == post_id,
+        ).first()
+        if not img:
+            raise HTTPException(status_code=404, detail="Image not found")
+        db.delete(img)
+        db.commit()
+
+    @staticmethod
+    def reorder(db: Session, post_id: UUID, ordered_ids: list[UUID]) -> None:
+        # Étape 1 — positions temporaires négatives pour éviter les conflits
+        for i, image_id in enumerate(ordered_ids):
+            db.query(ScheduledPostImage).filter(
+                ScheduledPostImage.id == image_id,
+                ScheduledPostImage.scheduled_post_id == post_id,
+            ).update({"position": -(i + 1)})
+        db.flush()
+
+        # Étape 2 — positions finales
+        for position, image_id in enumerate(ordered_ids):
+            db.query(ScheduledPostImage).filter(
+                ScheduledPostImage.id == image_id,
+                ScheduledPostImage.scheduled_post_id == post_id,
+            ).update({"position": position})
+        db.commit()
+
+        
+    @staticmethod
+    def get_by_post(db: Session, post_id: UUID) -> list[ScheduledPostImage]:
+        return (
+            db.query(ScheduledPostImage)
+            .filter(ScheduledPostImage.scheduled_post_id == post_id)
+            .order_by(ScheduledPostImage.position)
+            .all()
+        )
+    
+
+    
