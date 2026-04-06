@@ -73,7 +73,10 @@ class WebhooksService:
             res = await client.post(
                 f"https://graph.facebook.com/v25.0/{page_id}/subscribed_apps",
                 params={
-                    "subscribed_fields": "feed",
+                    "subscribed_fields": ",".join([
+                        "feed",      # ✅ contient déjà les commentaires
+                        "mention",   # ✅ quand quelqu'un mentionne la page
+                    ]),
                     "access_token": page_access_token
                 }
             )
@@ -82,7 +85,7 @@ class WebhooksService:
                 logger.info(f"✅ Page {page_id} abonnée au webhook")
             else:
                 logger.error(f"❌ Erreur abonnement page {page_id}: {data}")
-
+                
     async def startup(self):
         logger.info("Initialisation de l'abonnement webhook")
         db = next(get_db())
@@ -95,7 +98,6 @@ class WebhooksService:
 
     async def process_entries(self, entries: list, db):
         for entry in entries:
-            # Petit jitter entre chaque entrée pour ne pas tout envoyer en rafale
             await asyncio.sleep(random.uniform(0.5, 2.0))
 
             page_id = entry.get("id")
@@ -127,49 +129,56 @@ class WebhooksService:
                         self.published_post_service
                         .get_by_post_id_with_page_id(db=db, post_id=post_id)
                     )
-                    if not published_post.is_auto_comment:
-                        logger.info(f"⏭️ Commentaire ignoré (auto-commentaire désactivé) — {comment_id}")
-                        continue
-        
+
+                    # ✅ Bug 1 corrigé : vérifier None EN PREMIER
                     if not published_post:
                         logger.info(f"Post {post_id} non trouvé pour le commentaire {comment_id}")
                         continue
 
+                    # ✅ Ensuite seulement accéder aux attributs
+                    if not published_post.is_auto_comment:
+                        logger.info(f"⏭️ Auto-commentaire désactivé pour le post {post_id}")
+                        continue
+
                     self.comment_service.publised_post = published_post
 
-                    # Générer la réponse et classifier en parallèle
-                    response = await self.comment_service.generate_reply(comment=comment_text, db=db)
+                    response, _ = await asyncio.gather(
+                        self.comment_service.generate_reply(
+                            comment=comment_text,
+                            db=db,
+                        ),
+                        self.comment_service.comment_classification(comment=comment_text),
+                    )
+                    mention = f"@[{from_id}]"
 
-                    reply_text = response if response else "Merci pour votre commentaire !"
+                    reply_text = f"{mention} {response}" if response else f" {mention} Merci pour votre commentaire ! 😊"
 
                     if not response:
                         logger.info(f"⚠️ Pas de réponse générée pour {comment_id}, fallback utilisé")
-
                     # ── Délais anti-ban ──────────────────────────────────────
-                    await self.rate_limiter.wait(page_id)   # 1. Rate limit par page
-                    await human_delay(3.0, 12.0)            # 2. Simule lecture humaine
-                    await typing_delay(reply_text)          # 3. Simule temps de frappe
+                    await self.rate_limiter.wait(page_id)
+                    await human_delay(3.0, 12.0)
+                    await typing_delay(reply_text)
                     # ─────────────────────────────────────────────────────────
 
                     await self.repondre_commentaire(
                         response=reply_text,
                         comment_id=comment_id,
-                        nom=from_name,
                         page_access_token=page.access_token
                     )
-
+    
     async def repondre_commentaire(
         self,
         comment_id: str,
-        nom: str,
         page_access_token: str,
-        response: str
-    ):
+        response: str):
         async with httpx.AsyncClient() as client:
             try:
                 res = await client.post(
                     f"https://graph.facebook.com/v25.0/{comment_id}/comments",
-                    json={
+                    # ✅ params au lieu de json — meilleure compatibilité
+                    #    avec le système de mention/notification Facebook
+                    data={
                         "message": response,
                         "access_token": page_access_token
                     }
