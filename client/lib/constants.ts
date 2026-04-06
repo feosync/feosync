@@ -39,21 +39,7 @@ export const NAVIGATION_ITEMS = [
       },
     ],
   },
-  {
-    section: 'Contenu',
-    items: [
-      {
-        label: 'Générateur IA',
-        href: '/ai',
-        icon: Sparkles,
-      },
-      {
-        label: 'Modèles',
-        href: '/templates',
-        icon: BookMarked,
-      },
-    ],
-  },
+ 
   {
     section: 'Publication',
     items: [
@@ -66,6 +52,21 @@ export const NAVIGATION_ITEMS = [
         label: 'Posts publiés',
         href: '/published',
         icon: CheckCircle2,
+      },
+    ],
+  },
+   {
+    section: 'Contenu',
+    items: [
+      {
+        label: 'Générateur IA',
+        href: '/ai',
+        icon: Sparkles,
+      },
+      {
+        label: 'Modèles',
+        href: '/templates',
+        icon: BookMarked,
       },
     ],
   },
