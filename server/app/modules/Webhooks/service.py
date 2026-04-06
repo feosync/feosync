@@ -6,7 +6,7 @@ from app.modules.fb_page.model import Facebook
 from app.core.database import get_db
 import httpx
 from app.core.logger import get_logger
-from app.modules.ai_generation.comment_service import CommentService
+from app.modules.ai_generation.service.comment_service import CommentService
 from app.modules.published_post.service import PublishedPostService
 from app.modules.published_post.model import PublishedPost
 
