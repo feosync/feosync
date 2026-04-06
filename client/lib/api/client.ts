@@ -7,7 +7,11 @@ import {
   PostAnalytics,
   PageAnalysisResponse,
   PostsWithReactionsResponse,
-  AnalyticsPeriod
+  AnalyticsPeriod,
+  CaptionPatchResponse,
+  AddImageResponse,
+  ImageAddRequest,
+  AutoCommentRequest
 } from "./types"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -206,21 +210,13 @@ export class ApiClient {
   async getInsights(pageId: string, orgId: string): Promise<any[]> {
     return this.request(`/api/v1/fb/${pageId}/insights?org_id=${orgId}`)
   }
+    
+    // ── Scheduled Posts ───────────────────────────────────────────────────────────
 
-  // ── Scheduled Posts ───────────────────────────────────────────────────────
-
-  async getScheduledPosts(
-    orgId: string,
-    params?: {
-      page?: number
-      page_size?: number
-      status?: string
-      search?: string
-      year?: number
-      month?: number
-      week?: number
-    }
-  ): Promise<PaginatedResponse<ScheduledPost>> {
+  async getScheduledPosts(orgId: string, params?: {
+    page?: number; page_size?: number; status?: string
+    search?: string; year?: number; month?: number; week?: number
+  }): Promise<PaginatedResponse<ScheduledPost>> {
     const query = new URLSearchParams()
     if (params?.page)      query.set('page',      String(params.page))
     if (params?.page_size) query.set('page_size', String(params.page_size))
@@ -232,35 +228,52 @@ export class ApiClient {
     return this.request(`/api/v1/scheduled/org/${orgId}?${query.toString()}`)
   }
 
-  async getScheduledPostById(postId: string): Promise<any> {
+  async getScheduledPostById(postId: string): Promise<ScheduledPost> {
     return this.request(`/api/v1/scheduled/${postId}`)
   }
 
-  async createScheduledPost(data: any): Promise<any> {
+  async createScheduledPost(data: any): Promise<ScheduledPost> {
     return this.request('/api/v1/scheduled/', { method: 'POST', body: JSON.stringify(data) })
   }
 
-  async patchCaption(postId: string, data: any): Promise<any> {
+  async patchCaption(postId: string, data: any): Promise<CaptionPatchResponse> {
     return this.request(`/api/v1/scheduled/${postId}/caption`, { method: 'PATCH', body: JSON.stringify(data) })
   }
 
-  async patchImage(postId: string, data: any): Promise<any> {
-    return this.request(`/api/v1/scheduled/${postId}/image`, { method: 'PATCH', body: JSON.stringify(data) })
+  // ── Images (nouveaux endpoints) ───────────────────────────────────────────────
+
+  async addImage(postId: string, data: ImageAddRequest): Promise<AddImageResponse> {
+    return this.request(`/api/v1/scheduled/${postId}/images`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
   }
 
-  async uploadImage(postId: string, file: File): Promise<any> {
+  async addImageUpload(postId: string, file: File): Promise<AddImageResponse> {
     const formData = new FormData()
     formData.append('file', file)
     const headers: Record<string, string> = {}
     if (this.token) headers['Authorization'] = `Bearer ${this.token}`
-    const response = await fetch(`${API_BASE_URL}/api/v1/scheduled/${postId}/image/upload`, {
-      method: 'PATCH', body: formData, headers
+    const response = await fetch(`${API_BASE_URL}/api/v1/scheduled/${postId}/images/upload`, {
+      method: 'POST', body: formData, headers,
     })
-    if (!response.ok) throw new Error('Upload échoué')
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      throw new Error(err.detail || 'Upload échoué')
+    }
     return response.json()
   }
 
-  async confirmScheduledPost(postId: string, data: any): Promise<any> {
+  async removeImage(postId: string, imageId: string): Promise<ScheduledPost> {
+    return this.request(`/api/v1/scheduled/${postId}/images/${imageId}`, { method: 'DELETE' })
+  }
+
+  async reorderImages(postId: string, orderedIds: string[]): Promise<ScheduledPost> {
+    return this.request(`/api/v1/scheduled/${postId}/images/reorder`, {
+      method: 'PATCH', body: JSON.stringify({ ordered_ids: orderedIds }),
+    })
+  }
+
+  async confirmScheduledPost(postId: string, data: any): Promise<ScheduledPost> {
     return this.request(`/api/v1/scheduled/${postId}/confirm`, { method: 'PATCH', body: JSON.stringify(data) })
   }
 
@@ -268,19 +281,11 @@ export class ApiClient {
     await this.request(`/api/v1/scheduled/${postId}`, { method: 'DELETE' })
   }
 
-  // ── Published Posts ───────────────────────────────────────────────────────
+  // ── Published Posts ───────────────────────────────────────────────────────────
 
-  async getPublishedPosts(
-    orgId: string,
-    params?: {
-      page?: number
-      page_size?: number
-      search?: string
-      year?: number
-      month?: number
-      week?: number
-    }
-  ): Promise<PaginatedResponse<PublishedPost>> {
+  async getPublishedPosts(orgId: string, params?: {
+    page?: number; page_size?: number; search?: string; year?: number; month?: number; week?: number
+  }): Promise<PaginatedResponse<PublishedPost>> {
     const query = new URLSearchParams()
     if (params?.page)      query.set('page',      String(params.page))
     if (params?.page_size) query.set('page_size', String(params.page_size))
@@ -291,7 +296,7 @@ export class ApiClient {
     return this.request(`/api/v1/published/org/${orgId}?${query.toString()}`)
   }
 
-  async getPublishedPostById(postId: string): Promise<any> {
+  async getPublishedPostById(postId: string): Promise<PublishedPost> {
     return this.request(`/api/v1/published/${postId}`)
   }
 
@@ -299,16 +304,26 @@ export class ApiClient {
     await this.request(`/api/v1/published/${postId}`, { method: 'DELETE' })
   }
 
-  async publishPost(scheduledPostId: string): Promise<any> {
+  async publishPost(scheduledPostId: string): Promise<PublishedPost> {
     return this.request('/api/v1/published/publish', {
-      method: 'POST',
-      body: JSON.stringify({ scheduled_post_id: scheduledPostId })
+      method: 'POST', body: JSON.stringify({ scheduled_post_id: scheduledPostId }),
     })
   }
 
-  async syncMetrics(postId: string): Promise<any> {
+  async setAutoComment(
+    postId: string,
+    payload: AutoCommentRequest
+  ): Promise<PublishedPost> {
+    return this.request(`/api/v1/published/${postId}/auto-comment`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    })
+  }
+
+  async syncMetrics(postId: string): Promise<PublishedPost> {
     return this.request(`/api/v1/published/${postId}/sync-metrics`, { method: 'POST' })
   }
+
 
   // ── AI ────────────────────────────────────────────────────────────────────
 

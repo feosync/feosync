@@ -8,14 +8,12 @@ from app.modules.user.model import User
 from app.modules.scheduled_post.schemas import (
     ScheduledPostCreate, ScheduledPostResponse,
     CaptionPatchRequest, CaptionPatchResponse,
-    ImagePatchRequest, ImagePatchResponse,
-    ConfirmRequest,
+    ImagePatchRequest, AddImageResponse,
+    ReorderRequest, ConfirmRequest,
 )
 from app.modules.scheduled_post.service import ScheduledPostService
-
-from datetime import date
-from app.shared.pagination.paginator import Pagination, PaginatedResponse
 from app.modules.scheduled_post.models.scheduled_post_model import PostStatus
+from app.shared.pagination.paginator import Pagination, PaginatedResponse
 
 scheduled_post_router = APIRouter()
 
@@ -38,7 +36,6 @@ def create(
 
 # ── READ ──────────────────────────────────────────────────────────────────────
 
-
 @scheduled_post_router.get(
     "/org/{org_id}",
     response_model=PaginatedResponse[ScheduledPostResponse],
@@ -46,12 +43,12 @@ def create(
 )
 def get_by_org(
     org_id: UUID,
-    params: Pagination,
-    status: PostStatus | None = Query(None, description="Filtrer par statut"),
-    search: str | None = Query(None, description="Recherche dans la caption"),
-    year: int | None = Query(None, description="Filtrer par année"),
-    month: int | None = Query(None, description="Filtrer par mois"),
-    week: int | None = Query(None, description="Filtrer par semaine ISO"),
+    params: Pagination ,
+    status: PostStatus | None = Query(None),
+    search: str | None = Query(None),
+    year: int | None = Query(None),
+    month: int | None = Query(None),
+    week: int | None = Query(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
@@ -60,7 +57,7 @@ def get_by_org(
         status=status, search=search,
         year=year, month=month, week=week,
     )
-    items = [ScheduledPostResponse.model_validate(p) for p in posts]
+    items = [ScheduledPostService._build_post_response(p) for p in posts]
     return PaginatedResponse.build(items, total, params)
 
 
@@ -74,7 +71,8 @@ def get_by_id(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    return ScheduledPostService.get_by_id(db, post_id, current_user)
+    post = ScheduledPostService.get_by_id(db, post_id, current_user)
+    return ScheduledPostService._build_post_response(post)
 
 
 # ── PATCH caption ─────────────────────────────────────────────────────────────
@@ -93,42 +91,71 @@ async def patch_caption(
     return await ScheduledPostService.patch_caption(db, post_id, payload, current_user)
 
 
-# ── PATCH image ───────────────────────────────────────────────────────────────
+# ── IMAGES ────────────────────────────────────────────────────────────────────
 
-@scheduled_post_router.patch(
-    "/{post_id}/image",
-    response_model=ImagePatchResponse,
-    summary="Modifier l'image (URL ou LLM)",
+@scheduled_post_router.post(
+    "/{post_id}/images",
+    response_model=AddImageResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Ajouter une image (url ou llm)",
 )
-async def patch_image(
+async def add_image(
     post_id: UUID,
     payload: ImagePatchRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    return await ScheduledPostService.patch_image(db, post_id, payload, current_user)
+    return await ScheduledPostService.add_image(db, post_id, payload, current_user)
 
 
-@scheduled_post_router.patch(
-    "/{post_id}/image/upload",
-    response_model=ImagePatchResponse,
-    summary="Upload une image (multipart)",
+@scheduled_post_router.post(
+    "/{post_id}/images/upload",
+    response_model=AddImageResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Ajouter une image par upload (multipart)",
 )
-async def patch_image_upload(
+async def add_image_upload(
     post_id: UUID,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    return await ScheduledPostService.patch_image_upload(db, post_id, file, current_user)
+    return await ScheduledPostService.add_image_upload(db, post_id, file, current_user)
 
 
-# ── PATCH confirm ─────────────────────────────────────────────────────────────
+@scheduled_post_router.delete(
+    "/{post_id}/images/{image_id}",
+    response_model=ScheduledPostResponse,
+    summary="Supprimer une image du post",
+)
+def remove_image(
+    post_id: UUID,
+    image_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_active_user),
+):
+    return ScheduledPostService.remove_image(db, post_id, image_id, current_user)
+
+
+@scheduled_post_router.patch(
+    "/{post_id}/images/reorder",
+    response_model=ScheduledPostResponse,
+    summary="Réordonner les images (carrousel)",
+)
+def reorder_images(
+    post_id: UUID,
+    payload: ReorderRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_active_user),
+):
+    return ScheduledPostService.reorder_images(db, post_id, payload, current_user)
+
+
+# ── CONFIRM ───────────────────────────────────────────────────────────────────
 
 @scheduled_post_router.patch(
     "/{post_id}/confirm",
     response_model=ScheduledPostResponse,
-    response_model_exclude_none=True, 
     summary="Confirmer la planification (DRAFT → SCHEDULED)",
 )
 def confirm(
@@ -137,11 +164,8 @@ def confirm(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    """
-    Valide le post.
-    Vérifie que caption est présent.
-    """
-    return ScheduledPostService.confirm(db, post_id, payload, current_user)
+    post = ScheduledPostService.confirm(db, post_id, payload, current_user)
+    return ScheduledPostService._build_post_response(post)
 
 
 # ── DELETE ────────────────────────────────────────────────────────────────────
@@ -149,7 +173,7 @@ def confirm(
 @scheduled_post_router.delete(
     "/{post_id}",
     status_code=status.HTTP_200_OK,
-    summary="Supprimer un post (annule la task Celery si SCHEDULED)",
+    summary="Supprimer un post",
 )
 def delete(
     post_id: UUID,

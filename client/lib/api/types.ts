@@ -1,5 +1,3 @@
-// lib/api/types.ts
-
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 export interface User {
@@ -124,12 +122,20 @@ export interface MetaPageItem {
 export type PostStatus = "DRAFT" | "SCHEDULED" | "PUBLISHED" | "FAILED"
 export type ImageSource = "url" | "upload" | "ai" | "URL" | "UPLOAD" | "AI"
 
+export interface ScheduledPostImage {
+  id: string
+  image_url: string
+  image_source: ImageSource
+  position: number
+  ai_generation_id: string | null
+  created_at: string
+}
+
 export interface ScheduledPost {
   id: string
   organisation_id: string
   caption: string | null
-  image_url: string | null
-  image_source: ImageSource | null
+  images: ScheduledPostImage[]        // ← multi-image, remplace image_url/image_source
   publish_at: string | null
   status: PostStatus
   page_ids: Record<string, string>
@@ -160,18 +166,21 @@ export interface CaptionPatchResponse {
   ai_generation_id: string | null
 }
 
-export interface ImagePatchRequest {
+export interface ImageAddRequest {
   mode: "url" | "llm"
   url?: string
   description?: string
   style?: string
 }
 
-export interface ImagePatchResponse {
+export interface AddImageResponse {
   scheduled_post: ScheduledPost
-  image_url: string
-  image_source: ImageSource
+  image: ScheduledPostImage
   ai_generation_id: string | null
+}
+
+export interface ReorderRequest {
+  ordered_ids: string[]
 }
 
 export interface ConfirmRequest {
@@ -185,12 +194,23 @@ export interface PublishedPost {
   scheduled_post_id: string
   facebook_page_id: string
   post_id: string | null
+  meta_permalink: string | null       // ← nouveau
   channel: string
+  image_count: number                 // ← nouveau
   published_at: string
+  is_auto_comment: boolean         // ← nouveau
+  instructions: string | null 
+  keywords: string | null
   initial_reach: number
   initial_impressions: number
   created_at: string
   updated_at: string
+}
+
+export interface AutoCommentRequest{
+  is_auto_comment: boolean
+  instructions?: string | null
+  keywords?: string | null
 }
 
 export interface ManualPublishRequest {
@@ -294,8 +314,6 @@ export interface NotificationSummary {
   unread: number
 }
 
-
-
 // ── Plans ─────────────────────────────────────────────────────────────────────
 
 export interface Plan {
@@ -368,163 +386,36 @@ export interface PaginatedResponse<T> {
   total_pages: number
 }
 
+// ── Analytics ─────────────────────────────────────────────────────────────────
 
-// ================  ENGAGEMENT INTERFACE =============
+export interface EngagementValue { value: number; end_time: string }
+export interface EngagementItem { name: string; period: string; values: EngagementValue[]; title?: string | null; description?: string | null; id: string }
+export interface Paging { previous?: string | null }
+export interface PagePostEngagementsResponse { data: EngagementItem[]; paging?: Paging | null }
 
-export interface EngagementValue {
-  value: number;
-  end_time: string; // ISO 8601 — ex: "2026-03-21T07:00:00Z"
-}
- 
-/** Bloc d'engagement pour une période (day | week | days_28) */
-export interface EngagementItem {
-  name: string;
-  period: "day" | "week" | "days_28" | string;
-  values: EngagementValue[];
-  title?: string | null;
-  description?: string | null;
-  id: string;
-}
- 
-/** Pagination (curseur previous) */
-export interface Paging {
-  previous?: string | null;
-}
- 
-/** Réponse complète de l'API */
-export interface PagePostEngagementsResponse {
-  data: EngagementItem[];
-  paging?: Paging | null;
-}
+export interface FollowValue { value: number; end_time?: string | null }
+export interface FollowItem { name: string; period: string; values: FollowValue[]; description?: string | null; id: string }
+export interface PageFollowsResponse { data: FollowItem[]; paging?: Paging | null }
 
-
-// ================= FOLLOW INTERFACE ================
-
-export interface FollowValue {
-  value: number;
-  end_time?: string | null
-}
-
-export interface FollowItem{
-  name:string;
-  period: string;
-  values: FollowValue[];
-  description?: string | null;
-  id: string;
-}
-
-export interface PageFollowsResponse{
-  data:  FollowItem[];
-  paging?:  Paging | null;
-}
-
-
-// 🔹 value des réactions (like, love, etc.)
-export interface ReactionValue {
-  like?: number;
-  love?: number;
-  wow?: number;
-  haha?: number;
-  sad?: number;
-  angry?: number;
-}
-
-// 🔹 chaque entrée dans values[]
-export interface InsightValue {
-  value: ReactionValue;
-  // On utilise string car les dates JSON arrivent sous forme de chaînes ISO
-  end_time?: string; 
-}
-
-// 🔹 chaque bloc (day, week, etc.)
-export interface InsightItem {
-  id: string;
-  name: string;
-  period: string;
-  values: InsightValue[];
-  title?: string;
-  description?: string;
-}
-
-// 🔹 réponse complète
-export interface PageInsightsResponse {
-  data: InsightItem[];
-  paging?: Paging;
-}
-
-
-// ── Page Analytics (Meta Live) ────────────────────────────────────────────────
+export interface ReactionValue { like?: number; love?: number; wow?: number; haha?: number; sad?: number; angry?: number }
+export interface InsightValue { value: ReactionValue; end_time?: string }
+export interface InsightItem { id: string; name: string; period: string; values: InsightValue[]; title?: string; description?: string }
+export interface PageInsightsResponse { data: InsightItem[]; paging?: Paging }
 
 export interface DailyMetric {
-  date: string
-  views: number
-  engagements: number
-  follows: number
-  unfollows: number
-  like: number
-  love: number
-  haha: number
-  wow: number
-  sad: number
-  angry: number
-  care: number
-  total_reactions: number
+  date: string; views: number; engagements: number; follows: number; unfollows: number
+  like: number; love: number; haha: number; wow: number; sad: number; angry: number; care: number; total_reactions: number
 }
-
 export interface PeriodSummary {
-  total_views: number
-  total_engagements: number
-  net_followers: number
-  total_reactions: number
-  engagement_rate: number
-  avg_daily_views: number
-  avg_daily_engagements: number
-  top_reaction: string
-  reaction_breakdown: Record<string, number>
+  total_views: number; total_engagements: number; net_followers: number; total_reactions: number
+  engagement_rate: number; avg_daily_views: number; avg_daily_engagements: number; top_reaction: string; reaction_breakdown: Record<string, number>
 }
-
 export interface PageAnalysisResponse {
-  page_id: string
-  fb_page_id: string
-  page_name: string
-  period: string
-  since: string
-  until: string
-  summary: PeriodSummary
-  daily: DailyMetric[]
-  followers_total: number
-  errors: Record<string, string>
-  generated_at: string
+  page_id: string; fb_page_id: string; page_name: string; period: string; since: string; until: string
+  summary: PeriodSummary; daily: DailyMetric[]; followers_total: number; errors: Record<string, string>; generated_at: string
 }
-
-export interface PostReaction {
-  like: number
-  love: number
-  haha: number
-  wow: number
-  sad: number
-  angry: number
-  care: number
-}
-
-export interface PostWithReactions {
-  post_id: string
-  message: string
-  created_time: string
-  reactions: PostReaction
-  total_reactions: number
-}
-
-export interface PostsPagination {
-  after: string | null
-  before: string | null
-  has_next: boolean
-  has_previous: boolean
-}
-
-export interface PostsWithReactionsResponse {
-  data: PostWithReactions[]
-  pagination: PostsPagination
-}
-
+export interface PostReaction { like: number; love: number; haha: number; wow: number; sad: number; angry: number; care: number }
+export interface PostWithReactions { post_id: string; message: string; created_time: string; reactions: PostReaction; total_reactions: number }
+export interface PostsPagination { after: string | null; before: string | null; has_next: boolean; has_previous: boolean }
+export interface PostsWithReactionsResponse { data: PostWithReactions[]; pagination: PostsPagination }
 export type AnalyticsPeriod = "day" | "week" | "days_28"

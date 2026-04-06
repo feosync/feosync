@@ -11,106 +11,76 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { PostDetailHeader }   from '@/components/posts/detail/PostDetailHeader'
-import { PostPreviewCard }    from '@/components/posts/detail/PostPreviewCard'
-import { PostActionsGrid }    from '@/components/posts/detail/PostActionsGrid'
-import { PostScheduleCard }   from '@/components/posts/detail/PostScheduleCard'
-import { CaptionSheet }       from '@/components/posts/detail/sheets/CaptionSheet'
-import { ImageSheet }         from '@/components/posts/detail/sheets/ImageSheet'
-import { DateSheet }          from '@/components/posts/detail/sheets/DateSheet'
+import { PostDetailHeader }  from '@/components/posts/detail/PostDetailHeader'
+import { PostPreviewCard }   from '@/components/posts/detail/PostPreviewCard'
+import { PostActionsGrid }   from '@/components/posts/detail/PostActionsGrid'
+import { PostScheduleCard }  from '@/components/posts/detail/PostScheduleCard'
+import { CaptionSheet }      from '@/components/posts/detail/sheets/CaptionSheet'
+import { ImageSheet }        from '@/components/posts/detail/sheets/ImageSheet'
+import { DateSheet }         from '@/components/posts/detail/sheets/DateSheet'
+import { PublishNowDialog }  from '@/components/posts/detail/PublishNowDialog'
 
 import {
-  useScheduledPost, usePatchCaption, usePatchImage,
-  useUploadImage, useConfirmPost, useDeleteScheduledPost
+  useScheduledPost, usePatchCaption,
+  useConfirmPost, useDeleteScheduledPost,
 } from '@/hooks/useScheduledPosts'
-
-import { useFacebookPages }  from '@/hooks/useFacebookPages'
-import type { PostStatus }   from '@/lib/api/types'
-
-import { PublishNowDialog }  from '@/components/posts/detail/PublishNowDialog'
-import { usePublishNow }     from '@/hooks/usePublishedPosts'
-
+import { useFacebookPages } from '@/hooks/useFacebookPages'
+import { usePublishNow }    from '@/hooks/usePublishedPosts'
+import type { PostStatus }  from '@/lib/api/types'
 
 const canEdit = (status: PostStatus) => status === 'DRAFT' || status === 'SCHEDULED'
 
 export default function PostDetailPage() {
   const { post_id } = useParams<{ post_id: string }>()
   const router = useRouter()
- 
+
+  // post est réactif — il se met à jour automatiquement via le cache React Query
   const { data: post, isLoading } = useScheduledPost(post_id)
 
   const orgId = post?.organisation_id || ''
   const { data: pages = [] } = useFacebookPages(orgId)
 
   const captionMutation = usePatchCaption(orgId)
-  const imageMutation   = usePatchImage(orgId)
-  const uploadMutation  = useUploadImage(orgId)
   const confirmMutation = useConfirmPost(orgId)
   const deleteMutation  = useDeleteScheduledPost(orgId)
-
   const publishNowMutation = usePublishNow(orgId)
-  const [publishDialog, setPublishDialog] = useState(false)
 
-  // ── Sheet ──
+  // ── Sheet state ────────────────────────────────────────────────────────────
   const [sheetMode, setSheetMode] = useState<'caption' | 'image' | 'date' | null>(null)
   const closeSheet = () => setSheetMode(null)
 
-  // ── Caption state ──
+  // ── Caption state ──────────────────────────────────────────────────────────
   const [captionMode, setCaptionMode] = useState<'manual' | 'llm'>('manual')
   const [captionText, setCaptionText] = useState('')
   const [aiTopic, setAiTopic]         = useState('')
   const [aiLang, setAiLang]           = useState('fr')
 
-  // ── Image state ──
-  const [imageTab,     setImageTab]     = useState('url')
-  const [imageUrl,     setImageUrl]     = useState('')
-  const [imageDesc,    setImageDesc]    = useState('')
-  const [imageFile,    setImageFile]    = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState('')
-
-  // ── Date state ──
+  // ── Date state ─────────────────────────────────────────────────────────────
   const [newDate, setNewDate] = useState('')
 
-  // ── Delete ──
+  // ── Dialogs ────────────────────────────────────────────────────────────────
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [publishDialog, setPublishDialog] = useState(false)
 
-  // ── Open sheet ──
   const openSheet = (mode: 'caption' | 'image' | 'date') => {
     if (mode === 'caption') { setCaptionText(post?.caption || ''); setCaptionMode('manual') }
-    if (mode === 'image')   { setImageUrl(post?.image_url || ''); setImagePreview(post?.image_url || ''); setImageFile(null) }
     if (mode === 'date')    { setNewDate(post?.publish_at?.slice(0, 16) || '') }
     setSheetMode(mode)
   }
 
-  // ── Handlers ──
   const handleSaveCaption = async () => {
     if (!post) return
     await captionMutation.mutateAsync({
       postId: post.id,
       data: captionMode === 'manual'
         ? { mode: 'manual', text: captionText }
-        : { mode: 'llm', topic: aiTopic, language: aiLang }
+        : { mode: 'llm', topic: aiTopic, language: aiLang },
     })
     closeSheet()
   }
 
-  const handleSaveImage = async () => {
-    if (!post) return
-    if (imageTab === 'upload' && imageFile) {
-      await uploadMutation.mutateAsync({ postId: post.id, file: imageFile })
-    } else if (imageTab === 'url') {
-      await imageMutation.mutateAsync({ postId: post.id, data: { mode: 'url', url: imageUrl } })
-    } else {
-      await imageMutation.mutateAsync({ postId: post.id, data: { mode: 'llm', description: imageDesc } })
-    }
-    closeSheet()
-  }
-
-
-
-  // DRAFT → juste fermer la sheet, la date sera utilisée au moment de confirmer
   const handleSaveDate = (utcIso: string) => {
-    if (utcIso) setNewDate(utcIso)   // ← stocke l'UTC pour le confirm ultérieur
+    if (utcIso) setNewDate(utcIso)
     toast.success('Date enregistrée')
     closeSheet()
   }
@@ -119,7 +89,7 @@ export default function PostDetailPage() {
     if (!post) return
     await confirmMutation.mutateAsync({
       postId: post.id,
-      publish_at: utcIso || post.publish_at || undefined
+      publish_at: utcIso || post.publish_at || undefined,
     })
     closeSheet()
   }
@@ -130,8 +100,6 @@ export default function PostDetailPage() {
     router.push('/posts')
   }
 
-  
-
   const handlePublishNow = async () => {
     if (!post) return
     await publishNowMutation.mutateAsync(post.id)
@@ -139,7 +107,6 @@ export default function PostDetailPage() {
     router.push('/published')
   }
 
-  // ── Loading ──
   if (isLoading) return (
     <div className="max-w-2xl mx-auto space-y-4">
       <Skeleton className="h-10 w-40" />
@@ -157,16 +124,13 @@ export default function PostDetailPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">
-
       <PostDetailHeader
         post={post}
         onBack={() => router.push('/posts')}
         onDelete={() => setConfirmDelete(true)}
-        onPublishNow={() => setPublishDialog(true)} 
+        onPublishNow={() => setPublishDialog(true)}
         isDeleting={deleteMutation.isPending}
       />
-
-      
 
       <PostPreviewCard
         post={post}
@@ -207,25 +171,21 @@ export default function PostDetailPage() {
         isPending={captionMutation.isPending}
       />
 
+      {/* ImageSheet est maintenant auto-suffisant — post réactif via React Query */}
       <ImageSheet
         open={sheetMode === 'image'}
         onClose={closeSheet}
-        imageTab={imageTab}         setImageTab={setImageTab}
-        imageUrl={imageUrl}         setImageUrl={setImageUrl}
-        imagePreview={imagePreview} setImagePreview={setImagePreview}
-        imageDesc={imageDesc}       setImageDesc={setImageDesc}
-        imageFile={imageFile}       setImageFile={setImageFile}
-        onSave={handleSaveImage}
-        isPending={imageMutation.isPending || uploadMutation.isPending}
+        post={post}
+        orgId={orgId}
       />
 
       <DateSheet
         open={sheetMode === 'date'}
         onClose={closeSheet}
         status={post.status as PostStatus}
-        newDate={newDate}           setNewDate={setNewDate}
-        onSave={handleSaveDate}     // DRAFT → local
-        onConfirm={handleConfirm}   // SCHEDULED → API
+        newDate={newDate}         setNewDate={setNewDate}
+        onSave={handleSaveDate}
+        onConfirm={handleConfirm}
         isPending={confirmMutation.isPending}
       />
 
@@ -241,18 +201,14 @@ export default function PostDetailPage() {
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-900 dark:text-white">
-              Supprimer ce post ?
-            </AlertDialogTitle>
+            <AlertDialogTitle className="text-slate-900 dark:text-white">Supprimer ce post ?</AlertDialogTitle>
             <AlertDialogDescription className="text-slate-500 dark:text-slate-400">
               Cette action est irréversible.
               {post.status === 'SCHEDULED' && ' La tâche Celery planifiée sera annulée.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-slate-200 dark:border-slate-700">
-              Annuler
-            </AlertDialogCancel>
+            <AlertDialogCancel className="border-slate-200 dark:border-slate-700">Annuler</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
@@ -266,7 +222,6 @@ export default function PostDetailPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
     </div>
   )
 }

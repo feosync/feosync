@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Plus, Calendar, FileText, CheckCircle2, XCircle, Search,X } from 'lucide-react'
+import { Plus, Calendar, FileText, CheckCircle2, XCircle, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -9,7 +9,7 @@ import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import { useScheduledPosts, useDeleteScheduledPost } from '@/hooks/useScheduledPosts'
+import { useScheduledPosts, useScheduledPost, useDeleteScheduledPost } from '@/hooks/useScheduledPosts'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { PostCard } from '@/components/posts/PostCard'
 import { EmptyState } from '@/components/posts/EmptyState'
@@ -20,7 +20,10 @@ import {
 } from '@/components/ui/pagination'
 import { useRouter } from 'next/navigation'
 import { useDebounce } from '@/hooks/useDebounce'
-import type { PostStatus } from '@/lib/api/types'
+import type { AutoCommentRequest, PostStatus } from '@/lib/api/types'
+import { usePublishedPosts, useSyncMetrics, useDeletePublishedPost, useSetAutoComment } from '@/hooks/usePublishedPosts'
+import { useFacebookPages } from '@/hooks/useFacebookPages'
+import { PublishedPostDetailSheet } from '@/components/published/PublishedPostDetailSheet'
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 
@@ -81,6 +84,15 @@ export default function PostsPage() {
   const organisations = orgData?.items ?? []
   const orgId = selectedOrgId || organisations[0]?.id || ''
 
+  const { data: pages = [] } = useFacebookPages(orgId)
+
+  // ── publishedSheetScheduledPostId stocke le scheduled_post.id ─────────────
+  const [publishedSheetScheduledPostId, setPublishedSheetScheduledPostId] = useState<string | null>(null)
+
+  const syncMutation        = useSyncMetrics(orgId)
+  const pubDeleteMutation   = useDeletePublishedPost(orgId)
+  const autoCommentMutation = useSetAutoComment(orgId)
+
   // ── Filtres ───────────────────────────────────────────────────────────────
   const [activeTab,   setActiveTab]   = useState<PostStatus | 'all'>('all')
   const [searchInput, setSearchInput] = useState('')
@@ -90,7 +102,6 @@ export default function PostsPage() {
   const [week,  setWeek]  = useState<number | undefined>(CURRENT_WEEK)
   const [page,  setPage]  = useState(1)
 
-  // semaines disponibles selon year+month courants
   const availableWeeks = year && month ? getWeeksOfMonth(year, month) : []
 
   // ── Handlers ──────────────────────────────────────────────────────────────
@@ -105,7 +116,7 @@ export default function PostsPage() {
 
   const handleMonth = (v: string) => {
     setMonth(v !== 'all' ? Number(v) : undefined)
-    setWeek(undefined)   // reset semaine — elle peut ne plus être dans le nouveau mois
+    setWeek(undefined)
     setPage(1)
   }
 
@@ -168,7 +179,6 @@ export default function PostsPage() {
       {/* Filtres date + search */}
       <div className="flex flex-wrap items-center gap-3">
 
-        {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
@@ -189,11 +199,7 @@ export default function PostsPage() {
           )}
         </div>
 
-        {/* Année */}
-        <Select
-          value={year ? String(year) : 'all'}
-          onValueChange={handleYear}
-        >
+        <Select value={year ? String(year) : 'all'} onValueChange={handleYear}>
           <SelectTrigger className="w-28">
             <SelectValue placeholder="Année" />
           </SelectTrigger>
@@ -205,11 +211,7 @@ export default function PostsPage() {
           </SelectContent>
         </Select>
 
-        {/* Mois */}
-        <Select
-          value={month ? String(month) : 'all'}
-          onValueChange={handleMonth}
-        >
+        <Select value={month ? String(month) : 'all'} onValueChange={handleMonth}>
           <SelectTrigger className="w-36">
             <SelectValue placeholder="Mois" />
           </SelectTrigger>
@@ -221,7 +223,6 @@ export default function PostsPage() {
           </SelectContent>
         </Select>
 
-        {/* Semaine — dépend du mois sélectionné */}
         <Select
           value={week ? String(week) : 'all'}
           onValueChange={handleWeek}
@@ -277,7 +278,11 @@ export default function PostsPage() {
               <PostCard
                 key={post.id}
                 post={post}
-                onClick={() => router.push(`/posts/${post.id}`)}
+                onClick={() =>
+                  post.status === 'PUBLISHED'
+                    ? setPublishedSheetScheduledPostId(post.id)  // ← post.id = scheduled_post.id
+                    : router.push(`/posts/${post.id}`)
+                }
                 onDelete={() => deleteMutation.mutate(post.id)}
               />
             ))}
@@ -353,6 +358,68 @@ export default function PostsPage() {
         </div>
       )}
 
+      {/* Sheet publié — ouvert depuis un scheduled_post.id */}
+      {publishedSheetScheduledPostId && (
+        <PublishedSheetFromScheduled
+          scheduledPostId={publishedSheetScheduledPostId}
+          orgId={orgId}
+          pages={pages}
+          onClose={() => setPublishedSheetScheduledPostId(null)}
+          onSync={id => syncMutation.mutate(id)}
+          onDelete={id => { pubDeleteMutation.mutate(id); setPublishedSheetScheduledPostId(null) }}
+          isSyncing={syncMutation.isPending}
+          isDeleting={pubDeleteMutation.isPending}
+          onAutoComment={(publishedPostId, payload) =>
+            autoCommentMutation.mutate({ postId: publishedPostId, payload })
+          }
+          isAutoCommenting={autoCommentMutation.isPending}
+        />
+      )}
+
     </div>
+  )
+}
+
+// ── Wrapper ───────────────────────────────────────────────────────────────────
+
+function PublishedSheetFromScheduled({
+  scheduledPostId, orgId, pages, onClose, onSync, onDelete,
+  isSyncing, isDeleting, onAutoComment, isAutoCommenting,
+}: {
+  scheduledPostId: string
+  orgId: string
+  pages: any[]
+  onClose: () => void
+  onSync: (id: string) => void
+  onDelete: (id: string) => void
+  isSyncing?: boolean
+  isDeleting?: boolean
+  onAutoComment?: (publishedPostId: string, payload: AutoCommentRequest) => void
+  isAutoCommenting?: boolean
+}) {
+  const { data: scheduledPost } = useScheduledPost(scheduledPostId)
+
+  const { data } = usePublishedPosts(orgId, { page: 1, page_size: 50 })
+  // Filtre par scheduled_post_id pour retrouver le published_post correspondant
+  const publishedPost = data?.items.find(p => p.scheduled_post_id === scheduledPostId) ?? null
+
+  const page = pages.find(p => p.id === publishedPost?.facebook_page_id)
+
+  if (!publishedPost) return null
+
+  return (
+    <PublishedPostDetailSheet
+      open
+      onClose={onClose}
+      post={publishedPost}
+      scheduledPost={scheduledPost}
+      page={page}
+      onSyncMetrics={() => onSync(publishedPost.id)}
+      onDelete={() => onDelete(publishedPost.id)}
+      isSyncing={isSyncing}
+      isDeleting={isDeleting}
+      onAutoComment={payload => onAutoComment?.(publishedPost.id, payload)}
+      isAutoCommenting={isAutoCommenting}
+    />
   )
 }

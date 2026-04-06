@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import {
   Trash2, ToggleLeft, ToggleRight,
   RefreshCw, BarChart2, ChevronUp
@@ -54,7 +54,7 @@ export function PagesList({
           </TableHeader>
           <TableBody>
             {pages.map(page => (
-              <>
+              <Fragment key={page.id}>
                 <TableRow
                   key={page.id}
                   className="border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50"
@@ -156,7 +156,7 @@ export function PagesList({
                     </TableCell>
                   </TableRow>
                 )}
-              </>
+              </Fragment>
             ))}
           </TableBody>
         </Table>
