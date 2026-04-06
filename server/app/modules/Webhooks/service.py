@@ -142,13 +142,17 @@ class WebhooksService:
 
                     self.comment_service.publised_post = published_post
 
-                    response, _ = await asyncio.gather(
+                    response, classification = await asyncio.gather(
                         self.comment_service.generate_reply(
                             comment=comment_text,
                             db=db,
                         ),
                         self.comment_service.comment_classification(comment=comment_text),
                     )
+                    if classification != "non_classe":
+                        logger.info(f"🔖 Commentaire classifié comme '{classification}'")
+                        
+                    
                     mention = f"@[{from_id}]"
 
                     reply_text = f"{mention} {response}" if response else f" {mention} Merci pour votre commentaire ! 😊"

@@ -68,12 +68,18 @@ class CommentService:
     async def comment_classification(self, comment: str) -> str:
         prompt = (
             f"Tu es un assistant de classification de commentaires pour une page Facebook.\n"
-            f"Voici la liste des mots-clés disponibles : {self.publised_post.keywords}\n\n"
-            f"Analyse le commentaire suivant et retourne UNIQUEMENT le mot-clé le plus pertinent "
-            f"de la liste, sans explication ni ponctuation.\n\n"
+            f"Voici la liste EXCLUSIVE des mots-clés disponibles : {self.publised_post.keywords}\n\n"
+            f"Analyse le commentaire et retourne UNIQUEMENT l'une de ces deux options :\n"
+            f"- Le mot-clé exact de la liste si le commentaire lui correspond clairement\n"
+            f"- La valeur 'non_classe' si le commentaire ne correspond à aucun mot-clé\n\n"
+            f"Règles strictes :\n"
+            f"- Retourne UNIQUEMENT le mot-clé ou 'non_classe', rien d'autre\n"
+            f"- Pas d'explication, pas de ponctuation, pas de majuscules\n"
+            f"- En cas de doute, retourne 'non_classe'\n\n"
             f"Commentaire : \"{comment}\""
         )
-        return await self._generate(prompt)
+        result = await self._generate(prompt)
+        return result.strip().lower() or "non_classe"
 
     async def generate_reply(self, comment: str, db: Session) -> str:
         scheduled_post: ScheduledPost = scheduled_post_service.get_by_id_internal(
