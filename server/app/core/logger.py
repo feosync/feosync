@@ -54,8 +54,11 @@ _NOISY_LOGGERS: tuple[str, ...] = (
     # Auth / security
     "passlib",
     "multipart",
+    # LLM SDKs
+    "groq",
+    "google.genai",
+    "google.auth",
 )
-
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
