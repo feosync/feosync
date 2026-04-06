@@ -1,4 +1,5 @@
 from .llm_service import GeminiProvider as gemini_provider
+from .groq_service import GroqService, GroqConfig
 from app.modules.published_post.model import PublishedPost
 from app.modules.scheduled_post.service import ScheduledPostService as scheduled_post_service
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
@@ -7,29 +8,60 @@ from sqlalchemy.orm import Session
 import logging
 import re
 
-
 logger = logging.getLogger(__name__)
+
+# Config Groq adaptée au community management
+_GROQ_CM_CONFIG = GroqConfig(
+    temperature=0.8,
+    max_tokens=300,
+    system_prompt="Tu es un community manager professionnel pour une page Facebook.",
+)
+
 
 class CommentService:
     def __init__(self):
-        self.llm = gemini_provider()
+        self.groq = GroqService(default_config=_GROQ_CM_CONFIG)
+        self.gemini = gemini_provider()
         self.publised_post: PublishedPost
-        
+
+    # ── LLM avec fallback Groq → Gemini ───────────────────────────────────────
+
+    async def _generate(self, prompt: str) -> str:
+        """
+        Tente Groq en premier, bascule sur Gemini si Groq échoue entièrement.
+        Retourne une chaîne vide si les deux échouent.
+        """
+        # 1. Groq (avec son propre fallback interne entre modèles)
+        try:
+            result = await self.groq.complete(prompt)
+            logger.debug("Réponse via Groq")
+            return result.content.strip()
+        except RuntimeError as exc:
+            logger.warning("Groq indisponible — bascule sur Gemini : %s", exc)
+
+        # 2. Gemini
+        try:
+            reply: str = await self.gemini.generate_response(prompt)
+            logger.debug("Réponse via Gemini (fallback)")
+            return reply.strip()
+        except ServerError as exc:
+            logger.error("Gemini 503 — tous les LLM ont échoué : %s", exc)
+        except Exception as exc:
+            logger.error("Erreur Gemini inattendue : %s", exc)
+
+        return ""
+
+    # ── Méthodes publiques ─────────────────────────────────────────────────────
+
     def strip_markdown(self, text: str) -> str:
         """Convertit le Markdown en texte brut lisible pour Facebook."""
-        # Gras / italique → texte nu
         text = re.sub(r'\*{1,2}(.+?)\*{1,2}', r'\1', text)
         text = re.sub(r'_{1,2}(.+?)_{1,2}', r'\1', text)
-        # Titres → texte nu
         text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)
-        # Listes → emoji bullet
         text = re.sub(r'^\s*[-*]\s+', '👉 ', text, flags=re.MULTILINE)
         text = re.sub(r'^\s*\d+\.\s+', '👉 ', text, flags=re.MULTILINE)
-        # Code inline → texte nu
         text = re.sub(r'`(.+?)`', r'\1', text)
-        # Liens → texte nu
         text = re.sub(r'\[(.+?)\]\(.+?\)', r'\1', text)
-        # Nettoyer les espaces multiples
         text = re.sub(r'\n{3,}', '\n\n', text)
         return text.strip()
 
@@ -41,16 +73,17 @@ class CommentService:
             f"de la liste, sans explication ni ponctuation.\n\n"
             f"Commentaire : \"{comment}\""
         )
-        classification: str = await self.llm.generate_response(prompt)
-        return classification.strip()
-     
+        return await self._generate(prompt)
 
     async def generate_reply(self, comment: str, db: Session) -> str:
         scheduled_post: ScheduledPost = scheduled_post_service.get_by_id_internal(
             db=db, post_id=self.publised_post.scheduled_post_id
         )
         if not scheduled_post:
-            logger.warning(f"ScheduledPost not found for published_post.id={self.publised_post.id}")
+            logger.warning(
+                "ScheduledPost introuvable pour published_post.id=%s",
+                self.publised_post.id,
+            )
             return ""
 
         prompt = (
@@ -70,12 +103,5 @@ class CommentService:
             f"- Si le commentaire est négatif ou une critique, reste professionnel et constructif"
         )
 
-        try:
-            reply: str = await self.llm.generate_response(prompt)
-            return reply.strip()
-        except ServerError as e:
-            logger.warning(f"⚠️ Gemini indisponible (503) — fallback utilisé : {e}")
-            return "Merci pour votre commentaire ! 😊"
-        except Exception as e:
-            logger.error(f"❌ Erreur inattendue lors de la génération : {e}")
-            return "Merci pour votre commentaire ! 😊"
+        reply = await self._generate(prompt)
+        return reply or "Merci pour votre commentaire ! 😊"
