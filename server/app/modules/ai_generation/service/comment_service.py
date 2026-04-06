@@ -25,32 +25,28 @@ class CommentService:
         self.publised_post: PublishedPost
 
     # ── LLM avec fallback Groq → Gemini ───────────────────────────────────────
-
     async def _generate(self, prompt: str) -> str:
-        """
-        Tente Groq en premier, bascule sur Gemini si Groq échoue entièrement.
-        Retourne une chaîne vide si les deux échouent.
-        """
-        # 1. Groq (avec son propre fallback interne entre modèles)
-        try:
-            result = await self.groq.complete(prompt)
-            logger.debug("Réponse via Groq")
-            return result.content.strip()
-        except RuntimeError as exc:
-            logger.warning("Groq indisponible — bascule sur Gemini : %s", exc)
-
-        # 2. Gemini
+    # 1. Gemini (principal)
         try:
             reply: str = await self.gemini.generate_response(prompt)
-            logger.debug("Réponse via Gemini (fallback)")
+            logger.debug("Réponse via Gemini")
             return reply.strip()
         except ServerError as exc:
-            logger.error("Gemini 503 — tous les LLM ont échoué : %s", exc)
+            logger.warning("Gemini 503 — bascule sur Groq : %s", exc)
         except Exception as exc:
-            logger.error("Erreur Gemini inattendue : %s", exc)
+            logger.warning("Erreur Gemini — bascule sur Groq : %s", exc)
+
+        # 2. Groq (fallback)
+        try:
+            result = await self.groq.complete(prompt)
+            logger.debug("Réponse via Groq (%s)", result.model_used)
+            return result.content.strip()
+        except RuntimeError as exc:
+            logger.error("Groq indisponible — tous les LLM ont échoué : %s", exc)
+        except Exception as exc:
+            logger.error("Erreur Groq inattendue : %s", exc)
 
         return ""
-
     # ── Méthodes publiques ─────────────────────────────────────────────────────
 
     def strip_markdown(self, text: str) -> str:
