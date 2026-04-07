@@ -230,7 +230,7 @@ export function PublishedPostDetailSheet({
                   </div>
                   <div>
                     <p className="text-[13px] font-medium text-slate-900 dark:text-white">Auto-commentaire</p>
-                    <p className="text-[11px] text-slate-400">Claude répond aux commentaires</p>
+                    <p className="text-[11px] text-slate-400">L'IA répond aux commentaires</p>
                   </div>
                 </div>
                 <Switch checked={autoEnabled} onCheckedChange={handleAutoToggle} />
@@ -299,13 +299,7 @@ export function PublishedPostDetailSheet({
 
             {/* Infos techniques */}
             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 space-y-2">
-              {post.post_id && (
-                <div className="flex items-center gap-2 text-[12px]">
-                  <Link2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                  <span className="text-slate-500 dark:text-slate-400 flex-shrink-0">ID Meta</span>
-                  <span className="text-slate-700 dark:text-slate-300 font-mono truncate">{post.post_id}</span>
-                </div>
-              )}
+              
               {post.image_count > 0 && (
                 <div className="flex items-center gap-2 text-[12px]">
                   <Images className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
