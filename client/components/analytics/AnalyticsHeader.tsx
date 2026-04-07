@@ -48,9 +48,7 @@ export function AnalyticsHeader({
                 Active
               </Badge>
             </div>
-            <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-              {fbPageId || '—'}
-            </p>
+           
           </div>
         </div>
       </div>
