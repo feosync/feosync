@@ -20,6 +20,7 @@ from app.modules.published_post.router import published_post_router
 from app.modules.post_analytics.router import  post_analytics_router
 from app.modules.user.router import user_router, admin_user_router
 from app.modules.Webhooks.router import app_webhooks_router
+from app.modules.collaborators.router import router as collaborators_router
 
 from app.modules.organisations.model import Organisation
 from app.modules.plans.model import Plan
@@ -32,4 +33,5 @@ from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost
 from app.modules.published_post.model import PublishedPost
 from app.modules.post_analytics.model import PostAnalytics
 from app.modules.refresh_token.refresh_token_model import FreshToken
+from app.modules.collaborators.model import Collaborator, Invitation
 from app.modules.scheduled_post.models.scheduled_post_image import ScheduledPostImage
