@@ -19,6 +19,7 @@ EMAIL_TEMPLATES = {
     NotificationType.TOKEN_EXPIRING:   ("token_expiring.html",    "⚠️ Token Facebook expirant"),
     NotificationType.INSIGHTS_UPDATED: ("insights_updated.html",  "📊 Insights mis à jour"),
     NotificationType.SCHEDULE_CREATED: ("schedule_created.html",  "📅 Schedule créé"),
+    "invitation":                      ("invitation.html",        "Invitation à collaborer"),
 }
 
 
@@ -122,4 +123,14 @@ class NotificationService:
         if not deleted:
             raise HTTPException(status_code=404, detail="Notification not found")
         return {"detail": "Notification deleted"}
+
+    @staticmethod
+    async def send_email(
+        to_email: str,
+        subject: str,
+        template_name: str,
+        template_body: dict | None = None,
+    ) -> None:
+        """Envoie un email via fastmail avec le template spécifié"""
+        await _send_email(to_email, subject, template_name, template_body or {})
     
