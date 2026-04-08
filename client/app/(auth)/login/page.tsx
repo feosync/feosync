@@ -135,21 +135,23 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen h-screen bg-background flex flex-col">
       {/* Logo */}
-      <div className="absolute top-6 left-6 flex flex-col gap-1">
-        <div className="w-56 h-16 relative mb-8">
-          <Image
-            src={
-              dark
-                ? "/images/dark/feosync_logo.png"
-                : "/images/light/feosync_logo.png"
-            }
-            alt="FeoSync"
-            width={32}
-            height={32}
-            className="w-full h-full"
-          />
-        </div>
-      </div>
+      
+
+      <Link 
+        href="/"
+        className="absolute top-6 left-6 z-50 cursor-pointer"
+      >
+        <Image
+          src={
+            dark ? "/images/dark/feosync_logo.png" : "/images/light/feosync_logo.png"
+          }
+          alt="FeoSync"
+          width={240}
+          height={70}
+          className="h-16 w-auto"
+          priority
+        />
+      </Link>
 
       {/* Ambient glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -253,27 +255,7 @@ export default function LoginPage() {
               <div className="flex-1 h-px bg-border/60" />
             </div>
 
-            {/* Badges de confiance */}
-            {/* <div className="grid grid-cols-3 gap-2 mb-6">
-              {[
-                { label: "SSL chiffré", icon: "🔒" },
-                { label: "RGPD conforme", icon: "🇪🇺" },
-                { label: "OAuth 2.0", icon: "✓" },
-              ].map((b) => (
-                <div
-                  key={b.label}
-                  className="flex flex-col items-center gap-1.5 p-2.5
-                    bg-input hover:bg-secondary
-                    rounded-xl border border-border hover:border-border/80
-                    transition-colors duration-200"
-                >
-                  <span className="text-sm">{b.icon}</span>
-                  <span className="text-[10px] text-muted-foreground/70 text-center leading-tight">
-                    {b.label}
-                  </span>
-                </div>
-              ))}
-            </div> */}
+            
 
             {/* Mentions légales */}
             <p className="text-center text-[13px] text-muted-foreground">

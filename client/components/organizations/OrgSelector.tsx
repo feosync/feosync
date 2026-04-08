@@ -58,15 +58,15 @@ export function OrganisationSelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between"
+            className="w-full justify-between "
           >
             {selectedOrg ? (
               <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-slate-500" />
+                <Building2 className="w-4 h-4" />
                 <span className="truncate">{selectedOrg.name}</span>
               </div>
             ) : (
-              <span className="text-slate-500">{placeholder}</span>
+              <span>{placeholder}</span>
             )}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
