@@ -66,7 +66,7 @@ export function AppNavbar() {
           </Link>
 
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            {isDark ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-slate-600" />}
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
 
           <DropdownMenu>
@@ -91,7 +91,8 @@ export function AppNavbar() {
               </Link>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="cursor-pointer text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
+                className="cursor-pointer"
+                variant="destructive"
                 onClick={handleLogout}
               >
                 <LogOut className="w-4 h-4 mr-2" />
