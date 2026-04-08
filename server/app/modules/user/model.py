@@ -44,3 +44,18 @@ class User(Base):
     notifications: Mapped[list["Notification"]] = relationship(
         "Notification", back_populates="user", cascade="all, delete-orphan"
     )
+
+    # Collaborations sur les organisations
+    collaborations: Mapped[list["Collaborator"]] = relationship(
+        "Collaborator",
+        foreign_keys="Collaborator.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    # Collaborateurs invités par cet utilisateur
+    invited_collaborators: Mapped[list["Collaborator"]] = relationship(
+        "Collaborator",
+        foreign_keys="Collaborator.invited_by",
+        back_populates="invited_by_user",
+    )

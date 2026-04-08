@@ -33,6 +33,7 @@ from app.modules.published_post.model import PublishedPost
 from app.modules.post_analytics.model import PostAnalytics
 from app.modules.refresh_token.refresh_token_model import FreshToken
 from app.modules.scheduled_post.models.scheduled_post_image import ScheduledPostImage
+from app.modules.collaborators.model import Collaborator, Invitation
 
 target_metadata =  Base.metadata
 
