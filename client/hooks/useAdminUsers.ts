@@ -32,9 +32,7 @@ export function useAdminPromoteUser() {
   return useMutation({
     mutationFn: (userId: string) => apiClient.adminPromoteUser(userId),
     onSuccess: (_, userId) => {
-      queryClient.setQueryData<UserSummary[]>(QUERY_KEY, (prev = []) =>
-        prev.map(u => u.id === userId ? { ...u, is_admin: true } : u)
-      )
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       toast.success('Utilisateur promu admin')
     },
     onError: (err: any) => {
@@ -49,9 +47,7 @@ export function useAdminDemoteUser() {
   return useMutation({
     mutationFn: (userId: string) => apiClient.adminDemoteUser(userId),
     onSuccess: (_, userId) => {
-      queryClient.setQueryData<UserSummary[]>(QUERY_KEY, (prev = []) =>
-        prev.map(u => u.id === userId ? { ...u, is_admin: false } : u)
-      )
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       toast.success('Utilisateur rétrogradé')
     },
     onError: (err: any) => {
@@ -66,9 +62,7 @@ export function useAdminDeleteUser() {
   return useMutation({
     mutationFn: (userId: string) => apiClient.adminDeleteUser(userId),
     onSuccess: (_, userId) => {
-      queryClient.setQueryData<UserSummary[]>(QUERY_KEY, (prev = []) =>
-        prev.filter(u => u.id !== userId)
-      )
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       toast.success('Utilisateur supprimé')
     },
     onError: (err: any) => {
