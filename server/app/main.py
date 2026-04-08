@@ -12,7 +12,8 @@ from app.modules import (
     auth_router, user_router, admin_user_router,
     ai_router, fb_page_router, organisation_router,
     notif_router, plans_router, scheduled_post_router,
-    post_template_router, post_analytics_router, published_post_router,app_webhooks_router
+    post_template_router, post_analytics_router, published_post_router,app_webhooks_router,
+    collaborators_router
 )
 
 # ── Logging ───────────────────────────────────────────────────────────────────
@@ -82,6 +83,7 @@ def _register_routes(app: FastAPI) -> None:
     app.include_router(admin_user_router,     prefix="/api/v1/admin/users",    tags=["admin"])
     app.include_router(plans_router,          prefix="/api/v1/plans",          tags=["plans"])
     app.include_router(organisation_router,   prefix="/api/v1/org",            tags=["org"])
+    app.include_router(collaborators_router,  prefix="/api/v1/collaborators",  tags=["collaborators"])
     app.include_router(fb_page_router,        prefix="/api/v1/fb",             tags=["fb"])
     app.include_router(post_template_router,  prefix="/api/v1/post-template",  tags=["postTemplate"])
     app.include_router(scheduled_post_router, prefix="/api/v1/scheduled",      tags=["scheduledPost"])
