@@ -14,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
+import { NotificationBell } from '@/components/notifications/NotificationsPopover'
+
 
 import { useSidebar } from '@/hooks/useSidebar'; // ← hook partagé
 
@@ -56,14 +58,7 @@ export function AppNavbar() {
         <span className="font-bold text-blue-600 md:hidden flex-1 text-center">FeoSync</span>
 
         <div className="flex items-center gap-2 ml-auto">
-          <Link href="/notifications">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-              )}
-            </Button>
-          </Link>
+          <NotificationBell />
 
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
