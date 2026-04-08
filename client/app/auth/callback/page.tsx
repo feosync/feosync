@@ -5,8 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+import { useDarkMode } from '@/hooks/useDarkMode'
+import Image from 'next/image'
 
 export default function AuthCallbackPage() {
+  const { dark, toggle } = useDarkMode(); 
   const router = useRouter()
   const searchParams = useSearchParams()
   const { setUserFromToken } = useAuth()
@@ -59,9 +62,16 @@ export default function AuthCallbackPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-      <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold">
-        FS
-      </div>
+      <Image
+          src={
+            dark ? "/images/dark/feosync_logo.png" : "/images/light/feosync_logo.png"
+          }
+          alt="FeoSync"
+          width={240}
+          height={70}
+          className="h-16 w-auto"
+         
+        />
       <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
       <p className="text-sm text-slate-500">Connexion en cours...</p>
     </div>
