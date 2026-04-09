@@ -31,6 +31,7 @@ class UserRepository:
         email: str,
         google_id: str,
         profile_picture: str | None = None,
+        plan_id: int | None = None,
     ) -> User:
         """Create a new user"""
         user = User(
@@ -39,6 +40,7 @@ class UserRepository:
             google_id=google_id,
             google_email=email,
             profile_picture=profile_picture,
+            plan_id=plan_id,
             is_active=True,
         )
         db.add(user)
