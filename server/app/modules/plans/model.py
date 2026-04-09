@@ -10,10 +10,11 @@ class Plan(Base):
     name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     price: Mapped[float] = mapped_column(Float, nullable=False)
     features: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=False)
-    max_page: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_org: Mapped[int] = mapped_column(Integer, nullable=False)
     max_post_month:Mapped[int] = mapped_column(Integer, nullable=False)  
     max_ai_gen: Mapped[int] = mapped_column(Integer, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True) 
+    is_default: Mapped[bool] = mapped_column(Boolean, default=False)
 
     user = relationship("User", back_populates="plan")
     
