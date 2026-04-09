@@ -12,6 +12,7 @@ from google.oauth2 import id_token
 from app.core.config import settings
 from app.modules.auth.schemas import GoogleUserInfo, UserResponse
 from app.modules.auth.repository import UserRepository
+from app.modules.plans.repository import PlanRepository
 from app.modules.user.model import User
 from fastapi import BackgroundTasks
 
@@ -129,6 +130,9 @@ class AuthService:
         if not user:
             # Check if user exists by email
             user = UserRepository.get_user_by_email(db, google_user_info.email)
+            default_plan = PlanRepository.get_default_plan(db)
+
+          
 
             if user:
                 # Link Google account to existing user
@@ -147,6 +151,8 @@ class AuthService:
                     email=google_user_info.email,
                     google_id=google_user_info.sub,
                     profile_picture=google_user_info.picture,
+                    plan_id=default_plan.id if default_plan else None,
+
                 )
 
                 

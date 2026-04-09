@@ -76,7 +76,7 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 sm:max-w-3xl max-h-[90dvh] overflow-y-auto">
+        <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 sm:max-w-[1100px] max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="pb-2">
             <DialogTitle className="text-slate-900 dark:text-white text-[18px] font-medium flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-blue-600" />
@@ -92,7 +92,7 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
 
           {/* Plans */}
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 py-4">
               {[1, 2, 3].map(i => <Skeleton key={i} className="h-72 rounded-xl" />)}
             </div>
           ) : activePlans.length === 0 ? (

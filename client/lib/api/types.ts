@@ -320,11 +320,12 @@ export interface Plan {
   id: number
   name: string
   price: number
-  max_page: number
+  max_org: number
   max_post_month: number
   max_ai_gen: number
   features: string[]
   is_active: boolean
+  is_default: boolean
   created_at: string
   updated_at: string
 }
@@ -332,11 +333,12 @@ export interface Plan {
 export interface CreatePlanRequest {
   name: string
   price: number
-  max_page: number
+  max_org: number
   max_post_month: number
   max_ai_gen: number
   features?: string[]
   is_active?: boolean
+  is_default?: boolean
 }
 
 export interface UpdatePlanRequest extends Partial<CreatePlanRequest> {}
