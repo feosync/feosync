@@ -6,6 +6,7 @@ from app.core.database import engine, get_db
 from app.core.base import Base
 from app.core.logger import configure_logging, get_logger
 from app.core.startup import seed_first_admin
+from app.core.seed import seed_plans
 from app.celery.task.scheduled_post_events import register_scheduled_post_events
 
 from app.modules import (
@@ -35,6 +36,7 @@ async def lifespan(app: FastAPI):
     db = next(get_db())
     try:
         seed_first_admin(db)
+        seed_plans(db)
         register_scheduled_post_events()
         await webhooks_service.startup()  
         logger.info("Startup complete.")
