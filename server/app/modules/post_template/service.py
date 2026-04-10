@@ -5,6 +5,7 @@ from fastapi import HTTPException, status
 from app.modules.post_template.repository import PostTemplateRepository
 from app.modules.post_template.schemas import PostTemplateCreate, PostTemplateUpdate, PostTemplateCreateFromAI
 from app.modules.post_template.model import PostTemplate, SectorEnum
+from app.modules.ai_generation.repository import AiGenerationRepository
 
 
 class PostTemplateService:
@@ -54,7 +55,7 @@ class PostTemplateService:
         L'user fournit l'image (asset_url) et on crée le template.
         """
         # Vérifie que l'AiGeneration existe
-        from app.modules.ai.repository import AiGenerationRepository
+        
         ai_gen = AiGenerationRepository.get_by_id(db, payload.ai_generation_id)
         if not ai_gen:
             raise HTTPException(status_code=404, detail="AI Generation not found")

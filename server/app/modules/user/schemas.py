@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 from uuid import UUID
 from datetime import datetime
 from typing import Optional
-
+from app.modules.plans.schemas import PlanResponse 
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
@@ -20,6 +20,9 @@ class UserResponse(BaseModel):
     is_active: bool
     is_admin: bool
     plan_id: Optional[int]
+    plan: Optional[PlanResponse] = None        # plan complet
+    org_count: int = 0                         # nb orgs actuelles
+    post_month_count: int = 0                  # nb posts ce mois 
     created_at: datetime
     updated_at: datetime
 
