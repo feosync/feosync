@@ -6,6 +6,7 @@ from app.modules.user.model import User
 from app.modules.user.repository import UserRepository
 from app.modules.user.schemas import UserResponse, UserUpdate
 from app.shared.pagination.paginator import PaginationParams
+from app.modules.ai_generation.repository import AiQuotaRepository
 
 
 class UserService:
@@ -37,8 +38,9 @@ class UserService:
             for org in orgs
         )
 
-        ai_caption_count = 0
-        ai_image_count = 0
+        ai_caption_count = AiQuotaRepository.count_captions_by_user_this_period(db, current_user.id)
+        ai_image_count   = AiQuotaRepository.count_images_by_user_this_period(db, current_user.id)
+
 
         return UserResponse.model_validate({
             **current_user.__dict__,
