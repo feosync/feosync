@@ -76,3 +76,10 @@ class OrganisationRepository:
     def delete(db: Session, org: Organisation) -> None:
         db.delete(org)
         db.commit()
+
+
+    @staticmethod
+    def count_by_user(db: Session, user_id: UUID) -> int:
+        return db.query(Organisation).filter(
+            Organisation.user_id == user_id
+        ).count()

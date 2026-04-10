@@ -35,3 +35,4 @@ class ScheduledPostImage(Base):
     __table_args__ = (
         Index("uq_image_position_per_post", "scheduled_post_id", "position", unique=True),
     )
+    
