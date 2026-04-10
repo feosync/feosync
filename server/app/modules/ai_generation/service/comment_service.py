@@ -7,6 +7,13 @@ from google.genai.errors import ServerError
 from sqlalchemy.orm import Session
 import logging
 import re
+import app.modules.notifications.service as notification_service
+from app.core.database import get_db
+from app.modules.notifications.model import NotificationChannel, NotificationType
+from fastapi import BackgroundTasks
+from app.modules.organisations.model import Organisation
+from app.celery.task.comment_classification import comment_classification_task
+
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +29,8 @@ class CommentService:
     def __init__(self):
         self.groq = GroqService(default_config=_GROQ_CM_CONFIG)
         self.gemini = gemini_provider()
-        self.publised_post: PublishedPost
+        self.publised_post: PublishedPost = None
+        
 
     # ── LLM avec fallback Groq → Gemini ───────────────────────────────────────
     async def _generate(self, prompt: str) -> str:
@@ -61,7 +69,7 @@ class CommentService:
         text = re.sub(r'\n{3,}', '\n\n', text)
         return text.strip()
 
-    async def comment_classification(self, comment: str) -> str:
+    async def comment_classification(self, comment: str, db:Session, user_id) -> str:
         prompt = (
             f"Tu es un assistant de classification de commentaires pour une page Facebook.\n"
             f"Voici la liste EXCLUSIVE des mots-clés disponibles : {self.publised_post.keywords}\n\n"
@@ -74,8 +82,19 @@ class CommentService:
             f"- En cas de doute, retourne 'non_classe'\n\n"
             f"Commentaire : \"{comment}\""
         )
-        result = await self._generate(prompt)
-        return result.strip().lower() or "non_classe"
+        result = await self._generate(prompt) or "non_classe"
+        if result in self.publised_post.keywords:
+           comment_classified = result.strip().lower()
+           notification_service.NotificationService.create(
+                db=db,
+                background_tasks=BackgroundTasks(),
+                user_id=user_id,
+                title=f"Un commentaire est classé en {comment_classified}!",
+                message=f"Un commentaire a été automatiquement classé dans la catégorie '{comment_classified}'.",
+                type=NotificationType.COMMENT_CLASSIFIED,
+                channel=NotificationChannel.IN_APP,
+            )
+        return result.strip().lower() 
 
     async def generate_reply(self, comment: str, db: Session) -> str:
         scheduled_post: ScheduledPost = scheduled_post_service.get_by_id_internal(
@@ -106,4 +125,12 @@ class CommentService:
         )
 
         reply = await self._generate(prompt)
+        org:Organisation = scheduled_post.organisation
+        if not org:
+            logger.warning(
+                "Organisation introuvable pour scheduled_post.id=%s",
+                scheduled_post.id,
+            )
+        else:
+            comment_classification_task.delay(comment=comment, user_id=org.user_id, published_post_id=self.publised_post.id)
         return reply or "Merci pour votre commentaire ! 😊"
