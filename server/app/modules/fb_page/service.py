@@ -27,8 +27,15 @@ class FacebookService:
     # ── OAuth ─────────────────────────────────────────────────────────────────
 
     @staticmethod
-    def get_oauth_url(org_id: UUID) -> str:
+    def get_oauth_url(db: Session, org_id: UUID) -> str:
         from urllib.parse import urlencode
+    
+        existing = FacebookPageRepository.get_by_org_id(db, org_id)
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cette organisation a déjà une page Facebook connectée."
+            )
 
         params = urlencode({
             "client_id":     settings.META_APP_ID,
@@ -126,6 +133,26 @@ class FacebookService:
         Si déjà connectée à la même org → met à jour le token.
         Si connectée à une autre org → erreur.
         """
+
+
+        existing_org_page = FacebookPageRepository.get_by_org_id(db, org_id)
+
+        if existing_org_page:
+            # Même page → reconnexion/update token autorisée
+            if existing_org_page.fb_page_id == payload.fb_page_id:
+                return FacebookPageRepository.update(db, existing_org_page, {
+                    "access_token": payload.access_token,
+                    "page_name": payload.page_name,
+                    "is_active": True,
+                    "updated_at": datetime.now(timezone.utc),
+                })
+            # Page différente → refus
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cette organisation a déjà une page Facebook connectée."
+            )
+
+
         existing = FacebookPageRepository.get_by_fb_page_id(db, payload.fb_page_id)
 
         if existing:
