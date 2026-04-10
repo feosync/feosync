@@ -21,6 +21,8 @@ from app.modules.organisations.model import Organisation
 from app.modules.fb_page.model import Facebook
 from app.modules.user.model import User
 from app.shared.pagination.paginator import PaginationParams
+from app.modules.plans.model import Plan
+from app.modules.ai_generation.repository import AiQuotaRepository
 
 # Meta autorise jusqu'à 10 images par carrousel
 MAX_IMAGES_PER_POST = 10
@@ -106,6 +108,21 @@ class ScheduledPostService:
         ).first()
         if not org:
             raise HTTPException(status_code=403, detail="Not your page")
+        
+
+        # ✅ Vérification limite posts/mois
+        from app.modules.plans.model import Plan
+        plan = db.get(Plan, current_user.plan_id) if current_user.plan_id else None
+        max_post_month = plan.max_post_month if plan else 7
+
+        if max_post_month != -1:
+            current_count = ScheduledPostRepository.count_by_org_this_month(db, org.id)
+            if current_count >= max_post_month:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Votre plan vous limite à {max_post_month} post(s) par mois. Passez à un plan supérieur."
+                )
+
 
         return ScheduledPostRepository.create(db, {
             "organisation_id": fb_page.organisation_id,
@@ -168,6 +185,7 @@ class ScheduledPostService:
             ScheduledPostRepository.update(db, post, {"caption": caption})
 
         else:
+            ScheduledPostService._check_ai_caption_limit(db, current_user)
             ctx = ScheduledPostService._build_ai_context(db, post, current_user)
             service = AiGenerationService()
             gen = await service.generate_caption(
@@ -191,7 +209,6 @@ class ScheduledPostService:
         )
 
     # ── ADD image (url ou llm) ────────────────────────────────────────────────
-
     @staticmethod
     async def add_image(
         db: Session,
@@ -199,6 +216,7 @@ class ScheduledPostService:
         payload: ImagePatchRequest,
         current_user: User,
     ) -> AddImageResponse:
+        
         post = ScheduledPostService._get_post_owned(db, post_id, current_user)
         ScheduledPostService._check_image_limit(db, post_id)
         ai_generation_id = None
@@ -211,12 +229,23 @@ class ScheduledPostService:
             })
 
         else:
+            ScheduledPostService._check_ai_image_limit(db, current_user)
             ctx = ScheduledPostService._build_ai_context(db, post, current_user)
             service = AiGenerationService()
-            gen = await service.generate_image(
-                db=db, ctx=ctx,
-                req=ImageRequest(description=payload.description, style=payload.style)
-            )
+
+            try:
+                gen = await service.generate_image(
+                    db=db, ctx=ctx,
+                    req=ImageRequest(description=payload.description, style=payload.style)
+                )
+            except HTTPException:
+                raise  # on laisse passer les 403, 404, etc. déjà gérés
+            except Exception as e:
+                raise HTTPException(
+                    status_code=503,
+                    detail=f"La génération d'image a échoué (quota Gemini ou erreur externe). Réessayez plus tard."
+                )
+
             ai_generation_id = gen.id
             img = ImageRepository.add(db, {
                 "scheduled_post_id": post_id,
@@ -231,6 +260,9 @@ class ScheduledPostService:
             image=ScheduledPostImageResponse.from_orm_image(img),
             ai_generation_id=ai_generation_id,
         )
+        
+
+
 
     # ── ADD image upload ──────────────────────────────────────────────────────
 
@@ -313,8 +345,14 @@ class ScheduledPostService:
                 detail=f"Post déjà {post.status} — impossible de modifier",
             )
 
-        if not post.caption:
-            raise HTTPException(status_code=400, detail="Caption manquant")
+        has_caption = bool(post.caption)
+        has_images = len(post.images) > 0
+
+        if not has_caption and not has_images:
+            raise HTTPException(
+                status_code=400,
+                detail="Un caption ou au moins une image est requis pour planifier le post."
+            )
 
         publish_at = payload.publish_at or post.publish_at
         if not publish_at:
@@ -339,6 +377,36 @@ class ScheduledPostService:
         ScheduledPostRepository.delete(db, post)
         return {"detail": "Deleted successfully"}
 
+
+    @staticmethod
+    def _check_ai_caption_limit(db: Session, current_user: User) -> None:
+        plan = db.get(Plan, current_user.plan_id) if current_user.plan_id else None
+        max_ai_caption = plan.max_ai_caption if plan else 1  # fallback sans plan
+
+        if max_ai_caption == -1:
+            return
+
+        count = AiQuotaRepository.count_captions_by_user_this_period(db, current_user.id)
+        if count >= max_ai_caption:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Votre plan vous limite à {max_ai_caption} caption(s) IA par mois. Passez à un plan supérieur."
+            )
+
+    @staticmethod
+    def _check_ai_image_limit(db: Session, current_user: User) -> None:
+        plan = db.get(Plan, current_user.plan_id) if current_user.plan_id else None
+        max_ai_image = plan.max_ai_image if plan else 0  # fallback sans plan
+
+        if max_ai_image == -1:
+            return
+
+        count = AiQuotaRepository.count_images_by_user_this_period(db, current_user.id)
+        if count >= max_ai_image:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Votre plan vous limite à {max_ai_image} image(s) IA par mois. Passez à un plan supérieur."
+            )
 
 # ── Upload helper ─────────────────────────────────────────────────────────────
 

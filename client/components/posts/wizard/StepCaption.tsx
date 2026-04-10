@@ -4,15 +4,19 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Loader2, Sparkles } from 'lucide-react'
 import type { ScheduledPost } from '@/lib/api/types'
+import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
+import { checkCanGenerateCaption } from '@/lib/api/plan-limits'
 
 interface StepCaptionProps {
   post: ScheduledPost
   isLoading: boolean
   onNext: (data: any) => void
   onBack: () => void
+  onSkip: () => void
 }
 
-export function StepCaption({ post, isLoading, onNext, onBack }: StepCaptionProps) {
+export function StepCaption({ post, isLoading, onNext, onBack, onSkip }: StepCaptionProps) {
+  const { data: userDetail } = useCurrentUserDetail()
   const [mode, setMode]       = useState<'manual' | 'llm'>('manual')
   const [caption, setCaption] = useState(post.caption || '')
   const [topic, setTopic]     = useState('')
@@ -22,6 +26,7 @@ export function StepCaption({ post, isLoading, onNext, onBack }: StepCaptionProp
     if (mode === 'manual') {
       onNext({ mode: 'manual', text: caption })
     } else {
+      if (!checkCanGenerateCaption(userDetail)) return
       onNext({ mode: 'llm', topic, language })
     }
   }
@@ -38,7 +43,10 @@ export function StepCaption({ post, isLoading, onNext, onBack }: StepCaptionProp
         {(['manual', 'llm'] as const).map(m => (
           <button
             key={m}
-            onClick={() => setMode(m)}
+            onClick={() => {
+              if (m === 'llm' && !checkCanGenerateCaption(userDetail)) return
+              setMode(m)
+            }}
             className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[13px] rounded-md transition-colors ${
               mode === m
                 ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
@@ -98,6 +106,13 @@ export function StepCaption({ post, isLoading, onNext, onBack }: StepCaptionProp
       <div className="flex gap-2 pt-1">
         <Button variant="outline" onClick={onBack} className="border-slate-200 dark:border-slate-700">
           ← Retour
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={onSkip}
+          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+        >
+          Ignorer
         </Button>
         <Button
           onClick={handleNext}

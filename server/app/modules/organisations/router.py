@@ -63,7 +63,7 @@ async def create_organisation(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
-    return OrganisationService.create(db, current_user.id, payload)
+    return OrganisationService.create(db, current_user, payload)
 
 
 @organisation_router.patch("/{org_id}", response_model=OrganisationResponse)
