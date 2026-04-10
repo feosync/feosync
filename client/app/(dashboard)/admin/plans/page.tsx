@@ -81,7 +81,8 @@ export default function AdminPlansPage() {
               <TableHead>Prix</TableHead>
               <TableHead>Organistions</TableHead>
               <TableHead>Posts/mois</TableHead>
-              <TableHead>IA</TableHead>
+              <TableHead> Légendes IA</TableHead>
+              <TableHead>Images IA</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -117,7 +118,10 @@ export default function AdminPlansPage() {
                     {p.max_post_month}
                   </TableCell>
                   <TableCell className="text-sm text-slate-600 dark:text-slate-400">
-                    {p.max_ai_gen}
+                    {p.max_ai_caption}
+                  </TableCell>
+                  <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+                    {p.max_ai_image}
                   </TableCell>
                   <TableCell>
                     <Badge

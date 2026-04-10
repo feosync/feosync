@@ -46,6 +46,8 @@ export interface UserDetail {
   plan: Plan | null
   org_count: number
   post_month_count: number
+  ai_caption_count: number
+  ai_image_count: number
 }
 // ── Organisation ──────────────────────────────────────────────────────────────
 
@@ -329,7 +331,8 @@ export interface Plan {
   price: number
   max_org: number
   max_post_month: number
-  max_ai_gen: number
+  max_ai_caption: number
+  max_ai_image: number
   features: string[]
   is_active: boolean
   is_default: boolean
@@ -342,7 +345,8 @@ export interface CreatePlanRequest {
   price: number
   max_org: number
   max_post_month: number
-  max_ai_gen: number
+  max_ai_caption: number
+  max_ai_image: number
   features?: string[]
   is_active?: boolean
   is_default?: boolean
