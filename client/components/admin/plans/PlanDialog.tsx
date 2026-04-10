@@ -16,9 +16,10 @@ import type { Plan, CreatePlanRequest } from '@/lib/api/types'
 const EMPTY_FORM: CreatePlanRequest = {
   name: '',
   price: 0,
-  max_page: 1,
+  max_org: 1,
   max_post_month: 10,
-  max_ai_gen: 5,
+  max_ai_caption: 0,
+  max_ai_image: 0,
   features: [],
   is_active: true,
 }
@@ -122,7 +123,8 @@ export function PlanDialog({
           price:          initial.price,
           max_org:       initial.max_org,
           max_post_month: initial.max_post_month,
-          max_ai_gen:     initial.max_ai_gen,
+          max_ai_caption: initial.max_ai_caption,
+          max_ai_image:   initial.max_ai_image,
           features:       initial.features ?? [],
           is_active:      initial.is_active,
         }
@@ -191,11 +193,19 @@ export function PlanDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Générations IA</Label>
+              <Label>Légendes IA</Label>
               <Input
                 type="number" min={0}
-                value={form.max_ai_gen}
-                onChange={e => set('max_ai_gen', Number(e.target.value))}
+                value={form.max_ai_caption}
+                onChange={e => set('max_ai_caption', Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Images IA</Label>
+              <Input
+                type="number" min={0}
+                value={form.max_ai_image}
+                onChange={e => set('max_ai_image', Number(e.target.value))}
               />
             </div>
           </div>
