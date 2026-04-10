@@ -94,6 +94,15 @@ class ScheduledPostRepository:
         db.delete(post)
         db.commit()
 
+    @staticmethod
+    def count_by_org_this_month(db: Session, org_id: UUID) -> int:
+        now = datetime.now(timezone.utc)
+        return db.query(ScheduledPost).filter(
+            ScheduledPost.organisation_id == org_id,
+            extract("year",  ScheduledPost.created_at) == now.year,
+            extract("month", ScheduledPost.created_at) == now.month,
+        ).count()
+
 
 class ImageRepository:
 
@@ -149,6 +158,10 @@ class ImageRepository:
             .order_by(ScheduledPostImage.position)
             .all()
         )
-    
+
+
+
+  
+        
 
     

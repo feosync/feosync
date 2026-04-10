@@ -106,6 +106,21 @@ class ScheduledPostService:
         ).first()
         if not org:
             raise HTTPException(status_code=403, detail="Not your page")
+        
+
+        # ✅ Vérification limite posts/mois
+        from app.modules.plans.model import Plan
+        plan = db.get(Plan, current_user.plan_id) if current_user.plan_id else None
+        max_post_month = plan.max_post_month if plan else 7
+
+        if max_post_month != -1:
+            current_count = ScheduledPostRepository.count_by_org_this_month(db, org.id)
+            if current_count >= max_post_month:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Votre plan vous limite à {max_post_month} post(s) par mois. Passez à un plan supérieur."
+                )
+
 
         return ScheduledPostRepository.create(db, {
             "organisation_id": fb_page.organisation_id,
