@@ -14,6 +14,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useOrganisations, useCreateOrganisation } from '@/hooks/useOrganisations'
 import { OrgDialog } from '@/components/organizations/OrgDialog'
 import type { CreateOrgRequest } from '@/lib/api/types'
+import { checkCanCreateOrg } from '@/lib/api/plan-limits'
+import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
 
 interface OrganisationSelectorProps {
   value: string | null
@@ -29,6 +31,7 @@ export function OrganisationSelector({
   const [open, setOpen]           = useState(false)
   const [page, setPage]           = useState(1)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const { data: userDetail } = useCurrentUserDetail()
 
   const { data, isLoading } = useOrganisations({ page, page_size: 10 })
   const createMutation = useCreateOrganisation()
@@ -43,6 +46,12 @@ export function OrganisationSelector({
   }, [organisations, value, onChange])
 
   const selectedOrg = organisations.find(org => org.id === value)
+
+  const handleOpenCreateOrg = () => {
+    if (!checkCanCreateOrg(userDetail)) return
+    setOpen(false)
+    setDialogOpen(true)
+  }
 
   const handleCreate = async (data: CreateOrgRequest) => {
     const newOrg = await createMutation.mutateAsync(data)
@@ -97,7 +106,7 @@ export function OrganisationSelector({
                       <Button
                         size="sm"
                         className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5 text-[12px]"
-                        onClick={() => { setOpen(false); setDialogOpen(true) }}
+                        onClick={handleOpenCreateOrg}
                       >
                         <Plus className="w-3.5 h-3.5" />
                         Créer une organisation
@@ -147,7 +156,7 @@ export function OrganisationSelector({
                         <Button
                           variant="ghost" size="sm"
                           className="w-full justify-start gap-2 text-[12px] text-slate-500 hover:text-blue-600"
-                          onClick={() => { setOpen(false); setDialogOpen(true) }}
+                          onClick={handleOpenCreateOrg}
                         >
                           <Plus className="w-3.5 h-3.5" />
                           Nouvelle organisation

@@ -40,6 +40,13 @@ export interface PromoteDemoteResponse {
   detail: string
 }
 
+// ── User Details ─────────────────────────────────────────────────────────────
+export interface UserDetail {
+  user: User
+  plan: Plan | null
+  org_count: number
+  post_month_count: number
+}
 // ── Organisation ──────────────────────────────────────────────────────────────
 
 export type ToneEnum = "formal" | "informal" | "friendly" | "professional" | "casual"
