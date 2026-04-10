@@ -79,7 +79,7 @@ export default function AdminPlansPage() {
             <TableRow className="bg-slate-50 dark:bg-slate-900">
               <TableHead>Nom</TableHead>
               <TableHead>Prix</TableHead>
-              <TableHead>Pages</TableHead>
+              <TableHead>Organistions</TableHead>
               <TableHead>Posts/mois</TableHead>
               <TableHead>IA</TableHead>
               <TableHead>Statut</TableHead>
@@ -111,7 +111,7 @@ export default function AdminPlansPage() {
                     {fmt(p?.price)}
                   </TableCell>
                   <TableCell className="text-sm text-slate-600 dark:text-slate-400">
-                    {p.max_page}
+                    {p?.max_org}
                   </TableCell>
                   <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                     {p.max_post_month}

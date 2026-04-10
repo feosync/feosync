@@ -120,7 +120,7 @@ export function PlanDialog({
       ? {
           name:           initial.name,
           price:          initial.price,
-          max_page:       initial.max_page,
+          max_org:       initial.max_org,
           max_post_month: initial.max_post_month,
           max_ai_gen:     initial.max_ai_gen,
           features:       initial.features ?? [],
@@ -171,11 +171,11 @@ export function PlanDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Pages max</Label>
+              <Label>Organisations</Label>
               <Input
                 type="number" min={1}
-                value={form.max_page}
-                onChange={e => set('max_page', Number(e.target.value))}
+                value={form.max_org}
+                onChange={e => set('max_org', Number(e.target.value))}
               />
             </div>
           </div>
