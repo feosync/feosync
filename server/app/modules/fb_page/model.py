@@ -1,6 +1,6 @@
 from __future__ import annotations
 from app.core.base import Base
-from sqlalchemy import String, ForeignKey, DateTime, Text
+from sqlalchemy import String, ForeignKey, DateTime, Text, UniqueConstraint
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from uuid import UUID, uuid4
 from datetime import datetime
@@ -25,6 +25,11 @@ class Facebook(Base):
 
     page_insights = relationship("PageInsights", back_populates="fb_page", cascade="all, delete-orphan")
     published_posts = relationship("PublishedPost", back_populates="facebook_page", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        UniqueConstraint("organisation_id", name="uq_facebook_pages_organisation"),
+    )
+
 
 
 class PageInsights(Base):
