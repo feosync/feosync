@@ -23,6 +23,8 @@ class UserResponse(BaseModel):
     plan: Optional[PlanResponse] = None        # plan complet
     org_count: int = 0                         # nb orgs actuelles
     post_month_count: int = 0                  # nb posts ce mois 
+    ai_caption_count: int = 0                 # nb captions AI ce mois
+    ai_image_count: int = 0                   # nb images AI ce mois
     created_at: datetime
     updated_at: datetime
 

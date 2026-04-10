@@ -12,7 +12,10 @@ class Plan(Base):
     features: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=False)
     max_org: Mapped[int] = mapped_column(Integer, nullable=False)
     max_post_month:Mapped[int] = mapped_column(Integer, nullable=False)  
-    max_ai_gen: Mapped[int] = mapped_column(Integer, nullable=False)
+   
+    max_ai_caption: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    max_ai_image: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+
     is_active: Mapped[bool] = mapped_column(Boolean, default=True) 
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
 

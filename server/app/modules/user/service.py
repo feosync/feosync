@@ -37,11 +37,16 @@ class UserService:
             for org in orgs
         )
 
+        ai_caption_count = 0
+        ai_image_count = 0
+
         return UserResponse.model_validate({
             **current_user.__dict__,
             "plan": plan,
             "org_count": org_count,
             "post_month_count": post_month_count,
+            "ai_caption_count": ai_caption_count,
+            "ai_image_count": ai_image_count,
         })
 
     @staticmethod
