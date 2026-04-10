@@ -19,6 +19,9 @@ interface Props {
 export function PostPreviewCard({
   post, page, editable, onEditCaption, onEditImage, onEditDate
 }: Props) {
+  const firstImage = post.images?.[0] ?? null
+  const imageCount = post.images?.length ?? 0
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
 
@@ -53,9 +56,14 @@ export function PostPreviewCard({
       </div>
 
       {/* Image */}
-      {post.image_url ? (
+      {firstImage ? (
         <div className="relative h-56 group">
-          <Image src={post.image_url} alt="post" fill className="object-cover" unoptimized />
+          <Image src={firstImage.image_url} alt="post" fill className="object-cover" unoptimized />
+          {imageCount > 1 && (
+            <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded-full">
+              +{imageCount - 1} image{imageCount > 2 ? 's' : ''}
+            </div>
+          )}
           {editable && (
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
               <Button
@@ -64,7 +72,7 @@ export function PostPreviewCard({
                 onClick={onEditImage}
               >
                 <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-                Changer l'image
+                Gérer les images
               </Button>
             </div>
           )}
