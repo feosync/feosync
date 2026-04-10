@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from uuid import UUID
 from datetime import datetime, timezone
@@ -63,3 +64,26 @@ class AiQuotaRepository:
             quota.image_count += 1
         quota.total_tokens += tokens
         db.commit()
+
+
+    @staticmethod
+    def count_captions_by_user_this_period(db: Session, user_id: UUID) -> int:
+        period = datetime.now(timezone.utc).strftime("%Y-%m")
+        result = db.query(
+            func.coalesce(func.sum(AiQuota.caption_count), 0)
+        ).filter(
+            AiQuota.user_id == user_id,
+            AiQuota.period == period,
+        ).scalar()
+        return int(result)
+
+    @staticmethod
+    def count_images_by_user_this_period(db: Session, user_id: UUID) -> int:
+        period = datetime.now(timezone.utc).strftime("%Y-%m")
+        result = db.query(
+            func.coalesce(func.sum(AiQuota.image_count), 0)
+        ).filter(
+            AiQuota.user_id == user_id,
+            AiQuota.period == period,
+        ).scalar()
+        return int(result)
