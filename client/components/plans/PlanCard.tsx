@@ -102,11 +102,12 @@ export function PlanCard({
       </div>
 
       {/* Limites */}
-      <div className="grid grid-cols-3 gap-1.5 mb-3">
+      <div className="grid grid-cols-4 gap-1.5 mb-3">
         {[
-          { label: 'Pages',      value: plan.max_page },
+          { label: 'Organisations',      value: plan.max_org },
           { label: 'Posts/mois', value: plan.max_post_month },
-          { label: 'IA/mois',    value: plan.max_ai_gen },
+          { label: 'Légendes IA', value: plan.max_ai_caption },
+          { label: 'Images IA', value: plan.max_ai_image },
         ].map(({ label, value }) => (
           <div
             key={label}

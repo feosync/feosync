@@ -1,5 +1,6 @@
 import { 
   UserSummary,
+  UserDetail,
   PaginatedResponse,
   Organisation,
   ScheduledPost,
@@ -78,10 +79,18 @@ export class ApiClient {
     return this.request('/api/v1/auth/me')
   }
 
+
+
   async logout(): Promise<void> {
     try { await this.request('/api/v1/auth/logout', { method: 'POST' }) } finally {
       this.clearToken()
     }
+  }
+
+  // users 
+  
+  async getCurrentUserDetail(): Promise<UserDetail> {
+    return this.request('/api/v1/user/me')
   }
 
   // ── Plans ─────────────────────────────────────────────────────────────────
@@ -101,6 +110,8 @@ export class ApiClient {
   async unsubscribeFromPlan(): Promise<any> {
     return this.request('/api/v1/plans/me/unsubscribe', { method: 'DELETE' })
   }
+
+  
 
   // [Admin] Plans
   async adminGetAllPlans(): Promise<any[]> {

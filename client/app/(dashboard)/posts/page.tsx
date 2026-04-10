@@ -24,6 +24,8 @@ import type { AutoCommentRequest, PostStatus } from '@/lib/api/types'
 import { usePublishedPosts, useSyncMetrics, useDeletePublishedPost, useSetAutoComment } from '@/hooks/usePublishedPosts'
 import { useFacebookPages } from '@/hooks/useFacebookPages'
 import { PublishedPostDetailSheet } from '@/components/published/PublishedPostDetailSheet'
+import { checkCanCreatePost } from '@/lib/api/plan-limits'
+import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 
@@ -77,6 +79,7 @@ const MONTHS = [
 
 export default function PostsPage() {
   const router = useRouter()
+  const { data: userDetail } = useCurrentUserDetail()
 
   // ── Org ───────────────────────────────────────────────────────────────────
   const [selectedOrgId, setSelectedOrgId] = useState('')
@@ -145,6 +148,11 @@ export default function PostsPage() {
   const disabledClass = (cond: boolean) =>
     cond ? 'pointer-events-none opacity-50' : 'cursor-pointer'
 
+  const handleOpenCreatePost = () => {
+    if (!checkCanCreatePost(userDetail)) return
+    router.push('/posts/new')
+  }
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5">
@@ -159,7 +167,7 @@ export default function PostsPage() {
           </p>
         </div>
         <Button
-          onClick={() => router.push('/posts/new')}
+          onClick={handleOpenCreatePost}
           className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
         >
           <Plus className="w-4 h-4" /> Nouveau post
@@ -270,7 +278,7 @@ export default function PostsPage() {
         ) : posts.length === 0 ? (
           <EmptyState
             status={activeTab}
-            onCreateClick={() => router.push('/posts/new')}
+            onCreateClick={handleOpenCreatePost}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
