@@ -4,8 +4,9 @@ from fastapi import HTTPException, status
 
 from app.modules.user.model import User
 from app.modules.user.repository import UserRepository
-from app.modules.user.schemas import UserUpdate
+from app.modules.user.schemas import UserResponse, UserUpdate
 from app.shared.pagination.paginator import PaginationParams
+from app.modules.ai_generation.repository import AiQuotaRepository
 
 
 class UserService:
@@ -22,8 +23,33 @@ class UserService:
         return user
 
     @staticmethod
-    def get_me(db: Session, current_user: User) -> User:
-        return current_user
+    def get_me(db: Session, current_user: User) -> UserResponse:
+        from app.modules.plans.model import Plan
+        from app.modules.organisations.repository import OrganisationRepository
+        from app.modules.scheduled_post.repository import ScheduledPostRepository
+
+        plan = db.get(Plan, current_user.plan_id) if current_user.plan_id else None
+
+        org_count = OrganisationRepository.count_by_user(db, current_user.id)
+
+        orgs = OrganisationRepository.get_all(db, current_user.id)
+        post_month_count = sum(
+            ScheduledPostRepository.count_by_org_this_month(db, org.id)
+            for org in orgs
+        )
+
+        ai_caption_count = AiQuotaRepository.count_captions_by_user_this_period(db, current_user.id)
+        ai_image_count   = AiQuotaRepository.count_images_by_user_this_period(db, current_user.id)
+
+
+        return UserResponse.model_validate({
+            **current_user.__dict__,
+            "plan": plan,
+            "org_count": org_count,
+            "post_month_count": post_month_count,
+            "ai_caption_count": ai_caption_count,
+            "ai_image_count": ai_image_count,
+        })
 
     @staticmethod
     def update_me(db: Session, current_user: User, payload: UserUpdate) -> User:

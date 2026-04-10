@@ -6,9 +6,10 @@ class PlanCreate(BaseModel):
     name: str
     price: float
     features: list[str]
-    max_page: int
+    max_org: int
     max_post_month: int
-    max_ai_gen: int
+    max_ai_caption: int   # ← remplace max_ai_gen
+    max_ai_image: int     # ←
 
     @field_validator("price")
     @classmethod
@@ -22,10 +23,13 @@ class PlanUpdate(BaseModel):
     name: Optional[str] = None
     price: Optional[float] = None
     features: Optional[list[str]] = None
-    max_page: Optional[int] = None
+    max_org: Optional[int] = None
     max_post_month: Optional[int] = None
-    max_ai_gen: Optional[int] = None
+    max_ai_caption: Optional[int] = None
+    max_ai_image: Optional[int] = None
     is_active: Optional[bool] = None
+    is_default: Optional[bool] = None
+
 
     @field_validator("price")
     @classmethod
@@ -42,9 +46,11 @@ class PlanResponse(BaseModel):
     name: str
     price: float
     features: list[str]
-    max_page: int
+    max_org: int
     max_post_month: int
-    max_ai_gen: int
+    max_ai_caption: int
+    max_ai_image: int
     is_active: bool
+    is_default: bool
 
     model_config = {"from_attributes": True}

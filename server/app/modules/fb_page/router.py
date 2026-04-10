@@ -26,13 +26,14 @@ fb_page_router = APIRouter()
 )
 async def get_oauth_url(
     org_id: UUID,
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
 ):
     """
     Retourne l'URL vers laquelle rediriger l'utilisateur pour autoriser l'app Meta.
     `org_id` est encodé dans le paramètre `state` de l'URL.
     """
-    url = FacebookService.get_oauth_url(org_id)
+    url = FacebookService.get_oauth_url(db, org_id)
     return FacebookOAuthURL(oauth_url=url)
 
 

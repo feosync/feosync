@@ -37,3 +37,7 @@ class PlanRepository:
     def delete(db: Session, plan: Plan) -> None:
         db.delete(plan)
         db.commit()
+
+    @staticmethod
+    def get_default_plan(db: Session) -> Optional[Plan]:
+        return db.query(Plan).filter(Plan.is_default == True, Plan.is_active == True).first()

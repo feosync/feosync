@@ -40,6 +40,15 @@ export interface PromoteDemoteResponse {
   detail: string
 }
 
+// ── User Details ─────────────────────────────────────────────────────────────
+export interface UserDetail {
+  user: User
+  plan: Plan | null
+  org_count: number
+  post_month_count: number
+  ai_caption_count: number
+  ai_image_count: number
+}
 // ── Organisation ──────────────────────────────────────────────────────────────
 
 export type ToneEnum = "formal" | "informal" | "friendly" | "professional" | "casual"
@@ -320,11 +329,13 @@ export interface Plan {
   id: number
   name: string
   price: number
-  max_page: number
+  max_org: number
   max_post_month: number
-  max_ai_gen: number
+  max_ai_caption: number
+  max_ai_image: number
   features: string[]
   is_active: boolean
+  is_default: boolean
   created_at: string
   updated_at: string
 }
@@ -332,11 +343,13 @@ export interface Plan {
 export interface CreatePlanRequest {
   name: string
   price: number
-  max_page: number
+  max_org: number
   max_post_month: number
-  max_ai_gen: number
+  max_ai_caption: number
+  max_ai_image: number
   features?: string[]
   is_active?: boolean
+  is_default?: boolean
 }
 
 export interface UpdatePlanRequest extends Partial<CreatePlanRequest> {}

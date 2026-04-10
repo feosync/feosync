@@ -30,6 +30,7 @@ class UserCreate(UserBase):
     google_id: str
     profile_picture: Optional[str] = None
     is_admin: bool = False
+    plan_id: Optional[int] = None
 
 
 class UserResponse(UserBase):
@@ -73,6 +74,7 @@ class LoginResponse(BaseModel):
                     "profile_picture": "https://example.com/profile.jpg",
                     "is_active": True,
                     "is_admin": False,
+                    "plan_id": 1,
                     "created_at": "2026-03-12T10:00:00",
                     "updated_at": "2026-03-12T10:00:00"
                 }
@@ -87,6 +89,7 @@ class GoogleUserInfo(BaseModel):
     email: str
     picture: Optional[str] = None
     email_verified: bool
+    plan_id: Optional[int] = None
 
 
 class AuthError(BaseModel):
