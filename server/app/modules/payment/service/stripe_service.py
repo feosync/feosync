@@ -240,6 +240,7 @@ class StripeService:
         
         except stripe.error.StripeError as e:
             raise Exception(f"Erreur lors du remboursement: {str(e)}")
+   
     
     def retrieve_payment_intent(self, payment_intent_id: str) -> Dict[str, Any]:
         """
@@ -270,3 +271,46 @@ class StripeService:
         
         except stripe.error.StripeError as e:
             raise Exception(f"Erreur lors de la récupération du paiement: {str(e)}")
+        
+        
+    def create_product(self, name: str, description: str, price: int, currency: str = "usd") -> Dict[str, Any]:
+        """
+        Crée un produit et un prix associé dans Stripe.
+        
+        Args:
+            name (str): Nom du produit
+            description (str): Description du produit
+            price (int): Prix en cents (ex: 1000 = 10.00 USD)
+            currency (str): Code devise ISO 4217 (défaut: "usd")
+        
+        Returns:
+            dict: Informations sur le produit et le prix créés
+        
+        Raises:
+            Exception: Si la création échoue
+        """
+        try:
+            # Crée le produit
+            product = stripe.Product.create(
+                name=name,
+                description=description
+            )
+            
+            # Crée le prix associé au produit
+            price_obj = stripe.Price.create(
+                unit_amount=price,
+                currency=currency,
+                product=product.id
+            )
+            
+            return {
+                "product_id": product.id,
+                "price_id": price_obj.id,
+                "name": product.name,
+                "description": product.description,
+                "amount": price_obj.unit_amount,
+                "currency": price_obj.currency
+            }
+        
+        except stripe.error.StripeError as e:
+            raise Exception(f"Erreur lors de la création du produit: {str(e)}")
