@@ -21,6 +21,8 @@ interface Props {
 }
 
 export function PublishNowDialog({ open, onOpenChange, post, page, onConfirm, isPending }: Props) {
+  const imageCount = post.images?.length ?? 0
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 sm:max-w-md">
@@ -35,7 +37,6 @@ export function PublishNowDialog({ open, onOpenChange, post, page, onConfirm, is
                 Ce post sera publié immédiatement sur Facebook. Cette action est irréversible.
               </p>
 
-              {/* Récapitulatif */}
               <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 space-y-2">
                 <div className="flex gap-2 text-[12px]">
                   <span className="text-slate-400 w-16 flex-shrink-0">Page</span>
@@ -49,10 +50,12 @@ export function PublishNowDialog({ open, onOpenChange, post, page, onConfirm, is
                     {post.caption || <span className="italic text-slate-400">Aucun caption</span>}
                   </span>
                 </div>
-                {post.image_url && (
+                {imageCount > 0 && (
                   <div className="flex gap-2 text-[12px]">
-                    <span className="text-slate-400 w-16 flex-shrink-0">Image</span>
-                    <span className="text-green-600 dark:text-green-400">✓ Incluse</span>
+                    <span className="text-slate-400 w-16 flex-shrink-0">Images</span>
+                    <span className="text-green-600 dark:text-green-400">
+                      ✓ {imageCount} image{imageCount > 1 ? 's' : ''} incluse{imageCount > 1 ? 's' : ''}
+                    </span>
                   </div>
                 )}
                 <div className="flex gap-2 text-[12px]">
@@ -63,7 +66,14 @@ export function PublishNowDialog({ open, onOpenChange, post, page, onConfirm, is
                 </div>
               </div>
 
-              {!post.caption && (
+              {!post.caption && imageCount === 0 && (
+                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
+                  <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+                  <p className="text-[12px]">Ce post n'a ni caption ni image.</p>
+                </div>
+              )}
+
+              {!post.caption && imageCount > 0 && (
                 <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
                   <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
                   <p className="text-[12px]">Ce post n'a pas de caption.</p>

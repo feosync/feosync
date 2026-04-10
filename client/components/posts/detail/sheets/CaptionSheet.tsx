@@ -3,6 +3,8 @@
 import { Sparkles, Loader2 } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
+import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
+import { checkCanGenerateCaption } from '@/lib/api/plan-limits'
 
 interface Props {
   open: boolean
@@ -27,10 +29,17 @@ export function CaptionSheet({
   aiLang, setAiLang,
   onSave, isPending,
 }: Props) {
+  const { data: userDetail } = useCurrentUserDetail()
+
   const saveDisabled =
     isPending ||
     (captionMode === 'manual' && !captionText.trim()) ||
     (captionMode === 'llm' && !aiTopic.trim())
+
+  const handleSave = () => {
+    if (captionMode === 'llm' && !checkCanGenerateCaption(userDetail)) return
+    onSave()
+  }
 
   return (
     <Sheet open={open} onOpenChange={open => !open && onClose()}>
@@ -47,7 +56,10 @@ export function CaptionSheet({
           {(['manual', 'llm'] as const).map(m => (
             <button
               key={m}
-              onClick={() => setCaptionMode(m)}
+              onClick={() => {
+                if (m === 'llm' && !checkCanGenerateCaption(userDetail)) return
+                setCaptionMode(m)
+              }}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[13px] rounded-md transition-colors ${
                 captionMode === m
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
@@ -109,7 +121,7 @@ export function CaptionSheet({
             Annuler
           </Button>
           <Button
-            onClick={onSave}
+            onClick={handleSave}
             disabled={saveDisabled}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
           >

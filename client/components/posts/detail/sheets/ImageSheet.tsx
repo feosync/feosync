@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import Image from 'next/image'
 import type { ScheduledPost } from '@/lib/api/types'
 import { useAddImage, useAddImageUpload, useRemoveImage } from '@/hooks/useScheduledPosts'
+import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
+import { checkCanGenerateImage } from '@/lib/api/plan-limits'
 
 const MAX_IMAGES = 10
 
@@ -17,11 +19,11 @@ interface Props {
   onClose: () => void
   post: ScheduledPost
   orgId: string
-  /** Appelé après chaque add/remove pour mettre à jour l'état local si besoin */
   onUpdate?: (updatedPost: ScheduledPost) => void
 }
 
 export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
+  const { data: userDetail } = useCurrentUserDetail()
   const fileRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState('url')
   const [imageUrl, setImageUrl] = useState('')
@@ -33,9 +35,9 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
   const uploadMutation = useAddImageUpload(orgId)
   const removeMutation = useRemoveImage(orgId)
 
-  const images    = post.images ?? []
-  const canAdd    = images.length < MAX_IMAGES
-  const isAdding  = addMutation.isPending || uploadMutation.isPending
+  const images     = post.images ?? []
+  const canAdd     = images.length < MAX_IMAGES
+  const isAdding   = addMutation.isPending || uploadMutation.isPending
   const isRemoving = removeMutation.isPending
 
   const resetForm = () => {
@@ -59,14 +61,10 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
     } else if (tab === 'url' && imageUrl.trim()) {
       res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'url', url: imageUrl } })
     } else if (tab === 'llm' && imageDesc.trim()) {
+      if (!checkCanGenerateImage(userDetail)) return
       res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'llm', description: imageDesc } })
     }
     if (res) { onUpdate?.(res.scheduled_post); resetForm() }
-  }
-
-  const handleRemove = async (imageId: string) => {
-    const updatedPost = await removeMutation.mutateAsync({ postId: post.id, imageId })
-    onUpdate?.(updatedPost)
   }
 
   const addDisabled =
@@ -106,18 +104,12 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
                   className="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-square bg-slate-100 dark:bg-slate-800"
                 >
                   <Image src={img.image_url} alt={`img ${i + 1}`} fill className="object-cover" unoptimized />
-
-                  {/* Position */}
                   <div className="absolute top-1 left-1 w-5 h-5 bg-black/60 rounded text-white text-[10px] flex items-center justify-center font-medium">
                     {i + 1}
                   </div>
-
-                  {/* Source */}
                   <div className="absolute bottom-1 left-1 text-[9px] bg-black/50 text-white px-1 py-0.5 rounded uppercase tracking-wide">
                     {img.image_source}
                   </div>
-
-                  {/* Supprimer */}
                   <button
                     onClick={() => handleRemove(img.id)}
                     disabled={isRemoving}
@@ -138,7 +130,11 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
               {images.length === 0 ? 'Ajouter une image' : 'Ajouter une image supplémentaire'}
             </p>
 
-            <Tabs value={tab} onValueChange={v => { setTab(v); resetForm() }}>
+            <Tabs value={tab} onValueChange={v => {
+              if (v === 'llm' && !checkCanGenerateImage(userDetail)) return
+              setTab(v)
+              resetForm()
+            }}>
               <TabsList className="w-full bg-slate-100 dark:bg-slate-800">
                 <TabsTrigger value="url"    className="flex-1 gap-1.5 text-[13px]"><LinkIcon className="w-3.5 h-3.5" />URL</TabsTrigger>
                 <TabsTrigger value="upload" className="flex-1 gap-1.5 text-[13px]"><Upload className="w-3.5 h-3.5" />Upload</TabsTrigger>
@@ -216,4 +212,9 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
       </SheetContent>
     </Sheet>
   )
+
+  async function handleRemove(imageId: string) {
+    const updatedPost = await removeMutation.mutateAsync({ postId: post.id, imageId })
+    onUpdate?.(updatedPost)
+  }
 }
