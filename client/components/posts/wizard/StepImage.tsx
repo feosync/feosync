@@ -6,6 +6,8 @@ import { Loader2, Sparkles, Upload, Link as LinkIcon, X, Plus, Images } from 'lu
 import Image from 'next/image'
 import type { ScheduledPost } from '@/lib/api/types'
 import { useAddImage, useAddImageUpload, useRemoveImage } from '@/hooks/useScheduledPosts'
+import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
+import { checkCanGenerateImage } from '@/lib/api/plan-limits'
 
 const MAX_IMAGES = 10
 
@@ -21,6 +23,7 @@ interface StepImageProps {
 type ImageMode = 'url' | 'upload' | 'llm'
 
 export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, onBack }: StepImageProps) {
+  const { data: userDetail } = useCurrentUserDetail()
   const [mode, setMode]        = useState<ImageMode>('url')
   const [url, setUrl]          = useState('')
   const [description, setDesc] = useState('')
@@ -52,6 +55,7 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
     } else if (mode === 'url' && url.trim()) {
       res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'url', url } })
     } else if (mode === 'llm' && description.trim()) {
+      if (!checkCanGenerateImage(userDetail)) return
       res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'llm', description } })
     }
     if (res) { onImageAdded(res.scheduled_post); resetForm() }
@@ -124,7 +128,11 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
             {MODES.map(m => (
               <button
                 key={m.value}
-                onClick={() => { setMode(m.value); resetForm() }}
+                onClick={() => {
+                  if (m.value === 'llm' && !checkCanGenerateImage(userDetail)) return
+                  setMode(m.value)
+                  resetForm()
+                }}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[12px] rounded-md transition-colors ${
                   mode === m.value
                     ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
@@ -164,9 +172,9 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
                 <p className="text-[12px] text-slate-500">{file ? file.name : 'Cliquez pour choisir'}</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">PNG, JPG, WebP — max 10MB</p>
               </div>
-              {filePreview && (
+              {preview && (
                 <div className="relative h-28 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                  <Image src={filePreview} alt="preview" fill className="object-cover" unoptimized />
+                  <Image src={preview} alt="preview" fill className="object-cover" unoptimized />
                 </div>
               )}
             </div>

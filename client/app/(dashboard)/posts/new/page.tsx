@@ -119,6 +119,7 @@ export default function NewPostPage() {
             isLoading={captionMutation.isPending}
             onNext={handleSaveCaption}
             onBack={() => setStep(0)}
+            onSkip={() => setStep(2)}
           />
         )}
         {step === 2 && post && (
