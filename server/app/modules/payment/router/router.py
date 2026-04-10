@@ -6,8 +6,8 @@ les paiements: création, capture, confirmation et remboursement.
 """
 
 from fastapi import APIRouter, HTTPException, status
-from .service.stripe_service import StripeService
-from .schemas import (
+from ..service.stripe_service import StripeService
+from ..schemas.schemas import (
     CreatePaymentRequest,
     CapturePaymentRequest,
     ConfirmPaymentRequest,
@@ -281,3 +281,4 @@ async def get_payment_status(payment_intent_id: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur lors de la récupération du statut: {str(e)}"
         )
+        
