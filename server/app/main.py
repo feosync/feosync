@@ -13,7 +13,7 @@ from app.modules import (
     ai_router, fb_page_router, organisation_router,
     notif_router, plans_router, scheduled_post_router,
     post_template_router, post_analytics_router, published_post_router,app_webhooks_router,
-    collaborators_router
+    collaborators_router, app_payment_router
 )
 
 # ── Logging ───────────────────────────────────────────────────────────────────
@@ -92,6 +92,7 @@ def _register_routes(app: FastAPI) -> None:
     app.include_router(post_analytics_router, prefix="/api/v1/post-analytics", tags=["PostAnalytics"])
     app.include_router(notif_router,          prefix="/api/v1/notif",          tags=["notif"])
     app.include_router(app_webhooks_router, prefix="/api/v1/webhook", tags= ["webhook"] )
+    app.include_router(app_payment_router, prefix="/api/v1/payment", tags=["payment"])
 
 def _register_static(app: FastAPI) -> None:
     from fastapi.staticfiles import StaticFiles

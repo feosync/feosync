@@ -21,6 +21,7 @@ from app.modules.post_analytics.router import  post_analytics_router
 from app.modules.user.router import user_router, admin_user_router
 from app.modules.Webhooks.router import app_webhooks_router
 from app.modules.collaborators.router import router as collaborators_router
+from app.modules.payment.router import app_payment_router
 
 from app.modules.organisations.model import Organisation
 from app.modules.plans.model import Plan
