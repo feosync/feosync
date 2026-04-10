@@ -345,8 +345,14 @@ class ScheduledPostService:
                 detail=f"Post déjà {post.status} — impossible de modifier",
             )
 
-        if not post.caption:
-            raise HTTPException(status_code=400, detail="Caption manquant")
+        has_caption = bool(post.caption)
+        has_images = len(post.images) > 0
+
+        if not has_caption and not has_images:
+            raise HTTPException(
+                status_code=400,
+                detail="Un caption ou au moins une image est requis pour planifier le post."
+            )
 
         publish_at = payload.publish_at or post.publish_at
         if not publish_at:

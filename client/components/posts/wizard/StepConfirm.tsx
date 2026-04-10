@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Loader2, Calendar, Facebook, ImageIcon } from 'lucide-react'
+import { Loader2, Calendar, ImageIcon } from 'lucide-react'
 import Image from 'next/image'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -17,7 +17,12 @@ interface StepConfirmProps {
 }
 
 export function StepConfirm({ post, pages, publishAt, isLoading, onConfirm, onBack }: StepConfirmProps) {
-  const page = pages.find(p => p.id === Object.values(post.page_ids)[0])
+  const page       = pages.find(p => p.id === Object.values(post.page_ids)[0])
+  const firstImage = post.images?.[0] ?? null
+  const imageCount = post.images?.length ?? 0
+
+  // Au moins caption ou une image
+  const canConfirm = !!post.caption || imageCount > 0
 
   return (
     <div className="space-y-4">
@@ -26,7 +31,7 @@ export function StepConfirm({ post, pages, publishAt, isLoading, onConfirm, onBa
         <p className="text-[13px] text-slate-500 dark:text-slate-400">Vérifiez les détails avant de planifier.</p>
       </div>
 
-      {/* Aperçu Buffer-style */}
+      {/* Aperçu */}
       <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
         {/* Header page */}
         <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
@@ -45,10 +50,15 @@ export function StepConfirm({ post, pages, publishAt, isLoading, onConfirm, onBa
           </div>
         </div>
 
-        {/* Image */}
-        {post.image_url ? (
+        {/* Image — première du tableau */}
+        {firstImage ? (
           <div className="relative h-48">
-            <Image src={post.image_url} alt="post" fill className="object-cover" unoptimized />
+            <Image src={firstImage.image_url} alt="post" fill className="object-cover" unoptimized />
+            {imageCount > 1 && (
+              <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded-full">
+                +{imageCount - 1} image{imageCount > 2 ? 's' : ''}
+              </div>
+            )}
           </div>
         ) : (
           <div className="h-24 bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
@@ -69,10 +79,10 @@ export function StepConfirm({ post, pages, publishAt, isLoading, onConfirm, onBa
       {/* Checklist */}
       <div className="space-y-2">
         {[
-          { label: 'Page Facebook',  ok: !!page,           value: page?.page_name || '—' },
-          { label: 'Caption',        ok: !!post.caption,   value: post.caption ? `${post.caption.length} caractères` : 'Non défini' },
-          { label: 'Image',          ok: !!post.image_url, value: post.image_url ? `Source: ${post.image_source}` : 'Sans image' },
-          { label: 'Date',           ok: !!publishAt,      value: publishAt || 'Non définie' },
+          { label: 'Page Facebook', ok: !!page,         value: page?.page_name || '—' },
+          { label: 'Caption',       ok: !!post.caption, value: post.caption ? `${post.caption.length} caractères` : 'Non défini' },
+          { label: 'Images',        ok: imageCount > 0, value: imageCount > 0 ? `${imageCount} image${imageCount > 1 ? 's' : ''}` : 'Aucune' },
+          { label: 'Date',          ok: !!publishAt,    value: publishAt || 'Non définie' },
         ].map(item => (
           <div key={item.label} className="flex items-center justify-between text-[13px]">
             <div className="flex items-center gap-2">
@@ -90,9 +100,9 @@ export function StepConfirm({ post, pages, publishAt, isLoading, onConfirm, onBa
         ))}
       </div>
 
-      {!post.caption && (
+      {!canConfirm && (
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-lg p-3 text-[12px] text-amber-700 dark:text-amber-400">
-          ⚠️ Le caption est obligatoire pour planifier le post.
+          ⚠️ Un caption ou au moins une image est requis pour planifier le post.
         </div>
       )}
 
@@ -102,7 +112,7 @@ export function StepConfirm({ post, pages, publishAt, isLoading, onConfirm, onBa
         </Button>
         <Button
           onClick={onConfirm}
-          disabled={!post.caption || isLoading}
+          disabled={!canConfirm || isLoading}
           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
         >
           {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
