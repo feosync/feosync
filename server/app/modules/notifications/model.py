@@ -15,7 +15,8 @@ class NotificationType(str, Enum):
     INSIGHTS_UPDATED = "insights_updated"
     TOKEN_EXPIRING   = "token_expiring"
     WELCOME          = "welcome"
-    SCHEDULE_CREATED = "schedule_created"
+    SCHEDULE_CREATED = "schedule_created",
+    COMMENT_CLASSIFIED = "comment_classified"
 
 
 class NotificationChannel(str, Enum):
@@ -31,13 +32,17 @@ class Notification(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     type: Mapped[NotificationType] = mapped_column(
-        SAEnum(NotificationType, name="notification_type", native_enum=False),
-        nullable=False
-    )
+        SAEnum(
+            NotificationType,
+            name="notification_type",
+            native_enum=False,
+            length=50  # OK ici
+        ), nullable=False)    
+
     channel: Mapped[NotificationChannel] = mapped_column(
-        SAEnum(NotificationChannel, name="notification_channel", native_enum=False),
-        nullable=False,
-        default=NotificationChannel.BOTH
+    SAEnum(NotificationChannel, name="notification_channel", native_enum=False),
+    nullable=False,
+    default=NotificationChannel.BOTH
     )
     is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     email_sent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

@@ -55,6 +55,8 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str | None = None
     
+    STRIPE_API_KEY: str | None = None
+    
     class Config:
         env_file = ".env"
         
