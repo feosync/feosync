@@ -141,17 +141,11 @@ class WebhooksService:
                         continue
 
                     self.comment_service.publised_post = published_post
+                    print(f"Keywords du post : {published_post.keywords}")
 
-                    response, classification = await asyncio.gather(
-                        self.comment_service.generate_reply(
+                    response = await self.comment_service.generate_reply(
                             comment=comment_text,
-                            db=db,
-                        ),
-                        self.comment_service.comment_classification(comment=comment_text),
-                    )
-                    if classification != "non_classe":
-                        logger.info(f"🔖 Commentaire classifié comme '{classification}'")
-                        
+                            db=db)
                     
                     mention = f"@[{from_id}]"
 
