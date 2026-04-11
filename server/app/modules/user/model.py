@@ -27,6 +27,7 @@ class User(Base):
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    customer_id: Mapped[str | None] = mapped_column(String(255), nullable=True)  # ID du client Stripe associé
 
     # Foreign key and relationship to Plan
     plan_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("plans.id"))
