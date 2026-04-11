@@ -10,6 +10,7 @@ class PlanCreate(BaseModel):
     max_post_month: int
     max_ai_caption: int   # ← remplace max_ai_gen
     max_ai_image: int     # ←
+    price_id: Optional[str] = None  # ID du prix Stripe associé
 
     @field_validator("price")
     @classmethod
@@ -23,6 +24,7 @@ class PlanUpdate(BaseModel):
     name: Optional[str] = None
     price: Optional[float] = None
     features: Optional[list[str]] = None
+    price_id: Optional[str] = None
     max_org: Optional[int] = None
     max_post_month: Optional[int] = None
     max_ai_caption: Optional[int] = None
@@ -52,5 +54,6 @@ class PlanResponse(BaseModel):
     max_ai_image: int
     is_active: bool
     is_default: bool
+    price_id: str
 
     model_config = {"from_attributes": True}

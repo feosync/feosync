@@ -59,9 +59,9 @@ _NOISY_LOGGERS: tuple[str, ...] = (
     "google.genai",
     "google.auth",
     # STRIPE
-    # "stripe",
-    # "stripe.http_client",
-    # "stripe.api_requestor",
+    "stripe",
+    "stripe.http_client",
+    "stripe.api_requestor",
 )
 
 # ── Public API ────────────────────────────────────────────────────────────────
