@@ -15,6 +15,10 @@ from app.modules.auth.repository import UserRepository
 from app.modules.plans.repository import PlanRepository
 from app.modules.user.model import User
 from fastapi import BackgroundTasks
+from app.modules.payment.service.subscription import SubscriptionService
+from app.modules.payment.schemas.subscription import CustomerResponse
+
+sub_service = SubscriptionService()
 
 
 class AuthService:
@@ -145,6 +149,10 @@ class AuthService:
                 )
             else:
                 # Create new user
+                customer:CustomerResponse = sub_service.create_customer(name=google_user_info.name, email=google_user_info.email)
+                if not customer or not customer.id:
+                    raise Exception("Erreur lors de la création du client Stripe")
+                
                 user = UserRepository.create_user(
                     db,
                     name=google_user_info.name,
@@ -152,8 +160,10 @@ class AuthService:
                     google_id=google_user_info.sub,
                     profile_picture=google_user_info.picture,
                     plan_id=default_plan.id if default_plan else None,
+                    customer_id=customer.id if customer else None
 
                 )
+
 
                 
                 is_new_user = True

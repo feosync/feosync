@@ -32,6 +32,7 @@ class UserRepository:
         google_id: str,
         profile_picture: str | None = None,
         plan_id: int | None = None,
+        customer_id: str | None = None
     ) -> User:
         """Create a new user"""
         user = User(
@@ -42,6 +43,7 @@ class UserRepository:
             profile_picture=profile_picture,
             plan_id=plan_id,
             is_active=True,
+            customer_id=customer_id
         )
         db.add(user)
         db.commit()
