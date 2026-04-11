@@ -5,8 +5,9 @@ from .model import Plan
 from .repository import PlanRepository
 from .schemas import PlanCreate, PlanUpdate
 from app.modules.user.model import User
-
-
+from app.modules.payment.service.subscription import SubscriptionService 
+from app.modules.payment.schemas.subscription import ProductResponse, PriceResponse
+sub_service = SubscriptionService()
 class PlanService:
 
     # ── Admin : CRUD ──────────────────────────────────────────────────────────
@@ -19,6 +20,26 @@ class PlanService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Un plan nommé '{payload.name}' existe déjà"
             )
+        product:ProductResponse = sub_service.create_product(name=payload.name, description= str(payload.features))
+        if not product or not product.id:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors de la création du produit Stripe"
+            )
+            
+        price:PriceResponse = sub_service.create_price(
+            product_id=product.id,
+            unit_amount=int(payload.price*100),
+            currency="EUR",
+            recurring_interval= "month"
+            )
+        if not price or not price.id:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors de la création du prix Stripe"
+            )
+            
+        payload.price_id = price.id
         return PlanRepository.create(db, payload.model_dump())
 
     @staticmethod

@@ -15,9 +15,8 @@ class Plan(Base):
    
     max_ai_caption: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     max_ai_image: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
-
+    price_id: Mapped[str] = mapped_column(String, nullable=False)  # ID du prix Stripe associé
     is_active: Mapped[bool] = mapped_column(Boolean, default=True) 
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
-
     user = relationship("User", back_populates="plan")
     
