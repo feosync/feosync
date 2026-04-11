@@ -13,6 +13,7 @@ PLANS = [
         "features": ["1 organisation", "7 posts/mois", "Sans IA"],
         "is_active": True,
         "is_default": True,   # ← plan assigné à l'inscription
+        "price_id": "price_1N2Xo2LhJqYz8u9XyZAbcdef"  # ← ID du prix Stripe associé
     },
 ]
 
