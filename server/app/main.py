@@ -8,6 +8,7 @@ from app.core.logger import configure_logging, get_logger
 from app.core.startup import seed_first_admin
 from app.core.seed import seed_plans
 from app.celery.task.scheduled_post_events import register_scheduled_post_events
+from app.core.config import settings
 
 from app.modules import (
     auth_router, user_router, admin_user_router,
@@ -69,7 +70,7 @@ def create_app() -> FastAPI:
 def _register_middleware(app: FastAPI) -> None:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=[settings.FRONTEND_URL, "http://localhost:3000"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
