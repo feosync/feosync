@@ -34,7 +34,7 @@ function CallbackHandler() {
   const handleCallback = async (code: string) => {
     try {
       const response = await fetch(
-        `${process.env.API_URL}/api/v1/auth/google/callback`,
+        `/api/auth/google/callback`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
