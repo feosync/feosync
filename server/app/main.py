@@ -70,7 +70,7 @@ def create_app() -> FastAPI:
 def _register_middleware(app: FastAPI) -> None:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[settings.FRONTEND_URL, "http://localhost:3000"],
+        allow_origins=[settings.FRONTEND_URL, "https://feosync.vercel.app", "http://localhost:3000"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
