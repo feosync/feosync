@@ -122,7 +122,7 @@ function FacebookCallbackHandler() {
   const exchangeCode = async (code: string, state: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/fb/oauth/callback?code=${code}&state=${state}`,
+        `${process.env.API_URL}/api/v1/fb/oauth/callback?code=${code}&state=${state}`,
         { headers: { Authorization: `Bearer ${localStorage.getItem('feosync_token')}` } }
       )
       if (!response.ok) throw new Error("Échec de l'échange du code")
