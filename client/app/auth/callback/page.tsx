@@ -14,7 +14,7 @@ function CallbackHandler() {
   const { setUserFromToken } = useAuth()
 
   useEffect(() => {
-    const code = searchParams.get('code')
+    const code  = searchParams.get('code')
     const error = searchParams.get('error')
 
     if (error) {
@@ -33,37 +33,34 @@ function CallbackHandler() {
 
   const handleCallback = async (code: string) => {
     try {
-      const response = await fetch(
-        `/api/auth/google/callback`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code,
-            redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-          }),
-        }
-      )
-
-      if (!response.ok) throw new Error("Échec de l'authentification")
+      const response = await fetch('/api/auth/google/callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+        }),
+      })
 
       const data = await response.json()
-      await setUserFromToken(data.access_token)
 
+      if (!response.ok) throw new Error(data.detail || "Échec de l'authentification")
+
+      await setUserFromToken(data.access_token)
       toast.success('Connexion réussie', { description: `Bienvenue ${data.user.name} !` })
-      router.replace('/overview')
+      window.location.href = '/overview'   // ← force reload du contexte auth
+
     } catch (err: any) {
       toast.error('Erreur', { description: err.message })
       router.replace('/login')
     }
   }
 
-  return null
+  return <CallbackLoader />  // ← plus de null, loader pendant tout le traitement
 }
 
 function CallbackLoader() {
   const { dark } = useDarkMode()
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4">
       <Image
@@ -80,12 +77,10 @@ function CallbackLoader() {
 }
 
 export default function AuthCallbackPage() {
+  // ← plus de <CallbackLoader /> en double
   return (
-    <>
-      <Suspense fallback={<CallbackLoader />}>
-        <CallbackHandler />
-      </Suspense>
-      <CallbackLoader />
-    </>
+    <Suspense fallback={<CallbackLoader />}>
+      <CallbackHandler />
+    </Suspense>
   )
 }

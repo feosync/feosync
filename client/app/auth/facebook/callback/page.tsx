@@ -8,8 +8,6 @@ import { Loader2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { MetaPageItem } from '@/lib/api/types'
 
-// ── Loader ────────────────────────────────────────────────────────────────────
-
 function CallbackLoader({ message = 'Récupération de vos pages Facebook...' }: { message?: string }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-3">
@@ -27,8 +25,6 @@ function FeoSyncLogo() {
     </div>
   )
 }
-
-// ── Page selector ─────────────────────────────────────────────────────────────
 
 function PageSelector({ pages, connecting, onConnect, onCancel }: {
   pages: MetaPageItem[]
@@ -78,7 +74,6 @@ function PageSelector({ pages, connecting, onConnect, onCancel }: {
                 }
               </button>
             ))}
-
             <Button
               variant="ghost"
               className="w-full mt-1 text-slate-500"
@@ -93,8 +88,6 @@ function PageSelector({ pages, connecting, onConnect, onCancel }: {
     </div>
   )
 }
-
-// ── Handler (useSearchParams isolé dans Suspense) ─────────────────────────────
 
 function FacebookCallbackHandler() {
   const router = useRouter()
@@ -121,15 +114,18 @@ function FacebookCallbackHandler() {
 
   const exchangeCode = async (code: string, state: string) => {
     try {
+      const token = localStorage.getItem('feosync_token')
       const response = await fetch(
         `/api/fb/callback?code=${code}&state=${state}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('feosync_token')}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       )
-      if (!response.ok) throw new Error("Échec de l'échange du code")
 
       const data = await response.json()
+      if (!response.ok) throw new Error(data.detail || "Échec de l'échange du code")
+
       setPages(data.available_pages || [])
       setOrgId(data.org_id || state)
+
     } catch (err: any) {
       toast.error('Erreur', { description: err.message })
       router.replace('/pages')
@@ -148,10 +144,9 @@ function FacebookCallbackHandler() {
         org_id:       orgId,
       })
       toast.success('Page connectée !', { description: page.name })
-      router.replace('/pages')
+      window.location.href = '/pages'  // ← même logique que Google, reload propre
     } catch (err: any) {
       toast.error('Erreur', { description: err.message })
-    } finally {
       setConnecting(null)
     }
   }
@@ -167,8 +162,6 @@ function FacebookCallbackHandler() {
     />
   )
 }
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function FacebookCallbackPage() {
   return (
