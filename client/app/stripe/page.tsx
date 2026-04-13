@@ -1,48 +1,65 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import CardPaymentForm from './stripe';
+import { SubscriptionRequest } from '@/lib/api/types';
+import { apiClient } from '@/lib/api/client';
+import { useRouter } from 'next/navigation';
+import { log } from 'console';
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
 );
 
 export default function StripePage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+
   const handlePaymentSuccess = async (paymentMethodId: string) => {
     console.log('Payment Method créé:', paymentMethodId);
-    
-    try {
-      const response = await fetch('http://localhost:8000/api/v1/subscription/subscriptions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          payment_method_id: paymentMethodId,
-          customer_id: "cus_UJFnEF8ldqjn0D",
-          price_id: "price_1TKdGT3HJEqPOoIdFhCjtiSm",
-        }),
-      });
+    setLoading(true);
+    setError(null);
 
-      const data = await response.json();
-      
-      if (data) {
-        console.log('Subscription créée:', data);
+    try {
+      // ✅ Syntaxe correcte pour déclarer une variable
+      const data: SubscriptionRequest = {
+        payment_method_id: paymentMethodId,
+        stripe_customer_id: 'cus_UJSJuukcZ67oQE', // À remplacer par l'ID du client Stripe
+        stripe_price_id: 'price_1TLeq93HJEqPOoIdkq5sD7GK', // À remplacer par l'ID du prix Stripe
+      };
+      console.log('Données de la requête:', data);
+
+      // ✅ Appeler l'API et récupérer la réponse
+      const response: any = await apiClient.subscription(data);
+
+      if (response && response.data) {
+        console.log('Subscription créée:', response.data);
         alert('Paiement effectué avec succès !');
-        // Rediriger ou mettre à jour l'état
+        
+        // Rediriger vers le dashboard
+        router.push('/dashboard');
       } else {
-        alert('Erreur lors du paiement: ' + (data.error || 'Erreur inconnue'));
+        const errorMessage = response?.error?.message || 'Erreur inconnue';
+        setError(errorMessage);
+        alert('Erreur lors du paiement: ' + errorMessage);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur:', error);
-      alert('Erreur de connexion au serveur');
+      const errorMessage = error?.response?.data?.detail || 'Erreur de connexion au serveur';
+      setError(errorMessage);
+      alert('Erreur: ' + errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handlePaymentError = (error: string) => {
     console.error('Erreur de paiement:', error);
+    setError(error);
   };
 
   return (
@@ -52,7 +69,14 @@ export default function StripePage() {
         <p className="text-gray-600 mb-6">
           Entrez vos informations de carte pour effectuer le paiement
         </p>
-        
+
+        {/* Afficher les erreurs */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+
         <Elements stripe={stripePromise}>
           <CardPaymentForm
             amount={5000}
@@ -61,6 +85,12 @@ export default function StripePage() {
             onError={handlePaymentError}
           />
         </Elements>
+
+        {loading && (
+          <div className="mt-4 text-center text-sm text-gray-600">
+            Traitement du paiement en cours...
+          </div>
+        )}
       </div>
     </div>
   );
