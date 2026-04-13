@@ -8,6 +8,10 @@ from app.core.logger import configure_logging, get_logger
 from app.core.startup import seed_first_admin
 from app.core.seed import seed_plans
 from app.celery.task.scheduled_post_events import register_scheduled_post_events
+from app.core.config import settings
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.modules import (
     auth_router, user_router, admin_user_router,
@@ -49,6 +53,18 @@ async def lifespan(app: FastAPI):
     # shutdown
     logger.info("Shutting down FeoSync API...")
 
+
+
+class CORSErrorMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        origin = request.headers.get("origin", "")
+        allowed = [settings.FRONTEND_URL, "https://feosync.vercel.app", "http://localhost:3000"]
+        if origin in allowed:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+        return response
+
 # ── App ───────────────────────────────────────────────────────────────────────
 
 def create_app() -> FastAPI:
@@ -67,9 +83,10 @@ def create_app() -> FastAPI:
 
 
 def _register_middleware(app: FastAPI) -> None:
+    app.add_middleware(CORSErrorMiddleware) 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=[settings.FRONTEND_URL, "https://feosync.vercel.app", "http://localhost:3000"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
