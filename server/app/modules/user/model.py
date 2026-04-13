@@ -60,3 +60,4 @@ class User(Base):
         foreign_keys="Collaborator.invited_by",
         back_populates="invited_by_user",
     )
+    subscription: Mapped["Subscription"] = relationship("Subscription", back_populates="user", uselist=False)   

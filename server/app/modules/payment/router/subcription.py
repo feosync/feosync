@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.modules.collaborators import router
 from ..service.subscription import SubscriptionService
@@ -6,12 +6,15 @@ from ..schemas.subscription import (
     CreateProductRequest,
     CreatePriceRequest,
     CreateCustomerRequest,
-    CreateSubscriptionRequest,
     ProductResponse,
-    PriceResponse,
     CustomerResponse,
-    SubscriptionResponse
+    SubscriptionRequest,
+    SubscriptionCreate
 )
+from app.modules.auth.dependencies import get_active_user
+from app.modules.user.model import User
+from app.core.database import get_db
+from sqlalchemy.orm import Session
 
 
 # ============ ROUTER ============
@@ -23,7 +26,7 @@ subscription_service = SubscriptionService()
 
 # ============ ENDPOINTS ============
 @subcription_router.post("/setup-intent", status_code=status.HTTP_201_CREATED)
-def setup_intent(customer_id:str):
+def setup_intent(customer_id:str, user: User = Depends(get_active_user)):
     """
     Endpoint pour créer une initiation de paiement (SetupIntent) pour un client donné.
     
@@ -41,7 +44,7 @@ def setup_intent(customer_id:str):
         )
 
 @subcription_router.post("/products", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
-async def create_product(request: CreateProductRequest):
+async def create_product(request: CreateProductRequest, user: User = Depends(get_active_user)):
     """
     Créer un nouveau produit Stripe
     """
@@ -62,7 +65,7 @@ async def create_product(request: CreateProductRequest):
         )
 
 @subcription_router.post("/prices", status_code=status.HTTP_201_CREATED)
-async def create_price(request: CreatePriceRequest):
+async def create_price(request: CreatePriceRequest, user: User = Depends(get_active_user)):
     """
     Créer un prix pour un produit
     """
@@ -80,7 +83,7 @@ async def create_price(request: CreatePriceRequest):
         )
 
 @subcription_router.post("/customers", response_model=CustomerResponse, status_code=status.HTTP_201_CREATED)
-async def create_customer(request: CreateCustomerRequest):
+async def create_customer(request: CreateCustomerRequest, user: User = Depends(get_active_user)):
     """
     Créer un nouveau client
     """
@@ -99,19 +102,27 @@ async def create_customer(request: CreateCustomerRequest):
         )
 
 @subcription_router.post("/subscriptions", status_code=status.HTTP_201_CREATED)
-async def create_subscription(request: CreateSubscriptionRequest):
+async def create_subscription(request: SubscriptionRequest, user: User = Depends(get_active_user), db: Session = Depends(get_db)):
     """
     Créer un nouvel abonnement pour un client
     """
     try:
-       
-        return subscription_service.create_subscription(
-                customer_id=request.customer_id,
-                price_id=request.price_id,
-                payment_method_id=request.payment_method_id
-            )
+        return subscription_service.create_subscription(db, request, user)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Erreur lors de la création de l'abonnement: {str(e)}"
+        )
+
+@subcription_router.post("/add")
+async def add_subscription(request: SubscriptionCreate, db: Session = Depends(get_db)):
+    """
+    Ajouter un nouvel abonnement
+    """
+    try:
+        return subscription_service.save_subscription(db, request)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Erreur lors de l'ajout de l'abonnement: {str(e)}"
         )
