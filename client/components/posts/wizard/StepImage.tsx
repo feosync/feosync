@@ -222,3 +222,4 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
     </div>
   )
 }
+

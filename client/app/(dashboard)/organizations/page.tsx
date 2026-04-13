@@ -12,7 +12,7 @@ import {
   useUpdateOrganisation,
   useDeleteOrganisation,
 } from '@/hooks/useOrganisations'
-import { OrgTable } from '@/components/organizations/OrgTable'
+import { OrgTable } from '@/components/organizations/table/OrgTable'
 import { OrgPagination } from '@/components/organizations/OrgPagination'   
 import { OrgDialog } from '@/components/organizations/OrgDialog'
 import type { Organisation, CreateOrgRequest } from '@/lib/api/types'

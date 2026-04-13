@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
@@ -8,14 +8,13 @@ import { Loader2 } from 'lucide-react'
 import { useDarkMode } from '@/hooks/useDarkMode'
 import Image from 'next/image'
 
-export default function AuthCallbackPage() {
-  const { dark, toggle } = useDarkMode(); 
+function CallbackHandler() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { setUserFromToken } = useAuth()
 
   useEffect(() => {
-    const code = searchParams.get('code')
+    const code  = searchParams.get('code')
     const error = searchParams.get('error')
 
     if (error) {
@@ -34,25 +33,22 @@ export default function AuthCallbackPage() {
 
   const handleCallback = async (code: string) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/google/callback`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code,
-            redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-          }),
-        }
-      )
-
-      if (!response.ok) throw new Error('Échec de l\'authentification')
+      const response = await fetch('/api/auth/google/callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+        }),
+      })
 
       const data = await response.json()
-      await setUserFromToken(data.access_token)
 
+      if (!response.ok) throw new Error(data.detail || "Échec de l'authentification")
+
+      await setUserFromToken(data.access_token)
       toast.success('Connexion réussie', { description: `Bienvenue ${data.user.name} !` })
-      router.replace('/overview')
+      window.location.href = '/overview'   // ← force reload du contexte auth
 
     } catch (err: any) {
       toast.error('Erreur', { description: err.message })
@@ -60,20 +56,31 @@ export default function AuthCallbackPage() {
     }
   }
 
+  return <CallbackLoader />  // ← plus de null, loader pendant tout le traitement
+}
+
+function CallbackLoader() {
+  const { dark } = useDarkMode()
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4">
       <Image
-          src={
-            dark ? "/images/dark/feosync_logo.png" : "/images/light/feosync_logo.png"
-          }
-          alt="FeoSync"
-          width={240}
-          height={70}
-          className="h-16 w-auto"
-         
-        />
+        src={dark ? '/images/dark/feosync_logo.png' : '/images/light/feosync_logo.png'}
+        alt="FeoSync"
+        width={240}
+        height={70}
+        className="h-16 w-auto"
+      />
       <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
       <p className="text-sm text-slate-500">Connexion en cours...</p>
     </div>
+  )
+}
+
+export default function AuthCallbackPage() {
+  // ← plus de <CallbackLoader /> en double
+  return (
+    <Suspense fallback={<CallbackLoader />}>
+      <CallbackHandler />
+    </Suspense>
   )
 }

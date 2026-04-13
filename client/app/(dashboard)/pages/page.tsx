@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { useFacebookPages } from '@/hooks/useFacebookPages'
-import { PagesList } from '@/components/facebook-pages/PagesList'
+import { PagesList } from '@/components/facebook-pages/list/PagesList'
 import { ConnectPageDialog } from '@/components/facebook-pages/ConnectPageDialog'
 import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 
