@@ -2,6 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
+from sqlalchemy.dialects.postgresql import UUID
 
 
 class CreatePaymentRequest(BaseModel):
@@ -59,4 +60,3 @@ class RefundPaymentRequest(BaseModel):
     
     # Montant optionnel pour remboursement partiel
     amount: Optional[int] = Field(default=None, description="Montant à rembourser en cents")
-

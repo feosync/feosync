@@ -15,6 +15,8 @@ export interface User {
   avatar?: string
 }
 
+
+
 export interface LoginResponse {
   access_token: string
   token_type: string
@@ -400,6 +402,14 @@ export interface PaginatedResponse<T> {
 }
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
+
+export interface SubscriptionRequest{
+    stripe_price_id: string
+    stripe_customer_id: string
+    payment_method_id: string
+}
+
+
 
 export interface EngagementValue { value: number; end_time: string }
 export interface EngagementItem { name: string; period: string; values: EngagementValue[]; title?: string | null; description?: string | null; id: string }
