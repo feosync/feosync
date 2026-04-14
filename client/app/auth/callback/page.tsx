@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import { useDarkMode } from '@/hooks/useDarkMode'
 import Image from 'next/image'
+import { config } from '@/lib/config'
 
 function CallbackHandler() {
   const router = useRouter()
@@ -33,14 +34,17 @@ function CallbackHandler() {
 
   const handleCallback = async (code: string) => {
     try {
-      const response = await fetch('/api/auth/google/callback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code,
-          redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-        }),
-      })
+      const response = await fetch(
+        `${config.apiUrl}/api/v1/auth/google/callback`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code,
+            redirect_uri: `${config.appUrl}/auth/callback`,
+          }),
+        }
+      )
 
       const data = await response.json()
 

@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { Loader2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { MetaPageItem } from '@/lib/api/types'
+import { config } from '@/lib/config'
 
 function CallbackLoader({ message = 'Récupération de vos pages Facebook...' }: { message?: string }) {
   return (
@@ -114,10 +115,14 @@ function FacebookCallbackHandler() {
 
   const exchangeCode = async (code: string, state: string) => {
     try {
-      const token = localStorage.getItem('feosync_token')
+      
       const response = await fetch(
-        `/api/fb/callback?code=${code}&state=${state}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${config.apiUrl}/api/v1/fb/oauth/callback?code=${code}&state=${state}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('feosync_token')}`,
+          },
+        }
       )
 
       const data = await response.json()

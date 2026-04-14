@@ -8,10 +8,9 @@ import { SubscriptionRequest } from '@/lib/api/types';
 import { apiClient } from '@/lib/api/client';
 import { useRouter } from 'next/navigation';
 import { log } from 'console';
+import { serverConfig } from '@/lib/config';
 
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
-);
+const stripePromise = loadStripe(serverConfig.stripeSecretKey);
 
 export default function StripePage() {
   const router = useRouter();
