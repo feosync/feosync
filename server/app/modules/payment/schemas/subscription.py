@@ -70,18 +70,6 @@ class SubscriptionCreate(BaseModel):
     class Config:
         use_enum_values = True  # Pour que les enums soient sauvegardés en string
 
-
-class SubscriptionResponse(BaseModel):
-    """Réponse envoyée au client"""
-    id: str
-    user_id: UUID
-    stripe_subscription_id: str
-    status: str
-    is_active: bool
-    current_period_start: int
-    current_period_end: int
-    created_at: int
-
     class Config:
         from_attributes = True
 
@@ -111,3 +99,10 @@ class PriceResponse(BaseModel):
     recurring: Optional[RecurringInfo] = None
     type: Optional[str] = None
     billing_scheme: Optional[str] = None
+    
+class SubcriptionUpdate(BaseModel):
+    stripe_price_id: str
+    stripe_subscription_id: str
+    status: SubscriptionStatus
+    curent_period_start: int
+    current_period_end: int

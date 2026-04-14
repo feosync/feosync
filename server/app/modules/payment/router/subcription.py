@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.modules.collaborators import router
+from app.modules.payment.service.upgrade import UpgradeSubcription
 from ..service.subscription import SubscriptionService
 from ..schemas.subscription import (
     CreateProductRequest,
@@ -23,7 +23,7 @@ subcription_router = APIRouter()
 
 # Initialiser le service
 subscription_service = SubscriptionService()
-
+upgrade_service = UpgradeSubcription()
 # ============ ENDPOINTS ============
 @subcription_router.post("/setup-intent", status_code=status.HTTP_201_CREATED)
 def setup_intent(customer_id:str, user: User = Depends(get_active_user)):
@@ -115,7 +115,7 @@ async def create_subscription(request: SubscriptionRequest, user: User = Depends
         )
 
 @subcription_router.post("/add")
-async def add_subscription(request: SubscriptionCreate, db: Session = Depends(get_db)):
+async def add_subscription(request: SubscriptionCreate, db: Session = Depends(get_db), user: User = Depends(get_active_user)):
     """
     Ajouter un nouvel abonnement
     """
@@ -125,4 +125,17 @@ async def add_subscription(request: SubscriptionCreate, db: Session = Depends(ge
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Erreur lors de l'ajout de l'abonnement: {str(e)}"
+        )
+        
+@subcription_router.put("/update/{stripe_subscription_id}")
+async def update_subscription(stripe_subscription_id: str, stripe_price_id:str, db: Session = Depends(get_db)):
+    """
+    Mettre à jour une souscription existante
+    """
+    try:
+        return upgrade_service.upgrade_subscription(db=db, stripe_price_id=stripe_price_id, stripe_subscription_id=stripe_subscription_id)  
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Erreur lors de la mise à jour de l'abonnement: {str(e)}"
         )

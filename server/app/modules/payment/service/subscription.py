@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from sqlalchemy.orm import Session
 
 from app.modules.user.model import User
@@ -7,7 +5,6 @@ from app.modules.user.model import User
 from .init_stripe import InitStripe
 from ..schemas.subscription import SubscriptionRequest, SubscriptionCreate
 from ..repository.subscription import SubscriptionRepository
-from app.modules.payment.schemas import subscription
 from ..models.subscription import Subscription  
 from app.core.logger import get_logger
 
