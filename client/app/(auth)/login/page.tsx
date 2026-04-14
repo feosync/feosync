@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useDarkMode } from "@/hooks/useDarkMode";
+import { config } from "@/lib/config";
 
 // LeftPanel vit TOUJOURS sur fond sombre (#0d1520)
 // → toutes les couleurs sont hardcodées en dark, sans dark: conditionnel
@@ -122,8 +123,8 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     setLoading(true);
     const params = new URLSearchParams({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-      redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      client_id: config.googleClientId,
+      redirect_uri: `${config.appUrl}/auth/callback`,
       response_type: "code",
       scope: "openid email profile",
       access_type: "offline",
