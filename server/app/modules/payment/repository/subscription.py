@@ -1,15 +1,51 @@
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.modules.payment.models.subscription import Subscription
-from app.modules.payment.schemas.subscription import SubscriptionCreate
+from app.modules.payment.schemas.subscription import SubscriptionCreate, SubcriptionUpdate
 from app.core.logger import get_logger
+from uuid import UUID
+
+from app.modules.payment.service import subscription
 
 logger = get_logger(__name__)
 
 
 class SubscriptionRepository:
     """Repository pour gérer les opérations sur les souscriptions"""
+     
+    @staticmethod
+    def update(db:Session, data:SubcriptionUpdate, stripe_subscription_id:UUID)->Subscription:
+        """Met à jour une souscription en base de données"""
+        try:
+            subscription = db.query(Subscription).filter(Subscription.stripe_subscription_id == stripe_subscription_id).first()
+            if not subscription:
+                raise ValueError(f"Subscription with id {stripe_subscription_id} not found")
 
+            for key, value in data.items():
+                setattr(subscription, key, value)
+
+            subscription.updated_at = int(datetime.now(timezone.utc).timestamp())            
+            db.commit()
+            db.refresh(subscription)
+
+            logger.info(
+                "✅ Subscription updated in database",
+                subscription_id=subscription.stripe_subscription_id,
+                user_id=str(subscription.user_id),
+                status=subscription.status
+            )
+            return subscription
+        
+        except Exception as e:
+            db.rollback()
+            logger.error(
+                "❌ Failed to update subscription in database",
+                subscription_id=str(stripe_subscription_id),
+                error=str(e),
+                exc_info=True
+            )
+     
     @staticmethod
     def create(db: Session, subscription_in: SubscriptionCreate) -> Subscription:
         """Créer une nouvelle souscription en base de données"""

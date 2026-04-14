@@ -7,7 +7,7 @@ les paiements: création, capture, confirmation et remboursement.
 
 from fastapi import APIRouter, HTTPException, status
 from ..service.transaction import StripeService
-from ..schemas.schemas import (
+from ..schemas.transaction import (
     CreatePaymentRequest,
     CapturePaymentRequest,
     ConfirmPaymentRequest,
