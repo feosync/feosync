@@ -13,6 +13,7 @@ class ScheduledPostCreate(BaseModel):
     publish_at: Optional[datetime] = None
     caption: Optional[str] = None
     post_template_id: Optional[UUID] = None
+    qstash_message_id: Optional[str] = None
 
 
 # ── PATCH caption ─────────────────────────────────────────────────────────────
@@ -61,6 +62,7 @@ class ReorderRequest(BaseModel):
 
 class ConfirmRequest(BaseModel):
     publish_at: Optional[datetime] = None
+    qstash_message_id: Optional[str] = None
 
 
 # ── RESPONSES ─────────────────────────────────────────────────────────────────
@@ -98,6 +100,7 @@ class ScheduledPostResponse(BaseModel):
     post_template_id: Optional[UUID] = None
     created_at: datetime
     updated_at: datetime
+    qstash_message_id: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
