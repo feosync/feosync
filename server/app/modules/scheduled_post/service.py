@@ -358,7 +358,15 @@ class ScheduledPostService:
         if not publish_at:
             raise HTTPException(status_code=400, detail="publish_at manquant")
 
-        update_data: dict = {"status": PostStatus.SCHEDULED}
+        # qstash 
+        from app.core.qstash import schedule_publish, cancel_publish
+        if post.qstash_message_id:
+            cancel_publish(post.qstash_message_id)
+            
+        message_id = schedule_publish(str(post.id), publish_at)
+
+        update_data: dict = {"status": PostStatus.SCHEDULED, "qstash_message_id": message_id}
+
         if payload.publish_at:
             update_data["publish_at"] = payload.publish_at
 
@@ -370,9 +378,14 @@ class ScheduledPostService:
     def delete(db: Session, post_id: UUID, current_user: User) -> dict:
         post = ScheduledPostService._get_post_owned(db, post_id, current_user)
 
-        if post.status == PostStatus.SCHEDULED:
+        if post.status == PostStatus.SCHEDULED and post.qstash_message_id:
             from app.celery.task.scheduled_post_events import _safe_revoke
             _safe_revoke(str(post.id))
+
+            from app.core.qstash import cancel_publish
+            cancel_publish(post.qstash_message_id)
+
+
 
         ScheduledPostRepository.delete(db, post)
         return {"detail": "Deleted successfully"}

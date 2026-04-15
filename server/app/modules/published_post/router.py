@@ -1,7 +1,7 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, Query, status, BackgroundTasks
 from sqlalchemy.orm import Session
-
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.database import get_db
 from app.modules.auth.dependencies import get_active_user
 from app.modules.user.model import User
@@ -13,6 +13,7 @@ from app.modules.published_post.schemas import (
 from app.modules.published_post.service import PublishedPostService
 
 from app.shared.pagination.paginator import Pagination, PaginatedResponse
+from app.core.config import settings
 
 
 published_post_router = APIRouter()
@@ -83,11 +84,15 @@ async def publish_post(
     background_tasks: BackgroundTasks ,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
+    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
 ):
     """
     Publie immédiatement un ScheduledPost sur Facebook.
     Normalement appelé par le scheduler — mais disponible manuellement pour les tests.
     """
+    if credentials.credentials != settings.INTERNAL_API_KEY:
+        raise HTTPException(status_code=403, detail="Clé API invalide")
+    
     return await PublishedPostService.publish_to_facebook(
         db,
         payload.scheduled_post_id,
