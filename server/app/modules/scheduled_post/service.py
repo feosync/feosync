@@ -378,12 +378,15 @@ class ScheduledPostService:
     def delete(db: Session, post_id: UUID, current_user: User) -> dict:
         post = ScheduledPostService._get_post_owned(db, post_id, current_user)
 
-        if post.status == PostStatus.SCHEDULED and post.qstash_message_id:
+        if post.status == PostStatus.SCHEDULED :
+            # celery 
             from app.celery.task.scheduled_post_events import _safe_revoke
             _safe_revoke(str(post.id))
 
-            from app.core.qstash import cancel_publish
-            cancel_publish(post.qstash_message_id)
+            # qstash
+            if  post.qstash_message_id:
+                from app.core.qstash import cancel_publish
+                cancel_publish(post.qstash_message_id)
 
 
 
