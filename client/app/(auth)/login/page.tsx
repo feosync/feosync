@@ -136,21 +136,20 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen h-screen bg-background flex flex-col">
       {/* Logo */}
-      
 
-      <Link 
-        href="/"
-        className="absolute top-6 left-6 z-50 cursor-pointer"
-      >
+      <Link href="/" className="absolute top-6 left-6 z-50 cursor-pointer">
         <Image
           src={
-            dark ? "/images/dark/feosync_logo.png" : "/images/light/feosync_logo.png"
+            dark
+              ? "/images/dark/feosync_logo.png"
+              : "/images/light/feosync_logo.png"
           }
           alt="FeoSync"
           width={240}
           height={70}
           className="h-16 w-auto"
           priority
+          loading="eager"
         />
       </Link>
 
@@ -255,8 +254,6 @@ export default function LoginPage() {
               </span>
               <div className="flex-1 h-px bg-border/60" />
             </div>
-
-            
 
             {/* Mentions légales */}
             <p className="text-center text-[13px] text-muted-foreground">

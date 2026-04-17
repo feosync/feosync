@@ -1,0 +1,18 @@
+name: FEOSYNC CI
+
+permissions:
+  contents: write
+  discussions: write
+on:
+  push:
+    branches: [prod]
+  pull_request:
+    branches: [prod]
+    jobs:
+      build:
+        runs-on: self-hosted
+        environment: env
+
+        steps:
+          - name: starting build
+            run: echo "Starting build"
