@@ -1,5 +1,4 @@
 name: FEOSYNC CI
-
 permissions:
   contents: write
   discussions: write
@@ -8,7 +7,7 @@ on:
     branches: [prod]
   pull_request:
     branches: [prod]
-    jobs:
+jobs:
       build:
         runs-on: self-hosted
         environment: env
