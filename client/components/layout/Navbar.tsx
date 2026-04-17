@@ -36,10 +36,10 @@ export const Navbar = () => {
         ? 'bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-3'
         : 'bg-transparent py-5'
     }`}>
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <div className="relative max-w-7xl mx-auto px-6 flex items-center justify-between">
 
         <div  className="w-56 h-16 relative">
-          <Image src={dark ? '/images/dark/feosync_logo.png' : '/images/light/feosync_logo.png'} alt="FeoSync" width={32} height={32} className="w-full h-full" />
+          <Image loading="eager" src={dark ? '/images/dark/feosync_logo.png' : '/images/light/feosync_logo.png'} alt="FeoSync" width={32} height={32} className="w-full h-full" />
         </div>
 
         <div className="hidden lg:flex items-center gap-1">

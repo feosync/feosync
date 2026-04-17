@@ -68,6 +68,7 @@ const Footer = () => {
               alt="FeoSync"
               width={32}
               height={32}
+              loading="eager"
               className="w-full h-full"
             />
           </div>
