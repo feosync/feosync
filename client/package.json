@@ -1,5 +1,5 @@
 {
-  "name": "FeoSync",
+  "name": "feosync",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,7 +9,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "1.2.12",
     "@radix-ui/react-alert-dialog": "1.1.15",
@@ -53,11 +52,11 @@
     "gsap": "^3.14.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.462.0",
-    "next": "16.1.6",
+    "next": "^16.2.4",
     "next-themes": "^0.4.6",
-    "react": "19.2.4",
+    "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
-    "react-dom": "19.2.4",
+    "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.1",
     "react-resizable-panels": "^2.1.9",
     "recharts": "^2.15.4",
@@ -71,8 +70,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.0",
     "@types/node": "^22",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "postcss": "^8.5",
     "tailwindcss": "^4.2.0",
     "tw-animate-css": "1.3.3",
