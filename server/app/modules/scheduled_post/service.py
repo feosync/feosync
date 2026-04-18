@@ -27,7 +27,7 @@ from app.modules.ai_generation.repository import AiQuotaRepository
 from app.core.qstash import schedule_publish, cancel_publish
 
 from app.core.logger import get_logger
-logger = get_logger(__name__)
+logger = get_logger()
 
 # Meta autorise jusqu'à 10 images par carrousel
 MAX_IMAGES_PER_POST = 10

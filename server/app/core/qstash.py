@@ -14,22 +14,32 @@ def _is_local(url: str) -> bool:
     return host in ("localhost", "127.0.0.1", "::1") or host.endswith(".local")
 
 
-try:
-    if _is_local(settings.SERVER_URL):
-        qstash_client = QStash(
-            token=settings.QSTASH_TOKEN,
-            base_url="http://127.0.0.1:8080",
-        )
-    else:
+IS_LOCAL = _is_local(settings.SERVER_URL)
+
+if not IS_LOCAL:
+    try:
         qstash_client = QStash(token=settings.QSTASH_TOKEN)
-except Exception as e:
-    logger.error("[QStash] Échec d'initialisation", exc_info=True)
+    except Exception:
+        logger.error("[QStash] Échec d'initialisation", exc_info=True)
+        qstash_client = None
+else:
+    logger.warning("[QStash] Environnement local détecté — QStash désactivé, fallback polling actif")
     qstash_client = None
 
 
 def schedule_publish(scheduled_post_id: str, publish_at: datetime) -> str:
+    """
+    En prod  : schedule via QStash → HTTP callback à publish_at.
+    En local : no-op — la publication sera gérée par le cron polling /internal/publish-due.
+    """
+    if IS_LOCAL:
+        fake_id = f"local-{uuid.uuid4()}"
+        logger.debug("[QStash] local → skip scheduling", post_id=scheduled_post_id, fake_id=fake_id)
+        return fake_id
+
     if qstash_client is None:
         raise RuntimeError("QStash client non initialisé")
+
     try:
         delay = int((publish_at - datetime.now(timezone.utc)).total_seconds())
         res = qstash_client.message.publish_json(
@@ -44,7 +54,8 @@ def schedule_publish(scheduled_post_id: str, publish_at: datetime) -> str:
 
 
 def cancel_publish(message_id: str) -> None:
-    if qstash_client is None:
+    """No-op silencieux si local ou client absent."""
+    if IS_LOCAL or qstash_client is None:
         return
     try:
         qstash_client.message.cancel(message_id)

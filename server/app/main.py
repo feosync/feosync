@@ -24,7 +24,7 @@ from app.modules import (
 # ── Logging ───────────────────────────────────────────────────────────────────
 
 configure_logging()
-logger = get_logger(__name__)
+logger = get_logger()
 
 # ── DB init ───────────────────────────────────────────────────────────────────
 
