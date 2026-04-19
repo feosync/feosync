@@ -2,8 +2,12 @@
 
 import { useState } from 'react'
 import { Settings, User, Bell, Info, Shield } from 'lucide-react'
-
-
+import { SettingsSidebar, SettingsMobileTabs, NavItem } from '@/components/settings/SettingsSidebar'
+import { GeneralSection }       from '@/components/settings/sections/GeneralSection'
+import { ProfileSection }       from '@/components/settings/sections/ProfileSection'
+import { NotificationsSection } from '@/components/settings/sections/NotificationsSection'
+import { AccountSection }       from '@/components/settings/sections/AccountSection'
+import { AboutSection }         from '@/components/settings/sections/AboutSection'
 
 /* ── Nav config ────────────────────────────────────────────────── */
 
