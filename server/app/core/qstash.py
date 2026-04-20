@@ -13,8 +13,11 @@ def _is_local(url: str) -> bool:
     host = urlparse(url).hostname or ""
     return host in ("localhost", "127.0.0.1", "::1") or host.endswith(".local")
 
-
-IS_LOCAL = _is_local(settings.SERVER_URL)
+try:
+    IS_LOCAL = _is_local(settings.SERVER_URL)
+except Exception:
+    logger.warning("[QStash] SERVER_URL indisponible — fallback local actif")
+    IS_LOCAL = True
 
 if not IS_LOCAL:
     try:
