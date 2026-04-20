@@ -30,7 +30,7 @@ export function AiHistoryRow({ gen }: AiHistoryRowProps) {
           <span className="text-[13px] font-medium text-slate-900 dark:text-white capitalize">
             {isCaption ? 'Caption' : 'Image'}
           </span>
-          <span className="text-[11px] text-slate-400 font-mono">{gen.model_used}</span>
+          
         </div>
         {gen.caption && (
           <p className="text-[12px] text-slate-500 dark:text-slate-400 truncate">
