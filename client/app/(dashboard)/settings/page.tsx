@@ -1,28 +1,33 @@
 'use client'
 
 import { useState } from 'react'
-import { Settings, User, Bell, Info, Shield } from 'lucide-react'
+import { Settings, User, Bell, Info, Shield , Sparkles} from 'lucide-react'
 import { SettingsSidebar, SettingsMobileTabs, NavItem } from '@/components/settings/SettingsSidebar'
 import { GeneralSection }       from '@/components/settings/sections/GeneralSection'
 import { ProfileSection }       from '@/components/settings/sections/ProfileSection'
 import { NotificationsSection } from '@/components/settings/sections/NotificationsSection'
 import { AccountSection }       from '@/components/settings/sections/AccountSection'
 import { AboutSection }         from '@/components/settings/sections/AboutSection'
+import { AiSection } from '@/components/settings/sections/AiSection'
+
+
 
 /* ── Nav config ────────────────────────────────────────────────── */
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'general',       label: 'Général',       icon: Settings },
-  { id: 'profile',       label: 'Profil',         icon: User },
-  { id: 'notifications', label: 'Notifications',  icon: Bell },
-  { id: 'account',       label: 'Compte',         icon: Shield },
-  { id: 'about',         label: 'À propos',       icon: Info },
+  { id: 'general',       label: 'Général',       icon: Settings  },
+  { id: 'profile',       label: 'Profil',        icon: User      },
+  { id: 'notifications', label: 'Notifications', icon: Bell      },
+  { id: 'ai',            label: 'IA & Quota',    icon: Sparkles  },
+  { id: 'account',       label: 'Compte',        icon: Shield    },
+  { id: 'about',         label: 'À propos',      icon: Info      },
 ]
 
 const SECTION_TITLES: Record<string, { title: string; description: string }> = {
-  general:       { title: 'Général',       description: 'Apparence et préférences de l\'application' },
+  general:       { title: 'Général',       description: "Apparence et préférences de l'application" },
   profile:       { title: 'Profil',        description: 'Informations personnelles et photo' },
   notifications: { title: 'Notifications', description: 'Gérez comment vous êtes alerté' },
+  ai:            { title: 'IA & Quota',    description: "Suivi de l'utilisation de l'intelligence artificielle" },
   account:       { title: 'Compte',        description: 'Sécurité et gestion du compte' },
   about:         { title: 'À propos',      description: 'Informations sur FeoSync' },
 }
@@ -32,6 +37,7 @@ function SectionContent({ activeId }: { activeId: string }) {
     case 'general':       return <GeneralSection />
     case 'profile':       return <ProfileSection />
     case 'notifications': return <NotificationsSection />
+    case 'ai':            return <AiSection />
     case 'account':       return <AccountSection />
     case 'about':         return <AboutSection />
     default:              return null
