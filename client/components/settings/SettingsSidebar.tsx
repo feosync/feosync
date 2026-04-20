@@ -27,7 +27,7 @@ export function SettingsSidebar({ items, activeId, onSelect }: SettingsSidebarPr
             onClick={() => onSelect(item.id)}
             className={`
               w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left
-              transition-colors duration-150 group
+              transition-colors duration-150 group cursor-pointer
               ${isActive
                 ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
@@ -62,7 +62,7 @@ interface SettingsMobileTabsProps {
 
 export function SettingsMobileTabs({ items, activeId, onSelect }: SettingsMobileTabsProps) {
   return (
-    <div className="flex overflow-x-auto gap-1 pb-1 scrollbar-none">
+    <div className="flex overflow-x-auto gap-1 pb-1 ">
       {items.map((item) => {
         const Icon = item.icon
         const isActive = item.id === activeId
