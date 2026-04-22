@@ -54,17 +54,6 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down FeoSync API...")
 
 
-
-class CORSErrorMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        response = await call_next(request)
-        origin = request.headers.get("origin", "")
-        allowed = [settings.FRONTEND_URL, "https://feosync.vercel.app", "http://localhost:3000"]
-        if origin in allowed:
-            response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Credentials"] = "true"
-        return response
-
 # ── App ───────────────────────────────────────────────────────────────────────
 
 def create_app() -> FastAPI:
@@ -83,7 +72,7 @@ def create_app() -> FastAPI:
 
 
 def _register_middleware(app: FastAPI) -> None:
-    app.add_middleware(CORSErrorMiddleware) 
+    
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.FRONTEND_URL, "https://feosync.vercel.app", "http://localhost:3000"],
