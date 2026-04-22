@@ -1,9 +1,9 @@
 from sqlalchemy import event
 from sqlalchemy.orm import attributes
 from app.modules.scheduled_post.models.scheduled_post_model import ScheduledPost, PostStatus
-import logging
+from app.core.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 def register_scheduled_post_events():

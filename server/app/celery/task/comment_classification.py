@@ -3,7 +3,7 @@ from uuid import UUID
 from app.celery.celery_app import celery_app
 from app.core.database import SessionLocal
 from fastapi import BackgroundTasks
-import logging
+from app.core.logger import get_logger
 import asyncio
 from app.modules.notifications import service as notification_service
 from app.modules.notifications.model import NotificationChannel, NotificationType
@@ -12,9 +12,8 @@ from app.modules.published_post.model import PublishedPost
 from app.modules.published_post.service import PublishedPostService as published_post_service
 
 
-# ✅ Configuration de base
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+
+logger = get_logger()
 
 @celery_app.task(max_retries=2)
 def comment_classification_task(comment: str, user_id: UUID, published_post_id: UUID):

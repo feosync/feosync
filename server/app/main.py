@@ -24,7 +24,7 @@ from app.modules import (
 # ── Logging ───────────────────────────────────────────────────────────────────
 
 configure_logging()
-logger = get_logger(__name__)
+logger = get_logger()
 
 # ── DB init ───────────────────────────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ async def lifespan(app: FastAPI):
     try:
         seed_first_admin(db)
         seed_plans(db)
-        register_scheduled_post_events()
+        # register_scheduled_post_events()
         await webhooks_service.startup()  
         logger.info("Startup complete.")
     finally:
