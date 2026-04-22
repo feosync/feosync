@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from ..schemas.subscription import SubcriptionUpdate
 from app.core.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 class UpgradeSubcription:
     def __init__(self):

@@ -39,6 +39,8 @@ class ScheduledPost(Base):
         default=PostStatus.DRAFT,
     )
 
+    qstash_message_id: Mapped[str | None] = mapped_column(Text, nullable=True, server_default=None)
+
     # ── Cibles de publication ─────────────────────────────────────────────────
     page_ids: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
