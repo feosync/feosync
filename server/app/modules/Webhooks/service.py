@@ -10,7 +10,7 @@ from app.modules.ai_generation.service.comment_service import CommentService
 from app.modules.published_post.service import PublishedPostService
 from app.modules.published_post.model import PublishedPost
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class RateLimiter:

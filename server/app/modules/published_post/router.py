@@ -84,14 +84,13 @@ async def publish_post(
     background_tasks: BackgroundTasks ,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_active_user),
-    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+    
 ):
     """
     Publie immédiatement un ScheduledPost sur Facebook.
     Normalement appelé par le scheduler — mais disponible manuellement pour les tests.
     """
-    if credentials.credentials != settings.INTERNAL_API_KEY:
-        raise HTTPException(status_code=403, detail="Clé API invalide")
+    
     
     return await PublishedPostService.publish_to_facebook(
         db,
