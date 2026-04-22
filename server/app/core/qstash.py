@@ -1,4 +1,4 @@
-import logging
+
 import uuid
 from datetime import datetime, timezone
 from urllib.parse import urlparse
@@ -6,7 +6,8 @@ from urllib.parse import urlparse
 from qstash import QStash
 from app.core.config import settings
 
-logger = logging.getLogger(__name__)
+from app.core.logger import get_logger
+logger = get_logger()
 
 
 def _is_local(url: str) -> bool:

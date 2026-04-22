@@ -381,7 +381,7 @@ class ScheduledPostService:
         except Exception:
             # Rollback QStash : le message ne doit pas rester orphelin
             cancel_publish(new_message_id)
-            logger.error("[confirm] Échec DB update pour post %s — nouveau message QStash annulé", post.id, exc_info=True)
+            logger.error("[confirm] Échec DB update pour post %s — nouveau message QStash annulé", post.id)
             raise HTTPException(status_code=500, detail="Échec de la mise à jour du post")
 
         # 3. Annuler l'ancien message seulement après que le nouveau est confirmé en DB
