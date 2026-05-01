@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.redis.name }}
+  labels:
+    app: {{ .Values.redis.labels.app }}
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: {{ .Values.redis.labels.app }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.redis.labels.app }}
+
+    spec:
+      containers:
+        - name: {{ .Values.redis.name }}
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.redis.containerPort }}
+          
+          command: ["redis-server", "--requirepass", "$(REDIS_PASSWORD)"]
+
+          # ✅ Montage du volume dans le conteneur
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data              # Chemin par défaut de Redis
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: redis-password
+
+      # ✅ Déclaration du volume lié au PVC
+    
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.redis.name }}-pvc
