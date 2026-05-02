@@ -36,7 +36,7 @@ const ProblemSection = () => {
                       w-[600px] h-[300px] rounded-full
                       bg-destructive/6 blur-[100px]" />
 
-      <div className="max-w-6xl mx-auto space-y-16">
+      <div className="max-w-7xl mx-auto space-y-16">
 
         {/* ── HEADER ── */}
         <motion.div
@@ -72,7 +72,7 @@ const ProblemSection = () => {
               className="group relative bg-card border border-border rounded-2xl p-6
                          hover:border-destructive/40 hover:shadow-lg
                          hover:shadow-destructive/5 transition-all duration-300
-                         overflow-hidden relative"
+                         overflow-hidden "
             >
               {/* Coin décoratif rouge */}
               <div className="absolute top-0 right-0 w-16 h-16
