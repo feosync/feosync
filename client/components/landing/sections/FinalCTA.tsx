@@ -7,26 +7,27 @@ import { useRouter } from "next/navigation";
 const FinalCTA = () => {
   const router = useRouter();
 
-
   return (
     <section id="cta" className=" px-6 w-full lg:h-max bg-background min-h-125">
-      <div className="mx-auto w-full lg:max-w-5xl h-full rounded-4xl
+      <div
+        className="mx-auto w-full lg:max-w-5xl h-full rounded-4xl
                       bg-linear-to-br from-primary/10 to-chart-2/10
                       p-12 md:p-20 text-center border border-border
                       flex flex-col items-center justify-center
-                      ">
-
+                      "
+      >
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.01em] text-foreground mb-6"
         >
-          Prêt à automatiser votre marketing ?
+          La liberté digitale vous attend.
         </motion.h2>
 
         <p className="text-muted-foreground mb-8 lg:mb-10 max-w-xl mx-auto">
-          Rejoignez les entreprises malgaches qui gagnent du temps avec FeoSync.
+          Rejoignez les créateurs et entrepreneurs malgaches qui ont repris le
+          contrôle de leur présence en ligne.{" "}
         </p>
 
         <div className="flex flex-col items-center gap-4">
@@ -50,7 +51,6 @@ const FinalCTA = () => {
             Sans carte bancaire · Annulation à tout moment
           </p>
         </div>
-
       </div>
     </section>
   );

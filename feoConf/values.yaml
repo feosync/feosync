@@ -1,0 +1,135 @@
+frontend:
+  name: feosync-client
+
+  labels:
+    app: feosync-client
+
+  image:
+    repository: nandrainadev/feosync-client
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  containerPort: 3000
+
+  service:
+    name: feosync-client-service
+    port: 80
+    targetPort: 3000
+    type: NodePort
+    env:
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: 363430759523-vvsjf55htl5f7mlv1dboac8r8pdk93b2.apps.googleusercontent.com
+      NEXT_PUBLIC_API_URL: api.feosync.com
+      NEXT_PUBLIC_APP_URL: app.feosync.com
+      NEXT_PUBLIC_USE_MOCK: false
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_51TKM453HJEqPOoIdePlqosS3t9V4Iet1YMVJYpkX1YvqTULiYxGQgk04GL8H0qYSSa0qtcCQxjXhuKdr87GmV6CU00JRdTLt9g
+      NEXT_PUBLIC_STRIPE_SECRET_KEY: sk_test_51TKM453HJEqPOoIdTFSw0E3lqQbt1CRCxdlcZzgy6NDmqskN2TvbQhtIJw0Gr5CjaKVDO2cZ5o9Htf4K8hWVXqfn00ykHgIInD
+
+  ingress:
+    host: app.feosync.com
+    prefix: /
+
+
+# ================================================================================================
+
+
+backend:
+  name: feosync-server
+
+  labels:
+    app: feosync-server
+
+  image:
+    repository: nandrainadev/feosync-server
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  containerPort: 8000
+
+  autoscaling:
+    name: feosync-server-hpa
+    labels:
+      app: feosync-server-hpa
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+
+  service:
+    name: feosync-server-service
+    port: 80
+    targetPort: 8000
+    type: NodePort
+    env:
+      APP_NAME: FeoSync
+      APP_ENV: development    # Possible values: development, staging, production
+      APP_DEBUG: True
+      SECRET_KEY: your_jwt_secret_key   
+      FIRST_ADMIN_EMAIL: nandraina.dev22@gmail.com
+
+      GEMINI_API_KEY: AIzaSyBlguNjed7hcMprycmdBee6Z7sKroSR1ck
+
+      #DATABASE_URL: postgresql://neondb_owner:npg_E5vm7NbalnsI@ep-divine-resonance-am9yti3k-pooler.c-5.us-east-1.aws.neon.tech/feosync_db?sslmode=require&channel_binding=require
+      DATABASE_URL: postgresql://feoSync:feosync_pass@192.168.88.29:5432/feosync_db
+      # Google Authentication
+      GOOGLE_CLIENT_ID: 363430759523-vvsjf55htl5f7mlv1dboac8r8pdk93b2.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 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
+
+
+      META_APP_ID: 1602203417598244
+      META_APP_SECRET: 2784112be28a3a7386f83d43ccac6607
+      META_REDIRECT_URI: https://0cbb-102-18-61-63.ngrok-free.app/api/v1/fb/oauth/callback
+
+      MAIL_USERNAME: nandraina.dev22@gmail.com
+      MAIL_PASSWORD: eldu iqyn xijo ntfp
+      MAIL_FROM: nandraina.dev22@gmail.com
+      MAIL_PORT: 587
+      MAIL_SERVER: smtp.gmail.com
+
+
+      # REDIS_HOST: "redis-16017.c80.us-east-1-2.ec2.cloud.redislabs.com"
+      REDIS: redis-service
+      # REDIS_PORT: 16017
+      REDIS_PORT: 6379
+      # BROKER: "redis://:GjESHcRovYGenNBLf4R6tzVdHfcNM2tb@redis-16017.c80.us-east-1-2.ec2.cloud.redislabs.com:16017/0"
+      # BACKEND: "redis://:GjESHcRovYGenNBLf4R6tzVdHfcNM2tb@redis-16017.c80.us-east-1-2.ec2.cloud.redislabs.com:16017/0"
+      BROKER: "redis://redis-service:6379/0"
+      BACKEND: "redis://redis-service:6379/0"
+
+      FRONTEND_URL: app.feosync.com
+      SERVER_URL: api.feosync.com
+
+      META_GRAPH_URL: "https://graph.facebook.com/v25.0"
+      WEBHOOK_TOKEN: "the audio2003"
+      GROQ_API_KEY: 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 
+      STRIPE_API_KEY: sk_test_51TKM453HJEqPOoIdTFSw0E3lqQbt1CRCxdlcZzgy6NDmqskN2TvbQhtIJw0Gr5CjaKVDO2cZ5o9Htf4K8hWVXqfn00ykHgIInD
+      STRIPE_WEBHOOK_SECRET: whsec_csT9OcCkxnm8SNCics3WbJ6SuBs3lVWo
+  ingress: 
+    host: api.feosync.com
+    prefix: /
+
+redis:
+  name: redis
+  labels:
+    app: redis
+  image:
+    repository: redis
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerPort: 6379
+  replicas: 1
+  selector:
+    app: redis
+    
+  persistence:
+    size: 1Gi
+    storageClassName: standard          # Adapter selon ton cluster (gp2, manual, etc.)
+    reclaimPolicy: Retain               # Retain | Delete | Recycle
+    hostPath: /mnt/data/redis           # Uniquement pour hostPath en dev
+
+  service:
+    name: redis-service
+    port: 80
+    targetPort: 6379
+    type: ClusterIP
+

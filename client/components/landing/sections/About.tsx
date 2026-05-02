@@ -34,9 +34,13 @@ const teamMembers = [
     email: "anicet@feosync.com",
     bio: "Architecte logiciel full-stack avec une expertise en IA.",
     skills: ["Architecture", "Cloud", "Rust"],
-    social: { twitter: "@anicetrandrianambinina", linkedin: "anicetrandrianambinina", github: "anicet" },
+    social: {
+      twitter: "@anicetrandrianambinina",
+      linkedin: "anicetrandrianambinina",
+      github: "anicet",
+    },
     joined: "Fondateur · 2026",
-  }
+  },
 ];
 
 const stats = [
@@ -47,7 +51,6 @@ const stats = [
 ];
 
 type TeamMember = (typeof teamMembers)[0];
-
 
 const desktopPositions = [
   { left: "8%", top: "12%" },
@@ -628,19 +631,26 @@ const About = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.1, duration: 0.6 }}
         >
-          Notre équipe
+          A propos de nous
         </motion.h3>
 
         <motion.p
-          className="hidden md:block text-center w-2/3 lg:w-1/3 text-lg text-muted-foreground"
+          className="hidden md:block text-center w-2/3 lg:w-1/2 text-lg text-muted-foreground"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.3, duration: 0.6 }}
         >
-          Avant tout, nous sommes une équipe passionnée, portée par la vision de
-          réinventer la gestion des réseaux sociaux grâce à l’intelligence
-          artificielle, pour offrir une expérience toujours plus simple et
-          efficace à nos utilisateurs.{" "}
+          Nous sommes partis d'un constat simple et révoltant : les personnes
+          les plus créatives du digital passent la majorité de leur temps à
+          faire des choses qui n'ont rien à voir avec la création. Programmer.
+          Reformater. Republier. Adapter. Recommencer. FeoSync est né du refus
+          que ça soit une fatalité. Nous sommes une équipe convaincue que la
+          technologie doit travailler pour les créateurs — pas l'inverse. Alors
+          nous avons construit une plateforme qui absorbe la complexité des
+          réseaux sociaux, pour rendre aux community managers, aux entrepreneurs
+          et aux marques ce qui leur appartient vraiment : leur énergie, leur
+          intention, leur liberté. Ce n'est pas un outil de productivité. C'est
+          une prise de position.
         </motion.p>
 
         {/* Mobile description */}
