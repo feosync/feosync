@@ -54,7 +54,7 @@ const HowItWorks = () => {
           <div className="absolute left-6 md:left-8 top-0 bottom-0 w-0.5 bg-border">
             <motion.div
               style={{ height: lineHeight }}
-              className="w-full bg-gradient-to-b from-primary to-chart-1"
+              className="w-full bg-linear-to-b from-primary to-chart-1"
             />
           </div>
 
