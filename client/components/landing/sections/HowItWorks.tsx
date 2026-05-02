@@ -4,9 +4,26 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 const steps = [
-  { num: "01", title: "Connectez vos pages",         desc: "Liez vos pages Facebook & WhatsApp Business en un clic."                                        },
-  { num: "02", title: "L'IA vous aide (Votre Assistance)", desc: "L'IA vous propose des visuels de qualité avec des variantes de légendes."                },
-  { num: "03", title: "Publiez & analysez",           desc: "Planifiez, publiez et suivez vos performances automatiquement."                                },
+    {
+    num: "01",
+    title: "Créez votre compte FeoSync",
+    desc: "Inscrivez-vous en 30 secondes, aucune carte bancaire requise.",
+  },
+  {
+    num: "02",
+    title: "Connectez vos réseaux sociaux",
+    desc: "Liez Facebook, Instagram ou LinkedIn via une connexion sécurisée OAuth.",
+  },
+  {
+    num: "03",
+    title: "L'IA génère votre contenu",
+    desc: "Légendes, visuels, hashtags — générés en quelques secondes.",
+  },
+  {
+    num: "04",
+    title: "Publiez et mesurez vos performances",
+    desc: "Planifiez et suivez vos résultats en temps réel depuis un seul tableau de bord.",
+  },
 ];
 
 const HowItWorks = () => {
@@ -27,8 +44,9 @@ const HowItWorks = () => {
           viewport={{ once: true }}
           className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.01em] text-foreground text-center mb-16"
         >
-          De zéro à publié en 3 étapes
+          De zéro à publié en 4 étapes
         </motion.h2>
+        
 
         <div className="relative">
 
