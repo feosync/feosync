@@ -24,7 +24,7 @@ from app.modules import (
 # ── Logging ───────────────────────────────────────────────────────────────────
 
 configure_logging()
-logger = get_logger(__name__)
+logger = get_logger()
 
 # ── DB init ───────────────────────────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ async def lifespan(app: FastAPI):
     try:
         seed_first_admin(db)
         seed_plans(db)
-        register_scheduled_post_events()
+        # register_scheduled_post_events()
         await webhooks_service.startup()  
         logger.info("Startup complete.")
     finally:
@@ -53,17 +53,6 @@ async def lifespan(app: FastAPI):
     # shutdown
     logger.info("Shutting down FeoSync API...")
 
-
-
-class CORSErrorMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        response = await call_next(request)
-        origin = request.headers.get("origin", "")
-        allowed = [settings.FRONTEND_URL, "https://feosync.vercel.app", "http://localhost:3000"]
-        if origin in allowed:
-            response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Credentials"] = "true"
-        return response
 
 # ── App ───────────────────────────────────────────────────────────────────────
 
@@ -83,7 +72,7 @@ def create_app() -> FastAPI:
 
 
 def _register_middleware(app: FastAPI) -> None:
-    app.add_middleware(CORSErrorMiddleware) 
+    
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.FRONTEND_URL, "https://feosync.vercel.app", "http://localhost:3000"],
