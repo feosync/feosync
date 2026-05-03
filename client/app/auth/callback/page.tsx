@@ -72,6 +72,7 @@ function CallbackLoader() {
         alt="FeoSync"
         width={240}
         height={70}
+        loading="eager"
         className="h-16 w-auto"
       />
       <Loader2 className="h-6 w-6 animate-spin text-blue-600" />

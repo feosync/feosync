@@ -7,10 +7,9 @@ import CardPaymentForm from './stripe';
 import { SubscriptionRequest } from '@/lib/api/types';
 import { apiClient } from '@/lib/api/client';
 import { useRouter } from 'next/navigation';
-import { log } from 'console';
-import { serverConfig } from '@/lib/config';
+import { config } from '@/lib/config';
 
-const stripePromise = loadStripe(serverConfig.stripeSecretKey);
+const stripePromise = loadStripe(config.stripePublishableKey);
 
 export default function StripePage() {
   const router = useRouter();
@@ -27,7 +26,7 @@ export default function StripePage() {
       // ✅ Syntaxe correcte pour déclarer une variable
       const data: SubscriptionRequest = {
         payment_method_id: paymentMethodId,
-        stripe_customer_id: 'cus_UJSJuukcZ67oQE', // À remplacer par l'ID du client Stripe
+        stripe_customer_id: 'cus_ULJOWAMWQoXSTZ', // À remplacer par l'ID du client Stripe
         stripe_price_id: 'price_1TLeq93HJEqPOoIdkq5sD7GK', // À remplacer par l'ID du prix Stripe
       };
       console.log('Données de la requête:', data);

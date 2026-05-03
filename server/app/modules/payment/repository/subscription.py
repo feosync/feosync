@@ -93,4 +93,35 @@ class SubscriptionRepository:
                 error=str(e),
                 exc_info=True
             )
-            raise
+            raise('Failed to save subscription in database')
+
+    @staticmethod
+    def updateStatus(db: Session, stripe_subscription_id: UUID, new_status: str) -> Subscription:
+        """Met à jour le statut d'une souscription"""
+        try:
+            subscription = db.query(Subscription).filter(Subscription.stripe_subscription_id == stripe_subscription_id).first()
+            if not subscription:
+                raise ValueError(f"Subscription with id {stripe_subscription_id} not found")
+
+            subscription.status = new_status
+            subscription.updated_at = int(datetime.now(timezone.utc).timestamp())
+            db.commit()
+            db.refresh(subscription)
+
+            logger.info(
+                "✅ Subscription status updated in database",
+                subscription_id=subscription.stripe_subscription_id,
+                user_id=str(subscription.user_id),
+                new_status=subscription.status
+            )
+            return subscription
+        
+        except Exception as e:
+            db.rollback()
+            logger.error(
+                "❌ Failed to update subscription status in database",
+                subscription_id=str(stripe_subscription_id),
+                error=str(e),
+                exc_info=True
+            )
+            raise('Failed to update subscription status in database')

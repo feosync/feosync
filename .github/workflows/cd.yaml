@@ -1,0 +1,15 @@
+name: FEOSYNC CD
+
+on:
+    workflow_run:
+        workflows: ["FEOSYNC CI"]
+        types:
+            - completed
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        environment: env
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        steps:
+            - name: starting deploy
+              run: echo "Starting deploy"

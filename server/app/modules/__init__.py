@@ -23,6 +23,7 @@ from app.modules.Webhooks.router import app_webhooks_router
 from app.modules.collaborators.router import router as collaborators_router
 from app.modules.payment.router.transaction import app_payment_router
 from app.modules.payment.router.subcription import subcription_router
+from app.modules.payment.router.webhook import webhook_router
 
 from app.modules.organisations.model import Organisation
 from app.modules.plans.model import Plan
