@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from datetime import datetime, timezone
 
 from app.modules.user.model import User
 
@@ -41,11 +42,7 @@ class SubscriptionService:
             name=name
         )
         return customer
-    def attach_payment_method(self, payment_method_id, customer_id):
-        return self.stripe.PaymentMethod.attach(
-            payment_method_id,
-            customer=customer_id
-        )
+    
     
     def create_subscription(self, db: Session, subscription_request: SubscriptionRequest, user: User):
         try:
@@ -62,12 +59,15 @@ class SubscriptionService:
                 invoice_settings={"default_payment_method": subscription_request.payment_method_id}
             )
             logger.info(f"✅ Customer {subscription_request.stripe_customer_id} default payment method updated")
+            
+            self.stripe.Customer.retrieve(subscription_request.stripe_customer_id)
 
             # 3. Create subscription on Stripe
             new_subscription = self.stripe.Subscription.create(
                 customer=subscription_request.stripe_customer_id,
                 items=[{"price": subscription_request.stripe_price_id}],
                 default_payment_method=subscription_request.payment_method_id,
+                payment_settings={"save_default_payment_method": "on_subscription"},
                 expand=["latest_invoice", "items.data.price"]
             )
 
@@ -108,7 +108,118 @@ class SubscriptionService:
         except Exception as e:
             logger.error(f"❌ Failed to create subscription: {str(e)}", exc_info=True)
             raise
+    def extract_subscription_id(self, invoice)-> str:
+        # ✅ ancien format
+        if "subscription" in invoice and invoice["subscription"]:
+            return invoice["subscription"]
 
+        # ✅ nouveau format Stripe
+        if "parent" in invoice:
+            parent = invoice["parent"]
+            if parent["subscription_details"]:
+                return parent["subscription_details"]["subscription"]
+
+        raise ValueError("No subscription ID found in invoice")
+    def update_subscription_from_invoice(
+        self,
+        db: Session,
+        invoice: dict
+    ) -> Subscription:
+        """
+        Met à jour une subscription après un paiement Stripe (renouvellement)
+        """
+
+        # try:
+        stripe_subscription_id = self.extract_subscription_id(invoice)
+        print(f"invoice: {invoice}")
+
+        subscription:Subscription = (
+            db.query(Subscription)
+            .filter(Subscription.stripe_subscription_id == stripe_subscription_id)
+            .first()
+        )
+
+        if not subscription:
+            raise ValueError(f"Subscription {stripe_subscription_id} not found")
+
+        # 🔥 Récupération des données Stripe
+        line = invoice["lines"]["data"][0]
+
+        period_start = line["period"]["start"]
+        period_end = line["period"]["end"]
+
+        paid_at = invoice["status_transitions"]["paid_at"]
+        amount_paid = invoice["amount_paid"]
+
+        # 🔥 Mise à jour complète
+        subscription.status = "active"
+        subscription.is_active = True
+
+        subscription.current_period_start = period_start
+        subscription.current_period_end = period_end
+
+        subscription.last_payment_date = paid_at
+        subscription.last_payment_amount = amount_paid
+        subscription.last_payment_status = "paid"
+
+        # 🔥 Mise à jour du plan (important si upgrade/downgrade)
+        subscription.stripe_price_id = line["pricing"]["price_details"]["price"]
+
+        subscription.updated_at = int(datetime.now(timezone.utc).timestamp())
+
+        db.commit()
+        db.refresh(subscription)
+
+        logger.info(
+            "✅ Subscription renewed successfully",
+            subscription_id=subscription.stripe_subscription_id,
+            user_id=str(subscription.user_id),
+            period_end=subscription.current_period_end,
+            amount=subscription.last_payment_amount,
+        )
+
+        return subscription
+
+        # except Exception as e:
+        #     db.rollback()
+        #     logger.error(
+        #         "❌ Failed to update subscription after renewal",
+        #         subscription_id=invoice.get("subscription"),
+        #         error=str(e),
+        #         exc_info=True
+        #     )
+        # raise
+    
+    
+    
+    def update_subscription_payment_failed(
+        db: Session,
+        invoice: dict
+    ) -> Subscription:
+        try:
+            stripe_subscription_id = invoice["subscription"]
+
+            subscription:Subscription = db.query(Subscription).filter(
+                Subscription.stripe_subscription_id == stripe_subscription_id
+            ).first()
+
+            if not subscription:
+                raise ValueError("Subscription not found")
+
+            subscription.last_payment_status = "failed"
+            subscription.is_active = False
+            subscription.status = "past_due"
+
+            subscription.updated_at = int(datetime.now(timezone.utc).timestamp())
+
+            db.commit()
+            db.refresh(subscription)
+
+            return subscription
+
+        except Exception:
+            db.rollback()
+            raise
         
     @staticmethod
     def save_subscription(db:Session, subscription: SubscriptionCreate) -> Subscription:

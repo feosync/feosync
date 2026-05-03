@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.redis.name }}-pvc
+  labels:
+    app: {{ .Values.redis.labels.app }}
+
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.redis.persistence.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.redis.persistence.size }}

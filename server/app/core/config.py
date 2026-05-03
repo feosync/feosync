@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str | None = None
     
     STRIPE_API_KEY: str | None = None
+    STRIPE_WEBHOOK_SECRET: str | None = None
 
     QSTASH_TOKEN: str | None = None
     INTERNAL_API_KEY: str | None = None
