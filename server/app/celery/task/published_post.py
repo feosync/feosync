@@ -5,10 +5,9 @@ from app.modules.published_post.service import PublishedPostService
 from fastapi import BackgroundTasks
 import logging
 import asyncio
+from app.core.logger import get_logger
 
-# ✅ Configuration de base
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 @celery_app.task(bind=True, max_retries=2)
 def published_task(self, scheduled_id: str, user_id: str, user_email: str):

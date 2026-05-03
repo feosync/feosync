@@ -8,7 +8,7 @@ from uuid import UUID
 
 from app.modules.payment.service import subscription
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class SubscriptionRepository:
