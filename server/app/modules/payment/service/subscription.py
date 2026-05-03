@@ -10,7 +10,7 @@ from ..models.subscription import Subscription
 from app.core.logger import get_logger
 
 
-logger = get_logger(__name__)
+logger = get_logger()
 class SubscriptionService:
     def __init__(self):
         self.stripe_client = InitStripe()

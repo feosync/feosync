@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.modules.scheduled_post.models.scheduled_post_model import (
     ScheduledPost, PostStatus, ImageSource
 )
+
 from app.modules.scheduled_post.models.scheduled_post_image import ScheduledPostImage
 from app.modules.scheduled_post.repository import ScheduledPostRepository, ImageRepository
 from app.modules.scheduled_post.schemas import (
@@ -23,6 +24,10 @@ from app.modules.user.model import User
 from app.shared.pagination.paginator import PaginationParams
 from app.modules.plans.model import Plan
 from app.modules.ai_generation.repository import AiQuotaRepository
+from app.core.qstash import schedule_publish, cancel_publish
+
+from app.core.logger import get_logger
+logger = get_logger()
 
 # Meta autorise jusqu'à 10 images par carrousel
 MAX_IMAGES_PER_POST = 10
@@ -330,6 +335,7 @@ class ScheduledPostService:
 
     # ── CONFIRM ───────────────────────────────────────────────────────────────
 
+    
     @staticmethod
     def confirm(
         db: Session,
@@ -345,24 +351,45 @@ class ScheduledPostService:
                 detail=f"Post déjà {post.status} — impossible de modifier",
             )
 
-        has_caption = bool(post.caption)
-        has_images = len(post.images) > 0
-
-        if not has_caption and not has_images:
+        if not post.caption and not post.images:
             raise HTTPException(
                 status_code=400,
-                detail="Un caption ou au moins une image est requis pour planifier le post."
+                detail="Un caption ou au moins une image est requis pour planifier le post.",
             )
 
         publish_at = payload.publish_at or post.publish_at
         if not publish_at:
             raise HTTPException(status_code=400, detail="publish_at manquant")
 
-        update_data: dict = {"status": PostStatus.SCHEDULED}
+        # 1. Scheduler en premier — si ça échoue, on ne touche pas la DB
+        try:
+            new_message_id = schedule_publish(str(post.id), publish_at)
+        except RuntimeError as e:
+            logger.error("[confirm] Échec schedule QStash pour post %s", post.id, exc_info=True)
+            raise HTTPException(status_code=503, detail=str(e))
+
+        # 2. Persister en DB
+        update_data: dict = {
+            "status": PostStatus.SCHEDULED,
+            "qstash_message_id": new_message_id,
+        }
         if payload.publish_at:
             update_data["publish_at"] = payload.publish_at
 
-        return ScheduledPostRepository.update(db, post, update_data)
+        try:
+            result = ScheduledPostRepository.update(db, post, update_data)
+        except Exception:
+            # Rollback QStash : le message ne doit pas rester orphelin
+            cancel_publish(new_message_id)
+            logger.error("[confirm] Échec DB update pour post %s — nouveau message QStash annulé", post.id)
+            raise HTTPException(status_code=500, detail="Échec de la mise à jour du post")
+
+        # 3. Annuler l'ancien message seulement après que le nouveau est confirmé en DB
+        if post.qstash_message_id:
+            cancel_publish(post.qstash_message_id)
+
+        return result
+
 
     # ── DELETE ────────────────────────────────────────────────────────────────
 
@@ -370,9 +397,17 @@ class ScheduledPostService:
     def delete(db: Session, post_id: UUID, current_user: User) -> dict:
         post = ScheduledPostService._get_post_owned(db, post_id, current_user)
 
-        if post.status == PostStatus.SCHEDULED:
-            from app.celery.task.scheduled_post_events import _safe_revoke
-            _safe_revoke(str(post.id))
+        if post.status == PostStatus.SCHEDULED :
+            # # TODO: retirer le bloc Celery après migration complète vers QStash
+            # from app.celery.task.scheduled_post_events import _safe_revoke
+            # _safe_revoke(str(post.id))
+
+            # qstash
+            if  post.qstash_message_id:
+                from app.core.qstash import cancel_publish
+                cancel_publish(post.qstash_message_id)
+
+
 
         ScheduledPostRepository.delete(db, post)
         return {"detail": "Deleted successfully"}

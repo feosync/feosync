@@ -8,7 +8,7 @@ from .service import WebhooksService
 import asyncio
 from app.core.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger()
 app_webhooks_router = APIRouter()
 webhooks_service = WebhooksService()
 
