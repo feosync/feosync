@@ -59,11 +59,6 @@ export const NAVIGATION_ITEMS = [
     section: 'Contenu',
     items: [
       {
-        label: 'Générateur IA',
-        href: '/ai',
-        icon: Sparkles,
-      },
-      {
         label: 'Modèles',
         href: '/templates',
         icon: BookMarked,

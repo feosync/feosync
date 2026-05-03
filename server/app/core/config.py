@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     
     STRIPE_API_KEY: str | None = None
     STRIPE_WEBHOOK_SECRET: str | None = None
+
+    QSTASH_TOKEN: str | None = None
+    INTERNAL_API_KEY: str | None = None
     
     class Config:
         env_file = ".env"

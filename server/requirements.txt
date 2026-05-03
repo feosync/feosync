@@ -26,3 +26,4 @@ structlog
 tenacity
 uvicorn[standard]
 gevent
+qstash
