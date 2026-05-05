@@ -24,6 +24,7 @@ from app.modules.user.model import User
 from app.shared.pagination.paginator import PaginationParams
 from app.modules.plans.model import Plan
 from app.modules.ai_generation.repository import AiQuotaRepository
+from app.celery.task.scheduled_post_events import _safe_revoke
 from app.core.qstash import schedule_publish, cancel_publish
 
 from app.core.logger import get_logger
@@ -335,7 +336,10 @@ class ScheduledPostService:
 
     # ── CONFIRM ───────────────────────────────────────────────────────────────
 
-    
+  
+
+    """
+    # si avec Qstash
     @staticmethod
     def confirm(
         db: Session,
@@ -389,25 +393,67 @@ class ScheduledPostService:
             cancel_publish(post.qstash_message_id)
 
         return result
+    """
 
+
+    # Avec Celery 
+
+    @staticmethod
+    def confirm(
+        db: Session,
+        post_id: UUID,
+        payload: ConfirmRequest,
+        current_user: User,
+    ) -> ScheduledPost:
+        post = ScheduledPostService._get_post_owned(db, post_id, current_user)
+
+        if post.status in (PostStatus.PUBLISHED, PostStatus.FAILED):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Post déjà {post.status} — impossible de modifier",
+            )
+
+        if not post.caption and not post.images:
+            raise HTTPException(
+                status_code=400,
+                detail="Un caption ou au moins une image est requis pour planifier le post.",
+            )
+
+        publish_at = payload.publish_at or post.publish_at
+        if not publish_at:
+            raise HTTPException(status_code=400, detail="publish_at manquant")
+
+        update_data: dict = {
+            "status": PostStatus.SCHEDULED,
+        }
+        if payload.publish_at:
+            update_data["publish_at"] = payload.publish_at
+
+        return ScheduledPostRepository.update(db, post, update_data)
 
     # ── DELETE ────────────────────────────────────────────────────────────────
 
+    """
+    #  avec Qstash
     @staticmethod
     def delete(db: Session, post_id: UUID, current_user: User) -> dict:
         post = ScheduledPostService._get_post_owned(db, post_id, current_user)
 
-        if post.status == PostStatus.SCHEDULED :
-            # # TODO: retirer le bloc Celery après migration complète vers QStash
-            # from app.celery.task.scheduled_post_events import _safe_revoke
-            # _safe_revoke(str(post.id))
-
-            # qstash
-            if  post.qstash_message_id:
-                from app.core.qstash import cancel_publish
+        if post.status == PostStatus.SCHEDULED:
+            if post.qstash_message_id:
                 cancel_publish(post.qstash_message_id)
 
+        ScheduledPostRepository.delete(db, post)
+        return {"detail": "Deleted successfully"}
+    """
 
+    
+    @staticmethod
+    def delete(db: Session, post_id: UUID, current_user: User) -> dict:
+        post = ScheduledPostService._get_post_owned(db, post_id, current_user)
+
+        if post.status == PostStatus.SCHEDULED:
+            _safe_revoke(str(post.id))
 
         ScheduledPostRepository.delete(db, post)
         return {"detail": "Deleted successfully"}
