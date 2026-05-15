@@ -46,6 +46,7 @@ env/
 
 .env
 .env.*
+*.env
 !.env.example
 
 # ==============================
@@ -168,3 +169,4 @@ alembic/versions/*.py
 alembic/versions/__pycache__/
 
 
+./feoConf/charts/redis-operator-0.24.0.tgz

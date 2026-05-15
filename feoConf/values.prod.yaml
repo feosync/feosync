@@ -1,0 +1,69 @@
+global:
+  env: prod
+
+namespaces:
+  app: feosync-app
+  data: feosync-data
+  infra: feosync-infra
+
+frontend:
+  namespace: feosync-app
+  image:
+    pullPolicy: IfNotPresent
+  ingress:
+    host: app.feosync.com
+  autoscaling:
+    name: feosync-frontend-hpa
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+    labels:
+      app: feosync-frontend-hpa
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 200m
+    requests:
+      memory: 128Mi
+      cpu: 100m
+
+backend:
+  namespace: feosync-app
+  image:
+    pullPolicy: IfNotPresent
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 60
+    targetMemoryUtilizationPercentage: 60
+  ingress:
+    host: api.feosync.com
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 300m
+    requests:
+      memory: 128Mi
+      cpu: 250m
+
+postgres:
+  namespace: feosync-data
+  instances: 3              # HA en prod (3 instances)
+  storage: 20Gi             # Plus de stockage en prod
+
+pgbouncer:
+  namespace: feosync-data
+  instances: 2              # Redondance pooler en prod
+  maxClientConn: "1000"
+  defaultPoolSize: "100"
+
+redis_operator:
+  namespace: feosync-infra
+  persistence:
+    size: 5Gi
+
+cloudnative-pg:
+  namespace: feosync-data

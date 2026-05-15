@@ -41,3 +41,8 @@ class PlanRepository:
     @staticmethod
     def get_default_plan(db: Session) -> Optional[Plan]:
         return db.query(Plan).filter(Plan.is_default == True, Plan.is_active == True).first()
+    
+    
+    @staticmethod
+    def get_by_stripe_price_id(db: Session, price_id: str) -> Optional[Plan]:
+        return db.query(Plan).filter(Plan.price_id == price_id).first()

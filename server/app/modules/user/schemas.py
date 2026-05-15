@@ -8,6 +8,7 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     profile_picture: Optional[str] = None
     is_admin: Optional[bool] = None
+    plan_id: Optional[int] = None
 
 
 class UserResponse(BaseModel):
