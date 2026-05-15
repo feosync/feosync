@@ -18,7 +18,7 @@ interface PaymentDialogProps {
   plan: Plan | null
   stripeCustomerId: string,
   stripe_price_id: string,
-  onSuccess: () => void
+  onSuccess: (plan: Plan | null) => void
 }
 
 export function PaymentDialog({
@@ -53,7 +53,7 @@ export function PaymentDialog({
         stripe_price_id:    stripe_price_id
       })
 
-      onSuccess()
+      onSuccess(plan)
       onOpenChange(false)
 
     } catch (err: any) {
