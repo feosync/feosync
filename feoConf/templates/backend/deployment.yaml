@@ -2,10 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: {{ .Values.backend.name }}
+    namespace: {{ .Values.namespaces.app }}
     labels:
         app: {{ .Values.backend.labels.app }}
 spec:
-    replicas: 1
     selector:
         matchLabels:
             app: {{ .Values.backend.labels.app }}
@@ -20,10 +20,23 @@ spec:
                   imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
                   ports:
                     - containerPort: {{ .Values.backend.containerPort }}
-                  env:
-                   {{- range $key, $value := .Values.backend.service.env }}
-                    - name: {{ $key }}
-                      value: "{{ $value }}"
-                   {{- end }}
+                  resources:
+                    limits:
+                      memory: {{ .Values.backend.resources.limits.memory }}
+                      cpu: {{ .Values.backend.resources.limits.cpu }}
+                    requests:
+                      memory: {{ .Values.backend.resources.requests.memory }}
+                      cpu: {{ .Values.backend.resources.requests.cpu }}
+                  envFrom:
+                    - secretRef:
+                        name: back-env
+                  readinessProbe:
+                    httpGet:
+                        path: {{ .Values.backend.readinessProbe.path | default "/" }}
+                        port: {{ .Values.backend.containerPort }}
+                    initialDelaySeconds: 5
+                    periodSeconds: 3
+                    failureThreshold: 3
+
             imagePullSecrets:
                 - name: regcred
