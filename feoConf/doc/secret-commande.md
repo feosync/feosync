@@ -2,8 +2,8 @@ ADD A SECRET FOR PRIVATE DOCKER REPO
 
    kubectl create secret docker-registry regcred \
  --docker-username=nandrainadev \
- --docker-password="dckr_pat_39Mo_TxunucW_tFKa9K8zxAtA5o" \
- --docker-email=nandraina.dev22@gmail.com -n dev-feosync-app
+ --docker-password="token docker" \
+ --docker-email=email_exemple-n dev-feosync-app
 
 
 AUTH REDIS SERVER
