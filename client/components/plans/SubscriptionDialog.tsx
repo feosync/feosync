@@ -46,8 +46,8 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
   const [confirmUnsubscribe, setConfirmUnsubscribe] = useState(false)
 
   const activePlans     = plans.filter(p => p.is_active)
-  const currentPlanId   = user?.plan_id ?? null
-  const currentUser= user;
+  const planId   = user?.plan_id ?? null
+  const [currentPlanId, setCurrentPlanId ] = useState<number | null>(planId)
   const currentPlan     = plans.find(p => p.id === currentPlanId) ?? null
   const isSubscribed    = !!currentPlanId
   const [paymentPlan,        setPaymentPlan]        = useState<Plan | null>(null) // 🔵
@@ -85,9 +85,12 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
     }
   }
 
-   const handlePaymentSuccess = () => {
+   const handlePaymentSuccess = (plan: Plan | null) => {
     toast.success('Abonnement activé avec succès !')
     setPaymentPlan(null)
+    if (plan) {
+      setCurrentPlanId(plan.id)
+    }
     onOpenChange(false)
   }
 
@@ -166,7 +169,7 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
           open={!!paymentPlan}
           onOpenChange={open => !open && setPaymentPlan(null)}
           plan={paymentPlan}
-          stripeCustomerId={currentUser?.customer_id ?? ''}
+          stripeCustomerId={user?.customer_id ?? ''}
           stripe_price_id={paymentPlan?.price_id ?? ''}
           onSuccess={handlePaymentSuccess}
         />
