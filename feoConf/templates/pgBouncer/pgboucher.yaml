@@ -1,0 +1,17 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: {{ .Values.postgres.name }}-pooler
+  namespace: {{ .Values.namespaces.data }}
+spec:
+  cluster:
+    name: {{ .Values.postgres.name }}
+  
+  instances: {{ .Values.pgbouncer.instances }}
+  type: rw  # rw = read-write, ro = read-only
+  
+  pgbouncer:
+    poolMode: {{ .Values.pgbouncer.poolMode }}
+    parameters:
+      max_client_conn: "{{ .Values.pgbouncer.maxClientConn }}"
+      default_pool_size: "{{ .Values.pgbouncer.defaultPoolSize }}"

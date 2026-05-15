@@ -99,6 +99,10 @@ class PlanService:
         db.commit()
         db.refresh(current_user)
         return current_user
+    
+    @staticmethod
+    def get_by_stripe_price_id(db: Session, price_id: str) -> Plan | None:
+        return PlanRepository.get_by_stripe_price_id(db, price_id)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

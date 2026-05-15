@@ -23,6 +23,11 @@ import {
 } from '@/hooks/usePlans'
 import type { Plan } from '@/lib/api/types'
 import { PlanCard } from '@/components/plans/PlanCard'
+import { Elements } from '@stripe/react-stripe-js'           // 🔵
+import { loadStripe } from '@stripe/stripe-js'  
+import { toast } from 'sonner'  
+import { PaymentDialog } from '@/app/stripe/paymentDialogue'
+import { log } from 'console'
 
 
 // ── SubscriptionDialog ────────────────────────────────────────────────────────
@@ -42,16 +47,23 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
 
   const activePlans     = plans.filter(p => p.is_active)
   const currentPlanId   = user?.plan_id ?? null
+  const currentUser= user;
   const currentPlan     = plans.find(p => p.id === currentPlanId) ?? null
   const isSubscribed    = !!currentPlanId
+  const [paymentPlan,        setPaymentPlan]        = useState<Plan | null>(null) // 🔵
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
   
 
   const handleSubscribeClick = (plan: Plan) => {
     if (plan.id === currentPlanId) return
-    setConfirmPlan(plan)
+    if (plan.price === 0) {
+      setConfirmPlan(plan)      // flow gratuit existant
+    } else {
+      setPaymentPlan(plan) 
+       
+    }
   }
-
   const handleConfirmSubscribe = async () => {
     if (!confirmPlan) return
     try {
@@ -71,6 +83,12 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
     } catch {
       // erreur déjà gérée dans le hook
     }
+  }
+
+   const handlePaymentSuccess = () => {
+    toast.success('Abonnement activé avec succès !')
+    setPaymentPlan(null)
+    onOpenChange(false)
   }
 
   return (
@@ -142,6 +160,17 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
           )}
         </DialogContent>
       </Dialog>
+
+       <Elements stripe={stripePromise}>
+        <PaymentDialog
+          open={!!paymentPlan}
+          onOpenChange={open => !open && setPaymentPlan(null)}
+          plan={paymentPlan}
+          stripeCustomerId={currentUser?.customer_id ?? ''}
+          stripe_price_id={paymentPlan?.price_id ?? ''}
+          onSuccess={handlePaymentSuccess}
+        />
+      </Elements>
 
       {/* Confirm subscribe */}
       <AlertDialog open={!!confirmPlan} onOpenChange={open => !open && setConfirmPlan(null)}>
