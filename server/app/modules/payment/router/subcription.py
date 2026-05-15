@@ -105,8 +105,10 @@ async def create_customer(request: CreateCustomerRequest, user: User = Depends(g
 async def create_subscription(request: SubscriptionRequest, user: User = Depends(get_active_user), db: Session = Depends(get_db)):
     """
     Créer un nouvel abonnement pour un client
-    """
+    """    
     try:
+        print("Creating subscription with request:", request)
+        print("User:", user)
         return subscription_service.create_subscription(db, request, user)
     except Exception as e:
         raise HTTPException(
@@ -114,18 +116,18 @@ async def create_subscription(request: SubscriptionRequest, user: User = Depends
             detail=f"Erreur lors de la création de l'abonnement: {str(e)}"
         )
 
-@subcription_router.post("/add")
-async def add_subscription(request: SubscriptionCreate, db: Session = Depends(get_db), user: User = Depends(get_active_user)):
-    """
-    Ajouter un nouvel abonnement
-    """
-    try:
-        return subscription_service.save_subscription(db, request)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Erreur lors de l'ajout de l'abonnement: {str(e)}"
-        )
+# @subcription_router.post("/add")
+# async def add_subscription(request: SubscriptionCreate, db: Session = Depends(get_db), user: User = Depends(get_active_user)):
+#     """
+#     Ajouter un nouvel abonnement
+#     """
+#     try:
+#         return subscription_service.save_subscription(db, request)
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail=f"Erreur lors de l'ajout de l'abonnement: {str(e)}"
+#         )
         
 @subcription_router.put("/update/{stripe_subscription_id}")
 async def update_subscription(stripe_subscription_id: str, stripe_price_id:str, db: Session = Depends(get_db)):

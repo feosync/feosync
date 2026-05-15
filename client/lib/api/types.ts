@@ -13,6 +13,7 @@ export interface User {
   created_at: string
   updated_at: string
   avatar?: string
+  customer_id: string
 }
 
 
@@ -340,6 +341,7 @@ export interface Plan {
   is_default: boolean
   created_at: string
   updated_at: string
+  price_id: string 
 }
 
 export interface CreatePlanRequest {
