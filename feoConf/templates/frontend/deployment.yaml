@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.frontend.name }}
+  namespace: {{ .Values.namespaces.app }}
   labels:
     app: {{ .Values.frontend.labels.app }}
 
@@ -24,8 +25,13 @@ spec:
 
           ports:
             - containerPort: {{ .Values.frontend.containerPort }}
-          env:
-           {{- range $key, $value := .Values.frontend.service.env }}
-            - name: {{ $key }}
-              value: "{{ $value }}"
-           {{- end }}
+          resources:
+            limits:
+              memory: {{ .Values.frontend.resources.limits.memory }}
+              cpu: {{ .Values.frontend.resources.limits.cpu }}
+            requests:
+              memory: {{ .Values.frontend.resources.requests.memory }}
+              cpu: {{ .Values.frontend.resources.requests.cpu }}
+          envFrom:
+            - secretRef:
+                name: front-env
