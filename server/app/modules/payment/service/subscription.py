@@ -8,6 +8,9 @@ from ..schemas.subscription import SubscriptionRequest, SubscriptionCreate
 from ..repository.subscription import SubscriptionRepository
 from ..models.subscription import Subscription  
 from app.core.logger import get_logger
+from app.modules.user.service import UserService as user_service
+from app.modules.user.schemas import UserUpdate
+
 
 
 logger = get_logger()
@@ -45,6 +48,7 @@ class SubscriptionService:
     
     
     def create_subscription(self, db: Session, subscription_request: SubscriptionRequest, user: User):
+
         try:
             # 1. Attach payment method
             self.stripe.PaymentMethod.attach(
@@ -102,12 +106,20 @@ class SubscriptionService:
             # 6. Save to database
             db_subscription = SubscriptionRepository.create(db, subscription_in)
             logger.info(f"✅ Subscription saved in database for user {user.id}")
+            from app.modules.plans.service import PlanService as plan_service
+            from app.modules.plans.model import Plan
             
+            plan:Plan = plan_service.get_by_stripe_price_id(db, subscription_request.stripe_price_id);
+            if not plan:
+                raise ValueError(f"Plan with Stripe price ID {subscription_request.stripe_price_id} not found")
+            data = UserUpdate(plan_id=plan.id)
+            user_service.update_me(db, user, data)
             return db_subscription
 
         except Exception as e:
             logger.error(f"❌ Failed to create subscription: {str(e)}", exc_info=True)
             raise
+        
     def extract_subscription_id(self, invoice)-> str:
         # ✅ ancien format
         if "subscription" in invoice and invoice["subscription"]:

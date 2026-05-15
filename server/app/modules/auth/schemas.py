@@ -43,6 +43,7 @@ class UserResponse(UserBase):
     plan_id: Optional[int]
     created_at: datetime
     updated_at: datetime
+    customer_id: Optional[str]
 
     class Config:
         from_attributes = True
