@@ -1,0 +1,50 @@
+global:
+  env: dev
+
+namespaces:
+  app: dev-feosync-app
+  data: dev-feosync-data
+  infra: dev-feosync-infra
+
+frontend:
+  namespace: dev-feosync-app
+  image:
+    pullPolicy: Always      
+    repository: nandrainadev/feosync-client
+    tag: latest
+  ingress:
+    host: dev.app.feosync.com
+  autoscaling:
+  enabled: false           # Pas d'autoscaling en dev
+  minReplicas: 1
+  maxReplicas: 1
+
+backend:
+  namespace: dev-feosync-app
+  image:
+    pullPolicy: Always
+    repository: nandrainadev/feosync-server
+    tag: latest
+  autoscaling:
+    enabled: false           # Pas d'autoscaling en dev
+    minReplicas: 1
+    maxReplicas: 1
+  ingress:
+    host: dev.api.feosync.com
+
+postgres:
+  namespace: dev-feosync-data
+  instances: 1              # Mono-instance suffit en dev
+  storage: 2Gi              # Moins de stockage en dev
+
+pgbouncer:
+  namespace: dev-feosync-data
+  instances: 1
+
+redis_operator:
+  namespace: dev-feosync-infra
+  persistence:
+    size: 512Mi             # Réduit en dev
+
+cloudnative-pg:
+  namespace: dev-feosync-data

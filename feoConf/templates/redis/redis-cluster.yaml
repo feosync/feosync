@@ -1,0 +1,42 @@
+{{- if .Values.redis_operator.enabled }}
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: RedisCluster
+metadata:
+  name: {{ .Values.redis_operator.name}}
+  namespace: {{ .Values.namespaces.infra }}
+  labels: 
+    name: {{ .Values.redis_operator.name }}
+spec:
+  clusterSize: 3                    # 3 masters (recommandé)
+  # clusterSize: 6                  # pour plus de performance (3 masters + 3 replicas)
+
+  kubernetesConfig:
+    image: quay.io/opstree/redis:v7.0.15              # ou 7.2, 6.2 selon tes besoins
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 101m
+        memory: 128Mi
+      limits:
+        cpu: 101m
+        memory: 128Mi
+    redisSecret:
+      name: redis-secret
+      key: redis-password
+  redisExporter:
+    enabled: true
+    image: quay.io/opstree/redis-exporter:1.0
+
+  
+    
+  storage:
+    volumeClaimTemplate:
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.redis_operator.persistence.storageClassName }}
+        resources:
+          requests:
+            storage: {{ .Values.redis_operator.persistence.size }}
+
+
+{{- end }}

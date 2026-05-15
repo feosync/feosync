@@ -1,34 +1,34 @@
-{{- if .Values.backend.autoscaling.enabled }}
+{{- if .Values.frontend.autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ .Values.backend.autoscaling.name }}
+  name: {{ .Values.frontend.autoscaling.name }}
   namespace: {{ .Values.namespaces.app }}
   labels:
-    app: {{ .Values.backend.autoscaling.labels.app }}
+    app: {{ .Values.frontend.autoscaling.labels.app }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ .Values.backend.name }}
-  minReplicas: {{ .Values.backend.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.backend.autoscaling.maxReplicas }}
+    name: {{ .Values.frontend.name }}
+  minReplicas: {{ .Values.frontend.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.frontend.autoscaling.maxReplicas }}
   metrics:
-  {{- if .Values.backend.autoscaling.targetCPUUtilizationPercentage }}
+  {{- if .Values.frontend.autoscaling.targetCPUUtilizationPercentage }}
   - type: Resource
     resource:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: {{ .Values.backend.autoscaling.targetCPUUtilizationPercentage }}
+        averageUtilization: {{ .Values.frontend.autoscaling.targetCPUUtilizationPercentage }}
   {{- end }}
-  {{- if .Values.backend.autoscaling.targetMemoryUtilizationPercentage }}
+  {{- if .Values.frontend.autoscaling.targetMemoryUtilizationPercentage }}
   - type: Resource
     resource:
       name: memory
       target:
         type: Utilization
-        averageUtilization: {{ .Values.backend.autoscaling.targetMemoryUtilizationPercentage }}
+        averageUtilization: {{ .Values.frontend.autoscaling.targetMemoryUtilizationPercentage }}
   {{- end }}
   behavior:
     scaleDown:
