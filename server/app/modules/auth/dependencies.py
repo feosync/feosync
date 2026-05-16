@@ -1,23 +1,17 @@
 """
 Auth Dependencies - Reusable dependency functions for authentication
 """
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, HTTPException, status, Cookie
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.modules.auth.service import AuthService
 from app.modules.user.model import User
 from app.core.contexte import current_token, current_user_email, current_user_id
-# HTTPBearer scheme for Swagger UI recognition
-security = HTTPBearer(
-    description="Bearer token for JWT authentication",
-    auto_error=False
-)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    access_token: str | None = Cookie(default=None),
     db: Session = Depends(get_db),
 ) -> User:
     """
@@ -36,16 +30,16 @@ async def get_current_user(
     Raises:
         HTTPException: If credentials missing, invalid, or user not found
     """
-    if not credentials:
+    print("Extracting token from cookie:", access_token)  # Debug log
+    if not access_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing or invalid authorization header",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    token = credentials.credentials
-    current_token.set(token)
-    user = AuthService.get_current_user(db, token)
+    current_token.set(access_token)
+    user = AuthService.get_current_user(db, access_token)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

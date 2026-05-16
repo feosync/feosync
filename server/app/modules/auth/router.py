@@ -1,14 +1,13 @@
 """
 Auth Router - Authentication endpoints
 """
-from fastapi import APIRouter, Depends, HTTPException, status, Header, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Response, Header
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.modules.auth.schemas import (
     GoogleTokenRequest,
         GoogleCallbackRequest,
-    LoginResponse,
     UserResponse,
     AuthError,
 )
@@ -21,10 +20,32 @@ import httpx
 
 
 auth_router = APIRouter()
+# =========== EN LOCALE ==============
+# def _set_auth_cookie(response: Response, token: str) -> None:
+#     response.set_cookie(
+#         key="access_token",
+#         value=token,
+#         httponly=True,    # JS ne peut pas lire → protège contre XSS
+#         secure=False,     # False en dev local HTTP, True en production HTTPS
+#         samesite="lax",   # protège contre CSRF
+#         max_age=86400,    # 24h en secondes
+#         path="/",         # cookie valide sur toutes les routes
+#     )
+    
+# =========== EN PROD ==============
+def _set_auth_cookie(response: Response, token: str) -> None:
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,    # JS ne peut pas lire → protège contre XSS
+        secure=True,     # True en production HTTPS
+        samesite="none",   # protège contre CSRF
+        max_age=86400,    # 24h en secondes
+        path="/",         # cookie valide sur toutes les routes
+    )
 
 @auth_router.post(
     "/google/auth",
-    response_model=LoginResponse,
     responses={
         400: {"model": AuthError, "description": "Invalid token"},
         401: {"model": AuthError, "description": "Token verification failed"},
@@ -33,6 +54,7 @@ auth_router = APIRouter()
 async def google_auth(
     request: GoogleTokenRequest,
     background_tasks: BackgroundTasks,
+    response: Response,
     db: Session = Depends(get_db),
 ):
     """
@@ -66,12 +88,12 @@ async def google_auth(
         user, access_token = AuthService.authenticate_google_user(
             db, google_user_info, background_tasks 
         )
-
-        return LoginResponse(
-            access_token=access_token,
-            token_type="bearer",
-            user=UserResponse.model_validate(user),
-        )
+        print("Authenticated user:", user.email, "Access token:", access_token)  # Debug log
+        _set_auth_cookie(response, access_token)  # Set cookie for browser clients
+        return {
+            "message": "Authentication successful",
+            "user": UserResponse.model_validate(user),
+        }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -79,15 +101,11 @@ async def google_auth(
         )
 
 
-
-
-
-
-
 @auth_router.post("/google/callback")
 async def google_callback(
     request: GoogleCallbackRequest,
-    background_tasks: BackgroundTasks,   # ← ajoute ça
+    background_tasks: BackgroundTasks,
+    response: Response,
     db: Session = Depends(get_db),
 ):
     async with httpx.AsyncClient() as client:
@@ -113,10 +131,11 @@ async def google_callback(
     user, access_token = AuthService.authenticate_google_user(
         db, google_user_info, background_tasks  # ← passe ici
     )
+    print("Authenticated user:", user.email, "Access token:", access_token)  # Debug log
 
+    _set_auth_cookie(response, access_token)  # Set cookie for browser clients
     return {
-        "access_token": access_token,
-        "token_type": "bearer",
+        "message": "Authentication successful",
         "user": UserResponse.model_validate(user),
     }
 
@@ -152,6 +171,7 @@ async def get_current_user_info(
         HTTPException 401: If Bearer token is missing or invalid
         HTTPException 403: If user account is deactivated
     """
+    print("Current user info requested for:", current_user.email)  # Debug log
     return UserResponse.model_validate(current_user)
 
 
@@ -166,33 +186,19 @@ async def get_current_user_info(
     tags=["User Info"],
 )
 async def logout(
+    response: Response,
     current_user: User = Depends(get_active_user),
 ):
-    """
-    Logout endpoint
-    
-    **Security:** Requires valid JWT Bearer token
-    
-    Note: With JWT tokens (stateless), logout is handled client-side by removing the token.
-    This endpoint validates that the token is still valid and can be used for tracking
-    logout events server-side or revoking tokens if needed in the future.
-    
-    Args:
-        current_user: Current active user from Bearer JWT token
-        
-    Returns:
-        LogoutResponse: Success message and instructions
-        
-    Raises:
-        HTTPException 401: If Bearer token is missing or invalid
-        HTTPException 403: If user account is deactivated
-    """
-    return {
-        "detail": "Successfully logged out",
-        "message": "Please remove the Bearer token from client storage",
-        "status": "success",
-        "timestamp": "now",
-    }
+    response.delete_cookie(                           # ← supprime le cookie
+        key="access_token",
+        path="/",
+        httponly=True,
+        secure=False,     # même valeur que dans set_cookie
+        samesite="lax",
+    )
+   
+    return {"detail": "Déconnecté avec succès", "status": "success"}
+
 
 
 @auth_router.get("/health")
