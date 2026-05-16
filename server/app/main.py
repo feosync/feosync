@@ -12,6 +12,8 @@ from app.core.config import settings
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+from scalar_fastapi import get_scalar_api_reference
+
 
 from app.modules import (
     auth_router, user_router, admin_user_router,
@@ -62,11 +64,14 @@ def create_app() -> FastAPI:
         description="FeoSync - Social Media Management Platform API",
         version="1.0.0",
         lifespan=lifespan,
+        docs_url=None, 
+        redoc_url=None,
     )
 
     _register_middleware(app)
     _register_routes(app)
     _register_static(app)
+    _register_scalar(app)
 
     return app
 
@@ -83,7 +88,7 @@ def _register_middleware(app: FastAPI) -> None:
 
 
 def _register_routes(app: FastAPI) -> None:
-    from app.api.routes import dev_router  # routes /dev et /
+    from app.api.routes import dev_router  
 
     app.include_router(dev_router)
     app.include_router(auth_router,           prefix="/api/v1/auth",           tags=["auth"])
@@ -110,6 +115,18 @@ def _register_static(app: FastAPI) -> None:
 
     Path("app/static/uploads").mkdir(parents=True, exist_ok=True)
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+
+def _register_scalar(app: FastAPI) -> None:
+    @app.get("/docs", include_in_schema=False)
+    async def scalar_docs():
+        return get_scalar_api_reference(
+            openapi_url=app.openapi_url, 
+            title=app.title,
+            scalar_favicon_url="/static/images/dark/feosync_icon.png",
+            hide_download_button=True
+        )
+
 
 
 app = create_app()
