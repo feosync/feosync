@@ -8,8 +8,6 @@ import { usePageAnalysis } from '@/hooks/useAnalytics'
 import { AnalyticsHeader }       from '@/components/analytics/AnalyticsHeader'
 import { AnalyticsKpiGrid }      from '@/components/analytics/AnalyticsKpiGrid'
 import { AnalyticsCharts }       from '@/components/analytics/AnalyticsCharts'
-import { AnalyticsSummaryCards } from '@/components/analytics/AnalyticsSummaryCards'
-import { AnalyticsPostsTable }   from '@/components/analytics/AnalyticsPostsTable'
 import { AnalyticsErrorBanner }  from '@/components/analytics/AnalyticsErrorBanner'
 import type { AnalyticsPeriod } from '@/lib/api/types'
 
@@ -68,9 +66,7 @@ export default function PageAnalyticsDetail() {
 
           <AnalyticsCharts daily={data.daily} />
 
-          <AnalyticsSummaryCards summary={data.summary} period={period} />
-
-          <AnalyticsPostsTable fbModelId={fbModelId} orgId={orgId} />
+   
         </>
       ) : (
         <div className="p-6 text-center text-slate-500 text-sm">
