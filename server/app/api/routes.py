@@ -8,7 +8,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 @dev_router.get("/", tags=["health"])
 async def root():
-    return {"message": "Welcome to FeoSync API!"}
+    return {"message": "Welcome to FeoSync API!", "version": "1.0.0", "status": "OK", "docs": "/docs"}
 
 @dev_router.get("/dev/get-token", tags=["dev"])
 async def get_token_page(request: Request):
