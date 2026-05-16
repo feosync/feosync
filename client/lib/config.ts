@@ -3,7 +3,8 @@ export const config = {
   appUrl: process.env.NEXT_PUBLIC_APP_URL!,
   googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
   stripePublishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
-  apiUrl: process.env.NEXT_PUBLIC_API_URL!,   // ← ajout
+  apiUrl: process.env.NEXT_PUBLIC_API_URL!,    //  en prod
+  // apiUrl: process.env.NEXT_PUBLIC_API_URL || "",   //  dn local
   stripeSecretKey: process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY!,
 } as const;
 

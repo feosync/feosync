@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import { useDarkMode } from '@/hooks/useDarkMode'
@@ -12,7 +11,6 @@ import { config } from '@/lib/config'
 function CallbackHandler() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { setUserFromToken } = useAuth()
 
   useEffect(() => {
     const code  = searchParams.get('code')
@@ -50,7 +48,7 @@ function CallbackHandler() {
 
       if (!response.ok) throw new Error(data.detail || "Échec de l'authentification")
 
-      await setUserFromToken(data.access_token)
+      // await setUserFromToken(data.access_token)
       toast.success('Connexion réussie', { description: `Bienvenue ${data.user.name} !` })
       window.location.href = '/overview'   // ← force reload du contexte auth
 
