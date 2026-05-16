@@ -26,8 +26,6 @@ from ..schemas.transaction import (
 
 # Crée le routeur avec un préfixe pour tous les endpoints de paiement
 app_payment_router = APIRouter(
-    prefix="/payments",
-    tags=["Paiements Stripe"],
     responses={
         400: {"description": "Requête invalide"},
         500: {"description": "Erreur serveur"}
