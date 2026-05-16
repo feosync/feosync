@@ -56,12 +56,6 @@ class TokenData(BaseModel):
     exp: datetime
 
 
-class LoginResponse(BaseModel):
-    """Login response with token and user"""
-    access_token: str
-    token_type: str
-    user: UserResponse
-
     class Config:
         json_schema_extra = {
             "example": {
