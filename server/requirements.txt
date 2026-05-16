@@ -27,3 +27,4 @@ tenacity
 uvicorn[standard]
 gevent
 qstash
+scalar-fastapi
