@@ -105,9 +105,9 @@ def _register_routes(app: FastAPI) -> None:
     app.include_router(post_analytics_router, prefix="/api/v1/post-analytics", tags=["PostAnalytics"])
     app.include_router(notif_router,          prefix="/api/v1/notif",          tags=["notif"])
     app.include_router(app_webhooks_router, prefix="/api/v1/webhook", tags= ["fb_webhook"] )
-    app.include_router(app_payment_router, prefix="/api/v1/payment", tags=["transaction"])
-    app.include_router(subcription_router, prefix="/api/v1/subscription", tags=["subscription"])
-    app.include_router(webhook_router, prefix="/api/v1/payment", tags=["stripe_webhook"])
+    app.include_router(app_payment_router, prefix="/api/v1/payment", tags=["Payment via stripe"] )
+    app.include_router(subcription_router, prefix="/api/v1/subscription", tags=["Subscription via stripe"])
+    app.include_router(webhook_router, prefix="/api/v1/payment", tags=["Webhook Stripe"] )
 
 def _register_static(app: FastAPI) -> None:
     from fastapi.staticfiles import StaticFiles
