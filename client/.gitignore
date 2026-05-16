@@ -132,7 +132,7 @@ storybook-static/
 # ===============================
 
 # Local deployment
-
+bun.*
 # ===============================
 
 .vercel
