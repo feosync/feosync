@@ -20,26 +20,15 @@ import httpx
 
 
 auth_router = APIRouter()
-# =========== EN LOCALE ==============
-# def _set_auth_cookie(response: Response, token: str) -> None:
-#     response.set_cookie(
-#         key="access_token",
-#         value=token,
-#         httponly=True,    # JS ne peut pas lire → protège contre XSS
-#         secure=False,     # False en dev local HTTP, True en production HTTPS
-#         samesite="lax",   # protège contre CSRF
-#         max_age=86400,    # 24h en secondes
-#         path="/",         # cookie valide sur toutes les routes
-#     )
-    
-# =========== EN PROD ==============
+
+is_production = settings.APP_ENV == "production"
 def _set_auth_cookie(response: Response, token: str) -> None:
     response.set_cookie(
         key="access_token",
         value=token,
         httponly=True,    # JS ne peut pas lire → protège contre XSS
-        secure=True,     # True en production HTTPS
-        samesite="none",   # protège contre CSRF
+        secure=is_production,     # True en production HTTPS
+        samesite="none" if is_production else "lax",  # none partout, secure selon env
         max_age=86400,    # 24h en secondes
         path="/",         # cookie valide sur toutes les routes
     )
@@ -193,8 +182,8 @@ async def logout(
         key="access_token",
         path="/",
         httponly=True,
-        secure=False,     # même valeur que dans set_cookie
-        samesite="lax",
+        secure=is_production,     # même valeur que dans set_cookie
+        samesite= "none" if is_production else "lax",
     )
    
     return {"detail": "Déconnecté avec succès", "status": "success"}
