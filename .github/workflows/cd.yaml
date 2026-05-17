@@ -1,8 +1,8 @@
-name: FEOSYNC CD
+name: feosync client cd
 
 on:
     workflow_run:
-        workflows: ["FEOSYNC CI"]
+        workflows: ["feosync client ci"]
         types:
             - completed
 jobs:

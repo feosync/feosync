@@ -1,4 +1,4 @@
-name: FEOSYNC CI
+name: feosync client ci
 permissions:
   contents: write
   discussions: write
@@ -25,17 +25,10 @@ jobs:
               username: ${{ secrets.DOCKER_USERNAME }}
               password: ${{ secrets.DOCKER_PASSWORD }}
           
-          - name: Build and push Server image
-            uses: docker/build-push-action@v3
-            with:
-              context: ./server
-              push: true
-              tags: ${{ secrets.DOCKER_USERNAME }}/feosync-server:latest
-          
           - name: Build and push Client image
             uses: docker/build-push-action@v3
             with:
-              context: ./client
+              context: ./
               push: true
               tags: ${{ secrets.DOCKER_USERNAME }}/feosync-client:latest
 
