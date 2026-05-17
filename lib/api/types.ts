@@ -14,6 +14,7 @@ export interface User {
   updated_at: string
   avatar?: string
   customer_id: string
+  current_period_end: string | null
 }
 
 

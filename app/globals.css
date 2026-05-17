@@ -95,7 +95,7 @@
 
 /* Mapping Tailwind v4 */
 @theme inline {
-  --font-sans: 'Geist', system-ui, sans-serif;
+  --font-sans: var(--font-roboto), system-ui, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, monospace;
 
   --color-background: var(--background);

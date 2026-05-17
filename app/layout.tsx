@@ -1,14 +1,18 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/hooks/AuthProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
 import { Toaster } from "@/components/ui/sonner"
 import './globals.css'
+import { Roboto } from 'next/font/google';
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
+
+const roboto = Roboto({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  variable: '--font-roboto', // Crée une variable CSS native
+});
 export const metadata: Metadata = {
   title: 'FeoSync - Social Media Automation',
   description: 'Automate your social media posting with AI-powered content generation and scheduling',
@@ -36,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="font-sans antialiased">
+      <body className={`${roboto.variable}`}>
         <QueryProvider>
           <AuthProvider>
             {children}
