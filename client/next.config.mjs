@@ -8,16 +8,28 @@ const nextConfig = {
   },
   transpilePackages: ['gsap'],
 
-  ...(process.env.NEXT_PUBLIC_APP_ENV !== 'production' && {
-    async rewrites() {
-      return [
-        {
-          source: "/api/:path*",
-          destination: "http://localhost:8000/api/:path*",
-        },
-      ];
-    },
-  }),
+  // ...(process.env.NEXT_PUBLIC_APP_ENV !== 'production' && {
+  //   async rewrites() {
+  //     return [
+  //       {
+  //         source: "/api/:path*",
+  //         destination: "http://localhost:8000/api/:path*",
+  //       },
+  //     ];
+  //   },
+  // }),
+
+  async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${apiUrl}/api/:path*`,
+      },
+    ];
+  },
+
 }
 
 export default nextConfig
