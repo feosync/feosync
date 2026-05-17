@@ -36,6 +36,7 @@ function CallbackHandler() {
         `${config.apiUrl}/api/v1/auth/google/callback`,
         {
           method: 'POST',
+          credentials: 'include',     
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             code,

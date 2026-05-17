@@ -119,9 +119,7 @@ function FacebookCallbackHandler() {
       const response = await fetch(
         `${config.apiUrl}/api/v1/fb/oauth/callback?code=${code}&state=${state}`,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('feosync_token')}`,
-          },
+          credentials: 'include',
         }
       )
 
