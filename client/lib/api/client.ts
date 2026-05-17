@@ -18,7 +18,7 @@ import {
 
 import { config } from "@/lib/config";
 
-const API_BASE_URL = config.apiUrl;
+const API_BASE_URL = config.apiUrl  || "";
 
 export class ApiClient {
   private static instance: ApiClient;
