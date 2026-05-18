@@ -47,10 +47,10 @@ interface SubscriptionDialogProps {
 }
 
 const STYLES = {
-  dialog: "bg-background/95 backdrop-blur-2xl sm:max-w-2xl lg:max-w-4xl xl:max-w-7xl w-full max-h-[96dvh] flex flex-col rounded-3xl border border-border/70 shadow-2xl overflow-hidden",
+  dialog: "bg-background/95 backdrop-blur-2xl sm:max-w-full lg:max-w-full w-full h-full flex flex-col  border border-border/70 shadow-2xl overflow-hidden",
   alertDialog: "bg-card/95 backdrop-blur-xl border border-border rounded-3xl max-w-md w-[calc(100%-2rem)] shadow-xl",
   header: "flex-shrink-0 px-6 sm:px-8 pt-6 pb-4",
-  grid: "flex-1 overflow-y-auto px-6 sm:px-8 py-6",
+  grid: "flex-1 overflow-y-auto px-6 sm:px-8 py-6 flex justify-center items-center",
   footer: "flex-shrink-0 px-6 sm:px-8 py-5 border-t border-border flex items-center gap-3",
 } as const;
 
@@ -97,8 +97,8 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
   };
 
   const gridCls = activePlans.length <= 2
-    ? "grid grid-cols-1 sm:grid-cols-2 gap-6"
-    : "grid grid-cols-1 md:grid-cols-3 gap-6";
+    ? "grid grid-cols-1 md:grid-cols-2 gap-6"
+    : "grid grid-cols-1 lg:grid-cols-3 gap-6";
 
   return (
     <>
@@ -116,10 +116,10 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
             {/* ... affichage des PlanCard (inchangé) ... */}
             {isLoading ? (
               <div className={gridCls}>
-                {[1, 2, 3].map((i) => <Skeleton key={i} className="h-[420px] rounded-3xl" />)}
+                {[1, 2, 3].map((i) => <Skeleton key={i} className="h-105 rounded-3xl" />)}
               </div>
             ) : (
-              <div className={gridCls}>
+              <div className={`${gridCls}  md:w-2/3 lg:w-full xl:w-5/6 2xl:w-2/3 h-full gap-8`}>
                 {activePlans.map((plan, i) => (
                   <PlanCard
                     key={plan.id}
