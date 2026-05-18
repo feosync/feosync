@@ -142,7 +142,7 @@ export function PlanCard({
   const cardClass = [
     "group relative flex flex-col rounded-3xl p-7 sm:p-8 bg-card border transition-all duration-300",
     isCurrent
-      ? "border-primary/60 shadow-xl shadow-primary/10 ring-1 ring-primary/20"
+      ? "border-primary/60 shadow-lg shadow-primary/10 ring-1 ring-primary/20"
       : "border-border hover:border-border/80",
     isPopular ? "scale-[1.03] md:scale-[1.05] border-primary/30" : "",
   ].join(" ");
