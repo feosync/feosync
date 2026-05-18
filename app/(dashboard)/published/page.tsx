@@ -319,7 +319,8 @@ export default function PublishedPage() {
 function PublishedPostCardWrapper({ post, pages, onSync, isSyncing,onAutoComment, isAutoCommenting,  onClick }: {
   post: PublishedPost; pages: any[]
   onSync: () => void; isSyncing?: boolean;
-  onAutoComment?: (payload: AutoCommentRequest) => void; isAutoCommenting?: boolean;
+  onAutoComment: (payload: AutoCommentRequest) => void; 
+  isAutoCommenting?: boolean;
    onClick: () => void
 }) {
   const { data: scheduledPost } = useScheduledPost(post.scheduled_post_id)
@@ -336,7 +337,7 @@ function PublishedPostCardWrapper({ post, pages, onSync, isSyncing,onAutoComment
 
 function PublishedPostDetailSheetWrapper({ post, pages, onClose, onSync, onDelete, isSyncing, isDeleting, onAutoComment, isAutoCommenting }: {
   post: PublishedPost; pages: any[]; onClose: () => void
-  onSync: () => void; onDelete: () => void; isSyncing?: boolean; isDeleting?: boolean; onAutoComment?: (payload: AutoCommentRequest) => void; isAutoCommenting?: boolean
+  onSync: () => void; onDelete: () => void; isSyncing?: boolean; isDeleting?: boolean; onAutoComment: (payload: AutoCommentRequest) => void; isAutoCommenting?: boolean
 }) {
   const { data: scheduledPost } = useScheduledPost(post.scheduled_post_id)
   const page = pages.find(p => p.id === post.facebook_page_id)
