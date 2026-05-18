@@ -1,181 +1,250 @@
-'use client'
+"use client";
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect } from "react";
 import {
-  Dialog, DialogContent, DialogHeader,
-  DialogTitle, DialogDescription,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
-  Loader2, LogOut, AlertCircle,
-  ArrowUp, ArrowDown, AlertTriangle, Calendar, CreditCard,
-} from 'lucide-react'
-import { useAuth }    from '@/hooks/useAuth'
-import { usePlans, useSubscribeToPlan, useUnsubscribeFromPlan } from '@/hooks/usePlans'
-import type { Plan }  from '@/lib/api/types'
-import { PlanCard, getPlanAction, type PlanAction } from '@/components/plans/PlanCard'
-import { Elements }   from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
-import { toast }      from 'sonner'
-import { PaymentDialog } from '@/app/stripe/paymentDialogue'
+  Loader2,
+  LogOut,
+  AlertCircle,
+  ArrowUp,
+  ArrowDown,
+  AlertTriangle,
+  Calendar,
+  CreditCard,
+} from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlans, useSubscribeToPlan, useUnsubscribeFromPlan } from "@/hooks/usePlans";
+import type { Plan } from "@/lib/api/types";
+import { PlanCard, getPlanAction, type PlanAction } from "@/components/plans/PlanCard";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { toast } from "sonner";
+import { PaymentDialog } from "@/app/stripe/paymentDialogue";
 
 // ── Stripe singleton ──────────────────────────────────────────────────────────
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-interface PendingChange { plan: Plan; action: PlanAction }
-
-interface SubscriptionDialogProps {
-  open: boolean
-  onOpenChange: (v: boolean) => void
+interface PendingChange {
+  plan: Plan;
+  action: PlanAction;
 }
 
-// ── Métadonnées confirmation par action ───────────────────────────────────────
+interface SubscriptionDialogProps {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}
+
+// ── Tokens de style (CSS variables du thème global) ───────────────────────────
+const STYLES = {
+  // Dialog principal — fond bg-background, bordure border-border
+  dialog:
+    "bg-background sm:max-w-2xl lg:max-w-4xl xl:max-w-6xl w-full max-h-[92dvh] flex flex-col rounded-2xl border border-border px-6 py-0 overflow-hidden shadow-xl",
+
+  // AlertDialog de confirmation
+  alertDialog:
+    "bg-card border border-border rounded-2xl max-w-sm w-[calc(100%-2rem)] mx-auto shadow-lg",
+
+  // Header sticky
+  header: "flex-shrink-0 px-5 sm:px-6 pt-6 pb-5 border-b border-border",
+
+  // Zone scrollable des plans
+  grid: "flex-1 overflow-y-auto px-4 sm:px-5 lg:px-6 py-5 sm:py-6",
+
+  // Footer désabonnement
+  footer: "flex-shrink-0 flex items-center gap-3 px-5 sm:px-6 py-3.5 border-t border-border",
+
+  // Pill badge renouvellement
+  renewBadge:
+    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted border border-border text-[11px] text-muted-foreground",
+
+  // Blocs info dans l'AlertDialog
+  infoBlock: {
+    upgrade: "bg-primary/8 border border-primary/20 rounded-xl p-3 space-y-1.5",
+    down:    "bg-destructive/8 border border-destructive/15 rounded-xl p-3 space-y-1.5",
+    lost:    "bg-destructive/8 border border-destructive/15 rounded-xl p-3",
+  },
+
+  // Boutons AlertDialog
+  btn: {
+    cancel:  "bg-secondary text-secondary-foreground border border-border hover:bg-accent hover:text-accent-foreground rounded-xl flex-1 transition-colors",
+    upgrade: "bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-xl flex-1",
+    down:    "bg-secondary text-secondary-foreground border border-border hover:bg-accent font-medium rounded-xl flex-1",
+    create:  "bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-xl flex-1",
+    unsub:   "bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl flex-1 transition-colors",
+  },
+
+  // Icon rings dans l'AlertDialog
+  iconRing: {
+    upgrade: "bg-primary/10 border border-primary/20",
+    down:    "bg-destructive/10 border border-destructive/20",
+    create:  "bg-muted border border-border",
+    unsub:   "bg-destructive/10 border border-destructive/20",
+  },
+} as const;
+
+// ── Métadonnées par action ────────────────────────────────────────────────────
 const ACTION_META = {
   UPGRADE: {
-    Icon: ArrowUp,
-    iconCls: 'text-emerald-400',
-    ringCls: 'bg-emerald-500/15 border border-emerald-500/25',
-    title: "Confirmer l'upgrade",
-    actionCls: 'bg-[var(--primary)] text-white hover:opacity-90 border-0 font-semibold shadow-lg shadow-blue-900/30',
-    actionLabel: 'Upgrader maintenant',
+    Icon:         ArrowUp,
+    iconCls:      "text-primary",
+    ringCls:      STYLES.iconRing.upgrade,
+    title:        "Confirmer l'upgrade",
+    actionBtnCls: STYLES.btn.upgrade,
+    actionLabel:  "Upgrader maintenant",
   },
   DOWNGRADE: {
-    Icon: ArrowDown,
-    iconCls: 'text-amber-400',
-    ringCls: 'bg-amber-500/15 border border-amber-500/25',
-    title: 'Confirmer le downgrade',
-    actionCls: 'bg-white/10 text-white hover:bg-white/15 border border-white/20 font-medium',
-    actionLabel: 'Planifier le downgrade',
+    Icon:         ArrowDown,
+    iconCls:      "text-destructive",
+    ringCls:      STYLES.iconRing.down,
+    title:        "Confirmer le downgrade",
+    actionBtnCls: STYLES.btn.down,
+    actionLabel:  "Planifier le downgrade",
   },
   CREATE: {
-    Icon: CreditCard,
-    iconCls: 'text-white/70',
-    ringCls: 'bg-white/8 border border-white/15',
-    title: 'Souscrire à ce plan',
-    actionCls: 'bg-white text-neutral-900 hover:bg-neutral-100 border-0 font-semibold',
-    actionLabel: 'Confirmer',
+    Icon:         CreditCard,
+    iconCls:      "text-muted-foreground",
+    ringCls:      STYLES.iconRing.create,
+    title:        "Souscrire à ce plan",
+    actionBtnCls: STYLES.btn.create,
+    actionLabel:  "Confirmer",
   },
-} as const
+} as const;
 
 // ── SubscriptionDialog ────────────────────────────────────────────────────────
 export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogProps) {
-  const { user }                        = useAuth()
-  const { data: plans = [], isLoading } = usePlans()
-  const subscribeMutation               = useSubscribeToPlan()
-  const unsubscribeMutation             = useUnsubscribeFromPlan()
+  const { user }                        = useAuth();
+  const { data: plans = [], isLoading } = usePlans();
+  const subscribeMutation               = useSubscribeToPlan();
+  const unsubscribeMutation             = useUnsubscribeFromPlan();
 
-  // ── State — synchronisé avec user.plan_id ──
-  const [currentPlanId, setCurrentPlanId] = useState<number | null>(user?.plan_id ?? null)
-  const [pending,       setPending]       = useState<PendingChange | null>(null)
-  const [confirmUnsub,  setConfirmUnsub]  = useState(false)
-  const [paymentPlan,   setPaymentPlan]   = useState<Plan | null>(null)
+  // ── State ──────────────────────────────────────────────────────────────────
+  const [currentPlanId, setCurrentPlanId] = useState<number | null>(user?.plan_id ?? null);
+  const [pending, setPending]             = useState<PendingChange | null>(null);
+  const [confirmUnsub, setConfirmUnsub]   = useState(false);
+  const [paymentPlan, setPaymentPlan]     = useState<Plan | null>(null);
 
-  // Resync si user change (ex: refresh token)
   useEffect(() => {
-    setCurrentPlanId(user?.plan_id ?? null)
-  }, [user?.plan_id])
+    setCurrentPlanId(user?.plan_id ?? null);
+  }, [user?.plan_id]);
 
-  // ── Mémos ──
-  const activePlans = useMemo(() => plans.filter(p => p.is_active), [plans])
+  // ── Mémos ──────────────────────────────────────────────────────────────────
+  const activePlans      = useMemo(() => plans.filter((p) => p.is_active), [plans]);
   const currentPlanIndex = useMemo(
-    () => activePlans.findIndex(p => p.id === currentPlanId),
+    () => activePlans.findIndex((p) => p.id === currentPlanId),
     [activePlans, currentPlanId],
-  )
-  const currentPlan  = currentPlanIndex >= 0 ? activePlans[currentPlanIndex] : null
-  const isSubscribed = !!currentPlanId
+  );
+  const currentPlan  = currentPlanIndex >= 0 ? activePlans[currentPlanIndex] : null;
+  const isSubscribed = !!currentPlanId;
 
-  // ── Handlers ──
+  // ── Handlers ───────────────────────────────────────────────────────────────
   const handleSubscribeClick = (plan: Plan, action: PlanAction) => {
-    if (action === 'CURRENT' || action === 'UNAVAILABLE') return
-    // Stripe uniquement pour les nouveaux abonnés — carte déjà enregistrée pour upgrade/downgrade
-    if (plan.price > 0 && action === 'CREATE') { setPaymentPlan(plan); return }
-    setPending({ plan, action })
-  }
+    if (action === "CURRENT" || action === "UNAVAILABLE") return;
+    if (plan.price > 0 && action === "CREATE") {
+      setPaymentPlan(plan);
+      return;
+    }
+    setPending({ plan, action });
+  };
 
   const handleConfirm = async () => {
-    if (!pending) return
+    if (!pending) return;
     try {
-      await subscribeMutation.mutateAsync(String(pending.plan.id))
-      setCurrentPlanId(pending.plan.id)
-      setPending(null)
-      if (pending.action === 'UPGRADE')
-        toast.success(`Upgrade vers ${pending.plan.name} activé !`)
-      else if (pending.action === 'DOWNGRADE')
-        toast.info(`Downgrade vers ${pending.plan.name} planifié.`)
-      else
-        toast.success(`Abonnement ${pending.plan.name} activé !`)
-      onOpenChange(false)
+      await subscribeMutation.mutateAsync(String(pending.plan.id));
+      setCurrentPlanId(pending.plan.id);
+      setPending(null);
+      if (pending.action === "UPGRADE")        toast.success(`Upgrade vers ${pending.plan.name} activé !`);
+      else if (pending.action === "DOWNGRADE") toast.info(`Downgrade vers ${pending.plan.name} planifié.`);
+      else                                     toast.success(`Abonnement ${pending.plan.name} activé !`);
+      onOpenChange(false);
     } catch { /* géré dans le hook */ }
-  }
+  };
 
   const handlePaymentSuccess = (plan: Plan | null) => {
-    if (plan) setCurrentPlanId(plan.id)
-    toast.success('Abonnement activé avec succès !')
-    setPaymentPlan(null)
-    onOpenChange(false)
-  }
+    if (plan) setCurrentPlanId(plan.id);
+    toast.success("Abonnement activé avec succès !");
+    setPaymentPlan(null);
+    onOpenChange(false);
+  };
 
   const handleConfirmUnsub = async () => {
     try {
-      await unsubscribeMutation.mutateAsync()
-      setCurrentPlanId(null)
-      setConfirmUnsub(false)
-      toast.success('Désabonnement effectué.')
-      onOpenChange(false)
+      await unsubscribeMutation.mutateAsync();
+      setCurrentPlanId(null);
+      setConfirmUnsub(false);
+      toast.success("Désabonnement effectué.");
+      onOpenChange(false);
     } catch { /* géré dans le hook */ }
-  }
+  };
 
   const meta = pending && pending.action in ACTION_META
     ? ACTION_META[pending.action as keyof typeof ACTION_META]
-    : null
+    : null;
+
+  // ── Grid adaptative ────────────────────────────────────────────────────────
+  const gridCls =
+    activePlans.length === 1
+      ? "grid grid-cols-1 max-w-xs mx-auto gap-4"
+      : activePlans.length === 2
+        ? "grid grid-cols-1 sm:grid-cols-2 gap-4"
+        : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4";
 
   return (
     <>
-      {/* ══════════════════ Dialog principal ══════════════════ */}
+      {/* ══ Dialog principal ══════════════════════════════════════════════ */}
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="
-         bg-[oklch(0.269_0_0)]
-         border border-white/10
-          sm:max-w-280 max-h-[92dvh] overflow-y-auto
-          rounded-2xl px-8 py-8
-        ">
+        <DialogContent className={STYLES.dialog}>
 
-          {/* ── En-tête ── */}
-          <div className="px-8 pt-8 pb-5 border-b border-white/8">
+          {/* ── En-tête ────────────────────────────────────────────────── */}
+          <div className={STYLES.header}>
             <DialogHeader>
-              <DialogTitle className="text-[22px] font-semibold text-white text-center tracking-tight mb-1.5">
+              <DialogTitle className="text-[19px] sm:text-[22px] font-semibold text-foreground text-center tracking-tight mb-1">
                 Des forfaits qui évoluent avec vous
               </DialogTitle>
-              <DialogDescription className="text-[13px] text-white/40 text-center" asChild>
-                <div className="space-y-3">
-                  <p>
+
+              <DialogDescription asChild>
+                <div className="space-y-2.5 text-center">
+                  <p className="text-[13px] text-muted-foreground">
                     {isSubscribed ? (
                       <>
-                        Plan actuel&nbsp;:&nbsp;
-                        <span className="text-white/70 font-medium">{currentPlan?.name}</span>
+                        Plan actuel&nbsp;:{" "}
+                        <span className="text-foreground font-medium">{currentPlan?.name}</span>
                         . Changez ou désabonnez-vous.
                       </>
                     ) : (
-                      'Choisissez le plan adapté à vos besoins.'
+                      "Choisissez le plan adapté à vos besoins."
                     )}
                   </p>
 
-                  {/* Date de renouvellement */}
+                  {/* Badge renouvellement */}
                   {isSubscribed && user?.current_period_end && (
-                    <div className="flex items-center justify-center">
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[11px] text-white/40">
-                        <Calendar className="w-3 h-3 text-white/30" />
-                        Renouvellement le&nbsp;
-                        <span className="text-white/60 font-medium">
-                          {new Date(user.current_period_end).toLocaleDateString('fr-FR', {
-                            day: 'numeric', month: 'long', year: 'numeric',
+                    <div className="flex justify-center">
+                      <div className={STYLES.renewBadge}>
+                        <Calendar className="w-3 h-3 text-muted-foreground/50" aria-hidden />
+                        Renouvellement le{" "}
+                        <span className="text-foreground/70 font-medium">
+                          {new Date(user.current_period_end).toLocaleDateString("fr-FR", {
+                            day:   "numeric",
+                            month: "long",
+                            year:  "numeric",
                           })}
                         </span>
                       </div>
@@ -186,26 +255,21 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
             </DialogHeader>
           </div>
 
-          {/* ── Grille plans ── */}
-          <div className="px-6 py-6">
+          {/* ── Grille des plans ───────────────────────────────────────── */}
+          <div className={STYLES.grid}>
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[1, 2, 3].map(i => (
-                  <Skeleton key={i} className="h-96 rounded-2xl bg-white/5" />
+              <div className={gridCls}>
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-80 sm:h-96 rounded-2xl bg-muted/50" />
                 ))}
               </div>
             ) : activePlans.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-3">
-                <AlertCircle className="w-8 h-8 text-white/15" />
-                <p className="text-[13px] text-white/30">Aucun plan disponible.</p>
+              <div className="flex flex-col items-center justify-center py-20 gap-3">
+                <AlertCircle className="w-8 h-8 text-muted-foreground/30" aria-hidden />
+                <p className="text-[13px] text-muted-foreground">Aucun plan disponible.</p>
               </div>
             ) : (
-              <div className={`
-                grid gap-4 items-start
-                ${activePlans.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' :
-                  activePlans.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
-                  'grid-cols-1 sm:grid-cols-3'}
-              `}>
+              <div className={gridCls}>
                 {activePlans.map((plan, i) => (
                   <PlanCard
                     key={plan.id}
@@ -221,10 +285,10 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
             )}
           </div>
 
-          {/* ── Footer désabonnement ── */}
+          {/* ── Footer désabonnement ───────────────────────────────────── */}
           {isSubscribed && (
-            <div className="flex items-center justify-between px-8 py-4 border-t border-white/8">
-              <p className="text-[11px] text-white/25 tracking-wide">
+            <div className={STYLES.footer}>
+              <p className="text-[11px] text-muted-foreground/50 tracking-wide hidden sm:block">
                 Sans engagement · Annulation à tout moment
               </p>
               <Button
@@ -232,11 +296,11 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
                 size="sm"
                 onClick={() => setConfirmUnsub(true)}
                 disabled={unsubscribeMutation.isPending}
-                className="text-white/30 hover:text-red-400 hover:bg-red-500/10 text-[12px] gap-1.5 transition-all duration-200 rounded-lg"
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/8 text-[12px] gap-1.5 rounded-lg transition-all duration-200 ml-auto"
               >
                 {unsubscribeMutation.isPending
                   ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  : <LogOut className="w-3.5 h-3.5" />
+                  : <LogOut className="w-3.5 h-3.5" aria-hidden />
                 }
                 Se désabonner
               </Button>
@@ -245,97 +309,97 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
         </DialogContent>
       </Dialog>
 
-      {/* ══════════════════ Stripe PaymentDialog ══════════════════ */}
+      {/* ══ Stripe PaymentDialog ══════════════════════════════════════════ */}
       <Elements stripe={stripePromise}>
         <PaymentDialog
           open={!!paymentPlan}
-          onOpenChange={o => !o && setPaymentPlan(null)}
+          onOpenChange={(o) => !o && setPaymentPlan(null)}
           plan={paymentPlan}
-          stripeCustomerId={user?.customer_id ?? ''}
-          stripe_price_id={paymentPlan?.price_id ?? ''}
+          stripeCustomerId={user?.customer_id ?? ""}
+          stripe_price_id={paymentPlan?.price_id ?? ""}
           onSuccess={handlePaymentSuccess}
         />
       </Elements>
 
-      {/* ══════════════════ Confirmation Upgrade / Downgrade / Create ══════════════════ */}
-      <AlertDialog open={!!pending} onOpenChange={o => !o && setPending(null)}>
-        <AlertDialogContent className="bg-[oklch(0.14_0_0)] border border-white/12 rounded-2xl max-w-sm">
+      {/* ══ Confirmation Upgrade / Downgrade / Create ═════════════════════ */}
+      <AlertDialog open={!!pending} onOpenChange={(o) => !o && setPending(null)}>
+        <AlertDialogContent className={STYLES.alertDialog}>
           {meta && pending && (
             <AlertDialogHeader>
-              {/* Icône contextuelle */}
+
+              {/* Icon ring */}
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${meta.ringCls}`}>
-                <meta.Icon className={`w-5 h-5 ${meta.iconCls}`} />
+                <meta.Icon className={`w-5 h-5 ${meta.iconCls}`} aria-hidden />
               </div>
 
-              <AlertDialogTitle className="text-white text-[16px] font-semibold">
+              <AlertDialogTitle className="text-foreground text-[16px] font-semibold">
                 {meta.title}
               </AlertDialogTitle>
 
-              <AlertDialogDescription className="text-white/50 text-[13px]" asChild>
-                <div className="space-y-3 mt-1">
+              <AlertDialogDescription asChild>
+                <div className="text-muted-foreground text-[13px] space-y-3 mt-1">
 
                   {/* ── Upgrade ── */}
-                  {pending.action === 'UPGRADE' && (
+                  {pending.action === "UPGRADE" && (
                     <div className="space-y-2.5">
                       <p>
-                        Passage de&nbsp;
-                        <span className="text-white/75 font-medium">{currentPlan?.name}</span>
-                        &nbsp;→&nbsp;
-                        <span className="text-emerald-400 font-medium">{pending.plan.name}</span>
+                        Passage de{" "}
+                        <span className="text-foreground/80 font-medium">{currentPlan?.name}</span>
+                        {" → "}
+                        <span className="text-primary font-medium">{pending.plan.name}</span>
                       </p>
-                      <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 space-y-1.5">
-                        <p className="text-emerald-400 font-medium text-[12px]">✓ Actif immédiatement</p>
-                        <p className="text-emerald-400/60 text-[12px]">
-                          Montant proraté débité pour le reste du cycle.
-                        </p>
-                        <p className="text-white/75 font-semibold text-[15px] pt-0.5">
-                          {pending.plan.price.toLocaleString('fr-MG')} Ar / mois
+                      <div className={STYLES.infoBlock.upgrade}>
+                        <p className="text-primary font-medium text-[12px]">✓ Actif immédiatement</p>
+                        <p className="text-primary/55 text-[12px]">Montant proraté débité pour le reste du cycle.</p>
+                        <p className="text-foreground font-semibold text-[15px] pt-0.5">
+                          {pending.plan.price.toLocaleString("fr-MG")} Ar / mois
                         </p>
                       </div>
                     </div>
                   )}
 
                   {/* ── Downgrade ── */}
-                  {pending.action === 'DOWNGRADE' && (
+                  {pending.action === "DOWNGRADE" && (
                     <div className="space-y-2.5">
                       <p>
-                        Passage de&nbsp;
-                        <span className="text-white/75 font-medium">{currentPlan?.name}</span>
-                        &nbsp;→&nbsp;
-                        <span className="text-amber-400 font-medium">{pending.plan.name}</span>
+                        Passage de{" "}
+                        <span className="text-foreground/80 font-medium">{currentPlan?.name}</span>
+                        {" → "}
+                        <span className="text-destructive font-medium">{pending.plan.name}</span>
                       </p>
-                      <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 space-y-1.5">
+                      <div className={STYLES.infoBlock.down}>
                         <div className="flex items-start gap-2">
-                          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+                          <AlertTriangle className="w-3.5 h-3.5 text-destructive flex-shrink-0 mt-0.5" aria-hidden />
                           <div>
-                            <p className="text-amber-400 font-medium text-[12px]">Effectif en fin de cycle</p>
+                            <p className="text-destructive font-medium text-[12px]">Effectif en fin de cycle</p>
                             {user?.current_period_end && (
-                              <p className="text-amber-400/60 text-[12px] mt-0.5">
-                                Plan actuel conservé jusqu'au&nbsp;
-                                {new Date(user.current_period_end).toLocaleDateString('fr-FR', {
-                                  day: 'numeric', month: 'long',
+                              <p className="text-destructive/55 text-[12px] mt-0.5">
+                                Plan actuel conservé jusqu'au{" "}
+                                {new Date(user.current_period_end).toLocaleDateString("fr-FR", {
+                                  day:   "numeric",
+                                  month: "long",
                                 })}
                               </p>
                             )}
                           </div>
                         </div>
-                        <p className="text-white/65 font-semibold text-[14px] pt-0.5">
+                        <p className="text-foreground/70 font-semibold text-[14px] pt-1">
                           {pending.plan.price === 0
-                            ? 'Gratuit'
-                            : `${pending.plan.price.toLocaleString('fr-MG')} Ar / mois`}
+                            ? "Gratuit"
+                            : `${pending.plan.price.toLocaleString("fr-MG")} Ar / mois`}
                         </p>
                       </div>
                     </div>
                   )}
 
                   {/* ── Create ── */}
-                  {pending.action === 'CREATE' && (
+                  {pending.action === "CREATE" && (
                     <p>
-                      Abonnement au plan&nbsp;
-                      <span className="text-white/75 font-medium">{pending.plan.name}</span>
+                      Abonnement au plan{" "}
+                      <span className="text-foreground font-medium">{pending.plan.name}</span>
                       {pending.plan.price === 0
-                        ? '\u00a0— gratuit.'
-                        : `\u00a0— ${pending.plan.price.toLocaleString('fr-MG')} Ar / mois.`}
+                        ? "\u00a0— gratuit."
+                        : `\u00a0— ${pending.plan.price.toLocaleString("fr-MG")} Ar / mois.`}
                     </p>
                   )}
                 </div>
@@ -343,9 +407,9 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
             </AlertDialogHeader>
           )}
 
-          <AlertDialogFooter className="mt-4 gap-2">
+          <AlertDialogFooter className="mt-4 gap-2 flex-col sm:flex-row">
             <AlertDialogCancel
-              className="bg-white/6 text-white/60 border border-white/12 hover:bg-white/10 hover:text-white rounded-xl flex-1"
+              className={STYLES.btn.cancel}
               disabled={subscribeMutation.isPending}
             >
               Annuler
@@ -353,42 +417,50 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
             <AlertDialogAction
               onClick={handleConfirm}
               disabled={subscribeMutation.isPending}
-              className={`rounded-xl flex-1 ${meta?.actionCls}`}
+              className={meta?.actionBtnCls}
             >
-              {subscribeMutation.isPending
-                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Traitement…</>
-                : meta?.actionLabel
-              }
+              {subscribeMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Traitement…</>
+              ) : (
+                meta?.actionLabel
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* ══════════════════ Confirmation Désabonnement ══════════════════ */}
+      {/* ══ Confirmation Désabonnement ════════════════════════════════════ */}
       <AlertDialog open={confirmUnsub} onOpenChange={setConfirmUnsub}>
-        <AlertDialogContent className="bg-[oklch(0.14_0_0)] border border-white/12 rounded-2xl max-w-sm">
+        <AlertDialogContent className={STYLES.alertDialog}>
           <AlertDialogHeader>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 bg-red-500/10 border border-red-500/20">
-              <LogOut className="w-5 h-5 text-red-400" />
+
+            {/* Icon ring */}
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${STYLES.iconRing.unsub}`}>
+              <LogOut className="w-5 h-5 text-destructive" aria-hidden />
             </div>
-            <AlertDialogTitle className="text-white text-[16px] font-semibold">
+
+            <AlertDialogTitle className="text-foreground text-[16px] font-semibold">
               Se désabonner ?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-white/50 text-[13px]" asChild>
-              <div className="space-y-3 mt-1">
+
+            <AlertDialogDescription asChild>
+              <div className="text-muted-foreground text-[13px] space-y-3 mt-1">
                 <p>Vous repasserez sur le plan gratuit avec des fonctionnalités limitées.</p>
 
                 {/* Fonctionnalités perdues */}
                 {currentPlan?.features && currentPlan.features.length > 0 && (
-                  <div className="bg-red-500/8 border border-red-500/15 rounded-xl p-3">
-                    <p className="text-red-400 font-medium text-[11px] mb-2 flex items-center gap-1.5 uppercase tracking-wide">
-                      <AlertTriangle className="w-3 h-3" />
+                  <div className={STYLES.infoBlock.lost}>
+                    <p className="text-destructive font-medium text-[11px] mb-2 flex items-center gap-1.5 uppercase tracking-wide">
+                      <AlertTriangle className="w-3 h-3" aria-hidden />
                       Fonctionnalités perdues
                     </p>
-                    <ul className="space-y-1.5">
-                      {currentPlan.features.slice(0, 4).map(f => (
-                        <li key={f} className="text-white/35 text-[12px] line-clamp-1 flex items-center gap-1.5">
-                          <span className="w-1 h-1 rounded-full bg-red-400/40 flex-shrink-0" />
+                    <ul className="space-y-1.5" role="list">
+                      {currentPlan.features.slice(0, 4).map((f) => (
+                        <li
+                          key={f}
+                          className="text-muted-foreground text-[12px] flex items-center gap-1.5 leading-snug"
+                        >
+                          <span className="w-1 h-1 rounded-full bg-destructive/40 flex-shrink-0" aria-hidden />
                           {f}
                         </li>
                       ))}
@@ -396,16 +468,16 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
                   </div>
                 )}
 
-                <p className="text-white/30 text-[11px]">
+                <p className="text-muted-foreground/50 text-[11px]">
                   Vous pouvez vous réabonner à tout moment.
                 </p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <AlertDialogFooter className="mt-4 gap-2">
+          <AlertDialogFooter className="mt-4 gap-2 flex-col sm:flex-row">
             <AlertDialogCancel
-              className="bg-white/6 text-white/60 border border-white/12 hover:bg-white/10 hover:text-white rounded-xl flex-1"
+              className={STYLES.btn.cancel}
               disabled={unsubscribeMutation.isPending}
             >
               Annuler
@@ -413,16 +485,17 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
             <AlertDialogAction
               onClick={handleConfirmUnsub}
               disabled={unsubscribeMutation.isPending}
-              className="bg-red-500/80 hover:bg-red-500 text-white border-0 rounded-xl flex-1 transition-all duration-200"
+              className={STYLES.btn.unsub}
             >
-              {unsubscribeMutation.isPending
-                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Traitement…</>
-                : 'Confirmer le désabonnement'
-              }
+              {unsubscribeMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Traitement…</>
+              ) : (
+                "Confirmer le désabonnement"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
