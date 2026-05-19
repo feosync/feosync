@@ -185,7 +185,7 @@ export function PlanCard({
       <div className="mb-8">
         <div className="flex items-baseline gap-1">
           <span className="text-5xl sm:text-6xl font-bold tracking-tighter text-foreground">
-            {plan.price === 0 ? "0" : plan.price.toLocaleString("fr-MG")}
+            {plan.price.toLocaleString("fr-MG")}
           </span>
           <span className="text-muted-foreground text-lg">Ar</span>
         </div>
