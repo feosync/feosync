@@ -18,7 +18,7 @@ import {
 
 import { config } from "@/lib/config";
 
-const API_BASE_URL = config.apiUrl  || "";
+const API_BASE_URL = config.apiUrl || "";
 
 export class ApiClient {
   private static instance: ApiClient;
@@ -44,11 +44,11 @@ export class ApiClient {
       ...((options.headers as Record<string, string>) || {}),
     };
     // ← plus de headers["Authorization"] = Bearer
-    
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
-      credentials: "include",   // ← cookie envoyé automatiquement à chaque requête
+      credentials: "include", // ← cookie envoyé automatiquement à chaque requête
     });
 
     if (response.status === 401) {
@@ -70,13 +70,13 @@ export class ApiClient {
   // ── Auth ──────────────────────────────────────────────────────────────────
 
   async googleLogin(googleToken: string): Promise<{ user: any }> {
-     console.log("Attempting Google login with token:", googleToken);  // Debug log
+    console.log("Attempting Google login with token:", googleToken); // Debug log
     const data = await this.request<{ message: string; user: any }>(
       "/api/v1/auth/google/auth",
       {
         method: "POST",
         body: JSON.stringify({ token: googleToken }),
-      }
+      },
     );
     // ← plus de this.setToken(data.access_token)
     // le cookie est posé automatiquement par le serveur dans Set-Cookie
@@ -109,7 +109,7 @@ export class ApiClient {
       {
         method: "POST",
         body: formData,
-        credentials: "include",   // ← ajouté
+        credentials: "include", // ← ajouté
       },
     );
 
@@ -137,7 +137,9 @@ export class ApiClient {
   }
 
   async subscribeToPlan(planId: string): Promise<any> {
-    return this.request(`/api/v1/plans/${planId}/subscribe`, { method: "POST" });
+    return this.request(`/api/v1/plans/${planId}/subscribe`, {
+      method: "POST",
+    });
   }
 
   async unsubscribeFromPlan(): Promise<any> {
@@ -149,18 +151,28 @@ export class ApiClient {
   }
 
   async adminCreatePlan(data: any): Promise<any> {
-    return this.request("/api/v1/plans/", { method: "POST", body: JSON.stringify(data) });
+    return this.request("/api/v1/plans/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   async adminUpdatePlan(planId: string, data: any): Promise<any> {
-    return this.request(`/api/v1/plans/${planId}`, { method: "PATCH", body: JSON.stringify(data) });
+    return this.request(`/api/v1/plans/${planId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
   }
 
   async adminDeletePlan(planId: string): Promise<void> {
     await this.request(`/api/v1/plans/${planId}`, { method: "DELETE" });
   }
 
-  async adminGetAllUsers(params?: { page?: number; page_size?: number; search?: string }): Promise<PaginatedResponse<UserSummary>> {
+  async adminGetAllUsers(params?: {
+    page?: number;
+    page_size?: number;
+    search?: string;
+  }): Promise<PaginatedResponse<UserSummary>> {
     const query = new URLSearchParams();
     if (params?.page) query.set("page", String(params.page));
     if (params?.page_size) query.set("page_size", String(params.page_size));
@@ -173,18 +185,26 @@ export class ApiClient {
   }
 
   async adminPromoteUser(userId: string): Promise<any> {
-    return this.request(`/api/v1/admin/users/${userId}/promote`, { method: "PATCH" });
+    return this.request(`/api/v1/admin/users/${userId}/promote`, {
+      method: "PATCH",
+    });
   }
 
   async adminDemoteUser(userId: string): Promise<any> {
-    return this.request(`/api/v1/admin/users/${userId}/demote`, { method: "PATCH" });
+    return this.request(`/api/v1/admin/users/${userId}/demote`, {
+      method: "PATCH",
+    });
   }
 
   async adminDeleteUser(userId: string): Promise<void> {
     await this.request(`/api/v1/admin/users/${userId}`, { method: "DELETE" });
   }
 
-  async getOrganisations(params?: { page?: number; page_size?: number; search?: string }): Promise<PaginatedResponse<Organisation>> {
+  async getOrganisations(params?: {
+    page?: number;
+    page_size?: number;
+    search?: string;
+  }): Promise<PaginatedResponse<Organisation>> {
     const query = new URLSearchParams();
     if (params?.page) query.set("page", String(params.page));
     if (params?.page_size) query.set("page_size", String(params.page_size));
@@ -197,11 +217,17 @@ export class ApiClient {
   }
 
   async createOrganisation(data: any): Promise<any> {
-    return this.request("/api/v1/org/", { method: "POST", body: JSON.stringify(data) });
+    return this.request("/api/v1/org/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   async updateOrganisation(id: string, data: any): Promise<any> {
-    return this.request(`/api/v1/org/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+    return this.request(`/api/v1/org/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
   }
 
   async deleteOrganisation(id: string): Promise<void> {
@@ -217,26 +243,46 @@ export class ApiClient {
   }
 
   async connectFacebookPage(data: any): Promise<any> {
-    return this.request("/api/v1/fb/connect", { method: "POST", body: JSON.stringify(data) });
+    return this.request("/api/v1/fb/connect", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   async toggleFacebookPage(pageId: string, orgId: string): Promise<any> {
-    return this.request(`/api/v1/fb/${pageId}/toggle?org_id=${orgId}`, { method: "PATCH" });
+    return this.request(`/api/v1/fb/${pageId}/toggle?org_id=${orgId}`, {
+      method: "PATCH",
+    });
   }
 
   async disconnectFacebookPage(pageId: string, orgId: string): Promise<void> {
-    await this.request(`/api/v1/fb/${pageId}?org_id=${orgId}`, { method: "DELETE" });
+    await this.request(`/api/v1/fb/${pageId}?org_id=${orgId}`, {
+      method: "DELETE",
+    });
   }
 
   async syncInsights(pageId: string, orgId: string): Promise<any> {
-    return this.request(`/api/v1/fb/${pageId}/insights/sync?org_id=${orgId}`, { method: "POST" });
+    return this.request(`/api/v1/fb/${pageId}/insights/sync?org_id=${orgId}`, {
+      method: "POST",
+    });
   }
 
   async getInsights(pageId: string, orgId: string): Promise<any[]> {
     return this.request(`/api/v1/fb/${pageId}/insights?org_id=${orgId}`);
   }
 
-  async getScheduledPosts(orgId: string, params?: { page?: number; page_size?: number; status?: string; search?: string; year?: number; month?: number; week?: number }): Promise<PaginatedResponse<ScheduledPost>> {
+  async getScheduledPosts(
+    orgId: string,
+    params?: {
+      page?: number;
+      page_size?: number;
+      status?: string;
+      search?: string;
+      year?: number;
+      month?: number;
+      week?: number;
+    },
+  ): Promise<PaginatedResponse<ScheduledPost>> {
     const query = new URLSearchParams();
     if (params?.page) query.set("page", String(params.page));
     if (params?.page_size) query.set("page_size", String(params.page_size));
@@ -253,34 +299,70 @@ export class ApiClient {
   }
 
   async createScheduledPost(data: any): Promise<ScheduledPost> {
-    return this.request("/api/v1/scheduled/", { method: "POST", body: JSON.stringify(data) });
+    return this.request("/api/v1/scheduled/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   async patchCaption(postId: string, data: any): Promise<CaptionPatchResponse> {
-    return this.request(`/api/v1/scheduled/${postId}/caption`, { method: "PATCH", body: JSON.stringify(data) });
+    return this.request(`/api/v1/scheduled/${postId}/caption`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
   }
 
-  async addImage(postId: string, data: ImageAddRequest): Promise<AddImageResponse> {
-    return this.request(`/api/v1/scheduled/${postId}/images`, { method: "POST", body: JSON.stringify(data) });
+  async addImage(
+    postId: string,
+    data: ImageAddRequest,
+  ): Promise<AddImageResponse> {
+    return this.request(`/api/v1/scheduled/${postId}/images`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   async removeImage(postId: string, imageId: string): Promise<ScheduledPost> {
-    return this.request(`/api/v1/scheduled/${postId}/images/${imageId}`, { method: "DELETE" });
+    return this.request(`/api/v1/scheduled/${postId}/images/${imageId}`, {
+      method: "DELETE",
+    });
   }
 
-  async reorderImages(postId: string, orderedIds: string[]): Promise<ScheduledPost> {
-    return this.request(`/api/v1/scheduled/${postId}/images/reorder`, { method: "PATCH", body: JSON.stringify({ ordered_ids: orderedIds }) });
+  async reorderImages(
+    postId: string,
+    orderedIds: string[],
+  ): Promise<ScheduledPost> {
+    return this.request(`/api/v1/scheduled/${postId}/images/reorder`, {
+      method: "PATCH",
+      body: JSON.stringify({ ordered_ids: orderedIds }),
+    });
   }
 
-  async confirmScheduledPost(postId: string, data: any): Promise<ScheduledPost> {
-    return this.request(`/api/v1/scheduled/${postId}/confirm`, { method: "PATCH", body: JSON.stringify(data) });
+  async confirmScheduledPost(
+    postId: string,
+    data: any,
+  ): Promise<ScheduledPost> {
+    return this.request(`/api/v1/scheduled/${postId}/confirm`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
   }
 
   async deleteScheduledPost(postId: string): Promise<void> {
     await this.request(`/api/v1/scheduled/${postId}`, { method: "DELETE" });
   }
 
-  async getPublishedPosts(orgId: string, params?: { page?: number; page_size?: number; search?: string; year?: number; month?: number; week?: number }): Promise<PaginatedResponse<PublishedPost>> {
+  async getPublishedPosts(
+    orgId: string,
+    params?: {
+      page?: number;
+      page_size?: number;
+      search?: string;
+      year?: number;
+      month?: number;
+      week?: number;
+    },
+  ): Promise<PaginatedResponse<PublishedPost>> {
     const query = new URLSearchParams();
     if (params?.page) query.set("page", String(params.page));
     if (params?.page_size) query.set("page_size", String(params.page_size));
@@ -300,15 +382,26 @@ export class ApiClient {
   }
 
   async publishPost(scheduledPostId: string): Promise<PublishedPost> {
-    return this.request("/api/v1/published/publish", { method: "POST", body: JSON.stringify({ scheduled_post_id: scheduledPostId }) });
+    return this.request("/api/v1/published/publish", {
+      method: "POST",
+      body: JSON.stringify({ scheduled_post_id: scheduledPostId }),
+    });
   }
 
-  async setAutoComment(postId: string, payload: AutoCommentRequest): Promise<PublishedPost> {
-    return this.request(`/api/v1/published/${postId}/auto-comment`, { method: "PATCH", body: JSON.stringify(payload) });
+  async setAutoComment(
+    postId: string,
+    payload: AutoCommentRequest,
+  ): Promise<PublishedPost> {
+    return this.request(`/api/v1/published/${postId}/auto-comment`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
   }
 
   async syncMetrics(postId: string): Promise<PublishedPost> {
-    return this.request(`/api/v1/published/${postId}/sync-metrics`, { method: "POST" });
+    return this.request(`/api/v1/published/${postId}/sync-metrics`, {
+      method: "POST",
+    });
   }
 
   async getAiHistory(orgId: string): Promise<any[]> {
@@ -344,30 +437,50 @@ export class ApiClient {
   }
 
   async createTemplate(data: any): Promise<any> {
-    return this.request("/api/v1/post-template/", { method: "POST", body: JSON.stringify(data) });
+    return this.request("/api/v1/post-template/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   async updateTemplate(id: string, orgId: string, data: any): Promise<any> {
-    return this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, { method: "PATCH", body: JSON.stringify(data) });
+    return this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
   }
 
   async deleteTemplate(id: string, orgId: string): Promise<void> {
-    await this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, { method: "DELETE" });
+    await this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, {
+      method: "DELETE",
+    });
   }
 
   async getAnalyticsByOrg(orgId: string): Promise<PostAnalytics[]> {
     return this.request(`/api/v1/post-analytics/org/${orgId}`);
   }
 
-  async getPageAnalysis(fbModelId: string, orgId: string, period: AnalyticsPeriod = "week"): Promise<PageAnalysisResponse> {
-    return this.request(`/api/v1/post-analytics/page/${fbModelId}/analysis?org_id=${orgId}&period=${period}`);
+  async getPageAnalysis(
+    fbModelId: string,
+    orgId: string,
+    period: AnalyticsPeriod = "week",
+  ): Promise<PageAnalysisResponse> {
+    return this.request(
+      `/api/v1/post-analytics/page/${fbModelId}/analysis?org_id=${orgId}&period=${period}`,
+    );
   }
 
-  async getPostsWithReactions(fbModelId: string, orgId: string, params?: { limit?: number; after?: string }): Promise<PostsWithReactionsResponse> {
+  async getPostsWithReactions(
+    fbModelId: string,
+    orgId: string,
+    params?: { limit?: number; after?: string },
+  ): Promise<PostsWithReactionsResponse> {
     const query = new URLSearchParams({ org_id: orgId });
     if (params?.limit) query.set("limit", String(params.limit));
     if (params?.after) query.set("after", params.after);
-    return this.request(`/api/v1/post-analytics/page/${fbModelId}/posts?${query}`);
+    return this.request(
+      `/api/v1/post-analytics/page/${fbModelId}/posts?${query}`,
+    );
   }
 
   async subscription(sub: SubscriptionRequest): Promise<any> {
@@ -375,6 +488,19 @@ export class ApiClient {
       method: "POST",
       body: JSON.stringify(sub),
     });
+  }
+
+  // lib/api/client.ts — ajoute juste après la méthode subscription()
+
+  async createSetupIntent(
+    customer_id: string,
+  ): Promise<{ client_secret: string; status: string }> {
+    // ✅ query param (pas body) — correspond à ton backend FastAPI
+    return this.request(
+      `/api/v1/subscription/setup-intent?customer_id=${customer_id}`,{
+        method: "POST",
+      }
+    );
   }
 }
 

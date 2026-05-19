@@ -1,137 +1,169 @@
 // components/plans/PaymentDialog.tsx
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import { useState } from "react";
 import {
-  Dialog, DialogContent, DialogHeader,
-  DialogTitle, DialogDescription
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Loader2, CreditCard, Lock } from 'lucide-react'
-import { apiClient } from '@/lib/api/client'
-import type { Plan } from '@/lib/api/types'
+  PaymentElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Loader2, CreditCard, Lock, ShieldCheck } from "lucide-react";
+import { apiClient } from "@/lib/api/client";
+import type { Plan } from "@/lib/api/types";
+import { cn } from "@/lib/utils";
 
 interface PaymentDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  plan: Plan | null
-  stripeCustomerId: string,
-  stripe_price_id: string,
-  onSuccess: (plan: Plan | null) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  plan: Plan | null;
+  stripeCustomerId: string;
+  stripe_price_id: string;
+  onSuccess: (plan: Plan | null) => void;
 }
 
 export function PaymentDialog({
-  open, onOpenChange, plan, stripeCustomerId, stripe_price_id, onSuccess
+  open,
+  onOpenChange,
+  plan,
+  stripeCustomerId,
+  stripe_price_id,
+  onSuccess,
 }: PaymentDialogProps) {
-  const stripe   = useStripe()
-  const elements = useElements()
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState<string | null>(null)
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!stripe || !elements || !plan) return
+    e.preventDefault();
+    if (!stripe || !elements || !plan) return;
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: elements.getElement(CardElement)!,
-      })
+      const { setupIntent, error: confirmError } = await stripe.confirmSetup({
+        elements,
+        redirect: "if_required",
+      });
 
-      if (pmError || !paymentMethod) {
-        throw new Error(pmError?.message || 'Erreur carte')
+      if (confirmError || !setupIntent) {
+        throw new Error(confirmError?.message || "Erreur de confirmation");
       }
 
-      // 2. Envoyer au backend via apiClient
       await apiClient.subscription({
-        payment_method_id:   paymentMethod.id,
-        stripe_customer_id:  stripeCustomerId,
-        stripe_price_id:    stripe_price_id
-      })
+        payment_method_id: setupIntent.payment_method as string,
+        stripe_customer_id: stripeCustomerId,
+        stripe_price_id: stripe_price_id,
+      });
 
-      onSuccess(plan)
-      onOpenChange(false)
-
+      onSuccess(plan);
+      onOpenChange(false);
     } catch (err: any) {
-      setError(err.message || 'Erreur lors du paiement')
+      setError(err.message || "Une erreur est survenue lors du paiement");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const priceFormatted = plan?.price?.toLocaleString("fr-MG") || "0";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-slate-900 dark:text-white text-[16px] font-medium">
-            <CreditCard className="w-4 h-4 text-blue-600" />
-            Paiement — {plan?.name}
+      <DialogContent
+        className={cn(
+          "bg-background border border-border/60 backdrop-blur-2xl",
+          "max-w-md w-[calc(100%-2rem)] rounded-3xl shadow-2xl",
+          "overflow-hidden"
+        )}
+      >
+        <DialogHeader className="px-6 pt-8 pb-6 text-center border-b border-border/50">
+          <div className="mx-auto mb-5 w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <CreditCard className="w-7 h-7 text-primary" />
+          </div>
+
+          <DialogTitle className="text-2xl font-semibold tracking-tight">
+            Paiement sécurisé
           </DialogTitle>
-          <DialogDescription className="text-slate-500 dark:text-slate-400 text-[13px]">
-            {plan?.price?.toLocaleString('fr-MG')} Ar/mois · Résiliable à tout moment
+          <DialogDescription className="text-base mt-1.5 text-muted-foreground">
+            {plan?.name} — {priceFormatted} Ar / mois
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 pt-1">
-          {/* Champ carte Stripe */}
-          <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-800">
-            <CardElement
-              options={{
-                hidePostalCode: true,
-                style: {
-                  base: {
-                    fontSize: '14px',
-                    color: '#1e293b',
-                    '::placeholder': { color: '#94a3b8' },
-                  },
-                },
-              }}
+        <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6">
+          {/* Payment Element */}
+          <div className="rounded-2xl border border-border bg-card/50 p-4">
+            <PaymentElement 
+              options={{ 
+                layout: 'tabs',
+                defaultValues: { billingDetails: { name: '' } }
+              }} 
             />
           </div>
 
-          {/* Erreur */}
+          {/* Sécurité */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <span>Protégé par Stripe • Chiffrement SSL 256-bit</span>
+          </div>
+
+          {/* Message d'erreur */}
           {error && (
-            <p className="text-[12px] text-red-500 bg-red-50 dark:bg-red-950 rounded-md px-3 py-2">
+            <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-2xl px-4 py-3">
               {error}
-            </p>
+            </div>
           )}
 
           {/* Boutons */}
-          <div className="flex gap-2 justify-end pt-1">
+          <div className="flex gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => onOpenChange(false)}
               disabled={loading}
-              className="border-slate-200 dark:border-slate-700 text-[13px]"
+              className="flex-1 h-12 rounded-2xl text-sm font-medium border-border hover:bg-muted"
             >
               Annuler
             </Button>
+
             <Button
               type="submit"
-              size="sm"
               disabled={loading || !stripe}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-[13px] gap-1.5"
+              className={cn(
+                "flex-1 h-12 rounded-2xl text-sm font-semibold",
+                "bg-primary hover:bg-primary/90 text-primary-foreground",
+                "transition-all active:scale-[0.985] flex items-center gap-2"
+              )}
             >
-              {loading
-                ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Traitement...</>
-                : <><Lock className="w-3.5 h-3.5" />Payer {plan?.price?.toLocaleString('fr-MG')} Ar</>
-              }
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Traitement en cours...
+                </>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4" />
+                  Payer {priceFormatted} Ar
+                </>
+              )}
             </Button>
           </div>
 
-          {/* Mention sécurité */}
-          <p className="text-center text-[11px] text-slate-400 flex items-center justify-center gap-1">
-            <Lock className="w-3 h-3" />
-            Paiement sécurisé par Stripe
+          {/* Mention légale */}
+          <p className="text-center text-[11px] text-muted-foreground">
+            Vous serez débité immédiatement. Résiliable à tout moment.
           </p>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

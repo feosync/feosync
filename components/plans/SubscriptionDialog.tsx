@@ -9,24 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Loader2,
-  LogOut,
-  ArrowUp,
-  ArrowDown,
-  CreditCard,
-  AlertTriangle,
-} from "lucide-react";
+import { Loader2, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   usePlans,
@@ -40,6 +23,8 @@ import { loadStripe } from "@stripe/stripe-js";
 import { toast } from "sonner";
 import { PaymentDialog } from "@/app/stripe/paymentDialogue";
 import { UnsubscribeConfirmDialog } from "@/components/plans/UnsubcribeDialog";
+import { UpDowngradeCreateDialogue } from "./UpDowngradeCreateDialogue";
+import { apiClient } from "@/lib/api";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
@@ -81,7 +66,8 @@ export function SubscriptionDialog({
   const [pending, setPending] = useState<PendingChange | null>(null);
   const [confirmUnsub, setConfirmUnsub] = useState(false);
   const [paymentPlan, setPaymentPlan] = useState<Plan | null>(null);
-
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [secretLoading, setSecretLoading] = useState(false);
   useEffect(() => {
     setCurrentPlanId(user?.plan_id ?? null);
   }, [user?.plan_id]);
@@ -96,13 +82,47 @@ export function SubscriptionDialog({
   const isSubscribed = !!currentPlanId;
 
   // ==================== HANDLERS ====================
-  const handleSubscribeClick = (plan: Plan, action: PlanAction) => {
+  // const handleSubscribeClick = (plan: Plan, action: PlanAction) => {
+  //   if (action === "CURRENT" || action === "UNAVAILABLE") return;
+  //   if (plan.price > 0 && action === "CREATE") {
+  //     setPaymentPlan(plan);
+  //     return;
+  //   }
+  //   setPending({ plan, action });
+  // };
+
+  const handleSubscribeClick = async (plan: Plan, action: PlanAction) => {
     if (action === "CURRENT" || action === "UNAVAILABLE") return;
+
     if (plan.price > 0 && action === "CREATE") {
-      setPaymentPlan(plan);
+      if (!user?.customer_id) {
+        toast.error("Aucun compte Stripe associé");
+        return;
+      }
+
+      setSecretLoading(true);
+      try {
+        const { client_secret } = await apiClient.createSetupIntent(
+          user.customer_id,
+        );
+        setClientSecret(client_secret);
+        setPaymentPlan(plan);
+      } catch {
+        toast.error("Impossible d'initialiser le paiement");
+      } finally {
+        setSecretLoading(false);
+      }
       return;
     }
+
     setPending({ plan, action });
+  };
+
+  const handlePaymentDialogClose = (open: boolean) => {
+    if (!open) {
+      setPaymentPlan(null);
+      setClientSecret(null);
+    }
   };
 
   const handleConfirm = async () => {
@@ -146,8 +166,14 @@ export function SubscriptionDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className={STYLES.dialog}>
+          {pending && (
+            <div className="absolute inset-0 z-10 backdrop-blur-lg bg-background/40 transition-all duration-300" />
+          )}
           {confirmUnsub && (
-            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-background/40 transition-all duration-300" />
+            <div className="absolute inset-0 z-10 backdrop-blur-lg bg-background/40 transition-all duration-300" />
+          )}
+          {paymentPlan && (
+            <div className="absolute inset-0 z-10 backdrop-blur-lg bg-background/40 transition-all duration-300" />
           )}
           <div className={STYLES.header}>
             <DialogHeader>
@@ -205,111 +231,46 @@ export function SubscriptionDialog({
         </DialogContent>
       </Dialog>
       {/* Payment Dialog */}
-      <Elements stripe={stripePromise}>
-        <PaymentDialog
-          open={!!paymentPlan}
-          onOpenChange={(o) => !o && setPaymentPlan(null)}
-          plan={paymentPlan}
-          stripeCustomerId={user?.customer_id ?? ""}
-          stripe_price_id={paymentPlan?.price_id ?? ""}
-          onSuccess={(plan) => {
-            if (plan) setCurrentPlanId(plan.id);
-            toast.success("Abonnement activé !");
-            setPaymentPlan(null);
-            onOpenChange(false);
+      {/* Spinner pendant le chargement du SetupIntent */}
+      {secretLoading && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/60 backdrop-blur-sm rounded-2xl">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+        </div>
+      )}
+
+      {clientSecret && (
+        <Elements 
+          stripe={stripePromise}
+          options={{
+            clientSecret, // 🔑 obligatoire pour PaymentElement
+            appearance: { theme: "stripe" }, // optionnel
           }}
+        >
+          <PaymentDialog
+            open={!!paymentPlan}
+            onOpenChange={handlePaymentDialogClose}
+            plan={paymentPlan}
+            stripeCustomerId={user?.customer_id ?? ""}
+            stripe_price_id={paymentPlan?.price_id ?? ""}
+            onSuccess={(plan) => {
+              if (plan) setCurrentPlanId(plan.id);
+              toast.success("Abonnement activé !");
+              setPaymentPlan(null);
+              setClientSecret(null);
+              onOpenChange(false);
+            }}
+          />
+        </Elements>
+      )}
+      {pending && (
+        <UpDowngradeCreateDialogue
+          currentPlan={currentPlan}
+          open={pending}
+          onOpenChange={(o) => !o && setPending(null)}
+          onClick={handleConfirm}
+          subscribeMutation={subscribeMutation}
         />
-      </Elements>
-      {/* ===================== ALERT DIALOG UPGRADE / DOWNGRADE / CREATE ===================== */}
-      <AlertDialog
-        open={!!pending}
-        onOpenChange={(o) => !o && setPending(null)}
-      >
-        <AlertDialogContent className={STYLES.alertDialog}>
-          {pending && (
-            <AlertDialogHeader>
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4
-                ${pending.action === 'UPGRADE' ? 'bg-primary/10 border border-primary/20' : ''}
-                ${pending.action === 'DOWNGRADE' ? 'bg-destructive/10 border border-destructive/20' : ''}
-                ${pending.action === 'CREATE' ? 'bg-muted border border-border' : ''}"
-              >
-                {pending.action === "UPGRADE" && (
-                  <ArrowUp className="w-6 h-6 text-primary" />
-                )}
-                {pending.action === "DOWNGRADE" && (
-                  <ArrowDown className="w-6 h-6 text-destructive" />
-                )}
-                {pending.action === "CREATE" && (
-                  <CreditCard className="w-6 h-6 text-foreground" />
-                )}
-              </div>
-
-              <AlertDialogTitle className="text-center text-xl">
-                {pending.action === "UPGRADE" && "Confirmer l'upgrade"}
-                {pending.action === "DOWNGRADE" && "Confirmer le downgrade"}
-                {pending.action === "CREATE" &&
-                  `Souscrire au plan ${pending.plan.name}`}
-              </AlertDialogTitle>
-
-              <AlertDialogDescription asChild>
-                <div className="text-center text-sm space-y-3 mt-2">
-                  {pending.action === "UPGRADE" && (
-                    <p>
-                      Vous allez passer du plan{" "}
-                      <strong>{currentPlan?.name}</strong> au plan{" "}
-                      <strong>{pending.plan.name}</strong>.
-                    </p>
-                  )}
-                  {pending.action === "DOWNGRADE" && (
-                    <p>
-                      Vous allez passer du plan{" "}
-                      <strong>{currentPlan?.name}</strong> au plan{" "}
-                      <strong>{pending.plan.name}</strong>.
-                    </p>
-                  )}
-                  {pending.action === "CREATE" && (
-                    <p>
-                      Vous allez souscrire au plan{" "}
-                      <strong>{pending.plan.name}</strong>.
-                    </p>
-                  )}
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-          )}
-
-          <AlertDialogFooter className="gap-3 mt-6">
-            <AlertDialogCancel className="rounded-2xl flex-1">
-              Annuler
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirm}
-              disabled={subscribeMutation.isPending}
-              className={`rounded-2xl flex-1 ${
-                pending?.action === "UPGRADE"
-                  ? "bg-primary hover:bg-primary/90"
-                  : pending?.action === "DOWNGRADE"
-                    ? "bg-destructive hover:bg-destructive/90"
-                    : "bg-primary hover:bg-primary/90"
-              }`}
-            >
-              {subscribeMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Traitement...
-                </>
-              ) : pending?.action === "UPGRADE" ? (
-                "Confirmer l'upgrade"
-              ) : pending?.action === "DOWNGRADE" ? (
-                "Confirmer le downgrade"
-              ) : (
-                "Confirmer"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      )}
       {/* Dialog Désabonnement */}
       <UnsubscribeConfirmDialog
         open={confirmUnsub}
