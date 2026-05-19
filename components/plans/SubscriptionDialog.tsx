@@ -40,6 +40,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { toast } from "sonner";
 import { PaymentDialog } from "@/app/stripe/paymentDialogue";
 import { UnsubscribeConfirmDialog } from "@/components/plans/UnsubcribeDialog";
+import { UpDowngradeCreateDialogue } from "./UpDowngradeCreateDialogue";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
@@ -146,8 +147,11 @@ export function SubscriptionDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className={STYLES.dialog}>
+          {pending && (
+            <div className="absolute inset-0 z-10 backdrop-blur-lg bg-background/40 transition-all duration-300" />
+          )}
           {confirmUnsub && (
-            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-background/40 transition-all duration-300" />
+            <div className="absolute inset-0 z-10 backdrop-blur-lg bg-background/40 transition-all duration-300" />
           )}
           <div className={STYLES.header}>
             <DialogHeader>
@@ -220,96 +224,15 @@ export function SubscriptionDialog({
           }}
         />
       </Elements>
-      {/* ===================== ALERT DIALOG UPGRADE / DOWNGRADE / CREATE ===================== */}
-      <AlertDialog
-        open={!!pending}
-        onOpenChange={(o) => !o && setPending(null)}
-      >
-        <AlertDialogContent className={STYLES.alertDialog}>
-          {pending && (
-            <AlertDialogHeader>
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4
-                ${pending.action === 'UPGRADE' ? 'bg-primary/10 border border-primary/20' : ''}
-                ${pending.action === 'DOWNGRADE' ? 'bg-destructive/10 border border-destructive/20' : ''}
-                ${pending.action === 'CREATE' ? 'bg-muted border border-border' : ''}"
-              >
-                {pending.action === "UPGRADE" && (
-                  <ArrowUp className="w-6 h-6 text-primary" />
-                )}
-                {pending.action === "DOWNGRADE" && (
-                  <ArrowDown className="w-6 h-6 text-destructive" />
-                )}
-                {pending.action === "CREATE" && (
-                  <CreditCard className="w-6 h-6 text-foreground" />
-                )}
-              </div>
-
-              <AlertDialogTitle className="text-center text-xl">
-                {pending.action === "UPGRADE" && "Confirmer l'upgrade"}
-                {pending.action === "DOWNGRADE" && "Confirmer le downgrade"}
-                {pending.action === "CREATE" &&
-                  `Souscrire au plan ${pending.plan.name}`}
-              </AlertDialogTitle>
-
-              <AlertDialogDescription asChild>
-                <div className="text-center text-sm space-y-3 mt-2">
-                  {pending.action === "UPGRADE" && (
-                    <p>
-                      Vous allez passer du plan{" "}
-                      <strong>{currentPlan?.name}</strong> au plan{" "}
-                      <strong>{pending.plan.name}</strong>.
-                    </p>
-                  )}
-                  {pending.action === "DOWNGRADE" && (
-                    <p>
-                      Vous allez passer du plan{" "}
-                      <strong>{currentPlan?.name}</strong> au plan{" "}
-                      <strong>{pending.plan.name}</strong>.
-                    </p>
-                  )}
-                  {pending.action === "CREATE" && (
-                    <p>
-                      Vous allez souscrire au plan{" "}
-                      <strong>{pending.plan.name}</strong>.
-                    </p>
-                  )}
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-          )}
-
-          <AlertDialogFooter className="gap-3 mt-6">
-            <AlertDialogCancel className="rounded-2xl flex-1">
-              Annuler
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirm}
-              disabled={subscribeMutation.isPending}
-              className={`rounded-2xl flex-1 ${
-                pending?.action === "UPGRADE"
-                  ? "bg-primary hover:bg-primary/90"
-                  : pending?.action === "DOWNGRADE"
-                    ? "bg-destructive hover:bg-destructive/90"
-                    : "bg-primary hover:bg-primary/90"
-              }`}
-            >
-              {subscribeMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Traitement...
-                </>
-              ) : pending?.action === "UPGRADE" ? (
-                "Confirmer l'upgrade"
-              ) : pending?.action === "DOWNGRADE" ? (
-                "Confirmer le downgrade"
-              ) : (
-                "Confirmer"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {pending && (
+        <UpDowngradeCreateDialogue
+          currentPlan={currentPlan}
+          open={pending}
+          onOpenChange={(o) => !o && setPending(null)}
+          onClick={handleConfirm}
+          subscribeMutation={subscribeMutation}
+        />
+      )}
       {/* Dialog Désabonnement */}
       <UnsubscribeConfirmDialog
         open={confirmUnsub}

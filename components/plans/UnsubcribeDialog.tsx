@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const FEATURE_ICONS = [Users, TrendingUp, Clock, Sparkles, Sparkles];
-
+const email_feedback = process.env.NEXT_PUBLIC_EMAIL_FEEDBACK || "";
 export function UnsubscribeConfirmDialog({
   open,
   onOpenChange,
@@ -45,11 +45,6 @@ export function UnsubscribeConfirmDialog({
         {/* ── Hero banner ── */}
         <div className="relative px-6 pt-8 pb-6 bg-linear-to-b from-destructive/8 to-transparent">
 
-          {/* Top-right subtle close hint */}
-          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center">
-            <X className="w-3.5 h-3.5 text-muted-foreground" />
-          </div>
-
           {/* Icon badge */}
           <div className="
             mx-auto mb-5 w-14 h-14
@@ -61,11 +56,11 @@ export function UnsubscribeConfirmDialog({
           </div>
 
           <AlertDialogHeader className="text-center space-y-2 p-0">
-            <AlertDialogTitle className="text-[17px] font-semibold leading-snug tracking-tight text-center">
+            <AlertDialogTitle className="text-xl font-bold leading-snug tracking-tight text-center">
               Vous êtes sûr de vouloir partir ?
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
-              <p className="text-[13px] text-muted-foreground leading-relaxed max-w-full mx-auto text-center">
+              <p className="text-lg text-muted-foreground leading-relaxed max-w-full mx-auto text-center">
                 Votre audience, vos contenus et vos réseaux resteront en attente.
               </p>
             </AlertDialogDescription>
@@ -77,7 +72,7 @@ export function UnsubscribeConfirmDialog({
 
         {/* ── Lost features list ── */}
         <div className="px-6 py-5 space-y-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-destructive/80">
+          <p className="text-lg font-bold uppercase  text-destructive">
             Ce que vous perdez
           </p>
           <ul className="space-y-2">
@@ -86,12 +81,12 @@ export function UnsubscribeConfirmDialog({
               return (
                 <li
                   key={i}
-                  className="flex items-center gap-3 py-2 px-3 rounded-xl bg-destructive/5 border border-destructive/10"
+                  className="flex items-center gap-3 py-2 px-3 "
                 >
-                  <span className="flex-shrink-0 w-6 h-6 rounded-lg bg-destructive/12 flex items-center justify-center">
-                    <Icon className="w-3.5 h-3.5 text-destructive/80" strokeWidth={1.75} />
+                  <span className="shrink-0 w-6 h-6 flex items-center justify-center">
+                    <Icon className="w-4.5 h-4.5 text-destructive" />
                   </span>
-                  <span className="text-[13px] font-medium text-foreground/85">{feature}</span>
+                  <span className="text-sm font-medium text-foreground/85">{feature}</span>
                 </li>
               );
             })}
@@ -100,10 +95,10 @@ export function UnsubscribeConfirmDialog({
 
         {/* ── Retention nudge ── */}
         <div className="mx-6 mb-5 px-4 py-3 rounded-xl bg-muted/50 border border-border/50">
-          <p className="text-[12px] text-muted-foreground leading-relaxed text-center">
+          <p className="text-sm text-muted-foreground leading-relaxed text-left">
             Avant de partir,{" "}
-            <span className="font-medium text-foreground/70">dites-nous ce qui manque</span>
-            {" "}— votre retour aide à améliorer la plateforme.
+            <a target="_blank" rel="noopener" className="font-medium text-primary  cursor-pointer" href={`mailto:${email_feedback}`}>dites-nous ce qui manque</a>
+            {" "}votre retour aide à améliorer la plateforme.
           </p>
         </div>
 
