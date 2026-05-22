@@ -12,7 +12,6 @@ import {
 
 import { PlanAction } from "./PlanCard";
 import { ArrowDown, ArrowUp, CreditCard, Loader2 } from "lucide-react";
-import { useSubscribeToPlan } from "@/hooks/usePlans";
 import { cn } from "@/lib/utils";
 
 interface PendingChange {
@@ -51,13 +50,13 @@ export function UpDowngradeCreateDialogue({
   open,
   onOpenChange,
   onClick,
-  subscribeMutation,
+  isPending,
   currentPlan,
 }: {
   open: PendingChange | null;
   onOpenChange: (open: boolean) => void;
   onClick: () => void;
-  subscribeMutation: ReturnType<typeof useSubscribeToPlan>;
+  isPending: boolean
   currentPlan: Plan | null;
 }) {
   if (!open) return null;
@@ -138,13 +137,13 @@ export function UpDowngradeCreateDialogue({
 
           <AlertDialogAction
             onClick={onClick}
-            disabled={subscribeMutation.isPending}
+            disabled={isPending}
             className={cn(
               "rounded-2xl h-10 text-base text-foreground font-medium flex-1 transition-all active:scale-[0.985]",
               config.confirmClass
             )}
           >
-            {subscribeMutation.isPending ? (
+            {isPending ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2.5 animate-spin" />
                 Traitement en cours...

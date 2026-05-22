@@ -15,8 +15,9 @@ import {
   usePlans,
   useSubscribeToPlan,
   useUnsubscribeFromPlan,
+  useUpgradeSubcription,
 } from "@/hooks/usePlans";
-import type { Plan } from "@/lib/api/types";
+import type { Plan, SubscribeResponse } from "@/lib/api/types";
 import { PlanCard, type PlanAction } from "@/components/plans/PlanCard";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -42,7 +43,7 @@ interface SubscriptionDialogProps {
 
 const STYLES = {
   dialog:
-    "bg-background/95 backdrop-blur-2xl sm:max-w-full lg:max-w-full w-full h-full flex flex-col  border border-border/70 shadow-2xl overflow-hidden",
+    "bg-background/95 backdrop-blur-2xl sm:max-w-full lg:max-w-full w-full h-full flex flex-col  overflow-hidden rounded-none",
   alertDialog:
     "bg-accent backdrop-blur-xl border border-border h-2/3 rounded-3xl max-w-md w-[calc(100%-2rem)]",
   header: "flex-shrink-0 px-6 sm:px-8 pt-6 pb-4",
@@ -50,6 +51,7 @@ const STYLES = {
   footer:
     "flex-shrink-0 px-6 sm:px-8 py-5 border-t border-border flex items-center gap-3",
 } as const;
+
 
 export function SubscriptionDialog({
   open,
@@ -59,6 +61,7 @@ export function SubscriptionDialog({
   const { data: plans = [], isLoading } = usePlans();
   const subscribeMutation = useSubscribeToPlan();
   const unsubscribeMutation = useUnsubscribeFromPlan();
+  const upgradeSubcribeMutation = useUpgradeSubcription();
 
   const [currentPlanId, setCurrentPlanId] = useState<number | null>(
     user?.plan_id ?? null,
@@ -68,6 +71,8 @@ export function SubscriptionDialog({
   const [paymentPlan, setPaymentPlan] = useState<Plan | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [secretLoading, setSecretLoading] = useState(false);
+  const [loading, setLoading]=useState(false)
+
   useEffect(() => {
     setCurrentPlanId(user?.plan_id ?? null);
   }, [user?.plan_id]);
@@ -90,7 +95,6 @@ export function SubscriptionDialog({
   //   }
   //   setPending({ plan, action });
   // };
-
   const handleSubscribeClick = async (plan: Plan, action: PlanAction) => {
     if (action === "CURRENT" || action === "UNAVAILABLE") return;
 
@@ -126,14 +130,30 @@ export function SubscriptionDialog({
   };
 
   const handleConfirm = async () => {
+
     if (!pending) return;
     try {
-      await subscribeMutation.mutateAsync(String(pending.plan.id));
-      setCurrentPlanId(pending.plan.id);
-      setPending(null);
+      setLoading(true)
+      if (pending.action === "CREATE") {
+        await subscribeMutation.mutateAsync(String(pending.plan.id));
+        setCurrentPlanId(pending.plan.id);
+        setPending(null);
+      }
+      if (!pending) return;
+      const mySubcriptionResponse = await apiClient.getSubcription();
+      console.log(mySubcriptionResponse)
+      if (!mySubcriptionResponse) {
+        toast.error("erreur lors de la recupèration de l'abonnement");
+        return;
+      }
+      const updatePlanData = {
+        stripe_price_id: pending.plan.price_id,
+        stripe_subscription_id: String(mySubcriptionResponse.stripe_subscription_id),
+      };
+      console.table(updatePlanData)
+      await upgradeSubcribeMutation.mutateAsync(updatePlanData);
 
       if (pending.action === "UPGRADE") {
-        toast.success(`Upgrade vers ${pending.plan.name} activé !`);
       } else if (pending.action === "DOWNGRADE") {
         toast.info(`Downgrade vers ${pending.plan.name} planifié.`);
       } else {
@@ -141,6 +161,7 @@ export function SubscriptionDialog({
       }
       onOpenChange(false);
     } catch (error) {
+      console.table(error)
       toast.error("Une erreur est survenue lors de l'opération");
     }
   };
@@ -239,7 +260,7 @@ export function SubscriptionDialog({
       )}
 
       {clientSecret && (
-        <Elements 
+        <Elements
           stripe={stripePromise}
           options={{
             clientSecret, // 🔑 obligatoire pour PaymentElement
@@ -268,7 +289,7 @@ export function SubscriptionDialog({
           open={pending}
           onOpenChange={(o) => !o && setPending(null)}
           onClick={handleConfirm}
-          subscribeMutation={subscribeMutation}
+          isPending={subscribeMutation.isPending}
         />
       )}
       {/* Dialog Désabonnement */}
