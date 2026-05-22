@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -17,7 +18,7 @@ import {
   useUnsubscribeFromPlan,
   useUpgradeSubcription,
 } from "@/hooks/usePlans";
-import type { Plan, SubscribeResponse } from "@/lib/api/types";
+import type { Plan } from "@/lib/api/types";
 import { PlanCard, type PlanAction } from "@/components/plans/PlanCard";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -52,7 +53,6 @@ const STYLES = {
     "flex-shrink-0 px-6 sm:px-8 py-5 border-t border-border flex items-center gap-3",
 } as const;
 
-
 export function SubscriptionDialog({
   open,
   onOpenChange,
@@ -71,7 +71,7 @@ export function SubscriptionDialog({
   const [paymentPlan, setPaymentPlan] = useState<Plan | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [secretLoading, setSecretLoading] = useState(false);
-  const [loading, setLoading]=useState(false)
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setCurrentPlanId(user?.plan_id ?? null);
@@ -130,27 +130,27 @@ export function SubscriptionDialog({
   };
 
   const handleConfirm = async () => {
-
     if (!pending) return;
     try {
-      setLoading(true)
+      setLoading(true);
       if (pending.action === "CREATE") {
         await subscribeMutation.mutateAsync(String(pending.plan.id));
         setCurrentPlanId(pending.plan.id);
-        setPending(null);
       }
       if (!pending) return;
       const mySubcriptionResponse = await apiClient.getSubcription();
-      console.log(mySubcriptionResponse)
+      console.log(mySubcriptionResponse);
       if (!mySubcriptionResponse) {
         toast.error("erreur lors de la recupèration de l'abonnement");
         return;
       }
       const updatePlanData = {
         stripe_price_id: pending.plan.price_id,
-        stripe_subscription_id: String(mySubcriptionResponse.stripe_subscription_id),
+        stripe_subscription_id: String(
+          mySubcriptionResponse.stripe_subscription_id,
+        ),
       };
-      console.table(updatePlanData)
+      console.table(updatePlanData);
       await upgradeSubcribeMutation.mutateAsync(updatePlanData);
 
       if (pending.action === "UPGRADE") {
@@ -160,9 +160,15 @@ export function SubscriptionDialog({
         toast.success(`Abonnement à ${pending.plan.name} activé !`);
       }
       onOpenChange(false);
+      handlePaymentDialogClose(true);
+      setLoading(false);
     } catch (error) {
-      console.table(error)
+      console.table(error);
       toast.error("Une erreur est survenue lors de l'opération");
+    } finally {
+      handlePaymentDialogClose(true);
+      setLoading(false);
+      setPending(null);
     }
   };
 
@@ -186,7 +192,7 @@ export function SubscriptionDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={STYLES.dialog}>
+        <DialogContent className={STYLES.dialog} showCloseButton={true}>
           {pending && (
             <div className="absolute inset-0 z-10 backdrop-blur-lg bg-background/40 transition-all duration-300" />
           )}
@@ -285,9 +291,15 @@ export function SubscriptionDialog({
       )}
       {pending && (
         <UpDowngradeCreateDialogue
+          isLoading={loading}
           currentPlan={currentPlan}
           open={pending}
-          onOpenChange={(o) => !o && setPending(null)}
+          onOpenChange={(o) => {
+            if (!0) {
+              setPending(null); // ✅ ferme sur Cancel
+              setLoading(false); // ✅ reset le loading aussi
+            }
+          }}
           onClick={handleConfirm}
           isPending={subscribeMutation.isPending}
         />
