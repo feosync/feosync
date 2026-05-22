@@ -445,3 +445,25 @@ export interface PostWithReactions { post_id: string; message: string; created_t
 export interface PostsPagination { after: string | null; before: string | null; has_next: boolean; has_previous: boolean }
 export interface PostsWithReactionsResponse { data: PostWithReactions[]; pagination: PostsPagination }
 export type AnalyticsPeriod = "day" | "week" | "days_28"
+export interface Subscription{
+  curent_period_start: number; // attention: faute dans la clé originale
+  user_id: string;
+  id: string;
+  stripe_customer_id: string;
+  payment_method_id: string;
+  current_period_start: number;
+  current_period_end: number;
+  last_payment_amount: number;
+  is_active: boolean;
+  updated_at: number;
+  stripe_subscription_id: string;
+  stripe_price_id: string;
+  status: "active" | "inactive" | "canceled" | "past_due";
+  last_payment_date: number | null;
+  last_payment_status: "succeeded" | "failed" | "pending" | null;
+  created_at: number;
+}
+export interface SubscriptionResponse{
+  subcription: Subscription,
+  user: User
+}

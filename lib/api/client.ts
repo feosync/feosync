@@ -14,6 +14,8 @@ import {
   ImageAddRequest,
   AutoCommentRequest,
   SubscriptionRequest,
+  SubscriptionResponse,
+  Subscription
 } from "@/lib/api/types";
 
 import { config } from "@/lib/config";
@@ -501,6 +503,17 @@ export class ApiClient {
         method: "POST",
       }
     );
+  }
+
+  async upgradePlan(stripe_price_id: string, stripe_subscription_id:string): Promise<SubscriptionResponse>{
+    return this.request(`/api/v1/subscription/update/${stripe_subscription_id}?stripe_price_id=${stripe_price_id}`,{
+      method:"PUT",
+    })
+  }
+  async getSubcription():Promise<Subscription>{
+    return this.request(`/api/v1/subscription/`,{
+      method: "GET"
+    })
   }
 }
 
