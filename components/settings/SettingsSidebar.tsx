@@ -1,12 +1,11 @@
 'use client'
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { LucideIcon } from 'lucide-react'
 
 export interface NavItem {
   id: string
   label: string
-  icon: IconDefinition
+  icon: LucideIcon
   badge?: string
 }
 
@@ -20,6 +19,7 @@ export function SettingsSidebar({ items, activeId, onSelect }: SettingsSidebarPr
   return (
     <nav className="flex flex-col gap-0.5">
       {items.map((item) => {
+        const Icon = item.icon
         const isActive = item.id === activeId
         return (
           <button
@@ -34,12 +34,10 @@ export function SettingsSidebar({ items, activeId, onSelect }: SettingsSidebarPr
               }
             `}
           >
-            <FontAwesomeIcon
-              icon={item.icon}
-              className={`shrink-0 transition-colors ${
+            <Icon
+              className={`w-4 h-4 shrink-0 transition-colors ${
                 isActive ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
               }`}
-              style={{ width: '1rem', height: '1rem' }}
             />
             <span className="text-sm font-medium flex-1">{item.label}</span>
             {item.badge && (
@@ -65,7 +63,9 @@ interface SettingsMobileTabsProps {
 export function SettingsMobileTabs({ items, activeId, onSelect }: SettingsMobileTabsProps) {
   return (
     <div className="flex overflow-x-auto gap-1 pb-1 ">
-      {items.misActive = item.id === activeId
+      {items.map((item) => {
+        const Icon = item.icon
+        const isActive = item.id === activeId
         return (
           <button
             key={item.id}
@@ -79,7 +79,6 @@ export function SettingsMobileTabs({ items, activeId, onSelect }: SettingsMobile
               }
             `}
           >
-            <FontAwesomeIcon icon={item.icon} style={{ width: '0.875rem', height: '0.875rem' }}
             <Icon className="w-3.5 h-3.5" />
             {item.label}
           </button>
