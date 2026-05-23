@@ -1,9 +1,9 @@
 "use client";
 
-import { DialogHeader } from "@/components/ui/dialog";
-import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
+import { DialogHeader, Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
-export function ManageSocialMedia({open, onClick }: {open:boolean, onClick: () => void }) {
+export function ManageSocialMedia({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }){
+    
   const CHANNELS = [
     {
       id: "instagram",
@@ -172,9 +172,6 @@ export function ManageSocialMedia({open, onClick }: {open:boolean, onClick: () =
     },
   ];
   
-    function setOpen(open: boolean): void {
-        throw new Error("Function not implemented.");
-    }
 
   return (
     <>
@@ -227,7 +224,7 @@ export function ManageSocialMedia({open, onClick }: {open:boolean, onClick: () =
 
         {/* Bouton + */}
         <button
-          onClick={onClick}
+          onClick={() => onOpenChange(true)}
           className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center active:scale-105  transition-transform cursor-pointer shrink-0 shadow-md absolute right-4"
           aria-label="Ajouter un réseau social"
         >
@@ -248,7 +245,7 @@ export function ManageSocialMedia({open, onClick }: {open:boolean, onClick: () =
         </button>
       </div>
       {/* Dialog */}
-      <Dialog open={open}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 dark:border-slate-800">
             <DialogTitle className="text-base font-semibold text-center text-slate-900 dark:text-slate-100 tracking-tight">
@@ -260,7 +257,7 @@ export function ManageSocialMedia({open, onClick }: {open:boolean, onClick: () =
             {CHANNELS.map((ch) => (
               <button
                 key={ch.id}
-                onClick={() => setOpen(false)}
+                onClick={() => onOpenChange(false)}
                 className="
                   group flex flex-col items-center gap-3 p-4 rounded-xl
                   text-center transition-colors duration-150
