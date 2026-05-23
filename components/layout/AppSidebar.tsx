@@ -147,7 +147,7 @@ export function AppSidebar() {
                     >
                       <div
                         className={cn(
-                          "flex items-center gap-3 px-2 rounded-lg text-md font-medium transition-colors h-10" ,
+                          "flex items-center gap-3 px-2 rounded-lg text-sm font-medium transition-colors h-9" ,
                           isActive
                             ? section.adminOnly
                               ? "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400"
