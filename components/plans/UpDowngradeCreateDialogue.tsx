@@ -1,7 +1,6 @@
 import { Plan } from "@/lib/api";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -13,6 +12,8 @@ import {
 import { PlanAction } from "./PlanCard";
 import { ArrowDown, ArrowUp, CreditCard, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button"; 
+
 
 interface PendingChange {
   plan: Plan;
@@ -52,12 +53,14 @@ export function UpDowngradeCreateDialogue({
   onClick,
   isPending,
   currentPlan,
+  isLoading,
 }: {
   open: PendingChange | null;
   onOpenChange: (open: boolean) => void;
   onClick: () => void;
-  isPending: boolean
+  isPending: boolean;
   currentPlan: Plan | null;
+  isLoading: boolean;
 }) {
   if (!open) return null;
   if (open.action === "CURRENT") return null;
@@ -71,7 +74,7 @@ export function UpDowngradeCreateDialogue({
         className={cn(
           "bg-background border border-border/60 backdrop-blur-2xl",
           "max-w-md w-[calc(100%-2rem)] rounded-3xl",
-          "shadow-2xl shadow-black/10 dark:shadow-black/50"
+          "shadow-2xl shadow-black/10 dark:shadow-black/50",
         )}
       >
         <AlertDialogHeader className="space-y-6 pt-2">
@@ -80,7 +83,7 @@ export function UpDowngradeCreateDialogue({
             <div
               className={cn(
                 "w-14 h-14 rounded-3xl flex items-center justify-center transition-all duration-300",
-                config.bgColor
+                config.bgColor,
               )}
             >
               <Icon className={cn("w-10 h-10", config.iconColor)} />
@@ -99,29 +102,41 @@ export function UpDowngradeCreateDialogue({
             <div className="text-center text-muted-foreground text-[15px] leading-relaxed px-2">
               {open.action === "UPGRADE" && (
                 <p>
-                  Vous êtes sur le point de rejoindre les utilisateurs les plus performants en passant au plan{" "}
+                  Vous êtes sur le point de rejoindre les utilisateurs les plus
+                  performants en passant au plan{" "}
                   <strong className="text-foreground">{open.plan.name}</strong>.
-                  <br /><br />
-                  Des milliers d’utilisateurs ont déjà franchi cette étape et constatent une nette amélioration de leur expérience.
+                  <br />
+                  <br />
+                  Des milliers d’utilisateurs ont déjà franchi cette étape et
+                  constatent une nette amélioration de leur expérience.
                 </p>
               )}
 
               {open.action === "DOWNGRADE" && (
                 <p>
                   Vous allez passer du plan{" "}
-                  <strong className="text-foreground">{currentPlan?.name}</strong> au plan{" "}
+                  <strong className="text-foreground">
+                    {currentPlan?.name}
+                  </strong>{" "}
+                  au plan{" "}
                   <strong className="text-foreground">{open.plan.name}</strong>.
-                  <br /><br />
-                  Cette modification prendra effet immédiatement. Vous pourrez revenir à tout moment à votre ancien plan.
+                  <br />
+                  <br />
+                  Cette modification prendra effet immédiatement. Vous pourrez
+                  revenir à tout moment à votre ancien plan.
                 </p>
               )}
 
               {open.action === "CREATE" && (
                 <p>
-                  En souscrivant au plan <strong className="text-foreground">{open.plan.name}</strong>, 
-                  vous accédez immédiatement à toutes les fonctionnalités premium utilisées par nos utilisateurs les plus avancés.
-                  <br /><br />
-                  Rejoignez une communauté d’utilisateurs qui ont fait le choix d’aller plus loin.
+                  En souscrivant au plan{" "}
+                  <strong className="text-foreground">{open.plan.name}</strong>,
+                  vous accédez immédiatement à toutes les fonctionnalités
+                  premium utilisées par nos utilisateurs les plus avancés.
+                  <br />
+                  <br />
+                  Rejoignez une communauté d’utilisateurs qui ont fait le choix
+                  d’aller plus loin.
                 </p>
               )}
             </div>
@@ -129,21 +144,20 @@ export function UpDowngradeCreateDialogue({
         </AlertDialogHeader>
 
         <AlertDialogFooter className="gap-3 mt-8 sm:gap-4">
-          <AlertDialogCancel
-            className="flex-1 h-10 rounded-2xl text-[14px] font-medium border border-border/70 hover:bg-muted/70 transition-colors"
-          >
+          <AlertDialogCancel className="flex-1 h-10 rounded-2xl text-[14px] font-medium border border-border/70 hover:bg-muted/70 transition-colors">
             Garder mon abonnement actuel
           </AlertDialogCancel>
 
-          <AlertDialogAction
+          {/* ✅ Button à la place de AlertDialogAction */}
+          <Button
             onClick={onClick}
-            disabled={isPending}
+            disabled={isLoading}
             className={cn(
-              "rounded-2xl h-10 text-base text-foreground font-medium flex-1 transition-all active:scale-[0.985]",
-              config.confirmClass
+              "rounded-2xl h-10 text-base text-foreground font-medium flex-1 transition-all active:scale-[0.985] will-change-auto",
+              config.confirmClass,
             )}
           >
-            {isPending ? (
+            {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2.5 animate-spin" />
                 Traitement en cours...
@@ -151,7 +165,7 @@ export function UpDowngradeCreateDialogue({
             ) : (
               config.confirmText
             )}
-          </AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
