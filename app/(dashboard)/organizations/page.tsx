@@ -17,7 +17,6 @@ import { OrgPagination } from '@/components/organizations/OrgPagination'
 import { OrgDialog } from '@/components/organizations/OrgDialog'
 import type { Organisation, CreateOrgRequest } from '@/lib/api/types'
 import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
-import { toast } from 'sonner'
 import { checkCanCreateOrg } from '@/lib/api/plan-limits'
 
 const PAGE_SIZE = 7
@@ -170,6 +169,7 @@ export default function OrganisationsPage() {
         initialData={editingOrg ?? undefined}
         isPending={createMutation.isPending || updateMutation.isPending}
       />
+
     </div>
   )
 }

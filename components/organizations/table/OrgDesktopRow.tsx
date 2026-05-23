@@ -22,7 +22,7 @@ export function OrgDesktopRow({ org, onView, onEdit, onDelete }: Props) {
       <TableCell>
         <div className="flex items-center gap-2.5">
           {org.brand_color && (
-            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: org.brand_color }} />
+            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: org.brand_color }} />
           )}
           <div>
             <p className="font-medium text-slate-900 dark:text-white">{org.name}</p>
