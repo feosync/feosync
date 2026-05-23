@@ -60,7 +60,7 @@ export function AppSidebar() {
           isOpen ? "w-64" : "w-0 md:w-16",
         )}
       >
-        {/* Logo + bouton fermer (mobile) */}
+        {/* Logo + bouton fermer (mobile)  */}
         <div className={cn(
           "h-14 flex items-center px-2 shrink-0",
           isOpen ? "justify-between": "justify-center"
