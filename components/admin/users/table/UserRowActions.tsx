@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
-import { ShieldCheck, ShieldOff, Trash2 } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheckCircle, faShield, faTrash } from '@fortawesome/free-solid-svg-icons'
 import type { UserSummary } from '@/lib/api/types'
 
 interface Props {
@@ -23,7 +24,7 @@ export function UserRowActions({
           onClick={onDemote}
           disabled={isDemoting}
         >
-          <ShieldOff className="w-3 h-3 mr-1" />
+          <FontAwesomeIcon icon={faShield} className="w-3 h-3 mr-1" />
           Rétrograder
         </Button>
       ) : (
@@ -33,7 +34,7 @@ export function UserRowActions({
           onClick={onPromote}
           disabled={isPromoting}
         >
-          <ShieldCheck className="w-3 h-3 mr-1" />
+          <FontAwesomeIcon icon={faCheckCircle} className="w-3 h-3 mr-1" />
           Promouvoir
         </Button>
       )}
@@ -43,7 +44,7 @@ export function UserRowActions({
         className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950"
         onClick={onDelete}
       >
-        <Trash2 className="w-3 h-3" />
+        <FontAwesomeIcon icon={faTrash} className="w-3 h-3" />
       </Button>
     </div>
   )

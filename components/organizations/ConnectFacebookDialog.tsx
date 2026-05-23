@@ -6,7 +6,8 @@ import {
   DialogTitle, DialogDescription,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Loader2, ExternalLink } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpinner, faExternalLink } from '@fortawesome/free-solid-svg-icons'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
 
@@ -69,8 +70,8 @@ export function ConnectFacebookDialog({ open, onOpenChange, orgId }: ConnectFace
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white gap-2"
             >
               {loading
-                ? <><Loader2 className="w-4 h-4 animate-spin" />Redirection...</>
-                : <><ExternalLink className="w-4 h-4" />Connecter avec Facebook</>
+                ? <><FontAwesomeIcon icon={faSpinner} className="animate-spin" style={{ width: '1rem', height: '1rem' }} />Redirection...</>
+                : <><FontAwesomeIcon icon={faExternalLink} style={{ width: '1rem', height: '1rem' }} />Connecter avec Facebook</>
               }
             </Button>
           </div>

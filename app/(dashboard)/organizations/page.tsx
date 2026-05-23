@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Plus, Building2, Search, X } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus, faBuilding, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -92,14 +93,14 @@ export default function OrganisationsPage() {
           onClick={handleOpenCreate}
           className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
         >
-          <Plus className="w-4 h-4" />
+          <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
           Nouvelle organisation
         </Button>
       </div>
 
       {/* Search */}
     <div className="relative max-w-sm">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
       <Input
         placeholder="Rechercher par nom ou description…"
         value={searchInput}
@@ -113,7 +114,7 @@ export default function OrganisationsPage() {
           onClick={() => handleSearch('')}
           className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
         >
-          <X className="w-4 h-4" />
+          <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
         </Button>
       )}
     </div>
@@ -127,7 +128,7 @@ export default function OrganisationsPage() {
       ) : organisations.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
           <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
-            <Building2 className="w-6 h-6 text-slate-400" />
+            <FontAwesomeIcon icon={faBuilding} className="w-6 h-6 text-slate-400" />
           </div>
           <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">
             Aucune organisation
@@ -136,7 +137,7 @@ export default function OrganisationsPage() {
             Créez votre première organisation pour commencer
           </p>
           <Button onClick={handleOpenCreate} className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5">
-            <Plus className="w-4 h-4" />
+            <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
             Créer une organisation
           </Button>
         </div>

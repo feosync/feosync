@@ -148,3 +148,8 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/* Roboto font utility applied only where needed */
+.font-roboto {
+  font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}

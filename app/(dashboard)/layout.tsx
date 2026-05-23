@@ -7,6 +7,8 @@ import { AppSidebar } from '@/components/layout/AppSidebar';
 import { AppNavbar } from '@/components/layout/AppNavbar';
 import { Spinner } from '@/components/ui/spinner';
 
+// Load Roboto font only for dashboard layout via Google Fonts
+
 export default function DashboardLayout({
   children,
 }: {
@@ -37,7 +39,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="font-roboto flex h-screen bg-slate-50 dark:bg-slate-900">
       {/* Sidebar */}
       <AppSidebar />
 

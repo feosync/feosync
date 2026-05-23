@@ -1,23 +1,25 @@
 'use client'
 
 import { useState } from 'react'
-import { Facebook, Instagram, Twitter, MessageCircle, Linkedin, Lock } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faLock } from '@fortawesome/free-solid-svg-icons'
+import { faFacebook, faInstagram, faSquareXTwitter, faLinkedin } from '@fortawesome/free-brands-svg-icons'
 import { ConnectFacebookDialog } from '@/components/organizations/ConnectFacebookDialog'
 
 interface Channel {
   id: string
   label: string
-  icon: React.ElementType
+  icon: any
   available: boolean
   color: string
 }
 
 const CHANNELS: Channel[] = [
-  { id: 'facebook',  label: 'Facebook',  icon: Facebook,       available: true,  color: 'text-blue-600'  },
-  { id: 'instagram', label: 'Instagram', icon: Instagram,      available: false, color: 'text-pink-500'  },
-  { id: 'whatsapp',  label: 'WhatsApp',  icon: MessageCircle,  available: false, color: 'text-green-500' },
-  { id: 'twitter',   label: 'X / Twitter', icon: Twitter,      available: false, color: 'text-slate-800' },
-  { id: 'linkedin',  label: 'LinkedIn',  icon: Linkedin,       available: false, color: 'text-blue-700'  },
+  { id: 'facebook',  label: 'Facebook',  icon: faFacebook,       available: true,  color: 'text-blue-600'  },
+  { id: 'instagram', label: 'Instagram', icon: faInstagram,      available: false, color: 'text-pink-500'  },
+  { id: 'whatsapp',  label: 'WhatsApp',  icon: faFacebook,  available: false, color: 'text-green-500' },
+  { id: 'twitter',   label: 'X / Twitter', icon: faSquareXTwitter,      available: false, color: 'text-slate-800' },
+  { id: 'linkedin',  label: 'LinkedIn',  icon: faLinkedin,       available: false, color: 'text-blue-700'  },
 ]
 
 interface OrgChannelPickerProps {
@@ -39,7 +41,6 @@ export function OrgChannelPicker({ orgId, onClose }: OrgChannelPickerProps) {
     <>
       <div className="py-1">
         {CHANNELS.map(channel => {
-          const Icon = channel.icon
           return (
             <button
               key={channel.id}
@@ -53,12 +54,12 @@ export function OrgChannelPicker({ orgId, onClose }: OrgChannelPickerProps) {
                 }
               `}
             >
-              <Icon className={`w-4 h-4 ${channel.color}`} />
+              <FontAwesomeIcon icon={channel.icon} className={`w-4 h-4 ${channel.color}`} />
               <span className="flex-1 text-left text-slate-700 dark:text-slate-300">
                 {channel.label}
               </span>
               {!channel.available && (
-                <Lock className="w-3 h-3 text-slate-400" />
+                <FontAwesomeIcon icon={faLock} className="w-3 h-3 text-slate-400" />
               )}
               {channel.available && (
                 <span className="text-[10px] bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">

@@ -6,7 +6,7 @@ import { UserRowActions } from './UserRowActions'
 import { resolvePlanName } from './utils'
 
 interface Props {
-  user: UserSummary
+  user: UserSummary | any
   plans: Plan[]
   isSelf: boolean
   isPromoting?: boolean
@@ -21,7 +21,7 @@ export function UserCard({
   isPromoting, isDemoting,
   onPromote, onDemote, onDelete,
 }: Props) {
-  const planName = resolvePlanName(user?.plan_id, plans)
+  const planName = user ? resolvePlanName(user?.plan_id, plans): ""
 
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, KeyboardEvent } from 'react'
-import { X, Plus } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTimes, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { useAdminCreatePlan, useAdminUpdatePlan } from '@/hooks/usePlans'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -67,7 +68,7 @@ function TagInput({
                 onClick={() => remove(tag)}
                 className="hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
               >
-                <X className="w-3 h-3" />
+                <FontAwesomeIcon icon={faTimes} style={{ width: '0.75rem', height: '0.75rem' }} />
               </button>
             </span>
           ))}
@@ -91,7 +92,7 @@ function TagInput({
           disabled={!input.trim()}
           className="px-3"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <FontAwesomeIcon icon={faPlus} style={{ width: '0.875rem', height: '0.875rem' }} />
         </Button>
       </div>
       <p className="text-[11px] text-slate-400">

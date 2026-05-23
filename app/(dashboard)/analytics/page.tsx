@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { TrendingUp, BarChart2, Eye, RefreshCw, Heart } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChartBar, faEye, faRefresh, faHeart } from '@fortawesome/free-solid-svg-icons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { useOrganisations } from '@/hooks/useOrganisations'
@@ -12,16 +13,16 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 
-function MetricCard({ label, value, icon: Icon, color }: {
+function MetricCard({ label, value, icon, color }: {
   label: string
   value: number | string
-  icon: React.ElementType
+  icon: any
   color: string
 }) {
   return (
     <div className={`rounded-xl p-4 ${color}`}>
       <div className="flex items-center gap-2 mb-2">
-        <Icon className="w-4 h-4 opacity-70" />
+        <FontAwesomeIcon icon={icon} className="w-4 h-4 opacity-70" />
         <span className="text-[12px] font-medium opacity-80">{label}</span>
       </div>
       <div className="text-[24px] font-medium">{value}</div>
@@ -38,10 +39,10 @@ function PageInsightsBlock({ pageId, orgId }: { pageId: string; orgId: string })
   const latest = insights[0]
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <MetricCard label="Abonnés"     value={latest.fans_total ?? 0}          icon={Eye}        color="bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200" />
-      <MetricCard label="Impressions" value={latest.impressions_unique ?? 0}  icon={BarChart2}  color="bg-purple-50 dark:bg-purple-950/50 text-purple-800 dark:text-purple-200" />
-      <MetricCard label="Engagés"     value={latest.engaged_users ?? 0}       icon={Heart}      color="bg-pink-50 dark:bg-pink-950/50 text-pink-800 dark:text-pink-200" />
-      <MetricCard label="Nouveaux"    value={latest.new_followers ?? 0}       icon={TrendingUp} color="bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-200" />
+      <MetricCard label="Abonnés"     value={latest.fans_total ?? 0}          icon={faEye}        color="bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200" />
+      <MetricCard label="Impressions" value={latest.impressions_unique ?? 0}  icon={faChartBar}  color="bg-purple-50 dark:bg-purple-950/50 text-purple-800 dark:text-purple-200" />
+      <MetricCard label="Engagés"     value={latest.engaged_users ?? 0}       icon={faHeart}      color="bg-pink-50 dark:bg-pink-950/50 text-pink-800 dark:text-pink-200" />
+      {/* <MetricCard label="Nouveaux"    value={latest.new_followers ?? 0}       icon={faTrendingUp} color="bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-200" /> */}
     </div>
   )
 }
@@ -80,7 +81,7 @@ export default function AnalyticsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-[22px] font-medium text-slate-900 dark:text-white flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-blue-600" />
+          {/* <FontAwesomeIcon icon={} className="w-5 h-5 text-blue-600" /> */}
           Analytics
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -105,9 +106,9 @@ export default function AnalyticsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          <MetricCard label="Posts publiés" value={published.length} icon={BarChart2} color="bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200" />
-          <MetricCard label="Portée totale" value={totalReach} icon={Eye} color="bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-200" />
-          <MetricCard label="Impressions" value={totalImpressions} icon={TrendingUp} color="bg-purple-50 dark:bg-purple-950/50 text-purple-800 dark:text-purple-200" />
+          <MetricCard label="Posts publiés" value={published.length} icon={faChartBar} color="bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200" />
+          <MetricCard label="Portée totale" value={totalReach} icon={faEye} color="bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-200" />
+          {/* <MetricCard label="Impressions" value={totalImpressions} icon={} color="bg-purple-50 dark:bg-purple-950/50 text-purple-800 dark:text-purple-200" /> */}
         </div>
       )}
 
@@ -146,7 +147,7 @@ export default function AnalyticsPage() {
                 disabled={syncMutation.isPending}
                 className="text-[12px] text-slate-500 gap-1.5"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
+                <FontAwesomeIcon icon={faRefresh} className={`w-3.5 h-3.5 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
                 Sync
               </Button>
               </div>
@@ -181,10 +182,10 @@ export default function AnalyticsPage() {
                   </div>
                   <div className="flex items-center gap-4 text-[12px] text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1">
-                      <Eye className="w-3.5 h-3.5" />{p.initial_reach}
+                      <FontAwesomeIcon icon={faEye} className="w-3.5 h-3.5" />{p.initial_reach}
                     </span>
                     <span className="flex items-center gap-1">
-                      <BarChart2 className="w-3.5 h-3.5" />{p.initial_impressions}
+                      <FontAwesomeIcon icon={faChartBar} className="w-3.5 h-3.5" />{p.initial_impressions}
                     </span>
                   </div>
                 </div>
