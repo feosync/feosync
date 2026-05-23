@@ -55,14 +55,14 @@ export function AppSidebar() {
 
       <aside
         className={cn(
-          "h-full bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 z-40 transition-all duration-300 flex flex-col overflow-hidden flex-shrink-0 gap-4",
+          "h-full bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 z-40 transition-all duration-300 flex flex-col overflow-hidden shrink-0 gap-0",
           "fixed md:relative",
           isOpen ? "w-64" : "w-0 md:w-16",
         )}
       >
         {/* Logo + bouton fermer (mobile)  */}
         <div className={cn(
-          "h-14 flex items-center px-2 shrink-0",
+          "h-12 flex items-center px-2 shrink-0",
           isOpen ? "justify-between": "justify-center"
         )}>
           <>
@@ -94,7 +94,7 @@ export function AppSidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-3 space-y-3 px-2">
+        <nav className="flex-1 overflow-y-auto py-2 space-y-3 px-2">
           {visibleSections.map((section) => (
             <div key={section.section} >
               {isOpen && (
@@ -147,7 +147,7 @@ export function AppSidebar() {
                     >
                       <div
                         className={cn(
-                          "flex items-center gap-3 px-2 rounded-lg text-sm font-medium transition-colors h-9" ,
+                          "flex items-center gap-2 px-2 rounded-lg text-sm font-medium transition-colors h-8" ,
                           isActive
                             ? section.adminOnly
                               ? "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400"
@@ -173,7 +173,7 @@ export function AppSidebar() {
         </nav>
 
         {/*  bouton d'abonnement */}
-        <div className="p-4 border-slate-200 dark:border-slate-800">
+        <div className="p-4 border-slate-200 dark:border-slate-800 flex justify-center items-center">
           <Button
             size="sm"
             className="w-full"
