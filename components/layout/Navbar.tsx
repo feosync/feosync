@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Zap, Menu, X, Moon, Sun } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faZap, faEllipsisH, faTimes, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -63,8 +64,8 @@ export const Navbar = () => {
             aria-label="Basculer le thème"
           >
             {dark
-              ? <Sun className="w-4.5 h-4.5 text-white" />
-              : <Moon className="w-4.5 h-4.5 text-slate-800" />
+              ? <FontAwesomeIcon icon={faSun} className="w-4.5 h-4.5 text-white" />
+              : <FontAwesomeIcon icon={faMoon} className="w-4.5 h-4.5 text-slate-800" />
             }
           </Button>
 
@@ -88,8 +89,8 @@ export const Navbar = () => {
             aria-label="Basculer le thème"
           >
             {dark
-              ? <Sun className="w-4.5 h-4.5 text-white" />
-              : <Moon className="w-4.5 h-4.5 text-slate-800" />
+              ? <FontAwesomeIcon icon={faSun} className="w-4.5 h-4.5 text-white" />
+              : <FontAwesomeIcon icon={faMoon} className="w-4.5 h-4.5 text-slate-800" />
             }
           </Button>
           <Button
@@ -99,7 +100,7 @@ export const Navbar = () => {
             className="text-slate-600 dark:text-slate-400"
             aria-label="Menu"
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <FontAwesomeIcon icon={faTimes} className="w-5 h-5" /> : <FontAwesomeIcon icon={faEllipsisH} className="w-5 h-5" />}
           </Button>
         </div>
       </div>

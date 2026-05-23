@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Bell, LogOut, Moon, Sun, Menu } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell, faSignOut, faMoon, faSun, faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -51,17 +52,19 @@ export function AppNavbar() {
 
         {/* ← Hamburger — visible sur tous les écrans */}
         <Button variant="ghost" size="icon" onClick={toggle} className="flex-shrink-0">
-          <Menu className="w-5 h-5" />
+          <FontAwesomeIcon icon={faEllipsisH} className="w-5 h-5" />
         </Button>
 
         {/* Logo centré sur mobile */}
-        <span className="font-bold text-blue-600 md:hidden flex-1 text-center">FeoSync</span>
+        <span className="font-bold text-blue-600 md:hidden flex-1 text-center">
+          
+        </span>
 
         <div className="flex items-center gap-2 ml-auto">
           <NotificationBell />
 
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {isDark ? <FontAwesomeIcon icon={faSun} className="w-5 h-5" /> : <FontAwesomeIcon icon={faMoon} className="w-5 h-5" />}
           </Button>
 
           <DropdownMenu>
@@ -91,7 +94,7 @@ export function AppNavbar() {
                 variant="destructive"
                 onClick={handleLogout}
               >
-                <LogOut className="w-4 h-4 mr-2" />
+                <FontAwesomeIcon icon={faSignOut} className="w-4 h-4 mr-2" />
                 Déconnexion
               </DropdownMenuItem>
             </DropdownMenuContent>

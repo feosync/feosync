@@ -9,7 +9,8 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Loader2, ExternalLink } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpinner, faExternalLink } from '@fortawesome/free-solid-svg-icons'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
 import { OrganisationSelector } from '@/components/organizations/OrgSelector'
@@ -97,12 +98,12 @@ export function ConnectPageDialog({ open, onOpenChange }: ConnectPageDialogProps
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <FontAwesomeIcon icon={faSpinner} className="animate-spin" style={{ width: '1rem', height: '1rem' }} />
                   Redirection...
                 </>
               ) : (
                 <>
-                  <ExternalLink className="w-4 h-4" />
+                  {/* <ExternalLink className="w-4 h-4" /> */}
                   Connecter avec Facebook
                 </>
               )}

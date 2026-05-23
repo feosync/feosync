@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle, Search , X} from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheckCircle, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import {
@@ -133,7 +134,7 @@ export default function PublishedPage() {
       <div className="flex flex-wrap items-center gap-3">
 
         <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" style={{ width: '1rem', height: '1rem' }} />
         <Input
           placeholder="Rechercher…"
           value={searchInput}
@@ -147,7 +148,7 @@ export default function PublishedPage() {
             onClick={() => handleSearch('')}
             className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
           >
-            <X className="w-4 h-4" />
+            <FontAwesomeIcon icon={faTimes} style={{ width: '1rem', height: '1rem' }} />
           </Button>
         )}
       </div>
@@ -205,7 +206,7 @@ export default function PublishedPage() {
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
             <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
-              <CheckCircle className="w-6 h-6 text-slate-400" />
+              {/* <CheckCircle className="w-6 h-6 text-slate-400" /> */}
             </div>
             <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">Aucun post publié</p>
             <p className="text-sm text-slate-500 dark:text-slate-400">

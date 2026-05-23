@@ -9,20 +9,21 @@ import { useAuth } from '@/hooks/useAuth'
 import { Skeleton } from '@/components/ui/skeleton'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { Calendar, CheckCircle, FileEdit, XCircle, Plus } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCalendar, faCheckCircle, faPencil, faCircle, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { OrganisationSelector } from '@/components/organizations/OrgSelector'
 
-function StatCard({ label, value, icon: Icon, color }: {
+function StatCard({ label, value, icon: iconDef, color }: {
   label: string; value: number
-  icon: React.ElementType; color: string
+  icon: any; color: string
 }) {
   return (
     <div className={`rounded-xl p-4 ${color}`}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-[12px] font-medium opacity-80">{label}</span>
-        <Icon className="w-4 h-4 opacity-60" />
+        <FontAwesomeIcon icon={iconDef} className="w-4 h-4 opacity-60" />
       </div>
       <div className="text-[26px] font-medium">{value}</div>
     </div>
@@ -68,7 +69,7 @@ export default function OverviewPage() {
         </div>
         <Link href="/posts/new">
           <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5">
-            <Plus className="w-4 h-4" /> Nouveau post
+            <FontAwesomeIcon icon={faPlus} className="w-4 h-4" /> Nouveau post
           </Button>
         </Link>
       </div>
@@ -85,25 +86,25 @@ export default function OverviewPage() {
           <StatCard
             label="Publiés"
             value={publishedTotal}
-            icon={CheckCircle}
+            icon={faCheckCircle}
             color="bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-200"
           />
           <StatCard
             label="Planifiés"
             value={scheduledData?.total ?? 0}   // ← total réel depuis l'API
-            icon={Calendar}
+            icon={faCalendar}
             color="bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200"
           />
           <StatCard
             label="Brouillons"
             value={draftData?.total ?? 0}        // ← idem
-            icon={FileEdit}
+            icon={faPencil}
             color="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
           />
           <StatCard
             label="Échoués"
             value={failedData?.total ?? 0}       // ← idem
-            icon={XCircle}
+            icon={faCircle}
             color="bg-red-50 dark:bg-red-950/50 text-red-800 dark:text-red-200"
           />
         </div>
@@ -129,7 +130,8 @@ export default function OverviewPage() {
               </p>
               <Link href="/posts/new">
                 <Button variant="outline" size="sm" className="text-[12px]">
-                  <Plus className="w-3.5 h-3.5 mr-1.5" /> Créer un post
+                  {/* <Plus className="w-3.5 h-3.5 mr-1.5" />  */}
+                  Créer un post
                 </Button>
               </Link>
             </div>

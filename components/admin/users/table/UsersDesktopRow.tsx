@@ -7,7 +7,7 @@ import { UserRowActions } from './UserRowActions'
 import { resolvePlanName } from './utils'
 
 interface Props {
-  user: UserSummary
+  user: UserSummary | any
   plans: Plan[]
   isSelf: boolean
   isPromoting?: boolean

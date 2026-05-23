@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Loader2, Trash2, Upload, X, LayoutTemplate } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpinner, faTrash, faUpload, faTimes } from '@fortawesome/free-solid-svg-icons'
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription
 } from '@/components/ui/sheet'
@@ -179,13 +180,13 @@ export function TemplateSheet({
                     onClick={() => { setPreview(''); set('asset_url', '') }}
                     className="absolute top-2 right-2 w-7 h-7 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-colors"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <FontAwesomeIcon icon={faTimes} className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => fileRef.current?.click()}
                     className="absolute bottom-2 right-2 px-2 py-1 bg-black/50 hover:bg-black/70 rounded text-white text-[11px] flex items-center gap-1"
                   >
-                    <Upload className="w-3 h-3" /> Changer
+                    <FontAwesomeIcon icon={faUpload} className="w-3 h-3" /> Changer
                   </button>
                 </div>
               ) : (
@@ -193,7 +194,7 @@ export function TemplateSheet({
                   onClick={() => fileRef.current?.click()}
                   className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center cursor-pointer hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 transition-colors"
                 >
-                  <LayoutTemplate className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                  {/* <FontAwesomeIcon icon={faTemplate} className="w-8 h-8 text-slate-300 mx-auto mb-2" /> */}
                   <p className="text-[13px] text-slate-500 dark:text-slate-400">
                     Cliquez pour uploader une image
                   </p>
@@ -234,7 +235,7 @@ export function TemplateSheet({
                 onClick={() => setDeleteDialog(true)}
                 disabled={isDeleting}
               >
-                <Trash2 className="w-4 h-4" />
+                <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
               </Button>
             )}
 
@@ -252,7 +253,7 @@ export function TemplateSheet({
               disabled={isPending || !form.name.trim() || !form.asset_url}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
             >
-              {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {isPending && <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 mr-2 animate-spin" />}
               {isPending
                 ? 'Enregistrement...'
                 : isEdit ? 'Mettre à jour' : 'Créer le template'
@@ -284,7 +285,7 @@ export function TemplateSheet({
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700 text-white border-0"
             >
-              {isDeleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {isDeleting && <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 mr-2 animate-spin" />}
               Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>

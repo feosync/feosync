@@ -1,7 +1,8 @@
 'use client'
 
 import { useFacebookInsights } from '@/hooks/useFacebookPages'
-import { Loader2 } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 
 interface InsightsPanelProps {
   pageId: string
@@ -14,7 +15,7 @@ export function InsightsPanel({ pageId, orgId }: InsightsPanelProps) {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 p-4 text-sm text-slate-500">
-        <Loader2 className="w-4 h-4 animate-spin" />
+        <FontAwesomeIcon icon={faSpinner} className="animate-spin" style={{ width: '1rem', height: '1rem' }} />
         Chargement des insights...
       </div>
     )

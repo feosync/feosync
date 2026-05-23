@@ -1,17 +1,11 @@
 import {
-  LayoutDashboard,
-  Building2,
-  Facebook,
-  Sparkles,
-  BookMarked,
-  CheckCircle2,
-  TrendingUp,
-  Users,
-  CreditCard,
-  ShieldCheck,
-  Calendar
-  
-} from 'lucide-react';
+  faBookmark,
+  faUsers,
+  faCreditCard,
+  faCalendar,
+} from '@fortawesome/free-solid-svg-icons';
+import { faFacebook as faFacebookBrand, faSquareFacebook } from '@fortawesome/free-brands-svg-icons';
+import { faChartColumn, faSquareCheck, faChartLine, faBuildingCircleArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 export const NAVIGATION_ITEMS = [
   {
@@ -20,7 +14,7 @@ export const NAVIGATION_ITEMS = [
       {
         label: 'Tableau de bord',
         href: '/overview',
-        icon: LayoutDashboard,
+        icon: faChartColumn,
       },
     ],
   },
@@ -30,12 +24,12 @@ export const NAVIGATION_ITEMS = [
       {
         label: 'Organisations',
         href: '/organizations',
-        icon: Building2,
+        icon: faBuildingCircleArrowRight,
       },
       {
         label: 'Pages Facebook',
         href: '/pages',
-        icon: Facebook,
+        icon: faSquareFacebook,
       },
     ],
   },
@@ -46,12 +40,12 @@ export const NAVIGATION_ITEMS = [
       {
         label: 'Planificateur',
         href: '/posts',
-        icon: Calendar,
+        icon: faCalendar,
       },
       {
         label: 'Posts publiés',
         href: '/published',
-        icon: CheckCircle2,
+        icon: faSquareCheck,
       },
     ],
   },
@@ -61,7 +55,7 @@ export const NAVIGATION_ITEMS = [
       {
         label: 'Modèles',
         href: '/templates',
-        icon: BookMarked,
+        icon: faBookmark,
       },
     ],
   },
@@ -71,7 +65,7 @@ export const NAVIGATION_ITEMS = [
       {
         label: 'Analyses',
         href: '/analytics',
-        icon: TrendingUp,
+        icon: faChartLine,
       },
     ],
   },
@@ -82,12 +76,12 @@ export const NAVIGATION_ITEMS = [
       {
         label: 'Utilisateurs',
         href: '/admin/users',
-        icon: Users,
+        icon: faUsers,
       },
       {
         label: 'Plans',
         href: '/admin/plans',
-        icon: CreditCard,
+        icon: faCreditCard,
       },
     ],
   },

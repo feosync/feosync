@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Search, Users, X } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSearch, faUsers, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/hooks/useAuth'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -49,7 +50,7 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="p-2 bg-amber-100 dark:bg-amber-950 rounded-lg">
-          <Users className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+          <FontAwesomeIcon icon={faUsers} className="w-5 h-5 text-amber-600 dark:text-amber-400" />
         </div>
         <div>
           <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
@@ -64,7 +65,7 @@ export default function AdminUsersPage() {
 
       {/* Search */}
       <div className="relative max-w-sm">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
       <Input
         placeholder="Rechercher par nom ou email…"
         value={searchInput}
@@ -78,7 +79,7 @@ export default function AdminUsersPage() {
           onClick={() => handleSearch('')}
           className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
         >
-          <X className="w-4 h-4" />
+          <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
         </Button>
       )}
     </div>

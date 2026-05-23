@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Settings, User, Bell, Info, Shield , Sparkles} from 'lucide-react'
+import { faGear, faUser, faBell, faInfo, faShield, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons'
 import { SettingsSidebar, SettingsMobileTabs, NavItem } from '@/components/settings/SettingsSidebar'
 import { GeneralSection }       from '@/components/settings/sections/GeneralSection'
 import { ProfileSection }       from '@/components/settings/sections/ProfileSection'
@@ -15,12 +15,12 @@ import { AiSection } from '@/components/settings/sections/AiSection'
 /* ── Nav config ────────────────────────────────────────────────── */
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'general',       label: 'Général',       icon: Settings  },
-  { id: 'profile',       label: 'Profil',        icon: User      },
-  { id: 'notifications', label: 'Notifications', icon: Bell      },
-  { id: 'ai',            label: 'IA & Quota',    icon: Sparkles  },
-  { id: 'account',       label: 'Compte',        icon: Shield    },
-  { id: 'about',         label: 'À propos',      icon: Info      },
+  { id: 'general',       label: 'Général',       icon: faGear },
+  { id: 'profile',       label: 'Profil',        icon: faUser },
+  { id: 'notifications', label: 'Notifications', icon: faBell },
+  { id: 'ai',            label: 'IA & Quota',    icon: faWandMagicSparkles },
+  { id: 'account',       label: 'Compte',        icon: faShield },
+  { id: 'about',         label: 'À propos',      icon: faInfo },
 ]
 
 const SECTION_TITLES: Record<string, { title: string; description: string }> = {
