@@ -37,7 +37,8 @@ export function useUpdateTemplate(orgId: string) {
       )
       toast.success('Template mis à jour')
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err: any) =>toast.error(err.message ?? "Something went wrong")
+,
   })
 }
 

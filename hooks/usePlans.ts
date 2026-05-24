@@ -66,7 +66,7 @@ export function useUpgradeSubcription() {
       toast.success("Abonnement mis à jour");
     },
     onError: (err: any) => {
-      toast.error("Error", { description: err });
+      toast.error("Error", { description: err.message });
     },
   });
 }

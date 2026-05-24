@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/hooks/AuthProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
 import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 import { Roboto } from 'next/font/google';
 
@@ -41,13 +42,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.variable}`}>
-        <QueryProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </QueryProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <QueryProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </QueryProvider>
+          <Toaster />
+        </ThemeProvider>
         <Analytics />
-         <Toaster />
       </body>
     </html>
   )
