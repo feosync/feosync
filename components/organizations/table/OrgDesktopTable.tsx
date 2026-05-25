@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/table";
 import type { Organisation } from "@/lib/api/types";
 import { OrgDesktopRow } from "./OrgDesktopRow";
-import { ManageSocialMedia } from "./socialMedia";
 
 
 interface Props {
@@ -26,10 +25,9 @@ export function OrgDesktopTable({
   onEdit,
   onDelete,
 }: Props) {
-  const [open, setOpen] = useState(false);
   return (
     <>
-      <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 relative">
+      <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 relative w-full h-max">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-900">
@@ -48,20 +46,19 @@ export function OrgDesktopTable({
               </TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="relative h-max">
             {organisations.map((org) => (
-              <OrgDesktopRow
+                <OrgDesktopRow
                 key={org.id}
                 org={org}
                 onView={() => onView(org)}
                 onEdit={() => onEdit(org)}
                 onDelete={() => onDelete(org)}
               />
+            
             ))}
           </TableBody>
         </Table>
-        {/* social media bar */}
-        <ManageSocialMedia open={open} onOpenChange={setOpen} />
 
       </div>
     </>

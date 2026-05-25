@@ -5,6 +5,8 @@ import { fr } from 'date-fns/locale'
 import type { Organisation } from '@/lib/api/types'
 import { OrgActionsMenu } from './OrgActionsMenu'
 import { sectorLabels, toneLabels } from './labels'
+import { ManageSocialMedia } from './socialMedia'
+import { useState } from 'react'
 
 interface Props {
   org: Organisation
@@ -14,6 +16,8 @@ interface Props {
 }
 
 export function OrgDesktopRow({ org, onView, onEdit, onDelete }: Props) {
+    const [open, setOpen] = useState(false);
+
   return (
     <TableRow
       onClick={onView}
@@ -71,6 +75,8 @@ export function OrgDesktopRow({ org, onView, onEdit, onDelete }: Props) {
         <div onClick={e => e.stopPropagation()}>
           <OrgActionsMenu org={org} onEdit={onEdit} onDelete={onDelete} />
         </div>
+        <ManageSocialMedia  key={`${org.id}+4`} open={open} onOpenChange={setOpen} orgId={org.id} />
+
       </TableCell>
     </TableRow>
   )
