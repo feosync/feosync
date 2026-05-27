@@ -51,7 +51,7 @@ function getWeeksOfMonth(year: number, month: number): number[] {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const PAGE_SIZE    = 9
+const PAGE_SIZE    = 3
 const THIS_YEAR    = new Date().getFullYear()
 const THIS_MONTH   = new Date().getMonth() + 1
 const CURRENT_WEEK = getCurrentISOWeek()
