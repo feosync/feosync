@@ -49,6 +49,11 @@ const STATUS: Record<PostStatus, { label: string; className: string; dotColor: s
   },
 }
 
+function truncateCaption(text: string, max = 50): string {
+  if (text.length <= max) return text
+  return text.slice(0, max).trimEnd() + '…'
+}
+
 interface PostCardProps {
   post: ScheduledPost
   onClick: () => void
@@ -61,6 +66,10 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
 
   const coverImage = post.images?.[0] ?? null
   const imageCount = post.images?.length ?? 0
+
+  const captionDisplay = post.caption
+    ? truncateCaption(post.caption)
+    : null
 
   return (
     <>
@@ -160,14 +169,11 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
         {/* Card Body */}
         <div className="p-5 space-y-4">
           {/* Caption */}
-          <p
-            className={`text-sm leading-relaxed line-clamp-3 min-h-[66px] ${
-              post.caption
-                ? 'text-slate-200'
-                : 'text-slate-500 italic'
-            }`}
-          >
-            {post.caption || 'Aucun texte rédigé pour ce post...'}
+          <p className={cn(
+            "text-sm leading-relaxed min-h-[20px]",
+            captionDisplay ? "text-slate-200" : "text-slate-500 italic"
+          )}>
+            {captionDisplay ?? "Aucun texte rédigé pour ce post..."}
           </p>
 
           {/* Footer Info */}
