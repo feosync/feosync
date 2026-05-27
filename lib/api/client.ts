@@ -15,7 +15,8 @@ import {
   AutoCommentRequest,
   SubscriptionRequest,
   SubscriptionResponse,
-  Subscription
+  Subscription,
+  Channel
 } from "@/lib/api/types";
 
 import { config } from "@/lib/config";
@@ -515,6 +516,12 @@ export class ApiClient {
       method: "GET"
     })
   }
+  async getChannelByUser():Promise<Channel[]>{
+    return this.request(`/api/v1/channel/`,{
+      method: "GET"
+    })
 }
+}
+
 
 export const apiClient = ApiClient.getInstance();

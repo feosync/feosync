@@ -40,10 +40,10 @@ export function OrgTable({ organisations, onEdit, onDelete, isDeleting }: OrgTab
         onDelete={setOrgToDelete}
       />
 
-      <OrgDetailSheet
+      {/* <OrgDetailSheet
         org={selectedOrg}
         onClose={() => setSelectedOrg(null)}
-      />
+      /> */}
 
       <OrgDeleteDialog
         org={orgToDelete}
