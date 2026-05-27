@@ -171,7 +171,7 @@ export function ManageSocialMedia({
               <div
                 key={ch.id}
                 className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-md absolute z-0 ${ch.bg}`}
-                style={{ right: `${rightOffset * 4}px` }}
+                style={{ right: `${rightOffset * 3.5}px` }}
                 title={ch.name}
               >
                 {ch.icon}
@@ -192,7 +192,7 @@ export function ManageSocialMedia({
         {/* Bouton « + » */}
         <button
           onClick={() => onOpenChange(true)}
-          className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center active:scale-105 transition-transform cursor-pointer shrink-0 shadow-md absolute right-4 z-10"
+          className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center active:scale-105 transition-transform cursor-pointer shrink-0 shadow-md absolute right-2 z-10"
           aria-label="Ajouter un réseau social"
         >
           <svg
