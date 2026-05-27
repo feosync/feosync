@@ -2,19 +2,23 @@
 
 import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Card } from '@/components/ui/card'
+import { Textarea } from '@/components/ui/textarea'
 import { Loader2, Sparkles, Upload, Link as LinkIcon, X, Plus, Images } from 'lucide-react'
 import Image from 'next/image'
 import type { ScheduledPost } from '@/lib/api/types'
 import { useAddImage, useAddImageUpload, useRemoveImage } from '@/hooks/useScheduledPosts'
 import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
 import { checkCanGenerateImage } from '@/lib/api/plan-limits'
+import { cn } from '@/lib/utils'
 
 const MAX_IMAGES = 10
 
 interface StepImageProps {
   post: ScheduledPost
   orgId: string
-  onImageAdded:   (updatedPost: ScheduledPost) => void
+  onImageAdded: (updatedPost: ScheduledPost) => void
   onImageRemoved: (updatedPost: ScheduledPost) => void
   onNext: () => void
   onBack: () => void
@@ -24,22 +28,27 @@ type ImageMode = 'url' | 'upload' | 'llm'
 
 export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, onBack }: StepImageProps) {
   const { data: userDetail } = useCurrentUserDetail()
-  const [mode, setMode]        = useState<ImageMode>('url')
-  const [url, setUrl]          = useState('')
+  const [mode, setMode] = useState<ImageMode>('url')
+  const [url, setUrl] = useState('')
   const [description, setDesc] = useState('')
-  const [file, setFile]        = useState<File | null>(null)
-  const [preview, setPreview]  = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const addMutation    = useAddImage(orgId)
+  const addMutation = useAddImage(orgId)
   const uploadMutation = useAddImageUpload(orgId)
   const removeMutation = useRemoveImage(orgId)
 
-  const images   = post.images ?? []
-  const canAdd   = images.length < MAX_IMAGES
+  const images = post.images ?? []
+  const canAdd = images.length < MAX_IMAGES
   const isAdding = addMutation.isPending || uploadMutation.isPending
 
-  const resetForm = () => { setUrl(''); setDesc(''); setFile(null); setPreview('') }
+  const resetForm = () => {
+    setUrl('')
+    setDesc('')
+    setFile(null)
+    setPreview('')
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -53,12 +62,16 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
     if (mode === 'upload' && file) {
       res = await uploadMutation.mutateAsync({ postId: post.id, file })
     } else if (mode === 'url' && url.trim()) {
-      res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'url', url } })
+      res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'url', url: url.trim() } })
     } else if (mode === 'llm' && description.trim()) {
       if (!checkCanGenerateImage(userDetail)) return
-      res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'llm', description } })
+      res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'llm', description: description.trim() } })
     }
-    if (res) { onImageAdded(res.scheduled_post); resetForm() }
+
+    if (res) {
+      onImageAdded(res.scheduled_post)
+      resetForm()
+    }
   }
 
   const handleRemove = async (imageId: string) => {
@@ -67,159 +80,184 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
   }
 
   const canSubmitAdd =
-    !isAdding && canAdd &&
-    ((mode === 'url'    && !!url.trim()) ||
+    !isAdding &&
+    canAdd &&
+    ((mode === 'url' && !!url.trim()) ||
      (mode === 'upload' && !!file) ||
-     (mode === 'llm'    && !!description.trim()))
+     (mode === 'llm' && !!description.trim()))
 
-  const MODES: { value: ImageMode; label: string; icon: React.ElementType }[] = [
-    { value: 'url',    label: 'URL',      icon: LinkIcon },
-    { value: 'upload', label: 'Uploader', icon: Upload   },
-    { value: 'llm',    label: 'IA',       icon: Sparkles },
+  const MODES = [
+    { value: 'url' as ImageMode, label: 'URL', icon: LinkIcon },
+    { value: 'upload' as ImageMode, label: 'Uploader', icon: Upload },
+    { value: 'llm' as ImageMode, label: 'Générer par IA', icon: Sparkles },
   ]
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-[15px] font-medium text-slate-900 dark:text-white mb-1">
-          Images
-          <span className="ml-2 text-[13px] font-normal text-slate-500">
-            ({images.length}/{MAX_IMAGES})
-          </span>
-        </h2>
-        <p className="text-[13px] text-slate-500 dark:text-slate-400">
-          Optionnel — ajoutez jusqu'à {MAX_IMAGES} images pour un carrousel.
-        </p>
-      </div>
-
-      {/* Images existantes */}
-      {images.length > 0 && (
-        <div className="grid grid-cols-4 gap-2">
-          {images.map((img, i) => (
-            <div
-              key={img.id}
-              className="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-square bg-slate-100 dark:bg-slate-800"
-            >
-              <Image src={img.image_url} alt={`img ${i + 1}`} fill className="object-cover" unoptimized />
-              <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-black/60 rounded text-white text-[9px] flex items-center justify-center">
-                {i + 1}
-              </div>
-              <button
-                onClick={() => handleRemove(img.id)}
-                disabled={removeMutation.isPending}
-                className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/50 hover:bg-red-600 rounded text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Formulaire d'ajout */}
-      {canAdd && (
-        <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3">
-          <p className="text-[12px] font-medium text-slate-600 dark:text-slate-400">
-            {images.length === 0 ? 'Ajouter une image' : 'Ajouter une autre image'}
+    <Card className="p-8 bg-card border-border shadow-xl">
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h2 className="text-2xl font-semibold text-foreground mb-2">Images</h2>
+          <p className="text-muted-foreground">
+            Ajoutez jusqu'à {MAX_IMAGES} images pour créer un carrousel attractif.
+            <span className="ml-1.5 text-sm text-muted-foreground">({images.length}/{MAX_IMAGES})</span>
           </p>
+        </div>
 
-          {/* Mode tabs */}
-          <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-            {MODES.map(m => (
-              <button
-                key={m.value}
-                onClick={() => {
-                  if (m.value === 'llm' && !checkCanGenerateImage(userDetail)) return
-                  setMode(m.value)
-                  resetForm()
-                }}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[12px] rounded-md transition-colors ${
-                  mode === m.value
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
-                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                }`}
-              >
-                <m.icon className="w-3.5 h-3.5" />
-                {m.label}
-              </button>
-            ))}
+        {/* Existing Images Grid */}
+        {images.length > 0 && (
+          <div>
+            <Label className="mb-3 block">Images ajoutées</Label>
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+              {images.map((img, i) => (
+                <div
+                  key={img.id}
+                  className="group relative aspect-square rounded-2xl overflow-hidden border border-border bg-muted shadow-sm hover:shadow-md transition-all"
+                >
+                  <Image
+                    src={img.image_url}
+                    alt={`Image ${i + 1}`}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                    unoptimized
+                  />
+                  <div className="absolute top-2 left-2 w-5 h-5 bg-black/70 text-white text-[10px] font-medium rounded-full flex items-center justify-center">
+                    {i + 1}
+                  </div>
+                  <button
+                    onClick={() => handleRemove(img.id)}
+                    disabled={removeMutation.isPending}
+                    className="absolute top-2 right-2 w-7 h-7 bg-black/70 hover:bg-red-600 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
+        )}
 
-          {mode === 'url' && (
-            <div className="space-y-2">
-              <input
-                value={url}
-                onChange={e => { setUrl(e.target.value); setPreview(e.target.value) }}
-                placeholder="https://example.com/image.jpg"
-                className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {preview && (
-                <div className="relative h-28 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                  <Image src={preview} alt="preview" fill className="object-cover" unoptimized />
-                </div>
-              )}
+        {/* Add New Image Section */}
+        {canAdd && (
+          <div className="space-y-5">
+            <Label>Ajouter une image</Label>
+
+            {/* Mode Tabs */}
+            <div className="flex gap-1 p-1 bg-muted rounded-2xl">
+              {MODES.map((m) => (
+                <button
+                  key={m.value}
+                  onClick={() => {
+                    if (m.value === 'llm' && !checkCanGenerateImage(userDetail)) return
+                    setMode(m.value)
+                    resetForm()
+                  }}
+                  className={cn(
+                    "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-medium transition-all",
+                    mode === m.value
+                      ? "bg-card shadow-sm text-foreground border border-border"
+                      : "text-muted-foreground hover:text-foreground hover:bg-card/60"
+                  )}
+                >
+                  <m.icon className={cn("w-4 h-4", mode === 'llm' && "text-primary")} />
+                  {m.label}
+                </button>
+              ))}
             </div>
-          )}
 
-          {mode === 'upload' && (
-            <div className="space-y-2">
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-              <div
-                onClick={() => fileRef.current?.click()}
-                className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-5 text-center cursor-pointer hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
-              >
-                <Upload className="w-6 h-6 text-slate-300 mx-auto mb-1" />
-                <p className="text-[12px] text-slate-500">{file ? file.name : 'Cliquez pour choisir'}</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">PNG, JPG, WebP — max 10MB</p>
+            {/* Form by Mode */}
+            {mode === 'url' && (
+              <div className="space-y-3">
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => {
+                    setUrl(e.target.value)
+                    setPreview(e.target.value)
+                  }}
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full h-11 px-4 rounded-xl border bg-card text-foreground focus:ring-2 focus:ring-ring"
+                />
+                {preview && (
+                  <div className="relative h-52 rounded-2xl overflow-hidden border border-border">
+                    <Image src={preview} alt="preview" fill className="object-cover" unoptimized />
+                  </div>
+                )}
               </div>
-              {preview && (
-                <div className="relative h-28 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                  <Image src={preview} alt="preview" fill className="object-cover" unoptimized />
+            )}
+
+            {mode === 'upload' && (
+              <div className="space-y-3">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <div
+                  onClick={() => fileRef.current?.click()}
+                  className="border-2 border-dashed border-border hover:border-primary/50 rounded-2xl p-8 text-center cursor-pointer transition-colors bg-card"
+                >
+                  <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+                  <p className="font-medium">Cliquez pour sélectionner une image</p>
+                  <p className="text-sm text-muted-foreground mt-1">PNG, JPG, WebP — Max 10MB</p>
                 </div>
+                {preview && (
+                  <div className="relative h-52 rounded-2xl overflow-hidden border border-border">
+                    <Image src={preview} alt="preview" fill className="object-cover" unoptimized />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {mode === 'llm' && (
+              <Textarea
+                value={description}
+                onChange={(e) => setDesc(e.target.value)}
+                placeholder="Décris l'image que tu veux générer... Ex: Une femme souriante devant un ordinateur dans un bureau moderne avec lumière naturelle"
+                rows={4}
+                className="resize-none"
+              />
+            )}
+
+            <Button
+              onClick={handleAdd}
+              disabled={!canSubmitAdd}
+              className="w-full h-11 text-base font-semibold rounded-2xl"
+            >
+              {isAdding ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {mode === 'llm' ? 'Génération...' : 'Ajout...'}
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter l'image
+                </>
               )}
-            </div>
-          )}
+            </Button>
+          </div>
+        )}
 
-          {mode === 'llm' && (
-            <textarea
-              value={description}
-              onChange={e => setDesc(e.target.value)}
-              rows={2}
-              placeholder="Ex: Photo professionnelle d'un bureau moderne, lumière naturelle..."
-              className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          )}
+        {!canAdd && (
+          <div className="flex items-center gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-600 dark:text-amber-400">
+            <Images className="w-5 h-5" />
+            Limite maximale de {MAX_IMAGES} images atteinte.
+          </div>
+        )}
 
-          <Button
-            onClick={handleAdd}
-            disabled={!canSubmitAdd}
-            size="sm"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
-          >
-            {isAdding
-              ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />{mode === 'llm' ? 'Génération...' : 'Upload...'}</>
-              : <><Plus className="w-3.5 h-3.5" />Ajouter</>
-            }
+        {/* Navigation */}
+        <div className="flex gap-3 pt-4">
+          <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
+            ← Retour
+          </Button>
+          <Button onClick={onNext} className="flex-1 h-12 text-base font-semibold rounded-2xl">
+            {images.length === 0 ? 'Continuer sans image' : `Continuer avec ${images.length} image${images.length > 1 ? 's' : ''}`}
           </Button>
         </div>
-      )}
-
-      {!canAdd && (
-        <div className="flex items-center gap-2 text-[13px] text-slate-500 py-2">
-          <Images className="w-4 h-4" />
-          Limite de {MAX_IMAGES} images atteinte.
-        </div>
-      )}
-
-      <div className="flex gap-2 pt-1">
-        <Button variant="outline" onClick={onBack} className="border-slate-200 dark:border-slate-700">
-          ← Retour
-        </Button>
-        <Button onClick={onNext} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
-          {images.length === 0 ? 'Ignorer →' : `Continuer (${images.length} image${images.length > 1 ? 's' : ''}) →`}
-        </Button>
       </div>
-    </div>
+    </Card>
   )
 }
-

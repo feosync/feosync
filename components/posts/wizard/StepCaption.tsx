@@ -2,10 +2,21 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Loader2, Sparkles } from 'lucide-react'
+import { Label } from '@/components/ui/label'
+import { Card } from '@/components/ui/card'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Loader2, Sparkles, ArrowLeft, ArrowRight, Edit3 } from 'lucide-react'
 import type { ScheduledPost } from '@/lib/api/types'
 import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
 import { checkCanGenerateCaption } from '@/lib/api/plan-limits'
+import { cn } from '@/lib/utils'
 
 interface StepCaptionProps {
   post: ScheduledPost
@@ -17,112 +28,163 @@ interface StepCaptionProps {
 
 export function StepCaption({ post, isLoading, onNext, onBack, onSkip }: StepCaptionProps) {
   const { data: userDetail } = useCurrentUserDetail()
-  const [mode, setMode]       = useState<'manual' | 'llm'>('manual')
+  const [mode, setMode] = useState<'manual' | 'llm'>('manual')
   const [caption, setCaption] = useState(post.caption || '')
-  const [topic, setTopic]     = useState('')
-  const [language, setLang]   = useState('fr')
+  const [topic, setTopic] = useState('')
+  const [language, setLang] = useState('fr')
+
+  const canGenerateAI = checkCanGenerateCaption(userDetail)
 
   const handleNext = () => {
     if (mode === 'manual') {
-      onNext({ mode: 'manual', text: caption })
+      onNext({ mode: 'manual', text: caption.trim() })
     } else {
-      if (!checkCanGenerateCaption(userDetail)) return
-      onNext({ mode: 'llm', topic, language })
+      if (!canGenerateAI || !topic.trim()) return
+      onNext({ mode: 'llm', topic: topic.trim(), language })
     }
   }
 
+  const charCount = caption.length
+  const isOverLimit = charCount > 2200
+
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-[15px] font-medium text-slate-900 dark:text-white mb-1">Rédigez le caption</h2>
-        <p className="text-[13px] text-slate-500 dark:text-slate-400">Manuel ou généré par IA.</p>
-      </div>
-
-      {/* Mode tabs */}
-      <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-        {(['manual', 'llm'] as const).map(m => (
-          <button
-            key={m}
-            onClick={() => {
-              if (m === 'llm' && !checkCanGenerateCaption(userDetail)) return
-              setMode(m)
-            }}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[13px] rounded-md transition-colors ${
-              mode === m
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
-                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
-          >
-            {m === 'llm' && <Sparkles className="w-3.5 h-3.5 text-blue-500" />}
-            {m === 'manual' ? 'Manuel' : 'Générer avec IA'}
-          </button>
-        ))}
-      </div>
-
-      {mode === 'manual' ? (
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="text-[12px] font-medium text-slate-600 dark:text-slate-400">Caption</label>
-            <span className={`text-[11px] ${caption.length > 2200 ? 'text-red-500' : 'text-slate-400'}`}>
-              {caption.length} / 2200
-            </span>
-          </div>
-          <textarea
-            value={caption}
-            onChange={e => setCaption(e.target.value)}
-            placeholder="Rédigez votre caption..."
-            rows={5}
-            maxLength={2200}
-            className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5 text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed"
-          />
+    <Card className="p-8 bg-card border-border shadow-xl">
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h2 className="text-2xl font-semibold text-foreground mb-2">Rédigez le caption</h2>
+          <p className="text-muted-foreground">
+            Écrivez manuellement ou laissez l’IA générer un texte engageant.
+          </p>
         </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="space-y-1.5">
-            <label className="text-[12px] font-medium text-slate-600 dark:text-slate-400">
-              Sujet <span className="text-red-500">*</span>
-            </label>
-            <input
-              value={topic}
-              onChange={e => setTopic(e.target.value)}
-              placeholder="Ex: Lancement d'un nouveau produit tech"
-              className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+        {/* Mode Selection */}
+        <div className="flex gap-1 p-1 bg-muted rounded-2xl">
+          {(['manual', 'llm'] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => {
+                if (m === 'llm' && !canGenerateAI) return
+                setMode(m)
+              }}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-medium transition-all",
+                mode === m
+                  ? "bg-card shadow-sm text-foreground border border-border"
+                  : "text-muted-foreground hover:text-foreground hover:bg-card/50"
+              )}
+            >
+              {m === 'manual' ? (
+                <>
+                  <Edit3 className="w-4 h-4" />
+                  Manuel
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  Générer avec IA
+                </>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Content Area */}
+        {mode === 'manual' ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Caption</Label>
+              <span
+                className={cn(
+                  "text-sm font-medium tabular-nums",
+                  isOverLimit ? "text-destructive" : "text-muted-foreground"
+                )}
+              >
+                {charCount} / 2200
+              </span>
+            </div>
+
+            <Textarea
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Écrivez un caption captivant pour votre publication..."
+              rows={7}
+              maxLength={2200}
+              className="resize-none text-base leading-relaxed"
             />
           </div>
-          <div className="space-y-1.5">
-            <label className="text-[12px] font-medium text-slate-600 dark:text-slate-400">Langue</label>
-            <select
-              value={language}
-              onChange={e => setLang(e.target.value)}
-              className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="fr">Français</option>
-              <option value="en">English</option>
-            </select>
-          </div>
-        </div>
-      )}
+        ) : (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label>
+                Sujet de la publication <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="Ex: Lancement de notre nouvelle collection été 2026, focus sur l'innovation durable..."
+                rows={4}
+                className="resize-none"
+              />
+            </div>
 
-      <div className="flex gap-2 pt-1">
-        <Button variant="outline" onClick={onBack} className="border-slate-200 dark:border-slate-700">
-          ← Retour
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={onSkip}
-          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-        >
-          Ignorer
-        </Button>
-        <Button
-          onClick={handleNext}
-          disabled={isLoading || (mode === 'manual' ? !caption.trim() : !topic.trim())}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          {isLoading ? (mode === 'llm' ? 'Génération...' : 'Enregistrement...') : 'Enregistrer →'}
-        </Button>
+            <div className="space-y-2">
+              <Label>Langue du caption</Label>
+              <Select value={language} onValueChange={setLang}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="fr">Français</SelectItem>
+                  <SelectItem value="en">English</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        <div className="flex gap-3 pt-4">
+          <Button
+            variant="outline"
+            onClick={onBack}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Retour
+          </Button>
+
+          <Button
+            variant="ghost"
+            onClick={onSkip}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            Ignorer
+          </Button>
+
+          <Button
+            onClick={handleNext}
+            disabled={
+              isLoading ||
+              (mode === 'manual' ? !caption.trim() : !topic.trim()) ||
+              (mode === 'llm' && !canGenerateAI)
+            }
+            className="flex-1 h-12 text-base font-semibold rounded-2xl shadow-lg shadow-primary/20 hover:shadow-xl transition-all"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                {mode === 'llm' ? 'Génération en cours...' : 'Enregistrement...'}
+              </>
+            ) : (
+              <>
+                {mode === 'llm' ? 'Générer le caption' : 'Enregistrer le caption'}
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </>
+            )}
+          </Button>
+        </div>
       </div>
-    </div>
+    </Card>
   )
 }
