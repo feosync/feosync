@@ -140,7 +140,7 @@ export function PlanCard({
   const btn       = getButtonConfig(plan, action, index, hasNoPlan);
 
   const cardClass = [
-    "group relative flex flex-col rounded-3xl p-7 sm:p-8 bg-card border transition-all duration-300",
+    "group relative flex flex-col rounded-3xl p-7 sm:p-8 bg-card border transition-all duration-300 h-max",
     isCurrent
       ? "border-primary/60 shadow-lg shadow-primary/10 ring-1 ring-primary/20"
       : "border-border hover:border-border/80",
@@ -170,7 +170,7 @@ export function PlanCard({
 
       {/* Barre d'accentuation (plan actuel) */}
       {isCurrent && (
-        <div className="absolute top-0 left-6 right-6 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent" />
+        <div className="absolute top-0 left-6 right-6 h-0.5 bg-linear-to-r from-transparent via-primary to-transparent" />
       )}
 
       {/* Nom & description */}
@@ -196,7 +196,7 @@ export function PlanCard({
       <Button
         onClick={() => onSubscribe(plan, action)}
         disabled={action === "CURRENT" || isLoading}
-        className={`w-full h-14 rounded-2xl text-base font-semibold mb-8 transition-all active:scale-[0.985] ${btn.className}`}
+        className={`w-full h-12 rounded-2xl text-base font-semibold mb-8 transition-all active:scale-[0.985] ${btn.className}`}
       >
         {isLoading
           ? <Loader2 className="w-5 h-5 animate-spin" />
@@ -205,7 +205,7 @@ export function PlanCard({
       </Button>
 
       {/* Liste des fonctionnalités */}
-      <div className="flex-1 pt-6 border-t border-border">
+      <div className="flex-1 pt-4 border-t border-border">
         {FEATURE_SECTION_PREFIX[index] && (
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4 font-medium">
             {FEATURE_SECTION_PREFIX[index]}
