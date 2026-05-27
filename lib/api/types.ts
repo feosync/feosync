@@ -578,3 +578,11 @@ export interface SocialCardProps {
   isSocialOpen: boolean;
   icon: React.ReactNode;
 }
+
+
+export interface Channel{
+  name: string;
+  id: number;
+  org_id: string;
+  user_id: string;
+}
