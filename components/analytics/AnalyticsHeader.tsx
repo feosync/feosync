@@ -30,12 +30,19 @@ export function AnalyticsHeader({
 
   return (
     <div className="flex items-start justify-between flex-wrap gap-3 h-full">
+      {/* LEFT — back + page identity */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          onClick={() => router.back()}
+        >
           <ArrowLeft className="w-4 h-4" />
         </Button>
+
         <div className="flex items-center gap-3">
-         {url ? (
+          {url ? (
             <img
               src={url}
               alt={pageName}
@@ -46,32 +53,40 @@ export function AnalyticsHeader({
               f
             </div>
           )}
+
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-[17px] font-medium text-slate-900 dark:text-white">
+              <h1 className="text-lg font-semibold text-foreground leading-tight">
                 {pageName || 'Insights de la page'}
               </h1>
-              <Badge className="bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 border-0 text-[11px] gap-1">
+              <Badge className="bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 border-0 text-[10px] gap-1 px-2 py-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                 Active
               </Badge>
             </div>
-           
           </div>
         </div>
       </div>
 
+      {/* RIGHT — followers count + period tabs */}
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-          <Users className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-muted rounded-lg border border-border">
+          <Users className="w-3.5 h-3.5 text-muted-foreground" />
+          <span className="text-sm font-medium text-secondary-foreground">
             {fmt(followersTotal)} abonnés
           </span>
         </div>
+
         <Tabs value={period} onValueChange={v => onPeriodChange(v as AnalyticsPeriod)}>
-          <TabsList className="h-8 bg-slate-100 dark:bg-slate-800 ">
+          <TabsList className="h-8 bg-muted">
             {(Object.entries(PERIOD_LABELS) as [AnalyticsPeriod, string][]).map(([p, label]) => (
-              <TabsTrigger key={p} value={p} className="text-[12px] h-7 cursor-pointer">{label}</TabsTrigger>
+              <TabsTrigger
+                key={p}
+                value={p}
+                className="text-xs h-7 cursor-pointer"
+              >
+                {label}
+              </TabsTrigger>
             ))}
           </TabsList>
         </Tabs>

@@ -9,13 +9,13 @@ import {
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import type { ScheduledPost, FacebookPage } from '@/lib/api/types'
+import type { ScheduledPost, FacebookPage, FacebookPageResponse } from '@/lib/api/types'
 
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
   post: ScheduledPost
-  page?: FacebookPage
+  page?: FacebookPageResponse
   onConfirm: () => void
   isPending?: boolean
 }

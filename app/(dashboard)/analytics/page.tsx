@@ -299,69 +299,6 @@ export default function AnalyticsPage() {
           </div>
         )}
       </section>
-
-      {/* ── Derniers posts publiés ── */}
-      {published.length > 0 && (
-        <section>
-          <div className="mb-4">
-            <h2 className="text-sm font-semibold text-foreground">
-              Derniers posts publiés
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Les 3 publications les plus récentes
-            </p>
-          </div>
-
-          <div className="bg-card border border-border rounded-xl overflow-hidden divide-y divide-border">
-            {published.map((p) => {
-              const page = pages.find((pg) => pg.id === p.facebook_page_id);
-              return (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between px-5 py-4
-                             hover:bg-accent/50 transition-colors duration-150"
-                >
-                  <div className="flex items-center gap-3">
-                    {/* Avatar mini */}
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-primary">f</span>
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-medium text-foreground leading-snug">
-                        {page?.page_name || "Page Facebook"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {format(
-                          new Date(p.published_at),
-                          "d MMM yyyy 'à' HH:mm",
-                          {
-                            locale: fr,
-                          },
-                        )}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-5 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                      <FontAwesomeIcon icon={faEye} className="w-3 h-3" />
-                      <span className="font-medium text-foreground tabular-nums">
-                        {p.initial_reach?.toLocaleString()}
-                      </span>
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <FontAwesomeIcon icon={faChartBar} className="w-3 h-3" />
-                      <span className="font-medium text-foreground tabular-nums">
-                        {p.initial_impressions?.toLocaleString()}
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
     </div>
   );
 }

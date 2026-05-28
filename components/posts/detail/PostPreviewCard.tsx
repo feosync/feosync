@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import Image from 'next/image'
-import type { ScheduledPost, FacebookPage } from '@/lib/api/types'
+import type { ScheduledPost, FacebookPageResponse } from '@/lib/api/types'
 
 interface Props {
   post: ScheduledPost
-  page?: FacebookPage
+  page?: FacebookPageResponse
   editable: boolean
   onEditCaption: () => void
   onEditImage: () => void
