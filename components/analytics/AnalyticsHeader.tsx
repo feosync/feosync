@@ -29,7 +29,7 @@ export function AnalyticsHeader({
   const router = useRouter()
 
   return (
-    <div className="flex items-start justify-between flex-wrap gap-3">
+    <div className="flex items-start justify-between flex-wrap gap-3 h-full">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
           <ArrowLeft className="w-4 h-4" />

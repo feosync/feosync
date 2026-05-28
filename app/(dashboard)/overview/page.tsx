@@ -123,7 +123,7 @@ export default function OverviewPage() {
   const { data: draftData, isLoading: l1 } = useScheduledPosts(orgId, { status: "DRAFT", page: 1, page_size: 1 });
   const { data: scheduledData, isLoading: l2 } = useScheduledPosts(orgId, { status: "SCHEDULED", page: 1, page_size: 3 });
   const { data: failedData, isLoading: l3 } = useScheduledPosts(orgId, { status: "FAILED", page: 1, page_size: 1 });
-  const { data: publishedData, isLoading: l4 } = usePublishedPosts(orgId, { page: 1, page_size: 3 });
+  const { data: publishedData, isLoading: l4 } = usePublishedPosts(orgId, { page: 1, page_size: 7 });
 
   const published = publishedData?.items ?? [];
   const publishedTotal = publishedData?.total ?? 0;
@@ -134,7 +134,6 @@ export default function OverviewPage() {
     .filter((p) => p.publish_at)
     .sort((a, b) => new Date(a.publish_at!).getTime() - new Date(b.publish_at!).getTime())
     .slice(0, 3);
-
   return (
     <div className="space-y-8 max-w-full h-full">
 
@@ -182,7 +181,7 @@ export default function OverviewPage() {
 
       {/* ── Grille principale ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
+      
         {/* Prochaines publications */}
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           {/* Header section */}

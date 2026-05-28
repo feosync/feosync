@@ -140,7 +140,7 @@ export function PlanCard({
   const btn       = getButtonConfig(plan, action, index, hasNoPlan);
 
   const cardClass = [
-    "group relative flex flex-col rounded-3xl p-7 sm:p-8 bg-card border transition-all duration-300 h-max",
+    "group relative flex flex-col rounded-3xl p-7 sm:p-8 bg-card border transition-all duration-300",
     isCurrent
       ? "border-primary/60 shadow-lg shadow-primary/10 ring-1 ring-primary/20"
       : "border-border hover:border-border/80",
