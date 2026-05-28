@@ -39,7 +39,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="font-roboto flex h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="font-roboto flex h-screen bg-background">
       {/* Sidebar */}
       <AppSidebar />
 

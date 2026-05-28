@@ -18,6 +18,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { format } from 'date-fns'
@@ -26,30 +27,36 @@ import Image from 'next/image'
 import type { ScheduledPost, PostStatus } from '@/lib/api/types'
 import { cn } from '@/lib/utils'
 
-const STATUS: Record<PostStatus, { label: string; className: string; dotColor: string }> = {
+// ── Statuts alignés sur les tokens du global.css ──────────────────────────
+const STATUS: Record<PostStatus, {
+  label: string
+  badgeClass: string
+  dotClass: string
+}> = {
   DRAFT: {
     label: 'Brouillon',
-    className: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
-    dotColor: 'bg-slate-500',
+    badgeClass: 'bg-muted text-muted-foreground border-0',
+    dotClass: 'bg-muted-foreground',
   },
   SCHEDULED: {
     label: 'Planifié',
-    className: 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300',
-    dotColor: 'bg-blue-500',
+    badgeClass: 'bg-primary/15 text-primary border-0',
+    dotClass: 'bg-primary',
   },
   PUBLISHED: {
     label: 'Publié',
-    className: 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300',
-    dotColor: 'bg-emerald-500',
+    // Pas de token "success" → on utilise une teinte primary plus saturée
+    badgeClass: 'bg-primary/20 text-primary border-0',
+    dotClass: 'bg-primary animate-pulse',
   },
   FAILED: {
     label: 'Échoué',
-    className: 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300',
-    dotColor: 'bg-red-500',
+    badgeClass: 'bg-destructive/15 text-destructive border-0',
+    dotClass: 'bg-destructive',
   },
 }
 
-function truncateCaption(text: string, max = 50): string {
+function truncateCaption(text: string, max = 80): string {
   if (text.length <= max) return text
   return text.slice(0, max).trimEnd() + '…'
 }
@@ -66,99 +73,107 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
 
   const coverImage = post.images?.[0] ?? null
   const imageCount = post.images?.length ?? 0
-
-  const captionDisplay = post.caption
-    ? truncateCaption(post.caption)
-    : null
+  const captionDisplay = post.caption ? truncateCaption(post.caption) : null
 
   return (
     <>
       <div
         onClick={onClick}
-        className="group relative bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 cursor-pointer"
+        className={cn(
+          "group relative flex flex-col",
+          "bg-card border border-border rounded-xl overflow-hidden",
+          "hover:shadow-md hover:-translate-y-0.5",
+          "transition-all duration-200 cursor-pointer",
+        )}
       >
-        {/* Image Area */}
-        <div className="relative w-full aspect-6/4 bg-slate-950 overflow-hidden">
+        {/* ── Zone image ── */}
+        <div className="relative w-full aspect-video bg-muted overflow-hidden">
           {coverImage ? (
             <>
               <Image
                 src={coverImage.image_url}
                 alt="Post"
                 fill
-                className="object-cover transition-all duration-700 group-hover:scale-[1.06]"
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.04] will-change-auto"
                 unoptimized
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/70" />
+              {/* Gradient subtil pour lisibilité du badge */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/50" />
             </>
           ) : (
-            <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-950">
-              <div className="text-center">
-                <Images className="w-12 h-12 mx-auto mb-3 text-slate-500" />
-                <p className="text-sm text-slate-500">Aucune image</p>
+            // État vide — cohérent avec le reste de l'app
+            <div className="h-full flex flex-col items-center justify-center gap-2">
+              <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center">
+                <Images className="w-4 h-4 text-muted-foreground" />
               </div>
+              <p className="text-xs text-muted-foreground">Aucune image</p>
             </div>
           )}
 
-          {/* Status Badge */}
-          <div className="absolute top-4 left-4">
-            <Badge
-              className={cn(
-                "font-medium text-xs px-3 py-1 border-0 shadow-sm flex items-center gap-1.5",
-                s.className
-              )}
-            >
-              <span className={`w-2 h-2 rounded-full ${s.dotColor} animate-pulse`} />
+          {/* Badge statut */}
+          <div className="absolute top-3 left-3">
+            <Badge className={cn(
+              "text-[10px] font-semibold px-2 py-0.5 flex items-center gap-1.5 shadow-sm",
+              s.badgeClass,
+            )}>
+              <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", s.dotClass)} />
               {s.label}
             </Badge>
           </div>
 
-          {/* Multi-image badge */}
+          {/* Badge multi-images */}
           {imageCount > 1 && (
-            <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/70 backdrop-blur-md text-white text-xs font-medium px-3 py-1 rounded-2xl">
-              <Images className="w-3.5 h-3.5" />
+            <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded-lg">
+              <Images className="w-3 h-3" />
               {imageCount}
             </div>
           )}
 
-          {/* Hover Overlay */}
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
+          {/* Overlay hover — bouton Voir/Modifier */}
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center z-10">
             <Button
-              onClick={(e) => {
-                e.stopPropagation()
-                onClick()
-              }}
-              className="bg-white text-slate-900 hover:bg-white/90 px-6 py-2.5 rounded-2xl font-semibold shadow-lg flex items-center gap-2"
+              onClick={(e) => { e.stopPropagation(); onClick() }}
+              className="bg-card text-card-foreground hover:bg-accent gap-2 h-8 px-4 text-xs font-medium rounded-lg shadow-lg"
             >
-              <Eye className="w-4 h-4" />
+              <Eye className="w-3.5 h-3.5" />
               Voir / Modifier
             </Button>
           </div>
 
-          {/* Top Right Actions */}
+          {/* Menu ⋮ — visible au hover seulement */}
           <div
-            className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-20"
+            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-20"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Masque le badge multi-images quand le menu apparaît */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/10 text-white rounded-xl"
+                  className="h-7 w-7 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white rounded-lg border border-white/10"
                 >
-                  <MoreVertical className="w-4 h-4" />
+                  <MoreVertical className="w-3.5 h-3.5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-slate-900 border-slate-700 text-slate-200">
-                <DropdownMenuItem onClick={onClick} className="cursor-pointer">
-                  <Edit3 className="w-4 h-4 mr-2" />
+              <DropdownMenuContent
+                align="end"
+                sideOffset={6}
+                className="w-40 bg-card border-border shadow-md"
+              >
+                <DropdownMenuItem
+                  onClick={onClick}
+                  className="text-sm gap-2 cursor-pointer text-foreground focus:bg-accent"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-muted-foreground" />
                   Modifier
                 </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem
-                  className="text-red-400 focus:text-red-400 cursor-pointer"
                   onClick={() => setConfirmDelete(true)}
+                  className="text-sm gap-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
+                  <Trash2 className="w-3.5 h-3.5" />
                   Supprimer
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -166,55 +181,59 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
           </div>
         </div>
 
-        {/* Card Body */}
-        <div className="p-5 space-y-4">
+        {/* ── Corps de la card ── */}
+        <div className="p-4 flex flex-col gap-3 flex-1">
+
           {/* Caption */}
           <p className={cn(
-            "text-sm leading-relaxed min-h-[20px]",
-            captionDisplay ? "text-slate-200" : "text-slate-500 italic"
+            "text-sm leading-relaxed flex-1",
+            captionDisplay
+              ? "text-card-foreground"
+              : "text-muted-foreground italic",
           )}>
-            {captionDisplay ?? "Aucun texte rédigé pour ce post..."}
+            {captionDisplay ?? "Aucun texte rédigé pour ce post…"}
           </p>
 
-          {/* Footer Info */}
-          <div className="flex items-center justify-between pt-2 border-t border-slate-800">
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <Calendar className="w-3.5 h-3.5" />
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-3 border-t border-border">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Calendar className="w-3 h-3 flex-shrink-0" />
               {post.publish_at ? (
-                format(new Date(post.publish_at), 'd MMM yyyy • HH:mm', { locale: fr })
+                format(new Date(post.publish_at), 'd MMM yyyy · HH:mm', { locale: fr })
               ) : (
-                <span className="text-amber-400">Date non définie</span>
+                <span className="text-destructive font-medium">Date non définie</span>
               )}
             </div>
 
-            {coverImage && (
-              <span className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">
-                {imageCount > 1 ? `${imageCount} images` : 'Image unique'}
+            {imageCount > 0 && (
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                {imageCount > 1 ? `${imageCount} images` : '1 image'}
               </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Delete Confirmation */}
+      {/* ── Dialog de confirmation de suppression ── */}
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent className="bg-slate-900 border-slate-700">
+        <AlertDialogContent className="bg-card border-border shadow-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Supprimer ce post planifié ?</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-400">
+            <AlertDialogTitle className="text-card-foreground text-base font-semibold">
+              Supprimer ce post ?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground text-sm">
               Cette action est irréversible. La tâche de publication sera annulée.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-slate-700 text-slate-300">Annuler</AlertDialogCancel>
+            <AlertDialogCancel className="border-border text-foreground hover:bg-accent text-sm h-9">
+              Annuler
+            </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                onDelete()
-                setConfirmDelete(false)
-              }}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => { onDelete(); setConfirmDelete(false) }}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground text-sm h-9"
             >
-              Oui, supprimer
+              Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
