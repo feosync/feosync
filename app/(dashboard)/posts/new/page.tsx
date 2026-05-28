@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useOrganisations } from '@/hooks/useOrganisations'
@@ -22,8 +22,8 @@ const STEPS = ['Cible', 'Caption', 'Image', 'Confirmer']
 
 export default function NewPostPage() {
   const router = useRouter()
-  const [step, setStep]       = useState(0)
-  const [post, setPost]       = useState<ScheduledPost | null>(null)
+  const [step, setStep]           = useState(0)
+  const [post, setPost]           = useState<ScheduledPost | null>(null)
   const [publishAt, setPublishAt] = useState('')
   const [selectedOrgId, setSelectedOrgId] = useState<string>('')
 
@@ -62,49 +62,69 @@ export default function NewPostPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push('/posts')}>
+
+      {/* ── Header ── */}
+      <div className="flex items-center gap-3 mb-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none rounded-lg"
+          onClick={() => router.push('/posts')}
+          aria-label="Retour aux posts"
+        >
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <div>
-          <h1 className="text-[18px] font-medium text-slate-900 dark:text-white">Nouveau post</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Étape {step + 1} sur {STEPS.length}</p>
+
+        <div className="flex-1 min-w-0">
+          <h1 className="text-base font-semibold text-foreground leading-none">
+            Nouveau post
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            Étape {step + 1} sur {STEPS.length}
+          </p>
         </div>
       </div>
 
-      {/* Stepper */}
-      <div className="flex items-center mb-6">
-        {STEPS.map((s, i) => (
-          <div key={i} className="flex items-center flex-1 last:flex-none">
-            <div className="flex items-center gap-2">
-              <div className={cn(
-                'w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-medium transition-all',
-                i < step   ? 'bg-blue-600 text-white' :
-                i === step ? 'bg-blue-600 text-white ring-4 ring-blue-100 dark:ring-blue-950' :
-                             'bg-slate-100 dark:bg-slate-800 text-slate-400'
-              )}>
-                {i < step ? <Check className="w-3.5 h-3.5" /> : i + 1}
-              </div>
-              <span className={cn(
-                'text-[13px] hidden sm:block',
-                i === step ? 'text-blue-600 font-medium' : 'text-slate-400'
-              )}>
-                {s}
-              </span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div className={cn(
-                'flex-1 h-px mx-3 transition-colors',
-                i < step ? 'bg-blue-300 dark:bg-blue-700' : 'bg-slate-200 dark:bg-slate-800'
-              )} />
-            )}
-          </div>
-        ))}
+      {/* ── Stepper minimaliste ──
+           Approche : labels simples + barre de progression segmentée.
+           Pas de bulles, pas de cercles — juste du texte + des lignes.
+           La lisibilité vient de la typographie, pas des formes. ── */}
+      <div className="mb-8">
+        {/* Labels */}
+        <div className="flex items-center justify-between mb-2.5 px-0.5">
+          {STEPS.map((label, i) => (
+            <span
+              key={i}
+              className={cn(
+                'text-[11px] font-medium tracking-wide uppercase transition-colors duration-300',
+                i === step
+                  ? 'text-primary'
+                  : i < step
+                  ? 'text-muted-foreground'
+                  : 'text-muted-foreground/50',
+              )}
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+
+        {/* Barre de progression segmentée */}
+        <div className="flex items-center gap-1">
+          {STEPS.map((_, i) => (
+            <div
+              key={i}
+              className={cn(
+                'flex-1 h-0.5 rounded-full transition-all duration-500',
+                i <= step ? 'bg-primary' : 'bg-border',
+              )}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Steps */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
+      {/* ── Conteneur des étapes ── */}
+      <div>
         {step === 0 && (
           <StepTarget
             pages={pages}
@@ -143,6 +163,7 @@ export default function NewPostPage() {
           />
         )}
       </div>
+
     </div>
   )
 }
