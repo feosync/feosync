@@ -1,22 +1,27 @@
-'use client'
+"use client";
 
-import { Suspense, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { apiClient } from '@/lib/api/client'
-import { toast } from 'sonner'
-import { Loader2, Check } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import type { MetaPageItem } from '@/lib/api/types'
-import { config } from '@/lib/config'
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { apiClient } from "@/lib/api/client";
+import { toast } from "sonner";
+import { Loader2, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import type { MetaPageItem } from "@/lib/api/types";
+import { config } from "@/lib/config";
+import { useConnectFacebookPage } from "@/hooks/useFacebookPages";
 
-function CallbackLoader({ message = 'Récupération de vos pages Facebook...' }: { message?: string }) {
+function CallbackLoader({
+  message = "Récupération de vos pages Facebook...",
+}: {
+  message?: string;
+}) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-3">
       <FeoSyncLogo />
       <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
       <p className="text-sm text-slate-500">{message}</p>
     </div>
-  )
+  );
 }
 
 function FeoSyncLogo() {
@@ -24,14 +29,19 @@ function FeoSyncLogo() {
     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold">
       FS
     </div>
-  )
+  );
 }
 
-function PageSelector({ pages, connecting, onConnect, onCancel }: {
-  pages: MetaPageItem[]
-  connecting: string | null
-  onConnect: (page: MetaPageItem) => void
-  onCancel: () => void
+function PageSelector({
+  pages,
+  connecting,
+  onConnect,
+  onCancel,
+}: {
+  pages: MetaPageItem[];
+  connecting: string | null;
+  onConnect: (page: MetaPageItem) => void;
+  onCancel: () => void;
 }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950">
@@ -48,12 +58,16 @@ function PageSelector({ pages, connecting, onConnect, onCancel }: {
 
         {pages.length === 0 ? (
           <div className="text-center py-6">
-            <p className="text-sm text-slate-500 mb-4">Aucune page disponible sur ce compte.</p>
-            <Button variant="outline" onClick={onCancel}>Retour</Button>
+            <p className="text-sm text-slate-500 mb-4">
+              Aucune page disponible sur ce compte.
+            </p>
+            <Button variant="outline" onClick={onCancel}>
+              Retour
+            </Button>
           </div>
         ) : (
           <div className="space-y-2">
-            {pages.map(page => (
+            {pages.map((page) => (
               <button
                 key={page.id}
                 onClick={() => onConnect(page)}
@@ -65,14 +79,19 @@ function PageSelector({ pages, connecting, onConnect, onCancel }: {
                     f
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">{page.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">{page.id}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">
+                      {page.name}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                      {page.id}
+                    </p>
                   </div>
                 </div>
-                {connecting === page.id
-                  ? <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                  : <Check className="w-4 h-4 text-slate-300 dark:text-slate-600" />
-                }
+                {connecting === page.id ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                ) : (
+                  <Check className="w-4 h-4 text-slate-300 dark:text-slate-600" />
+                )}
               </button>
             ))}
             <Button
@@ -87,83 +106,91 @@ function PageSelector({ pages, connecting, onConnect, onCancel }: {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function FacebookCallbackHandler() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [userProfile, setUserProfile] = useState<{
+    fb_user_id: string;
+    fb_user_name: string;
+    fb_user_picture: string | null;
+  } | null>(null);
 
-  const [pages, setPages]           = useState<MetaPageItem[]>([])
-  const [orgId, setOrgId]           = useState('')
-  const [loading, setLoading]       = useState(true)
-  const [connecting, setConnecting] = useState<string | null>(null)
+  const [pages, setPages] = useState<MetaPageItem[]>([]);
+  const [orgId, setOrgId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [connecting, setConnecting] = useState<string | null>(null);
 
   useEffect(() => {
-    const code  = searchParams.get('code')
-    const state = searchParams.get('state')
-    const error = searchParams.get('error')
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
+    const error = searchParams.get("error");
 
     if (error || !code || !state) {
-      toast.error('Connexion annulée')
-      router.replace('/pages')
-      return
+      toast.error("Connexion annulée");
+      router.replace("/pages");
+      return;
     }
 
-    exchangeCode(code, state)
-  }, [])
+    exchangeCode(code, state);
+  }, []);
 
   const exchangeCode = async (code: string, state: string) => {
     try {
-      
       const response = await fetch(
         `${config.apiUrl}/api/v1/fb/oauth/callback?code=${code}&state=${state}`,
         {
-          credentials: 'include',
-        }
-      )
+          credentials: "include",
+        },
+      );
 
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.detail || "Échec de l'échange du code")
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.detail || "Échec de l'échange du code");
 
-      setPages(data.available_pages || [])
-      setOrgId(data.org_id || state)
-
+      setPages(data.available_pages || []);
+      setOrgId(data.org_id || state);
+      setUserProfile(data.user_profile || null); // ← ajout
     } catch (err: any) {
-      toast.error('Erreur', { description: err.message })
-      router.replace('/pages')
+      toast.error("Erreur", { description: err.message });
+      router.replace("/pages");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const connectMutation = useConnectFacebookPage();
 
   const connectPage = async (page: MetaPageItem) => {
-    setConnecting(page.id)
+    setConnecting(page.id);
     try {
-      await apiClient.connectFacebookPage({
-        fb_page_id:   page.id,
-        page_name:    page.name,
+      await connectMutation.mutateAsync({
+        fb_page_id: page.id,
+        page_name: page.name,
         access_token: page.access_token,
-        org_id:       orgId,
-      })
-      toast.success('Page connectée !', { description: page.name })
-      window.location.href = '/pages'  // ← même logique que Google, reload propre
+        org_id: orgId,
+        user_profile: userProfile,
+      });
+      toast.success("Page connectée !", { description: page.name });
+      window.location.href = "/pages";
     } catch (err: any) {
-      toast.error('Erreur', { description: err.message })
-      setConnecting(null)
+      // onError du hook gère déjà le toast
+      setConnecting(null);
     }
-  }
+  };
 
-  if (loading) return <CallbackLoader />
+  if (loading) return <CallbackLoader />;
 
   return (
     <PageSelector
       pages={pages}
       connecting={connecting}
       onConnect={connectPage}
-      onCancel={() => router.replace('/pages')}
+      onCancel={() => router.replace("/pages")}
     />
-  )
+  );
 }
 
 export default function FacebookCallbackPage() {
@@ -171,5 +198,5 @@ export default function FacebookCallbackPage() {
     <Suspense fallback={<CallbackLoader />}>
       <FacebookCallbackHandler />
     </Suspense>
-  )
+  );
 }

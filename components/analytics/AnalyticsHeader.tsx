@@ -15,7 +15,7 @@ const PERIOD_LABELS: Record<AnalyticsPeriod, string> = {
 
 interface Props {
   pageName: string
-  fbPageId: string
+  url: string
   followersTotal: number
   period: AnalyticsPeriod
   onPeriodChange: (p: AnalyticsPeriod) => void
@@ -24,7 +24,7 @@ interface Props {
 const fmt = (n: number) => n.toLocaleString('fr-FR')
 
 export function AnalyticsHeader({
-  pageName, fbPageId, followersTotal, period, onPeriodChange,
+  pageName, url, followersTotal, period, onPeriodChange,
 }: Props) {
   const router = useRouter()
 
@@ -35,9 +35,17 @@ export function AnalyticsHeader({
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
-            f
-          </div>
+         {url ? (
+            <img
+              src={url}
+              alt={pageName}
+              className="w-10 h-10 rounded-xl object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold flex-shrink-0">
+              f
+            </div>
+          )}
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-[17px] font-medium text-slate-900 dark:text-white">

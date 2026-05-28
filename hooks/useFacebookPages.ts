@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
-import type { FacebookPage } from '@/lib/api/types'
+import type { ConnectFacebookPagePayload, FacebookPage, FacebookPageResponse } from '@/lib/api/types'
 
 export const FB_QUERY_KEY = (orgId: string) => ['facebook-pages', orgId] as const
 export const FB_INSIGHTS_KEY = (pageId: string) => ['fb-insights', pageId]
@@ -26,17 +26,18 @@ export function useFacebookInsights(pageId: string, orgId: string) {
 
 export function useConnectFacebookPage() {
   const queryClient = useQueryClient()
+
   return useMutation({
-    mutationFn: (data: {
-      fb_page_id: string
-      page_name: string
-      access_token: string
-      org_id: string
-    }) => apiClient.connectFacebookPage(data),
-    onSuccess: (newPage: FacebookPage) => {
-      queryClient.invalidateQueries({ queryKey: FB_QUERY_KEY(newPage.organisation_id) })
-      toast.success('Page connectée', { description: newPage.page_name })
+    mutationFn: (data: ConnectFacebookPagePayload) =>
+      apiClient.connectFacebookPage(data),
+
+    onSuccess: (newPage: FacebookPageResponse) => {
+      queryClient.invalidateQueries({
+        queryKey: FB_QUERY_KEY(newPage.organisation_id),
+      })
+      // pas de toast ici — géré dans le callback
     },
+
     onError: (err: any) => {
       toast.error('Erreur', { description: err.message })
     },

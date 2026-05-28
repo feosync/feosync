@@ -586,3 +586,36 @@ export interface Channel{
   org_id: string;
   user_id: string;
 }
+
+
+
+// lib/api/types.ts
+export interface FacebookUserProfile {
+  fb_user_id: string
+  fb_user_name: string
+  fb_user_picture: string | null
+}
+
+export interface FacebookPageResponse {
+  id: string
+  fb_page_id: string
+  page_name: string
+  is_active: boolean
+  fb_page_picture: string | null
+  fb_page_fan_count: number | null
+  fb_user_id: string | null
+  fb_user_name: string | null
+  fb_user_picture: string | null
+  last_sync_at: string | null
+  organisation_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ConnectFacebookPagePayload {
+  fb_page_id: string
+  page_name: string
+  access_token: string
+  org_id: string
+  user_profile: FacebookUserProfile | null
+}

@@ -16,7 +16,8 @@ import {
   SubscriptionRequest,
   SubscriptionResponse,
   Subscription,
-  Channel
+  Channel,
+  FacebookPageResponse
 } from "@/lib/api/types";
 
 import { config } from "@/lib/config";
@@ -237,7 +238,7 @@ export class ApiClient {
     await this.request(`/api/v1/org/${id}`, { method: "DELETE" });
   }
 
-  async getFacebookPages(orgId: string): Promise<any[]> {
+  async getFacebookPages(orgId: string): Promise<FacebookPageResponse[]> {
     return this.request(`/api/v1/fb/?org_id=${orgId}`);
   }
 
