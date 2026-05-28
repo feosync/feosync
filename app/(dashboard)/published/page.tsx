@@ -284,7 +284,7 @@ export default function PublishedPage() {
           </div>
         ) : (
           /* Masonry grid — chaque carte gère sa propre hauteur d'image */
-          <div className="columns-2 sm:columns-3 lg:columns-4 gap-2">
+          <div className="columns-1 sm:columns-2 lg:columns-4 gap-2">
             {posts.map((post) => (
               <div key={post.id} className="mb-4 break-inside-avoid">
                 <PublishedPostCardWrapper

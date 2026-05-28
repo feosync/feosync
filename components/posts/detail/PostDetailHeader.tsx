@@ -1,75 +1,165 @@
 'use client'
 
-import { ArrowLeft, Send } from 'lucide-react'
+import { ArrowLeft, Send, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { PostStatus, ScheduledPost } from '@/lib/api/types'
+import { cn } from '@/lib/utils'
 
-const STATUS: Record<PostStatus, { label: string; className: string }> = {
-  DRAFT:     { label: 'Brouillon', className: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-0' },
-  SCHEDULED: { label: 'Planifié',  className: 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-0' },
-  PUBLISHED: { label: 'Publié',    className: 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 border-0' },
-  FAILED:    { label: 'Échoué',    className: 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border-0' },
+const STATUS: Record<PostStatus, {
+  label: string
+  badgeClass: string
+  dotClass: string
+  accentClass: string
+}> = {
+  DRAFT: {
+    label:       'Brouillon',
+    badgeClass:  'bg-muted text-muted-foreground ring-1 ring-inset ring-border',
+    dotClass:    'bg-muted-foreground',
+    accentClass: 'border-l-muted-foreground',
+  },
+  SCHEDULED: {
+    label:       'Planifié',
+    badgeClass:  'bg-primary/10 text-primary ring-1 ring-inset ring-primary/20',
+    dotClass:    'bg-primary animate-pulse',
+    accentClass: 'border-l-primary',
+  },
+  PUBLISHED: {
+    label:       'Publié',
+    badgeClass:  'bg-primary text-primary-foreground shadow-sm',
+    dotClass:    'bg-primary-foreground animate-pulse',
+    accentClass: 'border-l-primary',
+  },
+  FAILED: {
+    label:       'Échoué',
+    badgeClass:  'bg-destructive/10 text-destructive ring-1 ring-inset ring-destructive/20',
+    dotClass:    'bg-destructive',
+    accentClass: 'border-l-destructive',
+  },
 }
 
 interface Props {
   post: ScheduledPost
   onBack: () => void
   onDelete: () => void
-  onPublishNow: () => void   // ← nouveau
+  onPublishNow: () => void
   isDeleting?: boolean
 }
 
-export function PostDetailHeader({ post, onBack, onDelete, onPublishNow, isDeleting }: Props) {
+export function PostDetailHeader({
+  post,
+  onBack,
+  onDelete,
+  onPublishNow,
+  isDeleting,
+}: Props) {
   const s = STATUS[post.status as PostStatus]
   const canPublishNow = post.status === 'DRAFT' || post.status === 'SCHEDULED'
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onBack}>
-          <ArrowLeft className="w-4 h-4" />
+    <div
+      className={cn(
+        'flex items-center justify-between gap-4',
+        'bg-card border-b border-border',
+        'px-5 py-3.5',
+        // Ligne d'accentuation gauche colorée selon le statut
+        'border-l-2 transition-colors duration-300',
+        s.accentClass,
+      )}
+    >
+
+      {/* ── Gauche : retour + titre + badge ── */}
+      <div className="flex items-center gap-3 min-w-0">
+
+        {/* Bouton retour avec animation de flèche */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn(
+            'group h-8 w-8 flex-shrink-0 rounded-lg',
+            'text-muted-foreground hover:text-foreground hover:bg-accent',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            'transition-all duration-150',
+          )}
+          onClick={onBack}
+          aria-label="Retour"
+        >
+          <ArrowLeft className="w-4 h-4 transition-transform duration-150 group-hover:-translate-x-0.5" />
         </Button>
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-[17px] font-medium text-slate-900 dark:text-white">
+
+        {/* Titre + badge + sous-titre */}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-sm font-semibold text-foreground leading-none tracking-tight">
               Détail du post
             </h1>
-            <Badge className={s.className}>{s.label}</Badge>
+
+            {/* Badge amélioré avec ring inset */}
+            <Badge
+              className={cn(
+                'text-[10px] font-semibold px-2 py-0.5 rounded-md',
+                'flex items-center gap-1.5 border-0',
+                s.badgeClass,
+              )}
+            >
+              <span className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', s.dotClass)} />
+              {s.label}
+            </Badge>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Créé le {format(new Date(post.created_at), 'd MMM yyyy', { locale: fr })}
+
+          <p className="text-[11px] text-muted-foreground mt-1 leading-none">
+            Créé le{' '}
+            <span className="text-foreground/70 font-medium">
+              {format(new Date(post.created_at), 'd MMM yyyy', { locale: fr })}
+            </span>
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        {/* Publier maintenant — DRAFT ou SCHEDULED */}
+      {/* ── Droite : actions ── */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+
+        {/* Publier maintenant */}
         {canPublishNow && (
           <Button
             size="sm"
             onClick={onPublishNow}
-            className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5 text-[13px]"
+            className={cn(
+              'bg-primary hover:bg-primary/90 active:scale-[0.97] text-primary-foreground',
+              'gap-1.5 text-xs font-medium h-8 px-3.5 rounded-lg',
+              'shadow-sm hover:shadow-md',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'transition-all duration-150',
+            )}
           >
             <Send className="w-3.5 h-3.5" />
-            Publier maintenant
+            Publier
           </Button>
         )}
 
+        {/* Supprimer */}
         {post.status !== 'PUBLISHED' && (
           <Button
             variant="ghost"
             size="sm"
-            className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950 text-[13px]"
             onClick={onDelete}
             disabled={isDeleting}
+            className={cn(
+              'group h-8 w-8 p-0 rounded-lg',
+              'text-muted-foreground hover:bg-destructive/10 hover:text-destructive',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'disabled:opacity-40 disabled:pointer-events-none',
+              'transition-all duration-150',
+            )}
+            aria-label="Supprimer"
           >
-            Supprimer
+            <Trash2 className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
           </Button>
         )}
       </div>
+
     </div>
   )
 }

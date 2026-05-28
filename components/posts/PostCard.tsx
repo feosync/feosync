@@ -28,6 +28,10 @@ import type { ScheduledPost, PostStatus } from '@/lib/api/types'
 import { cn } from '@/lib/utils'
 
 // ── Statuts alignés sur les tokens du global.css ──────────────────────────
+//    PUBLISHED  →  badge solid primary (bleu plein) pour le distinguer visuellement
+//    SCHEDULED  →  badge primary/15 (bleu translucide)
+//    DRAFT      →  badge muted (gris neutre)
+//    FAILED     →  badge destructive/15 (rouge translucide)
 const STATUS: Record<PostStatus, {
   label: string
   badgeClass: string
@@ -45,9 +49,9 @@ const STATUS: Record<PostStatus, {
   },
   PUBLISHED: {
     label: 'Publié',
-    // Pas de token "success" → on utilise une teinte primary plus saturée
-    badgeClass: 'bg-primary/20 text-primary border-0',
-    dotClass: 'bg-primary animate-pulse',
+    // Badge solid primary = visuellement distinct de SCHEDULED
+    badgeClass: 'bg-primary text-primary-foreground border-0',
+    dotClass: 'bg-primary-foreground animate-pulse',
   },
   FAILED: {
     label: 'Échoué',
@@ -77,13 +81,20 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
 
   return (
     <>
+      {/* ── Card principale ── */}
       <div
+        role="button"
+        tabIndex={0}
         onClick={onClick}
+        onKeyDown={(e) => e.key === 'Enter' && onClick()}
         className={cn(
-          "group relative flex flex-col",
-          "bg-card border border-border rounded-xl overflow-hidden",
-          "hover:shadow-md hover:-translate-y-0.5",
-          "transition-all duration-200 cursor-pointer",
+          'group relative flex flex-col',
+          'bg-card border border-border rounded-xl overflow-hidden',
+          // Hover : élévation subtile
+          'hover:shadow-md hover:-translate-y-0.5',
+          // Focus clavier : ring visible avec le token ring
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          'transition-all duration-200 cursor-pointer',
         )}
       >
         {/* ── Zone image ── */}
@@ -92,66 +103,68 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
             <>
               <Image
                 src={coverImage.image_url}
-                alt="Post"
+                alt="Aperçu du post"
                 fill
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.04] will-change-auto"
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.04] will-change-transform"
                 unoptimized
               />
-              {/* Gradient subtil pour lisibilité du badge */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/50" />
+              <div className="absolute inset-0 bg-linear-to-b from-foreground/20 via-transparent to-foreground/60 pointer-events-none" />
             </>
           ) : (
-            // État vide — cohérent avec le reste de l'app
+            // État vide
             <div className="h-full flex flex-col items-center justify-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center border border-border">
                 <Images className="w-4 h-4 text-muted-foreground" />
               </div>
               <p className="text-xs text-muted-foreground">Aucune image</p>
             </div>
           )}
 
-          {/* Badge statut */}
-          <div className="absolute top-3 left-3">
-            <Badge className={cn(
-              "text-[10px] font-semibold px-2 py-0.5 flex items-center gap-1.5 shadow-sm",
-              s.badgeClass,
-            )}>
-              <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", s.dotClass)} />
+          {/* Badge statut — coin supérieur gauche */}
+          <div className="absolute top-3 left-3 z-10">
+            <Badge
+              className={cn(
+                'text-[10px] font-semibold px-2 py-0.5 flex items-center gap-1.5 shadow-sm',
+                s.badgeClass,
+              )}
+            >
+              <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', s.dotClass)} />
               {s.label}
             </Badge>
           </div>
 
-          {/* Badge multi-images */}
+          {/* Badge multi-images — coin supérieur droit (masqué au hover par le menu ⋮) */}
           {imageCount > 1 && (
-            <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded-lg">
+            <div className="absolute top-3 right-3 z-10 group-hover:opacity-0 transition-opacity duration-150 flex items-center gap-1 bg-foreground/60 backdrop-blur-sm text-background text-[10px] font-semibold px-2 py-1 rounded-lg">
               <Images className="w-3 h-3" />
               {imageCount}
             </div>
           )}
 
-          {/* Overlay hover — bouton Voir/Modifier */}
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center z-10">
+          {/* Overlay hover — "Voir / Modifier" */}
+          <div className="absolute inset-0 bg-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center z-10 pointer-events-none group-hover:pointer-events-auto">
             <Button
               onClick={(e) => { e.stopPropagation(); onClick() }}
-              className="bg-card text-card-foreground hover:bg-accent gap-2 h-8 px-4 text-xs font-medium rounded-lg shadow-lg"
+              // bg-background pour contraste maximal (blanc en light, sombre en dark)
+              className="bg-background text-foreground hover:bg-accent gap-2 h-8 px-4 text-xs font-medium rounded-lg shadow-lg border border-border"
             >
               <Eye className="w-3.5 h-3.5" />
               Voir / Modifier
             </Button>
           </div>
 
-          {/* Menu ⋮ — visible au hover seulement */}
+          {/* Menu ⋮ — visible uniquement au hover, z supérieur à l'overlay */}
           <div
             className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-20"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Masque le badge multi-images quand le menu apparaît */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white rounded-lg border border-white/10"
+                  // foreground/60 au lieu de black/60 → dark mode natif
+                  className="h-7 w-7 bg-foreground/60 hover:bg-foreground/80 backdrop-blur-sm text-background rounded-lg border border-background/10 focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <MoreVertical className="w-3.5 h-3.5" />
                 </Button>
@@ -185,17 +198,20 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
         <div className="p-4 flex flex-col gap-3 flex-1">
 
           {/* Caption */}
-          <p className={cn(
-            "text-sm leading-relaxed flex-1",
-            captionDisplay
-              ? "text-card-foreground"
-              : "text-muted-foreground italic",
-          )}>
-            {captionDisplay ?? "Aucun texte rédigé pour ce post…"}
+          <p
+            className={cn(
+              'text-sm leading-relaxed flex-1 line-clamp-3',
+              captionDisplay
+                ? 'text-card-foreground'
+                : 'text-muted-foreground italic',
+            )}
+          >
+            {captionDisplay ?? 'Aucun texte rédigé pour ce post…'}
           </p>
 
           {/* Footer */}
           <div className="flex items-center justify-between pt-3 border-t border-border">
+            {/* Date */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Calendar className="w-3 h-3 flex-shrink-0" />
               {post.publish_at ? (
@@ -205,8 +221,9 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
               )}
             </div>
 
+            {/* Compteur d'images — cohérent avec les autres textes xs */}
             {imageCount > 0 && (
-              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+              <span className="text-xs text-muted-foreground font-medium">
                 {imageCount > 1 ? `${imageCount} images` : '1 image'}
               </span>
             )}
@@ -226,12 +243,12 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-border text-foreground hover:bg-accent text-sm h-9">
+            <AlertDialogCancel className="border-border text-foreground hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring text-sm h-9">
               Annuler
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => { onDelete(); setConfirmDelete(false) }}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground text-sm h-9"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground focus-visible:ring-2 focus-visible:ring-ring text-sm h-9"
             >
               Supprimer
             </AlertDialogAction>

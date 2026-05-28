@@ -45,7 +45,7 @@ export function AppNavbar() {
     <nav className={[
       "sticky top-0 z-30",
       "h-13 flex items-center",           // Aligné avec la sidebar
-      "bg-sidebar border-b border-border",  // Tokens
+      "bg-sidebar", 
       "px-3 gap-2",
     ].join(' ')}>
 
@@ -60,15 +60,6 @@ export function AppNavbar() {
         <FontAwesomeIcon icon={faEllipsisH} className="w-4 h-4" />
       </Button>
 
-      {/* ── Logo mobile (centré) ── */}
-      <div className="flex-1 flex justify-center md:hidden">
-        <Image
-          src={dark ? "/images/dark/feosync_icon.png" : "/images/light/feosync_icon.png"}
-          alt="FeoSync"
-          width={24}
-          height={24}
-        />
-      </div>
 
       {/* ── Actions droite ── */}
       <div className="flex items-center gap-1 ml-auto">

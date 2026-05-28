@@ -53,7 +53,7 @@ export function AppSidebar() {
       <aside
         className={cn(
           // Tokens : bg-sidebar, border-border
-          "h-full bg-sidebar border-r border-border z-40 transition-all duration-300 flex flex-col overflow-hidden shrink-0",
+          "h-full bg-sidebar z-40 transition-all duration-300 flex flex-col overflow-hidden shrink-0",
           "fixed md:relative",
           isOpen ? "w-60" : "w-0 md:w-14",
         )}
