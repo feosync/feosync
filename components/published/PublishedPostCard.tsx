@@ -146,17 +146,17 @@ export function PublishedPostCard({
           <div className="flex items-center gap-2.5 min-w-0">
             {/* Logo Facebook */}
             <div
-              className="w-10 h-10  flex items-center justify-center
+              className="w-8 h-8  flex items-center justify-center
                          text-foreground text-sm font-bold shrink-0"
             >
               {page?.fb_page_picture ? (
                 <img
                   src={page.fb_page_picture}
                   alt={page.page_name}
-                  className="w-10 h-10 rounded-xl  object-cover"
+                  className="w-full h-full rounded-xl  object-cover"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold flex-shrink-0">
+                <div className="w-full h-full rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold flex-shrink-0">
                   f
                 </div>
               )}

@@ -4,14 +4,14 @@ import {
 } from '@/components/ui/table'
 import { InsightsPanel } from '@/components/facebook-pages/InsightsPanel'
 import { PagesDesktopRow } from './PagesDesktopRow'
-import type { FacebookPage } from '@/lib/api/types'
+import type { FacebookPage, FacebookPageResponse } from '@/lib/api/types'
 import { useExpandedInsights } from './useExpandedInsights'
 
 interface Props {
-  pages: FacebookPage[]
+  pages: FacebookPageResponse[]
   orgId: string
-  onToggle: (page: FacebookPage) => void
-  onDelete: (page: FacebookPage) => void
+  onToggle: (page: FacebookPageResponse) => void
+  onDelete: (page: FacebookPageResponse) => void
   onSyncInsights: (pageId: string) => void
   isToggling?: boolean
   isDeleting?: boolean
@@ -25,16 +25,19 @@ export function PagesDesktopTable({
   const { expandedId, toggle } = useExpandedInsights()
 
   return (
-    <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+    <div className="hidden md:block overflow-x-auto rounded-lg border border-border">
       <Table>
         <TableHeader>
-          <TableRow className="bg-slate-50 dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-900">
+          <TableRow className="bg-muted/50 hover:bg-muted/50">
             {['Page', 'ID Facebook', 'Statut', 'Dernière sync'].map(col => (
-              <TableHead key={col} className="text-slate-600 dark:text-slate-400 font-medium">
+              <TableHead
+                key={col}
+                className="text-xs font-semibold text-muted-foreground uppercase tracking-wide"
+              >
                 {col}
               </TableHead>
             ))}
-            <TableHead className="text-right text-slate-600 dark:text-slate-400 font-medium">
+            <TableHead className="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Actions
             </TableHead>
           </TableRow>
@@ -55,7 +58,7 @@ export function PagesDesktopTable({
               />
 
               {expandedId === page.id && (
-                <TableRow className="bg-slate-50/50 dark:bg-slate-900/30">
+                <TableRow className="bg-muted/30 hover:bg-muted/30">
                   <TableCell colSpan={5} className="p-0">
                     <InsightsPanel pageId={page.id} orgId={orgId} />
                   </TableCell>

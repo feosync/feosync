@@ -35,7 +35,7 @@ export function UsersTable({
   }
 
   return (
-    <div className={`rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden transition-opacity ${isFetching ? 'opacity-60' : 'opacity-100'}`}>
+    <div className={` overflow-hidden transition-opacity ${isFetching ? 'opacity-60' : 'opacity-100'}`}>
       <UsersDesktopTable isLoading={isLoading} {...sharedProps} />
       <UsersMobileList {...sharedProps} />
     </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -11,7 +10,6 @@ import {
 import type { Organisation } from "@/lib/api/types";
 import { OrgDesktopRow } from "./OrgDesktopRow";
 
-
 interface Props {
   organisations: Organisation[];
   onView: (org: Organisation) => void;
@@ -19,48 +17,37 @@ interface Props {
   onDelete: (org: Organisation) => void;
 }
 
-export function OrgDesktopTable({
-  organisations,
-  onView,
-  onEdit,
-  onDelete,
-}: Props) {
+export function OrgDesktopTable({ organisations, onView, onEdit, onDelete }: Props) {
   return (
-    <>
-      <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 relative w-full h-max">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-50 dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-900">
-              {["Organisation", "Secteur", "Ton", "Couleur", "Créée le"].map(
-                (col) => (
-                  <TableHead
-                    key={col}
-                    className="text-slate-600 dark:text-slate-400 font-medium"
-                  >
-                    {col}
-                  </TableHead>
-                ),
-              )}
-              <TableHead className="text-right text-slate-600 dark:text-slate-400 font-medium">
-                Actions
+    <div className="hidden md:block overflow-x-auto rounded-lg border border-border">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50 hover:bg-muted/50">
+            {["Organisation", "Secteur", "Ton", "Couleur", "Créée le"].map((col) => (
+              <TableHead
+                key={col}
+                className="text-xs font-semibold text-muted-foreground uppercase tracking-wide"
+              >
+                {col}
               </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="relative h-max">
-            {organisations.map((org) => (
-                <OrgDesktopRow
-                key={org.id}
-                org={org}
-                onView={() => onView(org)}
-                onEdit={() => onEdit(org)}
-                onDelete={() => onDelete(org)}
-              />
-            
             ))}
-          </TableBody>
-        </Table>
-
-      </div>
-    </>
+            <TableHead className="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Actions
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {organisations.map((org) => (
+            <OrgDesktopRow
+              key={org.id}
+              org={org}
+              onView={() => onView(org)}
+              onEdit={() => onEdit(org)}
+              onDelete={() => onDelete(org)}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

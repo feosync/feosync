@@ -24,14 +24,21 @@ export function UsersDesktopTable({
   onPromote, onDemote, onDelete,
 }: Props) {
   return (
-    <div className="hidden md:block">
+    <div className="hidden md:block rounded-sm border border-border overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-slate-50 dark:bg-slate-900">
+          <TableRow className="bg-muted/50 hover:bg-muted/50">
             {['Utilisateur', 'Email', 'Statut', 'Rôle', 'Plan'].map(col => (
-              <TableHead key={col}>{col}</TableHead>
+              <TableHead
+                key={col}
+                className="text-xs font-semibold text-muted-foreground uppercase tracking-wide"
+              >
+                {col}
+              </TableHead>
             ))}
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Actions
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -39,8 +46,15 @@ export function UsersDesktopTable({
             <UsersTableSkeleton />
           ) : users.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-12 text-slate-400">
-                Aucun utilisateur trouvé
+              <TableCell colSpan={6} className="py-16 text-center">
+                <div className="flex flex-col items-center gap-1.5">
+                  <p className="text-sm font-medium text-foreground">
+                    Aucun utilisateur trouvé
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Modifiez vos filtres ou invitez un nouvel utilisateur.
+                  </p>
+                </div>
               </TableCell>
             </TableRow>
           ) : (
