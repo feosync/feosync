@@ -35,20 +35,23 @@ export function ConnectFacebookDialog({ open, onOpenChange, orgId }: ConnectFace
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 sm:max-w-md">
+      <DialogContent className="sm:max-w-md border-border">
         <DialogHeader>
-          <DialogTitle className="text-slate-900 dark:text-white">
+          <DialogTitle className="text-foreground">
             Connecter une page Facebook
           </DialogTitle>
-          <DialogDescription className="text-slate-500 dark:text-slate-400">
+          <DialogDescription className="text-muted-foreground">
             Vous allez être redirigé vers Facebook pour autoriser l'accès.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 py-2">
-          <div className="bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 rounded-lg p-4 text-xs text-blue-700 dark:text-blue-300 space-y-2">
-            <p className="font-medium">Comment ça fonctionne :</p>
-            <ol className="list-decimal list-inside space-y-1 text-blue-600 dark:text-blue-400">
+        <div className="space-y-4 py-2">
+          {/* Bloc info — couleur sémantique primary intentionnelle */}
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
+            <p className="text-xs font-semibold text-foreground">
+              Comment ça fonctionne :
+            </p>
+            <ol className="list-decimal list-inside space-y-1 text-xs text-muted-foreground">
               <li>Cliquez sur "Connecter avec Facebook"</li>
               <li>Autorisez FeoSync sur Facebook</li>
               <li>Choisissez la ou les pages à connecter</li>
@@ -56,23 +59,39 @@ export function ConnectFacebookDialog({ open, onOpenChange, orgId }: ConnectFace
             </ol>
           </div>
 
-          <div className="flex gap-3">
+          {/* Actions */}
+          <div className="flex gap-2.5">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 border-slate-200 dark:border-slate-700"
+              className="flex-1 border-border text-foreground hover:bg-muted"
             >
               Annuler
             </Button>
             <Button
               onClick={handleConnect}
               disabled={loading}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white gap-2"
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground
+                         gap-2 disabled:opacity-50"
             >
-              {loading
-                ? <><FontAwesomeIcon icon={faSpinner} className="animate-spin" style={{ width: '1rem', height: '1rem' }} />Redirection...</>
-                : <><FontAwesomeIcon icon={faExternalLink} style={{ width: '1rem', height: '1rem' }} />Connecter avec Facebook</>
-              }
+              {loading ? (
+                <>
+                  <FontAwesomeIcon
+                    icon={faSpinner}
+                    className="animate-spin"
+                    style={{ width: '0.875rem', height: '0.875rem' }}
+                  />
+                  Redirection…
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon
+                    icon={faExternalLink}
+                    style={{ width: '0.875rem', height: '0.875rem' }}
+                  />
+                  Connecter avec Facebook
+                </>
+              )}
             </Button>
           </div>
         </div>

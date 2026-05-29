@@ -29,7 +29,7 @@ export function PlanDeleteDialog({ plan, isDeleting, onConfirm, onCancel }: Prop
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isDeleting}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-red-600 hover:bg-red-700 text-foreground font-bold"
           >
             Supprimer
           </AlertDialogAction>
