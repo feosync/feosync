@@ -14,7 +14,7 @@ import {
   useDeleteOrganisation,
 } from '@/hooks/useOrganisations'
 import { OrgTable } from '@/components/organizations/table/OrgTable'
-import { OrgPagination } from '@/components/organizations/OrgPagination'   
+import { OrgPagination } from '@/components/organizations/OrgPagination'
 import { OrgDialog } from '@/components/organizations/OrgDialog'
 import type { Organisation, CreateOrgRequest } from '@/lib/api/types'
 import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
@@ -73,52 +73,57 @@ export default function OrganisationsPage() {
 
   const handleSearch = useCallback((value: string) => {
     setSearchInput(value)
-    setPage(1)                    
+    setPage(1)
   }, [])
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
+      {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-medium text-slate-900 dark:text-white">
+          <h1 className="text-[22px] font-semibold text-foreground">
             Organisations
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-sm text-muted-foreground mt-0.5">
             {total} organisation{total > 1 ? 's' : ''}
             {search && ` pour "${search}"`}
           </p>
         </div>
         <Button
           onClick={handleOpenCreate}
-          className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5 transition-colors"
         >
           <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
           Nouvelle organisation
         </Button>
       </div>
 
-      {/* Search */}
-    <div className="relative max-w-sm">
-      <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-      <Input
-        placeholder="Rechercher par nom ou description…"
-        value={searchInput}
-        onChange={(e) => handleSearch(e.target.value)}
-        className="pl-9 pr-9"
-      />
-      {searchInput && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => handleSearch('')}
-          className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
-        >
-          <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
-        </Button>
-      )}
-    </div>
+      {/* ── Search ────────────────────────────────────────────────────────── */}
+      <div className="relative max-w-sm">
+        <FontAwesomeIcon
+          icon={faSearch}
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none"
+        />
+        <Input
+          placeholder="Rechercher par nom ou description…"
+          value={searchInput}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="pl-9 pr-9"
+        />
+        {searchInput && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleSearch('')}
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
 
+      {/* ── Content ───────────────────────────────────────────────────────── */}
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
@@ -126,17 +131,20 @@ export default function OrganisationsPage() {
           ))}
         </div>
       ) : organisations.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
-          <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
-            <FontAwesomeIcon icon={faBuilding} className="w-6 h-6 text-slate-400" />
+        <div className="flex flex-col items-center justify-center py-20 bg-muted/40 rounded-xl border border-dashed border-border">
+          <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center mb-3">
+            <FontAwesomeIcon icon={faBuilding} className="w-6 h-6 text-muted-foreground" />
           </div>
-          <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">
+          <p className="text-sm font-medium text-foreground mb-1">
             Aucune organisation
           </p>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+          <p className="text-sm text-muted-foreground mb-4">
             Créez votre première organisation pour commencer
           </p>
-          <Button onClick={handleOpenCreate} className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5">
+          <Button
+            onClick={handleOpenCreate}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5 transition-colors"
+          >
             <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
             Créer une organisation
           </Button>
@@ -149,7 +157,6 @@ export default function OrganisationsPage() {
             onDelete={handleDelete}
             isDeleting={deleteMutation.isPending}
           />
-
           <OrgPagination
             page={page}
             totalPages={totalPages}
@@ -160,6 +167,7 @@ export default function OrganisationsPage() {
         </>
       )}
 
+      {/* ── Dialog ────────────────────────────────────────────────────────── */}
       <OrgDialog
         open={dialogOpen}
         onOpenChange={(open) => {

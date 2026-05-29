@@ -1,199 +1,304 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChartBar, faEye, faRefresh, faHeart } from '@fortawesome/free-solid-svg-icons'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import { useOrganisations } from '@/hooks/useOrganisations'
-import { usePublishedPosts, useSyncMetrics } from '@/hooks/usePublishedPosts'
-import { useFacebookPages, useFacebookInsights } from '@/hooks/useFacebookPages'
-import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
-import { OrganisationSelector } from '@/components/organizations/OrgSelector'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faChartBar,
+  faEye,
+  faRefresh,
+  faHeart,
+  faPlug,
+  faArrowRight,
+  faUsers,
+} from "@fortawesome/free-solid-svg-icons";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useOrganisations } from "@/hooks/useOrganisations";
+import { usePublishedPosts, useSyncMetrics } from "@/hooks/usePublishedPosts";
+import {
+  useFacebookPages,
+  useFacebookInsights,
+} from "@/hooks/useFacebookPages";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { OrganisationSelector } from "@/components/organizations/OrgSelector";
 
-function MetricCard({ label, value, icon, color }: {
-  label: string
-  value: number | string
-  icon: any
-  color: string
+// ── Metric Card ───────────────────────────────────────────────────────────────
+
+function MetricCard({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: number | string;
+  icon: any;
 }) {
   return (
-    <div className={`rounded-xl p-4 ${color}`}>
-      <div className="flex items-center gap-2 mb-2">
-        <FontAwesomeIcon icon={icon} className="w-4 h-4 opacity-70" />
-        <span className="text-[12px] font-medium opacity-80">{label}</span>
+    <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center">
+          <FontAwesomeIcon icon={icon} className="w-3 h-3 text-primary" />
+        </div>
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          {label}
+        </span>
       </div>
-      <div className="text-[24px] font-medium">{value}</div>
+      <div className="text-2xl font-semibold text-foreground tracking-tight">
+        {value}
+      </div>
     </div>
-  )
+  );
 }
 
-function PageInsightsBlock({ pageId, orgId }: { pageId: string; orgId: string }) {
-  const { data: insights = [], isLoading } = useFacebookInsights(pageId, orgId)
-
-  if (isLoading) return <Skeleton className="h-24 rounded-xl" />
-  if (!insights.length) return <p className="text-sm text-slate-500">Aucune donnée d'insights disponible</p>
-
-  const latest = insights[0]
-  return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <MetricCard label="Abonnés"     value={latest.fans_total ?? 0}          icon={faEye}        color="bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200" />
-      <MetricCard label="Impressions" value={latest.impressions_unique ?? 0}  icon={faChartBar}  color="bg-purple-50 dark:bg-purple-950/50 text-purple-800 dark:text-purple-200" />
-      <MetricCard label="Engagés"     value={latest.engaged_users ?? 0}       icon={faHeart}      color="bg-pink-50 dark:bg-pink-950/50 text-pink-800 dark:text-pink-200" />
-      {/* <MetricCard label="Nouveaux"    value={latest.new_followers ?? 0}       icon={faTrendingUp} color="bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-200" /> */}
-    </div>
-  )
-}
-
-export default function AnalyticsPage() {
-  const router = useRouter()
-
-  const [selectedOrgId, setSelectedOrgId] = useState<string>('')
-
-  // Organisations
-  const { data: orgData } = useOrganisations({ page: 1, page_size: 50 })
-  const organisations = orgData?.items ?? []
-  const orgId = selectedOrgId || organisations[0]?.id || ''
-
-  // Posts publiés → on limite à 3 derniers
-  const { data: publishedData, isLoading } = usePublishedPosts(orgId, { 
-    page: 1, 
-    page_size: 3 
-  })
-  const published = publishedData?.items ?? []
-
-  // Pages Facebook
-  const { data: pages = [] } = useFacebookPages(orgId)
-  const syncMutation = useSyncMetrics(orgId)
-
-  // Métriques globales
-  const totalReach = published.reduce((s, p) => s + (p.initial_reach || 0), 0)
-  const totalImpressions = published.reduce((s, p) => s + (p.initial_impressions || 0), 0)
-
-  // Navigation vers la page de détail d'une page Facebook
-  const goToPageAnalytics = (pageId: string) => {
-    router.push(`/analytics/${pageId}?org_id=${orgId}`)
-  }
+function SocialNetworkCard({
+  page,
+  orgId,
+  onSync,
+  isSyncing,
+}: {
+  page: any;
+  orgId: string;
+  onSync: (e: React.MouseEvent) => void;
+  isSyncing: boolean;
+}) {
+  const router = useRouter();
+  const { data: insights = [] } = useFacebookInsights(page.id, orgId);
+  const latest = insights[0];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-[22px] font-medium text-slate-900 dark:text-white flex items-center gap-2">
-          {/* <FontAwesomeIcon icon={} className="w-5 h-5 text-blue-600" /> */}
-          Analytics
-        </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Performance de vos publications
-        </p>
+    <div
+      onClick={() => router.push(`/analytics/${page.id}?org_id=${orgId}`)}
+      className="group bg-card border border-border rounded-2xl p-6 cursor-pointer
+                 hover:border-primary hover:shadow-xl hover:-translate-y-0.5
+                 transition-all duration-300 relative overflow-hidden"
+    >
+      {/* Gradient overlay on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+      {/* Header */}
+      <div className="flex items-start justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <div className="relative flex-shrink-0">
+            {page.fb_page_picture ? (
+              <img
+                src={page.fb_page_picture}
+                alt={page.page_name}
+                className="w-14 h-14 rounded-2xl object-cover border-2 border-background shadow-sm
+                           group-hover:ring-2 group-hover:ring-primary/30 transition-all duration-300"
+              />
+            ) : (
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm">
+                f
+              </div>
+            )}
+            {page.is_active && (
+              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-card" />
+            )}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <p className="text-lg font-semibold text-foreground truncate leading-tight group-hover:text-primary transition-colors">
+              {page.page_name}
+            </p>
+            {page.fb_page_fan_count > 0 && (
+              <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
+                <span className="tabular-nums">
+                  {page.fb_page_fan_count.toLocaleString()}
+                </span>
+                <span className="text-xs">abonnés</span>
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div
+          className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 transition-colors ${
+            page.is_active
+              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+              : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {page.is_active ? "Actif" : "Inactif"}
+        </div>
       </div>
 
-      {/* Sélecteur d'organisation */}
-      <div className="max-w-md">
-        <label className="text-sm text-slate-500 mb-1.5 block">Organisation</label>
-        <OrganisationSelector
-          value={orgId}
-          onChange={setSelectedOrgId}
-          placeholder="Sélectionner une organisation"
-        />
-      </div>
-
-      {/* Métriques globales */}
-      {isLoading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+      {/* Métriques */}
+      {latest ? (
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {[
+            { label: "Abonnés", value: latest.fans_total ?? 0, icon: faUsers },
+            {
+              label: "Impressions",
+              value: latest.impressions_unique ?? 0,
+              icon: faChartBar,
+            },
+            {
+              label: "Engagement",
+              value: latest.engaged_users ?? 0,
+              icon: faHeart,
+            },
+          ].map(({ label, value, icon }) => (
+            <div
+              key={label}
+              className="bg-muted/50 dark:bg-muted/70 rounded-xl p-4 flex flex-col items-center gap-2
+                         group-hover:bg-muted transition-colors duration-200 border border-transparent hover:border-primary/20"
+            >
+              <FontAwesomeIcon
+                icon={icon}
+                className="w-4 h-4 text-primary/70"
+              />
+              <p className="text-xl font-semibold tabular-nums text-foreground tracking-tight">
+                {value.toLocaleString()}
+              </p>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
+                {label}
+              </p>
+            </div>
+          ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          <MetricCard label="Posts publiés" value={published.length} icon={faChartBar} color="bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200" />
-          <MetricCard label="Portée totale" value={totalReach} icon={faEye} color="bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-200" />
-          {/* <MetricCard label="Impressions" value={totalImpressions} icon={} color="bg-purple-50 dark:bg-purple-950/50 text-purple-800 dark:text-purple-200" /> */}
+        <div className="bg-muted/60 border border-dashed border-border rounded-2xl p-8 text-center mb-6">
+          <p className="text-sm text-muted-foreground">
+            Aucune donnée disponible
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Synchronise ta page pour voir les statistiques
+          </p>
         </div>
       )}
 
-      {/* Cartes des Pages Facebook (cliquables) */}
-      {pages.map((page) => (
-        <div
-          key={page.id}
-          onClick={() => goToPageAnalytics(page.id)}
-          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 cursor-pointer hover:border-blue-300 transition-colors"
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center gap-2 text-sm font-medium text-primary">
+          Voir les statistiques détaillées
+          <FontAwesomeIcon
+            icon={faArrowRight}
+            className="w-4 h-4 transition-transform group-hover:translate-x-1"
+          />
+        </div>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // Important : empêche le clic de remonter sur la carte
+            onSync(e);
+          }}
+          disabled={isSyncing}
+          className="flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-xl
+                     border border-border hover:border-primary/50 hover:bg-primary/5
+                     transition-all duration-200 disabled:opacity-50"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xs font-bold">f</div>
-              <h2 className="text-[14px] font-medium text-slate-900 dark:text-white">{page.page_name}</h2>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="default"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  goToPageAnalytics(page.id)
-                }}
-
-              >
-                Voir les stats →
-              </Button>
-               <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation() 
-                  syncMutation.mutate(page.id)
-                }}
-                disabled={syncMutation.isPending}
-                className="text-[12px] text-slate-500 gap-1.5"
-              >
-                <FontAwesomeIcon icon={faRefresh} className={`w-3.5 h-3.5 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
-                Sync
-              </Button>
-              </div>
-
-           
-          </div>
-
-          <PageInsightsBlock pageId={page.id} orgId={orgId} />
-        </div>
-      ))}
-
-      {/* 3 derniers posts publiés */}
-      {published.length > 0 && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-            <h2 className="text-[14px] font-medium text-slate-900 dark:text-white">
-              3 derniers posts publiés
-            </h2>
-          </div>
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {published.map((p) => {
-              const page = pages.find((pg) => pg.id === p.facebook_page_id)
-              return (
-                <div key={p.id} className="flex items-center justify-between px-4 py-3">
-                  <div>
-                    <p className="text-[13px] font-medium text-slate-900 dark:text-white">
-                      {page?.page_name || 'Page Facebook'}
-                    </p>
-                    <p className="text-[11px] text-slate-400">
-                      {format(new Date(p.published_at), "d MMM yyyy 'à' HH:mm", { locale: fr })}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4 text-[12px] text-slate-500 dark:text-slate-400">
-                    <span className="flex items-center gap-1">
-                      <FontAwesomeIcon icon={faEye} className="w-3.5 h-3.5" />{p.initial_reach}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <FontAwesomeIcon icon={faChartBar} className="w-3.5 h-3.5" />{p.initial_impressions}
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+          <FontAwesomeIcon
+            icon={faRefresh}
+            className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`}
+          />
+          Sync
+        </button>
+      </div>
     </div>
-  )
+  );
+}
+// ── Empty State ───────────────────────────────────────────────────────────────
+
+function EmptyChannels() {
+  return (
+    <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
+      <div className="w-14 h-14 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4">
+        <FontAwesomeIcon
+          icon={faPlug}
+          className="w-5 h-5 text-muted-foreground"
+        />
+      </div>
+      <p className="text-sm font-semibold text-foreground">
+        Aucun canal connecté
+      </p>
+      <p className="text-xs text-muted-foreground mt-1.5 max-w-xs">
+        Connectez une page Facebook pour voir vos statistiques ici
+      </p>
+    </div>
+  );
+}
+
+// ── Page principale ───────────────────────────────────────────────────────────
+
+export default function AnalyticsPage() {
+  const [selectedOrgId, setSelectedOrgId] = useState<string>("");
+
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 50 });
+  const organisations = orgData?.items ?? [];
+  const orgId = selectedOrgId || organisations[0]?.id || "";
+
+  const { data: publishedData, isLoading } = usePublishedPosts(orgId, {
+    page: 1,
+    page_size: 3,
+  });
+  const published = publishedData?.items ?? [];
+
+  const { data: pages = [], isLoading: pagesLoading } = useFacebookPages(orgId);
+  const syncMutation = useSyncMetrics(orgId);
+
+  return (
+    <div className="space-y-10">
+      {/* ── Header ── */}
+      <div className="flex items-end justify-between pb-6 border-b border-border">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-1">
+            Vue d'ensemble
+          </p>
+          <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+            Analytics
+          </h1>
+        </div>
+        <div className="w-56">
+          <OrganisationSelector
+            value={orgId}
+            onChange={setSelectedOrgId}
+            placeholder="Organisation"
+          />
+        </div>
+      </div>
+
+      {/* ── Canaux connectés ── */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">
+              Canaux connectés
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {pages.length} canal{pages.length > 1 ? "x" : ""} actif
+              {pages.length > 1 ? "s" : ""}
+            </p>
+          </div>
+        </div>
+
+        {pagesLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-56 rounded-xl" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pages.length === 0 ? (
+              <EmptyChannels />
+            ) : (
+              pages.map((page) => (
+                <SocialNetworkCard
+                  key={page.id}
+                  page={page}
+                  orgId={orgId}
+                  onSync={(e) => {
+                    e.stopPropagation();
+                    syncMutation.mutate(page.id);
+                  }}
+                  isSyncing={syncMutation.isPending}
+                />
+              ))
+            )}
+          </div>
+        )}
+      </section>
+    </div>
+  );
 }

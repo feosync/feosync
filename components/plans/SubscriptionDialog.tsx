@@ -219,7 +219,7 @@ export function SubscriptionDialog({
               </div>
             ) : (
               <div
-                className={`${gridCls} md:w-2/3 lg:w-full xl:w-5/6 2xl:w-2/3 h-full gap-8`}
+                className={`${gridCls} md:w-2/3 lg:w-full xl:w-5/6 2xl:w-2/3 h-full gap-8 p-2`}
               >
                 {activePlans.map((plan, i) => (
                   <PlanCard

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Loader2, Globe } from 'lucide-react'
+import { Loader2, Globe, CalendarClock } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
@@ -40,7 +40,6 @@ export function DateSheet({
   const isScheduled = status === 'SCHEDULED'
   const [timezone, setTimezone] = useState('Indian/Antananarivo')
 
-  // Convertit la date locale → UTC ISO
   const toUtcIso = (localDatetime: string, tz: string): string => {
     if (!localDatetime) return ''
     try {
@@ -48,7 +47,6 @@ export function DateSheet({
     } catch { return '' }
   }
 
-  // Aperçu UTC lisible
   const preview = newDate
     ? (() => {
         try {
@@ -62,31 +60,43 @@ export function DateSheet({
 
   return (
     <Sheet open={open} onOpenChange={open => !open && onClose()}>
-      <SheetContent side="right" className="w-full sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-        <SheetHeader className="mb-4">
-          <SheetTitle className="text-slate-900 dark:text-white">
-            Date de publication
-          </SheetTitle>
-          <SheetDescription className="text-slate-500 dark:text-slate-400">
-            {isScheduled
-              ? 'Modifier la date replanifiera automatiquement la tâche Celery.'
-              : 'Définissez quand ce post sera publié.'
-            }
-          </SheetDescription>
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-md bg-background border-border flex flex-col gap-0 p-0"
+      >
+        {/* Header */}
+        <SheetHeader className="px-6 py-5 border-b border-border">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <CalendarClock className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <SheetTitle className="text-foreground text-base leading-tight">
+                Date de publication
+              </SheetTitle>
+              <SheetDescription className="text-muted-foreground text-xs mt-0.5">
+                {isScheduled
+                  ? 'Modifier la date replanifiera automatiquement la tâche.'
+                  : 'Définissez quand ce post sera publié.'
+                }
+              </SheetDescription>
+            </div>
+          </div>
         </SheetHeader>
 
-        <div className="space-y-4 mb-6">
+        {/* Body */}
+        <div className="flex-1 px-6 py-6 space-y-5">
 
           {/* Timezone */}
           <div className="space-y-1.5">
-            <label className="text-[12px] font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+            <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5" />
               Fuseau horaire
             </label>
             <select
               value={timezone}
               onChange={e => setTimezone(e.target.value)}
-              className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5 text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
             >
               {TIMEZONES.map(tz => (
                 <option key={tz.value} value={tz.value}>
@@ -98,7 +108,7 @@ export function DateSheet({
 
           {/* Date locale */}
           <div className="space-y-1.5">
-            <label className="text-[12px] font-medium text-slate-600 dark:text-slate-400">
+            <label className="text-xs font-medium text-muted-foreground">
               Date et heure
             </label>
             <input
@@ -106,23 +116,36 @@ export function DateSheet({
               value={newDate}
               onChange={e => setNewDate(e.target.value)}
               min={new Date().toISOString().slice(0, 16)}
-              className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5 text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
             />
 
-            {/* Aperçu UTC */}
+            {/* Preview UTC */}
             {preview && (
-              <div className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-900">
-                <Globe className="w-3 h-3 text-blue-500 flex-shrink-0" />
-                <p className="text-[11px] text-blue-700 dark:text-blue-300">
-                  Sera publié le <span className="font-medium">{preview}</span>
+              <div className="flex items-start gap-2 px-3 py-2.5 bg-primary/5 rounded-lg border border-primary/20 mt-2">
+                <Globe className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Sera publié le{' '}
+                  <span className="font-medium text-foreground">{preview}</span>
                 </p>
               </div>
-            ) }
+            )}
           </div>
+
+          {/* Divider hint */}
+          {isScheduled && (
+            <p className="text-xs text-muted-foreground bg-muted rounded-lg px-3 py-2.5 border border-border">
+              ⚠️ La modification replanifiera automatiquement la tâche Celery associée.
+            </p>
+          )}
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onClose} className="border-slate-200 dark:border-slate-700">
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-border flex gap-2">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="border-border"
+          >
             Annuler
           </Button>
 
@@ -130,7 +153,7 @@ export function DateSheet({
             <Button
               onClick={() => onSave(utcIso)}
               disabled={!newDate}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring"
             >
               Enregistrer
             </Button>
@@ -138,7 +161,7 @@ export function DateSheet({
             <Button
               onClick={() => onConfirm(utcIso)}
               disabled={!newDate || isPending}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
             >
               {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Replanifier

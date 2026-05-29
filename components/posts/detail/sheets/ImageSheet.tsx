@@ -77,138 +77,203 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
     <Sheet open={open} onOpenChange={o => !o && onClose()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 overflow-y-auto"
+        className="w-full sm:max-w-lg bg-background border-border flex flex-col gap-0 p-0 overflow-y-auto"
       >
-        <SheetHeader className="mb-5">
-          <div className="flex items-center gap-2">
-            <SheetTitle className="text-slate-900 dark:text-white">Images</SheetTitle>
-            <Badge variant="outline" className="text-[11px] font-normal">
-              {images.length}/{MAX_IMAGES}
-            </Badge>
-          </div>
-          <SheetDescription className="text-slate-500 dark:text-slate-400">
-            Jusqu'à {MAX_IMAGES} images par post. L'ordre définit le carrousel Meta.
-          </SheetDescription>
-        </SheetHeader>
-
-        {/* ── Images existantes ── */}
-        {images.length > 0 && (
-          <div className="mb-6">
-            <p className="text-[12px] font-medium text-slate-500 dark:text-slate-400 mb-2">
-              Images actuelles
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {images.map((img, i) => (
-                <div
-                  key={img.id}
-                  className="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-square bg-slate-100 dark:bg-slate-800"
+        {/* ── Header ── */}
+        <SheetHeader className="px-6 py-5 border-b border-border flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Images className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <SheetTitle className="text-foreground text-base leading-tight">
+                  Images
+                </SheetTitle>
+                <Badge
+                  variant="outline"
+                  className="text-xs font-normal border-border text-muted-foreground"
                 >
-                  <Image src={img.image_url} alt={`img ${i + 1}`} fill className="object-cover" unoptimized />
-                  <div className="absolute top-1 left-1 w-5 h-5 bg-black/60 rounded text-white text-[10px] flex items-center justify-center font-medium">
-                    {i + 1}
-                  </div>
-                  <div className="absolute bottom-1 left-1 text-[9px] bg-black/50 text-white px-1 py-0.5 rounded uppercase tracking-wide">
-                    {img.image_source}
-                  </div>
-                  <button
-                    onClick={() => handleRemove(img.id)}
-                    disabled={isRemoving}
-                    className="absolute top-1 right-1 w-5 h-5 bg-black/50 hover:bg-red-600 rounded text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
-                  >
-                    {isRemoving ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />}
-                  </button>
-                </div>
-              ))}
+                  {images.length}/{MAX_IMAGES}
+                </Badge>
+              </div>
+              <SheetDescription className="text-muted-foreground text-xs mt-0.5">
+                Jusqu'à {MAX_IMAGES} images par post. L'ordre définit le carrousel Meta.
+              </SheetDescription>
             </div>
           </div>
-        )}
+        </SheetHeader>
 
-        {/* ── Ajouter une image ── */}
-        {canAdd ? (
-          <div className="space-y-3">
-            <p className="text-[12px] font-medium text-slate-500 dark:text-slate-400">
-              {images.length === 0 ? 'Ajouter une image' : 'Ajouter une image supplémentaire'}
-            </p>
+        {/* ── Body ── */}
+        <div className="flex-1 px-6 py-6 space-y-6">
 
-            <Tabs value={tab} onValueChange={v => {
-              if (v === 'llm' && !checkCanGenerateImage(userDetail)) return
-              setTab(v)
-              resetForm()
-            }}>
-              <TabsList className="w-full bg-slate-100 dark:bg-slate-800">
-                <TabsTrigger value="url"    className="flex-1 gap-1.5 text-[13px]"><LinkIcon className="w-3.5 h-3.5" />URL</TabsTrigger>
-                <TabsTrigger value="upload" className="flex-1 gap-1.5 text-[13px]"><Upload className="w-3.5 h-3.5" />Upload</TabsTrigger>
-                <TabsTrigger value="llm"    className="flex-1 gap-1.5 text-[13px]"><Sparkles className="w-3.5 h-3.5" />IA</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="url" className="space-y-2 mt-3">
-                <input
-                  value={imageUrl}
-                  onChange={e => setImageUrl(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {imageUrl && (
-                  <div className="relative h-32 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                    <Image src={imageUrl} alt="preview" fill className="object-cover" unoptimized />
+          {/* Images existantes */}
+          {images.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">
+                Images actuelles
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {images.map((img, i) => (
+                  <div
+                    key={img.id}
+                    className="relative group rounded-lg overflow-hidden border border-border aspect-square bg-muted"
+                  >
+                    <Image
+                      src={img.image_url}
+                      alt={`img ${i + 1}`}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                    {/* Index badge */}
+                    <div className="absolute top-1 left-1 w-5 h-5 bg-black/60 rounded text-white text-[10px] flex items-center justify-center font-medium">
+                      {i + 1}
+                    </div>
+                    {/* Source badge */}
+                    <div className="absolute bottom-1 left-1 text-[9px] bg-black/50 text-white px-1 py-0.5 rounded uppercase tracking-wide">
+                      {img.image_source}
+                    </div>
+                    {/* Remove button */}
+                    <button
+                      onClick={() => handleRemove(img.id)}
+                      disabled={isRemoving}
+                      className="absolute top-1 right-1 w-5 h-5 bg-black/50 hover:bg-destructive rounded text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                    >
+                      {isRemoving
+                        ? <Loader2 className="w-3 h-3 animate-spin" />
+                        : <X className="w-3 h-3" />
+                      }
+                    </button>
                   </div>
-                )}
-              </TabsContent>
+                ))}
+              </div>
+            </div>
+          )}
 
-              <TabsContent value="upload" className="space-y-2 mt-3">
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                <div
-                  onClick={() => fileRef.current?.click()}
-                  className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center cursor-pointer hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/30 dark:hover:bg-blue-950/20 transition-colors"
-                >
-                  <Upload className="w-7 h-7 text-slate-300 mx-auto mb-2" />
-                  <p className="text-[13px] text-slate-500">{imageFile ? imageFile.name : 'Cliquez ou glissez une image'}</p>
-                  <p className="text-[11px] text-slate-400 mt-1">PNG, JPG, WebP — max 10MB</p>
-                </div>
-                {filePreview && (
-                  <div className="relative h-32 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                    <Image src={filePreview} alt="preview" fill className="object-cover" unoptimized />
+          {/* Ajouter une image */}
+          {canAdd ? (
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-muted-foreground">
+                {images.length === 0 ? 'Ajouter une image' : 'Ajouter une image supplémentaire'}
+              </p>
+
+              <Tabs value={tab} onValueChange={v => {
+                if (v === 'llm' && !checkCanGenerateImage(userDetail)) return
+                setTab(v)
+                resetForm()
+              }}>
+                <TabsList className="w-full bg-muted">
+                  <TabsTrigger value="url" className="flex-1 gap-1.5 text-xs">
+                    <LinkIcon className="w-3.5 h-3.5" />URL
+                  </TabsTrigger>
+                  <TabsTrigger value="upload" className="flex-1 gap-1.5 text-xs">
+                    <Upload className="w-3.5 h-3.5" />Upload
+                  </TabsTrigger>
+                  <TabsTrigger value="llm" className="flex-1 gap-1.5 text-xs">
+                    <Sparkles className="w-3.5 h-3.5" />IA
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* Tab URL */}
+                <TabsContent value="url" className="space-y-2 mt-3">
+                  <input
+                    value={imageUrl}
+                    onChange={e => setImageUrl(e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                    className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+                  />
+                  {imageUrl && (
+                    <div className="relative h-32 rounded-lg overflow-hidden border border-border">
+                      <Image src={imageUrl} alt="preview" fill className="object-cover" unoptimized />
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* Tab Upload */}
+                <TabsContent value="upload" className="space-y-2 mt-3">
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  <div
+                    onClick={() => fileRef.current?.click()}
+                    className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                  >
+                    <Upload className="w-7 h-7 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {imageFile ? imageFile.name : 'Cliquez ou glissez une image'}
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">
+                      PNG, JPG, WebP — max 10MB
+                    </p>
                   </div>
+                  {filePreview && (
+                    <div className="relative h-32 rounded-lg overflow-hidden border border-border">
+                      <Image src={filePreview} alt="preview" fill className="object-cover" unoptimized />
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* Tab IA */}
+                <TabsContent value="llm" className="mt-3">
+                  <textarea
+                    value={imageDesc}
+                    onChange={e => setImageDesc(e.target.value)}
+                    rows={3}
+                    placeholder="Ex: Photo professionnelle d'un bureau moderne, lumière naturelle..."
+                    className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-input text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+                  />
+                </TabsContent>
+              </Tabs>
+
+              <Button
+                onClick={handleAdd}
+                disabled={addDisabled}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+              >
+                {isAdding ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {tab === 'llm' ? 'Génération...' : 'Upload...'}
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4" />
+                    Ajouter l'image
+                  </>
                 )}
-              </TabsContent>
+              </Button>
+            </div>
+          ) : (
+            /* Limite atteinte */
+            <div className="flex flex-col items-center justify-center py-8 text-center border border-border rounded-xl bg-muted/50">
+              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center mb-3">
+                <Images className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <p className="text-sm font-medium text-foreground">
+                Limite atteinte
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Supprimez une image pour en ajouter une nouvelle.
+              </p>
+            </div>
+          )}
+        </div>
 
-              <TabsContent value="llm" className="mt-3">
-                <textarea
-                  value={imageDesc}
-                  onChange={e => setImageDesc(e.target.value)}
-                  rows={3}
-                  placeholder="Ex: Photo professionnelle d'un bureau moderne, lumière naturelle..."
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5 text-[13px] bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </TabsContent>
-            </Tabs>
-
-            <Button
-              onClick={handleAdd}
-              disabled={addDisabled}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2"
-            >
-              {isAdding
-                ? <><Loader2 className="w-4 h-4 animate-spin" />{tab === 'llm' ? 'Génération...' : 'Upload...'}</>
-                : <><Plus className="w-4 h-4" />Ajouter l'image</>
-              }
-            </Button>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Images className="w-8 h-8 text-slate-300 mb-2" />
-            <p className="text-[13px] text-slate-500">Limite de {MAX_IMAGES} images atteinte.</p>
-            <p className="text-[12px] text-slate-400 mt-1">Supprimez une image pour en ajouter une nouvelle.</p>
-          </div>
-        )}
-
-        <Button
-          variant="outline"
-          onClick={onClose}
-          className="w-full mt-5 border-slate-200 dark:border-slate-700"
-        >
-          Fermer
-        </Button>
+        {/* ── Footer ── */}
+        <div className="px-6 py-4 border-t border-border flex-shrink-0">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="w-full border-border"
+          >
+            Fermer
+          </Button>
+        </div>
       </SheetContent>
     </Sheet>
   )
