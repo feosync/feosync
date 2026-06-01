@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartBar,
-  faEye,
   faRefresh,
   faHeart,
   faPlug,
@@ -19,8 +18,6 @@ import {
   useFacebookPages,
   useFacebookInsights,
 } from "@/hooks/useFacebookPages";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 import { OrganisationSelector } from "@/components/organizations/OrgSelector";
 
 // ── Metric Card ───────────────────────────────────────────────────────────────

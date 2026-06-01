@@ -147,7 +147,7 @@ export function ManageSocialMedia({ open, onOpenChange, orgId }: ManageSocialMed
           return (
             <div
               key={ch.id}
-              className={`w-10 h-10 rounded-full flex items-center justify-center
+              className={`w-10 h-10 rounded-full flex items-center justify-center p-2
                          shrink-0 shadow-md absolute z-0 ${ch.bg}`}
               style={{ right: `${rightOffset * 3.5}px` }}
               title={ch.name}

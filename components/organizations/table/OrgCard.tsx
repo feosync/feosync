@@ -9,6 +9,7 @@ import { fr } from 'date-fns/locale'
 import type { Organisation } from '@/lib/api/types'
 import { OrgActionsMenu } from './OrgActionsMenu'
 import { sectorLabels, toneLabels } from './labels'
+import { ManageSocialMedia } from './socialMedia'
 
 interface Props {
   org: Organisation
@@ -18,60 +19,79 @@ interface Props {
 
 export function OrgCard({ org, onEdit, onDelete }: Props) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [socialOpen,   setSocialOpen]   = useState(false)
 
   return (
-    <OrgActionsMenu
-      org={org}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      controlled={{ open: dropdownOpen, onOpenChange: setDropdownOpen }}
-      trigger={
-        <div
-          onClick={() => setDropdownOpen(true)}
-          className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              {org.brand_color && (
-                <div
-                  className="w-9 h-9 rounded-full flex-shrink-0 border border-slate-200 dark:border-slate-700"
-                  style={{ backgroundColor: org.brand_color }}
-                />
-              )}
-              <div className="min-w-0">
-                <p className="font-semibold text-slate-900 dark:text-white truncate">{org.name}</p>
-                {org.description && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-                    {org.description}
-                  </p>
-                )}
-              </div>
-            </div>
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors">
 
-            <div onClick={e => e.stopPropagation()} className="flex-shrink-0">
-              <Button
-                variant="ghost" size="icon"
-                className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800"
-                onClick={() => setDropdownOpen(true)}
-              >
-                <MoreHorizontal className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 mt-3">
-            <Badge variant="secondary" className="bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-0 text-xs">
-              {sectorLabels[org.sector] || org.sector}
-            </Badge>
-            <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-0 text-xs">
-              {toneLabels[org.tone] || org.tone}
-            </Badge>
-            <span className="text-xs text-slate-400 dark:text-slate-500 ml-auto">
-              {format(new Date(org.created_at), 'd MMM yyyy', { locale: fr })}
-            </span>
+      {/* ── En-tête : avatar + nom + bouton ··· ─────────────────────────── */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          {org.brand_color ? (
+            <div
+              className="w-9 h-9 rounded-full flex-shrink-0 border border-border"
+              style={{ backgroundColor: org.brand_color }}
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full flex-shrink-0 bg-muted border border-border" />
+          )}
+          <div className="min-w-0">
+            <p className="font-semibold text-foreground truncate">{org.name}</p>
+            {org.description && (
+              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                {org.description}
+              </p>
+            )}
           </div>
         </div>
-      }
-    />
+
+        {/* Bouton ··· — ouvre OrgActionsMenu directement, sans wrapper trigger */}
+        <OrgActionsMenu
+          org={org}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          controlled={{ open: dropdownOpen, onOpenChange: setDropdownOpen }}
+        />
+      </div>
+
+      {/* ── Séparateur ───────────────────────────────────────────────────── */}
+      <div className="h-px bg-border" />
+
+      {/* ── Pied : badges + date + réseaux ──────────────────────────────── */}
+      <div className="flex items-end justify-between gap-2">
+
+        {/* Badges secteur + ton + date */}
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Badge
+              variant="secondary"
+              className="bg-primary/10 text-primary border-0 text-xs"
+            >
+              {sectorLabels[org.sector] || org.sector}
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="bg-muted text-muted-foreground border-0 text-xs"
+            >
+              {toneLabels[org.tone] || org.tone}
+            </Badge>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {format(new Date(org.created_at), 'd MMM yyyy', { locale: fr })}
+          </span>
+        </div>
+
+        {/* Réseaux sociaux — indépendant du dropdown */}
+        <div className="shrink-0 relative w-24 h-12">
+          <ManageSocialMedia
+            key={`${org.id}-mobile`}
+            open={socialOpen}
+            onOpenChange={setSocialOpen}
+            orgId={org.id}
+          />
+        </div>
+
+      </div>
+    </div>
   )
 }

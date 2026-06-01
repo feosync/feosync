@@ -24,7 +24,7 @@ export function PostsFiltersPanel({
   onYear, onMonth, onWeek, onReset,
 }: PostsFiltersPanelProps) {
   return (
-    <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-border bg-muted/50">
+    <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-border bg-muted/50 w-full lg:w-1/2 xl:w-1/4">
 
       <Select value={year ? String(year) : 'all'} onValueChange={onYear}>
         <SelectTrigger className="w-full xs:w-28 h-9">

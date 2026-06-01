@@ -13,11 +13,12 @@ import { ConnectFacebookDialog } from '@/components/organizations/ConnectFaceboo
 import { useFacebookPages } from '@/hooks/useFacebookPages'
 import type { Organisation } from '@/lib/api/types'
 
+// Couleurs de marque intentionnellement hors tokens
 const LOCKED_CHANNELS = [
-  { label: 'Instagram',   icon: faInstagram,     color: 'text-pink-500'  },
-  { label: 'WhatsApp',    icon: faFacebook, color: 'text-green-500' },
-  { label: 'X / Twitter', icon: faSquareXTwitter,       color: 'text-slate-800' },
-  { label: 'LinkedIn',    icon: faLinkedin,      color: 'text-blue-700'  },
+  { label: 'Instagram',   icon: faInstagram,      color: 'text-pink-500'  },
+  { label: 'WhatsApp',    icon: faFacebook,        color: 'text-green-500' },
+  { label: 'X / Twitter', icon: faSquareXTwitter,  color: 'text-foreground'},
+  { label: 'LinkedIn',    icon: faLinkedin,        color: 'text-blue-700'  },
 ] as const
 
 interface Props {
@@ -28,7 +29,7 @@ interface Props {
   trigger?: React.ReactNode
 }
 
-export function OrgActionsMenu({ org, onEdit, onDelete, controlled, trigger }: Props) {
+export function OrgActionsMenu({ org, controlled, trigger, onDelete, onEdit }: Props) {
   const [fbDialogOpen, setFbDialogOpen] = useState(false)
   const { data: pages = [] } = useFacebookPages(org.id)
   const hasFacebookPage = pages.length > 0
@@ -39,43 +40,60 @@ export function OrgActionsMenu({ org, onEdit, onDelete, controlled, trigger }: P
         <DropdownMenuTrigger asChild>
           {trigger ?? (
             <Button
-              variant="ghost" size="icon"
-              className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
             >
               <FontAwesomeIcon icon={faEllipsisH} className="w-4 h-4" />
             </Button>
           )}
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-          <DropdownMenuItem onClick={onEdit} className="gap-2 text-[13px] cursor-pointer">
-            <FontAwesomeIcon icon={faPencil} className="w-3.5 h-3.5 text-slate-400" />
+        <DropdownMenuContent
+          align="end"
+          className="w-48 bg-card border-border"
+        >
+          {/* Modifier */}
+          <DropdownMenuItem
+            onClick={onEdit}
+            className="gap-2 text-[13px] cursor-pointer text-foreground focus:bg-accent"
+          >
+            <FontAwesomeIcon icon={faPencil} className="w-3.5 h-3.5 text-muted-foreground" />
             Mettre à jour
           </DropdownMenuItem>
 
+          {/* Facebook */}
           <DropdownMenuItem
             onClick={() => !hasFacebookPage && setFbDialogOpen(true)}
             disabled={hasFacebookPage}
-            className="gap-2 text-[13px] cursor-pointer"
+            className="gap-2 text-[13px] cursor-pointer focus:bg-accent"
           >
-            <FontAwesomeIcon icon={faFacebook} className="w-3.5 h-3.5 text-blue-600" />
+            <FontAwesomeIcon icon={faFacebook} className="w-3.5 h-3.5 text-[#1877F2]" />
             {hasFacebookPage ? 'Facebook connecté' : 'Connecter Facebook'}
-            {hasFacebookPage && <FontAwesomeIcon icon={faCheck} className="w-3 h-3 ml-auto text-green-500" />}
+            {hasFacebookPage && (
+              <FontAwesomeIcon icon={faCheck} className="w-3 h-3 ml-auto text-green-500" />
+            )}
           </DropdownMenuItem>
 
+          {/* Canaux verrouillés */}
           {LOCKED_CHANNELS.map(({ label, icon, color }) => (
-            <DropdownMenuItem key={label} disabled className="gap-2 text-[13px] opacity-40">
+            <DropdownMenuItem
+              key={label}
+              disabled
+              className="gap-2 text-[13px] opacity-40"
+            >
               <FontAwesomeIcon icon={icon} className={`w-3.5 h-3.5 ${color}`} />
               {label}
-              <FontAwesomeIcon icon={faLock} className="w-3 h-3 ml-auto text-slate-400" />
+              <FontAwesomeIcon icon={faLock} className="w-3 h-3 ml-auto text-muted-foreground" />
             </DropdownMenuItem>
           ))}
 
-          <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
+          <DropdownMenuSeparator className="bg-border" />
 
+          {/* Supprimer */}
           <DropdownMenuItem
             onClick={onDelete}
-            className="gap-2 text-[13px] text-red-600 dark:text-red-400 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950 cursor-pointer"
+            className="gap-2 text-[13px] text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
           >
             <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
             Supprimer
@@ -83,7 +101,11 @@ export function OrgActionsMenu({ org, onEdit, onDelete, controlled, trigger }: P
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ConnectFacebookDialog open={fbDialogOpen} onOpenChange={setFbDialogOpen} orgId={org.id} />
+      <ConnectFacebookDialog
+        open={fbDialogOpen}
+        onOpenChange={setFbDialogOpen}
+        orgId={org.id}
+      />
     </>
   )
 }
