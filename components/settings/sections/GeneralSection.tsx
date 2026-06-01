@@ -20,7 +20,7 @@ export function GeneralSection() {
     <div className="space-y-4">
       <SettingsCard title="Apparence">
         <SettingRow label="Thème" description="Choisissez l'apparence de l'interface">
-          <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+          <div className="flex items-center gap-1 p-1 bg-background rounded-lg">
             {THEMES.map(({ value, label, Icon }) => (
               <button
                 key={value}
@@ -29,8 +29,8 @@ export function GeneralSection() {
                   flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium
                   transition-all duration-150
                   ${theme === value
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground'
                   }
                 `}
               >

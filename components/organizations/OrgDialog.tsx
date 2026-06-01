@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { Loader2 } from 'lucide-react'
 import type { Organisation, CreateOrgRequest, ToneEnum, SectorEnum } from '@/lib/api/types'
@@ -53,11 +53,11 @@ export function OrgDialog({ open, onOpenChange, onSubmit, initialData, isPending
   useEffect(() => {
     if (open) {
       setForm(initialData ? {
-        name: initialData.name,
+        name:        initialData.name,
         description: initialData.description,
-        sector: initialData.sector,
-        tone: initialData.tone,
-        logo_url: initialData.logo_url,
+        sector:      initialData.sector,
+        tone:        initialData.tone,
+        logo_url:    initialData.logo_url,
         brand_color: initialData.brand_color,
       } : defaultForm)
     }
@@ -74,30 +74,33 @@ export function OrgDialog({ open, onOpenChange, onSubmit, initialData, isPending
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+      <DialogContent className="sm:max-w-lg bg-card border-border">
+
         <DialogHeader>
-          <DialogTitle className="text-slate-900 dark:text-white">
-            {initialData ? 'Modifier l\'organisation' : 'Nouvelle organisation'}
+          <DialogTitle className="text-foreground">
+            {initialData ? "Modifier l'organisation" : 'Nouvelle organisation'}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
+
+          {/* ── Nom ──────────────────────────────────────────────────── */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Nom <span className="text-red-500">*</span>
+            <label className="text-sm font-medium text-muted-foreground">
+              Nom <span className="text-destructive">*</span>
             </label>
             <Input
               placeholder="Nom de l'organisation"
               value={form.name}
               onChange={e => set('name', e.target.value)}
               disabled={isPending}
-              className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
               required
             />
           </div>
 
+          {/* ── Description ──────────────────────────────────────────── */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label className="text-sm font-medium text-muted-foreground">
               Description
             </label>
             <Textarea
@@ -106,20 +109,19 @@ export function OrgDialog({ open, onOpenChange, onSubmit, initialData, isPending
               onChange={e => set('description', e.target.value)}
               disabled={isPending}
               rows={3}
-              className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 resize-none"
+              className="resize-none"
             />
           </div>
 
+          {/* ── Secteur + Ton ─────────────────────────────────────────── */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Secteur
-              </label>
+              <label className="text-sm font-medium text-muted-foreground">Secteur</label>
               <Select value={form.sector} onValueChange={v => set('sector', v)} disabled={isPending}>
-                <SelectTrigger className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-slate-900">
+                <SelectContent className="bg-card border-border">
                   {SECTORS.map(s => (
                     <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
                   ))}
@@ -128,14 +130,12 @@ export function OrgDialog({ open, onOpenChange, onSubmit, initialData, isPending
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Ton
-              </label>
+              <label className="text-sm font-medium text-muted-foreground">Ton</label>
               <Select value={form.tone} onValueChange={v => set('tone', v)} disabled={isPending}>
-                <SelectTrigger className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-slate-900">
+                <SelectContent className="bg-card border-border">
                   {TONES.map(t => (
                     <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
                   ))}
@@ -144,8 +144,9 @@ export function OrgDialog({ open, onOpenChange, onSubmit, initialData, isPending
             </div>
           </div>
 
+          {/* ── Couleur de marque ─────────────────────────────────────── */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label className="text-sm font-medium text-muted-foreground">
               Couleur de marque
             </label>
             <div className="flex items-center gap-2">
@@ -153,36 +154,41 @@ export function OrgDialog({ open, onOpenChange, onSubmit, initialData, isPending
                 type="color"
                 value={form.brand_color || '#2563eb'}
                 onChange={e => set('brand_color', e.target.value)}
-                className="w-10 h-9 rounded border border-slate-200 dark:border-slate-700 cursor-pointer p-0.5 bg-white dark:bg-slate-800"
+                className="w-10 h-9 rounded-md border border-border cursor-pointer
+                           p-0.5 bg-background"
               />
               <Input
                 value={form.brand_color || ''}
                 onChange={e => set('brand_color', e.target.value)}
                 placeholder="#2563eb"
-                className="flex-1 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                className="flex-1 font-mono text-sm"
               />
             </div>
           </div>
 
+          {/* ── Footer ───────────────────────────────────────────────── */}
           <DialogFooter className="pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className="border-slate-200 dark:border-slate-700"
+              className="border-border text-foreground hover:bg-accent
+                         hover:text-accent-foreground transition-colors"
             >
               Annuler
             </Button>
             <Button
               type="submit"
               disabled={isPending || !form.name.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground
+                         transition-colors disabled:opacity-50 disabled:pointer-events-none"
             >
               {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {isPending ? 'Enregistrement...' : 'Enregistrer'}
             </Button>
           </DialogFooter>
+
         </form>
       </DialogContent>
     </Dialog>

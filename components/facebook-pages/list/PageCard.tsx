@@ -2,14 +2,14 @@
 
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import type { FacebookPage } from '@/lib/api/types'
+import type { FacebookPage, FacebookPageResponse } from '@/lib/api/types'
 import { InsightsPanel } from '@/components/facebook-pages/InsightsPanel'
 import { PageRowActions } from './PageRowActions'
 import { FacebookIcon, PageStatusBadge } from './PagesDesktopRow'
 import { useExpandedInsights } from './useExpandedInsights'
 
 interface Props {
-  page: FacebookPage
+  page: FacebookPageResponse
   orgId: string
   onToggle: () => void
   onDelete: () => void

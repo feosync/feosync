@@ -12,25 +12,17 @@ interface Props {
 
 export function PlansDesktopRow({ plan, onEdit, onDelete }: Props) {
   return (
-    <TableRow className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
-      <TableCell className="font-medium text-slate-900 dark:text-slate-100">
+    <TableRow className="hover:bg-accent transition-colors">
+      <TableCell className="font-medium text-foreground">
         {plan.name}
       </TableCell>
-      <TableCell className="text-sm font-mono">
+      <TableCell className="text-sm font-mono text-foreground">
         {fmtPrice(plan.price)}
       </TableCell>
-      <TableCell className="text-sm text-slate-600 dark:text-slate-400">
-        {plan.max_org}
-      </TableCell>
-      <TableCell className="text-sm text-slate-600 dark:text-slate-400">
-        {plan.max_post_month}
-      </TableCell>
-      <TableCell className="text-sm text-slate-600 dark:text-slate-400">
-        {plan.max_ai_caption}
-      </TableCell>
-      <TableCell className="text-sm text-slate-600 dark:text-slate-400">
-        {plan.max_ai_image}
-      </TableCell>
+      <TableCell className="text-sm text-muted-foreground">{plan.max_org}</TableCell>
+      <TableCell className="text-sm text-muted-foreground">{plan.max_post_month}</TableCell>
+      <TableCell className="text-sm text-muted-foreground">{plan.max_ai_caption}</TableCell>
+      <TableCell className="text-sm text-muted-foreground">{plan.max_ai_image}</TableCell>
       <TableCell>
         <PlanStatusBadge isActive={plan.is_active} />
       </TableCell>

@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import type { ScheduledPost, FacebookPage, FacebookPageResponse } from '@/lib/api/types'
+import type { ScheduledPost, FacebookPageResponse } from '@/lib/api/types'
 
 interface Props {
   open: boolean
@@ -25,67 +25,80 @@ export function PublishNowDialog({ open, onOpenChange, post, page, onConfirm, is
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 sm:max-w-md">
+      <AlertDialogContent className="bg-card border-border sm:max-w-md">
+
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-slate-900 dark:text-white flex items-center gap-2">
-            <Send className="w-4 h-4 text-blue-600" />
+          <AlertDialogTitle className="text-foreground flex items-center gap-2">
+            <Send className="w-4 h-4 text-primary" />
             Publier maintenant ?
           </AlertDialogTitle>
+
           <AlertDialogDescription asChild>
-            <div className="space-y-3 text-slate-500 dark:text-slate-400">
+            <div className="space-y-3 text-muted-foreground">
+
               <p className="text-[13px]">
                 Ce post sera publié immédiatement sur Facebook. Cette action est irréversible.
               </p>
 
-              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 space-y-2">
+              {/* ── Récapitulatif ── */}
+              <div className="bg-muted/50 rounded-lg p-3 space-y-2 border border-border">
+
                 <div className="flex gap-2 text-[12px]">
-                  <span className="text-slate-400 w-16 flex-shrink-0">Page</span>
-                  <span className="text-slate-900 dark:text-white font-medium">
+                  <span className="text-muted-foreground w-16 flex-shrink-0">Page</span>
+                  <span className="text-foreground font-medium">
                     {page?.page_name || 'Page Facebook'}
                   </span>
                 </div>
+
                 <div className="flex gap-2 text-[12px]">
-                  <span className="text-slate-400 w-16 flex-shrink-0">Caption</span>
-                  <span className="text-slate-700 dark:text-slate-300 line-clamp-2">
-                    {post.caption || <span className="italic text-slate-400">Aucun caption</span>}
+                  <span className="text-muted-foreground w-16 flex-shrink-0">Caption</span>
+                  <span className="text-foreground/80 line-clamp-2">
+                    {post.caption || (
+                      <span className="italic text-muted-foreground">Aucun caption</span>
+                    )}
                   </span>
                 </div>
+
                 {imageCount > 0 && (
                   <div className="flex gap-2 text-[12px]">
-                    <span className="text-slate-400 w-16 flex-shrink-0">Images</span>
-                    <span className="text-green-600 dark:text-green-400">
+                    <span className="text-muted-foreground w-16 flex-shrink-0">Images</span>
+                    <span className="text-green-600 dark:[color-scheme:dark]">
                       ✓ {imageCount} image{imageCount > 1 ? 's' : ''} incluse{imageCount > 1 ? 's' : ''}
                     </span>
                   </div>
                 )}
+
                 <div className="flex gap-2 text-[12px]">
-                  <span className="text-slate-400 w-16 flex-shrink-0">Heure</span>
-                  <span className="text-slate-700 dark:text-slate-300">
+                  <span className="text-muted-foreground w-16 flex-shrink-0">Heure</span>
+                  <span className="text-foreground/80">
                     {format(new Date(), "d MMM yyyy 'à' HH:mm", { locale: fr })}
                   </span>
                 </div>
+
               </div>
 
-              {!post.caption && imageCount === 0 && (
-                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
+              {/* ── Warnings ── */}
+              {(!post.caption && imageCount === 0) && (
+                <div className="flex items-center gap-2 text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400 rounded-lg px-3 py-2">
                   <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
                   <p className="text-[12px]">Ce post n'a ni caption ni image.</p>
                 </div>
               )}
 
-              {!post.caption && imageCount > 0 && (
-                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
+              {(!post.caption && imageCount > 0) && (
+                <div className="flex items-center gap-2 text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400 rounded-lg px-3 py-2">
                   <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
                   <p className="text-[12px]">Ce post n'a pas de caption.</p>
                 </div>
               )}
+
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <AlertDialogFooter>
           <AlertDialogCancel
-            className="border-slate-200 dark:border-slate-700"
+            className="border-border text-foreground hover:bg-accent"
             disabled={isPending}
           >
             Annuler
@@ -93,14 +106,16 @@ export function PublishNowDialog({ open, onOpenChange, post, page, onConfirm, is
           <Button
             onClick={onConfirm}
             disabled={isPending}
-            className="bg-blue-600 hover:bg-blue-700 text-white border-0 gap-2"
+            className="bg-primary text-primary-foreground border-0 gap-2 font-bold"
           >
-            {isPending
-              ? <><Loader2 className="w-4 h-4 animate-spin" />Publication...</>
-              : <><Send className="w-4 h-4" />Publier maintenant</>
-            }
+            {isPending ? (
+              <><Loader2 className="w-4 h-4 animate-spin" />Publication...</>
+            ) : (
+              <><Send className="w-4 h-4" />Publier maintenant</>
+            )}
           </Button>
         </AlertDialogFooter>
+
       </AlertDialogContent>
     </AlertDialog>
   )

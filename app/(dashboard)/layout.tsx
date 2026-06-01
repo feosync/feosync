@@ -7,8 +7,6 @@ import { AppSidebar } from '@/components/layout/AppSidebar';
 import { AppNavbar } from '@/components/layout/AppNavbar';
 import { Spinner } from '@/components/ui/spinner';
 
-// Load Roboto font only for dashboard layout via Google Fonts
-
 export default function DashboardLayout({
   children,
 }: {
@@ -23,37 +21,45 @@ export default function DashboardLayout({
     }
   }, [isAuthenticated, isLoading, router]);
 
+  /* ── Loading ───────────────────────────────────────────────────────────── */
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Spinner className="h-8 w-8 mx-auto mb-2" />
-          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-4 animate-pulse">
+          {/* Indicateur bleu minimaliste */}
+           <Spinner className='h-20 w-20'></Spinner>
+          <p className="text-xl text-muted-foreground tracking-wide">
+            Chargement...
+          </p>
         </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
+  /* ── Layout principal ──────────────────────────────────────────────────── */
   return (
     <div className="font-roboto flex h-screen bg-background">
+
       {/* Sidebar */}
       <AppSidebar />
 
-      {/* Main content */}
+      {/* Zone droite */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Navbar */}
-        <AppNavbar />
 
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto md:ml-0">
-          <div className="p-4 md:p-8">
+        {/* Navbar + séparateur */}
+        <div className="border-b border-border">
+          <AppNavbar />
+        </div>
+
+        {/* Contenu page */}
+        <main className="flex-1 overflow-y-auto bg-background">
+          <div className="w-full mx-auto p-4 md:p-8">
             {children}
           </div>
         </main>
+
       </div>
     </div>
   );

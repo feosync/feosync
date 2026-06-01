@@ -1,11 +1,11 @@
-import type { FacebookPage } from '@/lib/api/types'
+import type { FacebookPage, FacebookPageResponse } from '@/lib/api/types'
 import { PageCard } from './PageCard'
 
 interface Props {
-  pages: FacebookPage[]
+  pages: FacebookPageResponse[]
   orgId: string
-  onToggle: (page: FacebookPage) => void
-  onDelete: (page: FacebookPage) => void
+  onToggle: (page: FacebookPageResponse) => void
+  onDelete: (page: FacebookPageResponse) => void
   onSyncInsights: (pageId: string) => void
   isToggling?: boolean
   isDeleting?: boolean

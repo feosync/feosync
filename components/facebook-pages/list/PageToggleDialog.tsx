@@ -3,10 +3,10 @@ import {
   AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import type { FacebookPage } from '@/lib/api/types'
+import type { FacebookPageResponse } from '@/lib/api/types'
 
 interface Props {
-  page: FacebookPage | null
+  page: FacebookPageResponse | null
   isToggling?: boolean
   onConfirm: () => void
   onCancel: () => void

@@ -34,31 +34,26 @@ export default function PostDetailPage() {
   const { post_id } = useParams<{ post_id: string }>()
   const router = useRouter()
 
-  // post est réactif — il se met à jour automatiquement via le cache React Query
   const { data: post, isLoading } = useScheduledPost(post_id)
 
   const orgId = post?.organisation_id || ''
   const { data: pages = [] } = useFacebookPages(orgId)
 
-  const captionMutation = usePatchCaption(orgId)
-  const confirmMutation = useConfirmPost(orgId)
-  const deleteMutation  = useDeleteScheduledPost(orgId)
+  const captionMutation    = usePatchCaption(orgId)
+  const confirmMutation    = useConfirmPost(orgId)
+  const deleteMutation     = useDeleteScheduledPost(orgId)
   const publishNowMutation = usePublishNow(orgId)
 
-  // ── Sheet state ────────────────────────────────────────────────────────────
   const [sheetMode, setSheetMode] = useState<'caption' | 'image' | 'date' | null>(null)
   const closeSheet = () => setSheetMode(null)
 
-  // ── Caption state ──────────────────────────────────────────────────────────
   const [captionMode, setCaptionMode] = useState<'manual' | 'llm'>('manual')
   const [captionText, setCaptionText] = useState('')
   const [aiTopic, setAiTopic]         = useState('')
   const [aiLang, setAiLang]           = useState('fr')
 
-  // ── Date state ─────────────────────────────────────────────────────────────
   const [newDate, setNewDate] = useState('')
 
-  // ── Dialogs ────────────────────────────────────────────────────────────────
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [publishDialog, setPublishDialog] = useState(false)
 
@@ -108,7 +103,7 @@ export default function PostDetailPage() {
   }
 
   if (isLoading) return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="max-w-2xl mx-auto space-y-4 px-4">
       <Skeleton className="h-10 w-40" />
       <Skeleton className="h-72 rounded-xl" />
       <Skeleton className="h-32 rounded-xl" />
@@ -116,14 +111,16 @@ export default function PostDetailPage() {
   )
 
   if (!post) return (
-    <div className="text-center py-20 text-slate-500 dark:text-slate-400">Post introuvable</div>
+    <div className="text-center py-20 text-muted-foreground">
+      Post introuvable
+    </div>
   )
 
   const page     = pages.find(p => p.id === Object.values(post.page_ids || {})[0])
   const editable = canEdit(post.status as PostStatus)
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="max-w-2xl mx-auto space-y-4 px-4">
       <PostDetailHeader
         post={post}
         onBack={() => router.push('/posts')}
@@ -171,7 +168,6 @@ export default function PostDetailPage() {
         isPending={captionMutation.isPending}
       />
 
-      {/* ImageSheet est maintenant auto-suffisant — post réactif via React Query */}
       <ImageSheet
         open={sheetMode === 'image'}
         onClose={closeSheet}
@@ -198,21 +194,26 @@ export default function PostDetailPage() {
         isPending={publishNowMutation.isPending}
       />
 
+      {/* ── AlertDialog suppression ─────────────────────────────────────── */}
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+        <AlertDialogContent className="bg-card text-card-foreground border border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-900 dark:text-white">Supprimer ce post ?</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-500 dark:text-slate-400">
+            <AlertDialogTitle className="text-foreground">
+              Supprimer ce post ?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               Cette action est irréversible.
               {post.status === 'SCHEDULED' && ' La tâche Celery planifiée sera annulée.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-slate-200 dark:border-slate-700">Annuler</AlertDialogCancel>
+            <AlertDialogCancel className="border-border text-foreground hover:bg-accent hover:text-accent-foreground">
+              Annuler
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
-              className="bg-red-600 hover:bg-red-700 text-white border-0"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none border-0 transition-colors"
             >
               {deleteMutation.isPending
                 ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Suppression...</>

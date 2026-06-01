@@ -4,36 +4,39 @@ import { useState, useCallback } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faUsers, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { useDebounce } from '@/hooks/useDebounce'
-import { useAdminUsers, useAdminPromoteUser, useAdminDemoteUser, useAdminDeleteUser } from '@/hooks/useAdminUsers'
-import { UsersTable } from '@/components/admin/users/table/UsersTable'
+import {
+  useAdminUsers, useAdminPromoteUser,
+  useAdminDemoteUser, useAdminDeleteUser,
+} from '@/hooks/useAdminUsers'
+import { UsersTable }      from '@/components/admin/users/table/UsersTable'
 import { UsersPagination } from '@/components/admin/users/UsersPagination'
-import { DeleteUserDialog } from  '@/components/admin/users/DeleteUserDialog'
-import type { UserSummary } from '@/lib/api/types'
+import { DeleteUserDialog } from '@/components/admin/users/DeleteUserDialog'
 import { useAdminAllPlans } from '@/hooks/usePlans'
-import { Button } from '@/components/ui/button'
+import type { UserSummary } from '@/lib/api/types'
 
 const PAGE_SIZE = 10
 
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth()
-  const [page, setPage] = useState(1)
+
+  const [page, setPage]               = useState(1)
   const [searchInput, setSearchInput] = useState('')
+  const [toDelete, setToDelete]       = useState<UserSummary | null>(null)
+
   const search = useDebounce(searchInput, 400)
-  const [toDelete, setToDelete] = useState<UserSummary | null>(null)
 
   const { data, isLoading, isFetching } = useAdminUsers({ page, page_size: PAGE_SIZE, search })
-  const users = data?.items ?? []
-  const total = data?.total ?? 0
+  const users      = data?.items       ?? []
+  const total      = data?.total       ?? 0
   const totalPages = data?.total_pages ?? 1
 
-  const promote = useAdminPromoteUser()
-  const demote = useAdminDemoteUser()
+  const promote    = useAdminPromoteUser()
+  const demote     = useAdminDemoteUser()
   const deleteUser = useAdminDeleteUser()
-  const { data: plans = [] } = useAdminAllPlans() 
-
-  
+  const { data: plans = [] } = useAdminAllPlans()
 
   const handleSearch = useCallback((v: string) => {
     setSearchInput(v)
@@ -46,47 +49,56 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
+    <div className="space-y-6">
+
+      {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3">
-        <div className="p-2 bg-amber-100 dark:bg-amber-950 rounded-lg">
-          <FontAwesomeIcon icon={faUsers} className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+        <div className="p-2 bg-primary/10 rounded-lg shrink-0">
+          <FontAwesomeIcon icon={faUsers} className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+          <h1 className="text-xl font-semibold text-foreground">
             Gestion des utilisateurs
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-muted-foreground">
             {total} utilisateur{total > 1 ? 's' : ''}
-            {search && ` pour "${search}"`}
+            {search && (
+              <span> pour <span className="text-foreground font-medium">"{search}"</span></span>
+            )}
           </p>
         </div>
       </div>
 
-      {/* Search */}
+      {/* ── Recherche ────────────────────────────────────────────────────── */}
       <div className="relative max-w-sm">
-      <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-      <Input
-        placeholder="Rechercher par nom ou email…"
-        value={searchInput}
-        onChange={e => handleSearch(e.target.value)}
-        className="pl-9 pr-9"
-      />
-      {searchInput && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => handleSearch('')}
-          className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
-        >
-          <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
-        </Button>
-      )}
-    </div>
+        <FontAwesomeIcon
+          icon={faSearch}
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none"
+        />
+        <Input
+          placeholder="Rechercher par nom ou email…"
+          value={searchInput}
+          onChange={e => handleSearch(e.target.value)}
+          className="pl-9 pr-9"
+        />
+        {searchInput && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleSearch('')}
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7
+                       text-muted-foreground hover:text-foreground hover:bg-accent
+                       transition-colors"
+          >
+            <FontAwesomeIcon icon={faTimes} className="w-3.5 h-3.5" />
+          </Button>
+        )}
+      </div>
 
+      {/* ── Tableau ──────────────────────────────────────────────────────── */}
       <UsersTable
         users={users}
-         plans={plans} 
+        plans={plans}
         currentUserId={currentUser?.id}
         isLoading={isLoading}
         isFetching={isFetching}
@@ -97,6 +109,7 @@ export default function AdminUsersPage() {
         onDelete={setToDelete}
       />
 
+      {/* ── Pagination ───────────────────────────────────────────────────── */}
       <UsersPagination
         page={page}
         totalPages={totalPages}
@@ -105,11 +118,13 @@ export default function AdminUsersPage() {
         onPageChange={setPage}
       />
 
+      {/* ── Dialog suppression ───────────────────────────────────────────── */}
       <DeleteUserDialog
         user={toDelete}
         onClose={() => setToDelete(null)}
         onConfirm={handleDelete}
       />
+
     </div>
   )
 }
