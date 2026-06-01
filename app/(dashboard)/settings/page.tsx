@@ -1,16 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Settings, User, Bell, Info, Shield , Sparkles} from 'lucide-react'
+import { Settings, User, Bell, Info, Shield, Sparkles } from 'lucide-react'
 import { SettingsSidebar, SettingsMobileTabs, NavItem } from '@/components/settings/SettingsSidebar'
 import { GeneralSection }       from '@/components/settings/sections/GeneralSection'
 import { ProfileSection }       from '@/components/settings/sections/ProfileSection'
 import { NotificationsSection } from '@/components/settings/sections/NotificationsSection'
 import { AccountSection }       from '@/components/settings/sections/AccountSection'
 import { AboutSection }         from '@/components/settings/sections/AboutSection'
-import { AiSection } from '@/components/settings/sections/AiSection'
-
-
+import { AiSection }            from '@/components/settings/sections/AiSection'
 
 /* ── Nav config ────────────────────────────────────────────────── */
 
@@ -51,13 +49,13 @@ export default function SettingsPage() {
   const meta = SECTION_TITLES[activeId]
 
   return (
-    <div className="min-h-full ">
+    <div className="min-h-full bg-background transition-colors">
       <div className="max-w-5xl mx-auto px-4 py-8">
 
         {/* Page header */}
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Paramètres</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+        <div className="mb-6 pb-5 border-b border-border">
+          <h1 className="text-2xl font-semibold text-foreground">Paramètres</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Gérez votre compte et vos préférences
           </p>
         </div>
@@ -88,11 +86,11 @@ export default function SettingsPage() {
             </div>
 
             {/* Section title */}
-            <div className="mb-5">
-              <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+            <div className="mb-6">
+              <h2 className="text-base font-semibold text-foreground">
                 {meta.title}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {meta.description}
               </p>
             </div>

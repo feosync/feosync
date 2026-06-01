@@ -34,7 +34,7 @@ export default function Home() {
   // Authentifié → en cours de redirect
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <Spinner className="h-6 w-6" />
+      <Spinner className="h-12 w-12" />
     </div>
   )
 }
