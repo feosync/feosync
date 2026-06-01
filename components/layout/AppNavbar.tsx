@@ -62,7 +62,7 @@ export function AppNavbar() {
 
 
       {/* ── Actions droite ── */}
-      <div className="flex items-center gap-1 ml-auto">
+      <div className="flex items-center gap-3 ml-auto">
 
         {/* Notifications */}
         <div className="w-8 h-8 flex items-center justify-center">

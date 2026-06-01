@@ -1,14 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import type { FacebookPage } from '@/lib/api/types'
+import type { FacebookPage, FacebookPageResponse } from '@/lib/api/types'
 import { PagesDesktopTable } from './PagesDesktopTable'
 import { PagesMobileList } from './PagesMobileList'
 import { PageToggleDialog } from './PageToggleDialog'
 import { PageDeleteDialog } from './PageDeleteDialog'
 
 interface PagesListProps {
-  pages: FacebookPage[]
+  pages: FacebookPageResponse[]
   orgId: string
   onToggle: (pageId: string) => void
   onDelete: (pageId: string) => void
@@ -23,8 +23,8 @@ export function PagesList({
   onToggle, onDelete, onSyncInsights,
   isToggling, isDeleting, isSyncing,
 }: PagesListProps) {
-  const [pageToDelete, setPageToDelete] = useState<FacebookPage | null>(null)
-  const [pageToToggle, setPageToToggle] = useState<FacebookPage | null>(null)
+  const [pageToDelete, setPageToDelete] = useState<FacebookPageResponse | null>(null)
+  const [pageToToggle, setPageToToggle] = useState<FacebookPageResponse | null>(null)
 
   const handleToggleConfirm = () => {
     if (pageToToggle) { onToggle(pageToToggle.id); setPageToToggle(null) }

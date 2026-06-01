@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Bell, Trash2, CheckCheck, Filter, Loader2, BellOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Popover,
   PopoverContent,
@@ -22,28 +21,38 @@ import {
 } from '@/hooks/useNotifications'
 import type { Notification, NotificationType } from '@/lib/api/types'
 
-const TYPE_CONFIG: Record<NotificationType, { icon: string; color: string }> = {
-  post_published:   { icon: '✅', color: 'bg-green-50  dark:bg-green-950/50'  },
-  post_failed:      { icon: '❌', color: 'bg-red-50    dark:bg-red-950/50'    },
-  insights_updated: { icon: '📊', color: 'bg-blue-50   dark:bg-blue-950/50'   },
-  token_expiring:   { icon: '⚠️', color: 'bg-amber-50  dark:bg-amber-950/50'  },
-  welcome:          { icon: '👋', color: 'bg-indigo-50 dark:bg-indigo-950/50' },
-  schedule_created: { icon: '📅', color: 'bg-slate-50  dark:bg-slate-800/50'  },
+// Configuration des types (plus minimaliste)
+const TYPE_CONFIG: Record<NotificationType, { icon: React.ReactNode; color: string }> = {
+  post_published:   { icon: '✓', color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
+  post_failed:      { icon: '✕', color: 'bg-red-500/10 text-red-600 dark:text-red-400' },
+  insights_updated: { icon: '📈', color: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+  token_expiring:   { icon: '⚠', color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
+  welcome:          { icon: '👋', color: 'bg-violet-500/10 text-violet-600 dark:text-violet-400' },
+  schedule_created: { icon: '📅', color: 'bg-slate-500/10 text-slate-600 dark:text-slate-400' },
 }
 
-// ─── Badge sur l'icône ───────────────────────────────────────────────────────
+// ====================== BELL ======================
+
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const { data: summary } = useNotificationSummary()
-  const unread = summary?.unread_count ?? 0
+  const unread = summary?.unread ?? 0
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative w-9 h-9 hover:bg-muted/50 transition-colors"
+        >
+          <Bell className="w-5 h-5 text-foreground" />
+          
           {unread > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none ring-2 ring-white dark:ring-slate-950">
+            <span className="absolute -top-1 -right-1 flex items-center justify-center
+                           min-w-[18px] h-[18px] px-1.5 text-[10px] font-semibold
+                           bg-primary text-primary-foreground rounded-full
+                           ring-2 ring-background shadow-sm">
               {unread > 99 ? '99+' : unread}
             </span>
           )}
@@ -52,8 +61,8 @@ export function NotificationBell() {
 
       <PopoverContent
         align="end"
-        sideOffset={8}
-        className="w-[380px] max-w-[calc(100vw-16px)] p-0 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800"
+        sideOffset={10}
+        className="w-[380px] p-0 overflow-hidden rounded-2xl shadow-xl border border-border/60 bg-popover"
       >
         <NotificationsPanel onClose={() => setOpen(false)} />
       </PopoverContent>
@@ -61,43 +70,44 @@ export function NotificationBell() {
   )
 }
 
-// ─── Panel principal ─────────────────────────────────────────────────────────
+// ====================== PANEL ======================
+
 function NotificationsPanel({ onClose }: { onClose: () => void }) {
   const [unreadOnly, setUnreadOnly] = useState(false)
 
   const { data: notifications = [], isLoading } = useNotifications(unreadOnly)
-  const markRead    = useMarkNotificationRead()
-  const markAll     = useMarkAllRead()
+  const markRead = useMarkNotificationRead()
+  const markAll = useMarkAllRead()
   const deleteNotif = useDeleteNotification()
 
   const unreadCount = notifications.filter(n => !n.is_read).length
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col max-h-[520px]">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-        <div>
-          <h2 className="text-[15px] font-semibold text-slate-900 dark:text-white">
-            Notifications
-          </h2>
+      <div className="flex items-center justify-between px-5 py-4 border-b border-border/60">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold tracking-tight">Notifications</h2>
           {unreadCount > 0 && (
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              {unreadCount} non lue{unreadCount > 1 ? 's' : ''}
-            </p>
+            <span className="px-2.5 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
+              {unreadCount}
+            </span>
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setUnreadOnly(v => !v)}
             className={cn(
-              'text-[12px] h-7 px-2.5 gap-1',
-              unreadOnly && 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400'
+              "text-xs h-8 px-3 rounded-xl transition-all",
+              unreadOnly 
+                ? "bg-primary/10 text-primary" 
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <Filter className="w-3 h-3" />
+            <Filter className="w-3.5 h-3.5 mr-1.5" />
             {unreadOnly ? 'Toutes' : 'Non lues'}
           </Button>
 
@@ -107,48 +117,28 @@ function NotificationsPanel({ onClose }: { onClose: () => void }) {
               size="sm"
               onClick={() => markAll.mutate()}
               disabled={markAll.isPending}
-              className="text-[12px] h-7 px-2.5 gap-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
+              className="text-xs h-8 px-3 rounded-xl text-primary hover:bg-primary/10"
             >
-              {markAll.isPending
-                ? <Loader2 className="w-3 h-3 animate-spin" />
-                : <CheckCheck className="w-3 h-3" />
-              }
-              Tout lire
+              {markAll.isPending ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <CheckCheck className="w-3.5 h-3.5" />
+              )}
+              <span className="ml-1.5">Tout lire</span>
             </Button>
           )}
         </div>
       </div>
 
-      {/* Liste */}
-      <div className="overflow-y-auto  max-h-[420px]">
+      {/* Content */}
+      <div className="overflow-y-auto flex-1">
         {isLoading ? (
-          <div className="p-3 space-y-2">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="flex gap-3 p-2">
-                <Skeleton className="w-9 h-9 rounded-full flex-shrink-0" />
-                <div className="flex-1 space-y-1.5">
-                  <Skeleton className="h-3 w-3/4" />
-                  <Skeleton className="h-3 w-full" />
-                  <Skeleton className="h-2.5 w-1/3" />
-                </div>
-              </div>
-            ))}
-          </div>
+          <LoadingState />
         ) : notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 px-4">
-            <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
-              <BellOff className="w-5 h-5 text-slate-400" />
-            </div>
-            <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">
-              Aucune notification
-            </p>
-            <p className="text-[12px] text-slate-400 text-center">
-              {unreadOnly ? 'Toutes les notifications ont été lues.' : 'Vous êtes à jour !'}
-            </p>
-          </div>
+          <EmptyState unreadOnly={unreadOnly} />
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {notifications.map(notif => (
+          <div className="divide-y divide-border/60">
+            {notifications.map((notif) => (
               <NotificationItem
                 key={notif.id}
                 notif={notif}
@@ -163,10 +153,10 @@ function NotificationsPanel({ onClose }: { onClose: () => void }) {
 
       {/* Footer */}
       {notifications.length > 0 && (
-        <div className="border-t border-slate-100 dark:border-slate-800 px-4 py-2.5 text-center">
+        <div className="px-5 py-3 border-t border-border/60 text-center">
           <button
             onClick={onClose}
-            className="text-[12px] text-blue-600 dark:text-blue-400 hover:underline font-medium"
+            className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
           >
             Voir toutes les notifications →
           </button>
@@ -176,71 +166,116 @@ function NotificationsPanel({ onClose }: { onClose: () => void }) {
   )
 }
 
-// ─── Item individuel ─────────────────────────────────────────────────────────
+// ====================== ITEM ======================
+
 function NotificationItem({
-  notif, onMarkRead, onDelete, isDeleting,
+  notif,
+  onMarkRead,
+  onDelete,
+  isDeleting,
 }: {
   notif: Notification
   onMarkRead: () => void
   onDelete: () => void
   isDeleting?: boolean
 }) {
-  const config = TYPE_CONFIG[notif.type] ?? { icon: '🔔', color: 'bg-slate-50 dark:bg-slate-800' }
+  const config = TYPE_CONFIG[notif.type] ?? { icon: '🔔', color: 'bg-muted text-muted-foreground' }
 
   return (
     <div
       className={cn(
-        'flex items-start gap-3 px-3 py-3 group transition-colors',
-        !notif.is_read
-          ? 'bg-blue-50/50 dark:bg-blue-950/10 hover:bg-blue-50 dark:hover:bg-blue-950/20 cursor-pointer'
-          : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+        'group px-5 py-4 flex gap-4 transition-all duration-200 hover:bg-muted/50 cursor-pointer relative',
+        !notif.is_read && 'bg-primary/5'
       )}
       onClick={() => !notif.is_read && onMarkRead()}
     >
-      {/* Icône type */}
+      {/* Icon */}
       <div className={cn(
-        'w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-base',
+        'w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 text-lg transition-transform group-hover:scale-105',
         config.color
       )}>
         {config.icon}
       </div>
 
-      {/* Contenu */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
+      {/* Content */}
+      <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex items-start justify-between gap-2">
           <p className={cn(
-            'text-[13px] leading-snug truncate',
-            !notif.is_read
-              ? 'font-semibold text-slate-900 dark:text-white'
-              : 'font-normal text-slate-700 dark:text-slate-300'
+            'text-[14px] leading-tight',
+            !notif.is_read 
+              ? 'font-semibold text-foreground' 
+              : 'text-foreground/90'
           )}>
             {notif.title}
           </p>
+          
           {!notif.is_read && (
-            <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
+            <div className="w-2 h-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
           )}
         </div>
-        <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2 leading-relaxed">
+
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
           {notif.message}
         </p>
-        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+
+        <p className="text-xs text-muted-foreground/70">
           {format(new Date(notif.created_at), "d MMM 'à' HH:mm", { locale: fr })}
         </p>
       </div>
 
-      {/* Supprimer */}
+      {/* Delete Button */}
       <Button
         variant="ghost"
         size="icon"
-        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 flex-shrink-0 mt-0.5"
-        onClick={e => { e.stopPropagation(); onDelete() }}
+        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all
+                   text-muted-foreground hover:text-destructive hover:bg-destructive/10
+                   rounded-xl h-8 w-8"
+        onClick={(e) => { e.stopPropagation(); onDelete() }}
         disabled={isDeleting}
       >
-        {isDeleting
-          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          : <Trash2 className="w-3.5 h-3.5" />
-        }
+        {isDeleting ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Trash2 className="w-4 h-4" />
+        )}
       </Button>
+    </div>
+  )
+}
+
+// ====================== STATES ======================
+
+function LoadingState() {
+  return (
+    <div className="p-4 space-y-3">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="flex gap-4 px-5 py-4">
+          <Skeleton className="w-9 h-9 rounded-2xl" />
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-4 w-4/5" />
+            <Skeleton className="h-3.5 w-full" />
+            <Skeleton className="h-3 w-1/3" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function EmptyState({ unreadOnly }: { unreadOnly: boolean }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+      <div className="w-16 h-16 bg-muted rounded-3xl flex items-center justify-center mb-6">
+        <BellOff className="w-8 h-8 text-muted-foreground" />
+      </div>
+      <p className="text-lg font-medium text-foreground mb-1">
+        Aucune notification
+      </p>
+      <p className="text-sm text-muted-foreground max-w-[240px]">
+        {unreadOnly 
+          ? "Toutes les notifications ont été lues." 
+          : "Vous êtes à jour. Rien de nouveau pour le moment."}
+      </p>
     </div>
   )
 }

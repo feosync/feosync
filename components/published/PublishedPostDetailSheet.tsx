@@ -13,14 +13,12 @@ import { Button } from '@/components/ui/button'
 import {
   RefreshCw, ExternalLink, Trash2, Loader2,
   ThumbsUp, MessageCircle, Share2, Eye, Users,
-  BarChart2, Clock, Globe, Link2, Images, ChevronLeft, ChevronRight,
+  BarChart2, Clock, Globe, Images, ChevronLeft, ChevronRight,
   Bot, ChevronUp, ChevronDown,
 } from 'lucide-react'
-import {Label} from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { Label }    from '@/components/ui/label'
+import { Switch }   from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-
-
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import Image from 'next/image'
@@ -48,14 +46,12 @@ export function PublishedPostDetailSheet({
   onAutoComment, isAutoCommenting,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [imgIndex, setImgIndex] = useState(0)
-
+  const [imgIndex, setImgIndex]           = useState(0)
   const [autoEnabled, setAutoEnabled]     = useState(post.is_auto_comment)
   const [instructions, setInstructions]   = useState(post.instructions ?? '')
   const [keywords, setKeywords]           = useState(post.keywords ?? '')
   const [showFields, setShowFields]       = useState(!!(post.instructions || post.keywords))
   const [autoChanged, setAutoChanged]     = useState(false)
-
 
   const images    = scheduledPost?.images ?? []
   const hasImages = images.length > 0
@@ -63,7 +59,6 @@ export function PublishedPostDetailSheet({
 
   const prevImg = () => setImgIndex(i => Math.max(0, i - 1))
   const nextImg = () => setImgIndex(i => Math.min(images.length - 1, i + 1))
-
 
   const handleAutoToggle = (v: boolean) => { setAutoEnabled(v); setAutoChanged(true) }
   const handleAutoSave = () => {
@@ -80,11 +75,11 @@ export function PublishedPostDetailSheet({
       <Sheet open={open} onOpenChange={o => !o && onClose()}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 overflow-y-auto p-0"
+          className="w-full sm:max-w-lg bg-card border-border overflow-y-auto p-0"
         >
           <SheetHeader className="px-5 pt-5 pb-0">
             <div className="flex items-center justify-between">
-              <SheetTitle className="text-[16px] font-medium text-slate-900 dark:text-white">
+              <SheetTitle className="text-[16px] font-medium text-foreground">
                 Post publié
               </SheetTitle>
               <div className="flex items-center gap-1 mr-6">
@@ -92,14 +87,14 @@ export function PublishedPostDetailSheet({
                   variant="ghost" size="sm"
                   onClick={onSyncMetrics}
                   disabled={isSyncing}
-                  className="text-[12px] text-slate-500 hover:text-blue-600 gap-1.5"
+                  className="text-[12px] text-muted-foreground hover:text-primary gap-1.5"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
                   {isSyncing ? 'Sync...' : 'Sync métriques'}
                 </Button>
                 <Button
                   variant="ghost" size="icon"
-                  className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                   onClick={() => setConfirmDelete(true)}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -109,26 +104,31 @@ export function PublishedPostDetailSheet({
           </SheetHeader>
 
           {/* ── Facebook Post Preview ── */}
-          <div className="mx-5 mt-4 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="mx-5 mt-4 rounded-xl border border-border overflow-hidden">
 
             {/* Page header */}
-            <div className="flex items-center gap-2.5 px-4 py-3 bg-white dark:bg-slate-900">
-              <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+            <div className="flex items-center gap-2.5 px-4 py-3 bg-card">
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm flex-shrink-0">
                 f
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-semibold text-slate-900 dark:text-white">
+                <p className="text-[13px] font-semibold text-foreground">
                   {page?.page_name || 'Page Facebook'}
                 </p>
-                <div className="flex items-center gap-1 text-[11px] text-slate-400">
+                <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                   <Clock className="w-3 h-3" />
                   {format(new Date(post.published_at), "d MMMM yyyy 'à' HH:mm", { locale: fr })}
                   <span>·</span>
                   <Globe className="w-3 h-3" />
                 </div>
               </div>
+              {/* ✅ Correctif : balise <a> complète */}
               {permalink && (
-                <a href={permalink} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-blue-600">
+                 <a  href={permalink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
                   <ExternalLink className="w-4 h-4" />
                 </a>
               )}
@@ -136,16 +136,16 @@ export function PublishedPostDetailSheet({
 
             {/* Caption */}
             {scheduledPost?.caption && (
-              <div className="px-4 pb-3 bg-white dark:bg-slate-900">
-                <p className="text-[13px] text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
+              <div className="px-4 pb-3 bg-card">
+                <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap">
                   {scheduledPost.caption}
                 </p>
               </div>
             )}
 
-            {/* Images — carousel si plusieurs */}
+            {/* Images — carousel */}
             {hasImages && (
-              <div className="relative w-full aspect-video bg-slate-100 dark:bg-slate-800">
+              <div className="relative w-full aspect-video bg-muted">
                 <Image
                   src={images[imgIndex].image_url}
                   alt={`image ${imgIndex + 1}`}
@@ -153,11 +153,9 @@ export function PublishedPostDetailSheet({
                   className="object-cover"
                   unoptimized
                 />
-                {/* Source badge */}
                 <div className="absolute bottom-2 left-2 text-[10px] bg-black/50 text-white px-1.5 py-0.5 rounded uppercase tracking-wide">
                   {images[imgIndex].image_source}
                 </div>
-                {/* Nav si multiple */}
                 {images.length > 1 && (
                   <>
                     <button
@@ -184,10 +182,11 @@ export function PublishedPostDetailSheet({
             )}
 
             {/* Métriques style Facebook */}
-            <div className="bg-white dark:bg-slate-900 px-4 py-2.5 border-t border-slate-100 dark:border-slate-800">
-              <div className="flex items-center justify-between text-[12px] text-slate-500 dark:text-slate-400 mb-2.5">
+            <div className="bg-card px-4 py-2.5 border-t border-border">
+              <div className="flex items-center justify-between text-[12px] text-muted-foreground mb-2.5">
                 <div className="flex items-center gap-1">
                   <span className="flex -space-x-1">
+                    {/* Couleurs de marque Facebook — intentionnellement hors tokens */}
                     <span className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[9px]">👍</span>
                     <span className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[9px]">❤️</span>
                   </span>
@@ -195,16 +194,15 @@ export function PublishedPostDetailSheet({
                 </div>
                 <span>{post.initial_impressions.toLocaleString('fr-FR')} impressions</span>
               </div>
-
-              <div className="border-t border-slate-100 dark:border-slate-800 pt-2 flex items-center justify-around">
+              <div className="border-t border-border pt-2 flex items-center justify-around">
                 {[
-                  { icon: ThumbsUp,      label: "J'aime"   },
+                  { icon: ThumbsUp,      label: "J'aime"    },
                   { icon: MessageCircle, label: 'Commenter' },
                   { icon: Share2,        label: 'Partager'  },
                 ].map(({ icon: Icon, label }) => (
                   <button
                     key={label}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-md text-[12px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-md text-[12px] text-muted-foreground hover:bg-accent transition-colors"
                   >
                     <Icon className="w-4 h-4" />{label}
                   </button>
@@ -216,31 +214,30 @@ export function PublishedPostDetailSheet({
           {/* ── Métriques détaillées ── */}
           <div className="mx-5 mt-4 mb-6 space-y-3">
 
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3 border border-slate-200 dark:border-slate-800">
-              
-              {/* Header */}
+            {/* Auto-commentaire */}
+            <div className="bg-muted/50 rounded-xl p-4 space-y-3 border border-border">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
+                  {/* ✅ dark: supprimés — violet = couleur fonctionnelle unique */}
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
                     autoEnabled
-                      ? 'bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-400'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                      ? 'bg-violet-500/15 text-violet-500'
+                      : 'bg-muted text-muted-foreground'
                   }`}>
                     <Bot className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-[13px] font-medium text-slate-900 dark:text-white">Auto-commentaire</p>
-                    <p className="text-[11px] text-slate-400">L'IA répond aux commentaires</p>
+                    <p className="text-[13px] font-medium text-foreground">Auto-commentaire</p>
+                    <p className="text-[11px] text-muted-foreground">L'IA répond aux commentaires</p>
                   </div>
                 </div>
                 <Switch checked={autoEnabled} onCheckedChange={handleAutoToggle} />
               </div>
 
-              {/* Champs optionnels — visible si activé */}
               {autoEnabled && (
                 <div className="space-y-2.5 pt-1">
                   <button
-                    className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-violet-600 transition-colors"
+                    className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-violet-500 transition-colors"
                     onClick={() => setShowFields(v => !v)}
                   >
                     {showFields ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -250,21 +247,21 @@ export function PublishedPostDetailSheet({
                   {showFields && (
                     <div className="space-y-2.5">
                       <div className="space-y-1">
-                        <Label className="text-[11px] text-slate-500">Instructions</Label>
+                        <Label className="text-[11px] text-muted-foreground">Instructions</Label>
                         <Textarea
                           value={instructions}
                           onChange={e => { setInstructions(e.target.value); setAutoChanged(true) }}
                           placeholder="Ex : Réponds de manière professionnelle et chaleureuse…"
-                          className="text-[12px] min-h-[72px] resize-none bg-white dark:bg-slate-900"
+                          className="text-[12px] min-h-[72px] resize-none bg-background"
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-[11px] text-slate-500">Mots-clés</Label>
+                        <Label className="text-[11px] text-muted-foreground">Mots-clés</Label>
                         <Textarea
                           value={keywords}
                           onChange={e => { setKeywords(e.target.value); setAutoChanged(true) }}
                           placeholder="Ex : engagement, communauté, fidélité"
-                          className="text-[12px] min-h-[48px] resize-none bg-white dark:bg-slate-900"
+                          className="text-[12px] min-h-[48px] resize-none bg-background"
                         />
                       </div>
                     </div>
@@ -272,57 +269,57 @@ export function PublishedPostDetailSheet({
                 </div>
               )}
 
-              {/* Bouton save — apparaît seulement si modifié */}
               {autoChanged && (
                 <Button
                   size="sm"
                   onClick={handleAutoSave}
                   disabled={isAutoCommenting}
-                  className="w-full bg-violet-600 hover:bg-violet-700 text-white text-[12px]"
+                  className="w-full bg-violet-500 hover:bg-violet-600 text-white text-[12px]"
                 >
                   {isAutoCommenting ? 'Sauvegarde…' : 'Enregistrer'}
                 </Button>
               )}
             </div>
-              
 
-
+            {/* Header métriques */}
             <div className="flex items-center gap-2">
-              <BarChart2 className="w-4 h-4 text-slate-400" />
-              <h3 className="text-[13px] font-medium text-slate-900 dark:text-white">Métriques de performance</h3>
+              <BarChart2 className="w-4 h-4 text-muted-foreground" />
+              <h3 className="text-[13px] font-medium text-foreground">Métriques de performance</h3>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <MetricCard icon={Eye}   label="Portée"      value={post.initial_reach}       color="blue"  description="Personnes ayant vu le post" />
-              <MetricCard icon={Users} label="Impressions" value={post.initial_impressions}  color="indigo" description="Nombre total d'affichages" />
+              <MetricCard icon={Eye}   label="Portée"      value={post.initial_reach}      color="blue"   description="Personnes ayant vu le post" />
+              <MetricCard icon={Users} label="Impressions" value={post.initial_impressions} color="indigo" description="Nombre total d'affichages" />
             </div>
 
             {/* Infos techniques */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 space-y-2">
-              
+            <div className="bg-muted/50 rounded-lg p-3 space-y-2 border border-border">
               {post.image_count > 0 && (
                 <div className="flex items-center gap-2 text-[12px]">
-                  <Images className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                  <span className="text-slate-500 dark:text-slate-400">Images publiées</span>
-                  <span className="text-slate-700 dark:text-slate-300">{post.image_count}</span>
+                  <Images className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                  <span className="text-muted-foreground">Images publiées</span>
+                  <span className="text-foreground">{post.image_count}</span>
                 </div>
               )}
               <div className="flex items-center gap-2 text-[12px]">
-                <Globe className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                <span className="text-slate-500 dark:text-slate-400">Canal</span>
-                <span className="text-slate-700 dark:text-slate-300 capitalize">{post.channel}</span>
+                <Globe className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                <span className="text-muted-foreground">Canal</span>
+                <span className="text-foreground capitalize">{post.channel}</span>
               </div>
               <div className="flex items-center gap-2 text-[12px]">
-                <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                <span className="text-slate-500 dark:text-slate-400">Mis à jour</span>
-                <span className="text-slate-700 dark:text-slate-300">
+                <Clock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                <span className="text-muted-foreground">Mis à jour</span>
+                <span className="text-foreground">
                   {format(new Date(post.updated_at), "d MMM yyyy HH:mm", { locale: fr })}
                 </span>
               </div>
             </div>
 
             {permalink && (
-              <Button asChild variant="outline" className="w-full border-slate-200 dark:border-slate-700 gap-2 text-[13px]">
+              <Button
+                asChild variant="outline"
+                className="w-full border-border gap-2 text-[13px] hover:bg-accent"
+              >
                 <a href={permalink} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="w-3.5 h-3.5" />
                   Voir sur Facebook
@@ -333,20 +330,23 @@ export function PublishedPostDetailSheet({
         </SheetContent>
       </Sheet>
 
+      {/* ── Confirm delete ── */}
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-900 dark:text-white">Supprimer ce post ?</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-500 dark:text-slate-400 text-[13px]">
+            <AlertDialogTitle className="text-foreground">Supprimer ce post ?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground text-[13px]">
               Supprime uniquement l'enregistrement local. Le post restera visible sur Facebook.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-slate-200 dark:border-slate-700">Annuler</AlertDialogCancel>
+            <AlertDialogCancel className="border-border hover:bg-accent">
+              Annuler
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => { onDelete(); setConfirmDelete(false); onClose() }}
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700 text-white border-0"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground border-0"
             >
               {isDeleting
                 ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Suppression...</>
@@ -360,21 +360,31 @@ export function PublishedPostDetailSheet({
   )
 }
 
+// ── MetricCard ────────────────────────────────────────────────────────────────
+
 function MetricCard({ icon: Icon, label, value, color, description }: {
-  icon: React.ElementType; label: string; value: number; color: 'blue' | 'indigo'; description: string
+  icon: React.ElementType
+  label: string
+  value: number
+  color: 'blue' | 'indigo'
+  description: string
 }) {
-  const colors = {
-    blue:  'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400',
-    indigo: 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400',
+  // ✅ indigo → primary/5 pour éviter le fond quasi-invisible de bg-secondary en light
+  const iconClass = {
+    blue:   'bg-primary/10 text-primary',
+    indigo: 'bg-primary/5 text-primary',
   }
+
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3">
-      <div className={`w-7 h-7 rounded-lg ${colors[color]} flex items-center justify-center mb-2`}>
+    <div className="bg-card border border-border rounded-xl p-3">
+      <div className={`w-7 h-7 rounded-lg ${iconClass[color]} flex items-center justify-center mb-2`}>
         <Icon className="w-4 h-4" />
       </div>
-      <div className="text-[20px] font-semibold text-slate-900 dark:text-white">{value.toLocaleString('fr-FR')}</div>
-      <div className="text-[12px] font-medium text-slate-700 dark:text-slate-300">{label}</div>
-      <div className="text-[11px] text-slate-400 mt-0.5">{description}</div>
+      <div className="text-[20px] font-semibold text-foreground">
+        {value.toLocaleString('fr-FR')}
+      </div>
+      <div className="text-[12px] font-medium text-foreground/80">{label}</div>
+      <div className="text-[11px] text-muted-foreground mt-0.5">{description}</div>
     </div>
   )
 }

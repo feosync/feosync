@@ -13,37 +13,46 @@ export function ProfileSection() {
   return (
     <div className="space-y-4">
       <SettingsCard title="Profil">
-        <div className="flex items-center gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="relative">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={user?.profile_picture || ''} alt={user?.name} />
-              <AvatarFallback className="bg-blue-600 text-white font-semibold text-lg">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-          </div>
+
+        {/* ── Avatar + identité ───────────────────────────────────────── */}
+        <div className="flex items-center gap-4 mb-4 pb-4 border-b border-border">
+          <Avatar className="h-16 w-16 shrink-0">
+            <AvatarImage src={user?.profile_picture || ''} alt={user?.name} />
+            <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-lg">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-slate-900 dark:text-white text-base">{user?.name}</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
+            <p className="font-semibold text-foreground text-base">{user?.name}</p>
+            <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
             {user?.google_id && (
               <div className="flex items-center gap-1.5 mt-1.5">
                 <GoogleIcon />
-                <span className="text-xs text-slate-400 dark:text-slate-500">Compte Google lié</span>
+                <span className="text-xs text-muted-foreground">Compte Google lié</span>
               </div>
             )}
           </div>
         </div>
 
+        {/* ── Rows ────────────────────────────────────────────────────── */}
         <SettingRow label="Nom affiché" description="Visible dans l'application">
-          <Button variant="outline" size="sm" className="text-xs h-7 px-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs h-7 px-3 border-border text-foreground
+                       hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
             Modifier
           </Button>
         </SettingRow>
+
         <SettingRow label="Adresse email" description={user?.email || '—'}>
-          <span className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-500 dark:text-slate-400">
+          <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-md">
             Gérée par Google
           </span>
         </SettingRow>
+
       </SettingsCard>
     </div>
   )

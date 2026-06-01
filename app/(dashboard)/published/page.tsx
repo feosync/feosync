@@ -35,7 +35,7 @@ import { PublishedPostCard } from "@/components/published/PublishedPostCard";
 import { PublishedPostDetailSheet } from "@/components/published/PublishedPostDetailSheet";
 import { OrganisationSelector } from "@/components/organizations/OrgSelector";
 import { useDebounce } from "@/hooks/useDebounce";
-import type { AutoCommentRequest, PublishedPost } from "@/lib/api/types";
+import type { AutoCommentRequest, FacebookPageResponse, PublishedPost } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ function getWeeksOfMonth(year: number, month: number): number[] {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const PAGE_SIZE = 4; // multiple de 3 pour le grid 3 colonnes
+const PAGE_SIZE = 4;
 const THIS_YEAR = new Date().getFullYear();
 const THIS_MONTH = new Date().getMonth() + 1;
 const CURRENT_WEEK = getISOWeekNumber(new Date());
@@ -142,21 +142,34 @@ export default function PublishedPage() {
   const deleteMutation = useDeletePublishedPost(orgId);
 
   const disabledClass = (cond: boolean) =>
-    cond ? "pointer-events-none opacity-50" : "cursor-pointer";
+    cond ? "pointer-events-none opacity-40" : "cursor-pointer";
 
   return (
     <div className="space-y-6">
       {/* ── Header ── */}
-      <div className="flex items-end justify-between flex-wrap gap-3">
-        <div>
-          {/* <h1 className="text-[22px] font-medium text-slate-900 dark:text-white">Posts publiés</h1> */}
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {total} publication{total > 1 ? "s" : ""}
-            {search && ` pour « ${search} »`}
-          </p>
+      <div className="flex items-end justify-between flex-wrap gap-6 max-w-max">
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold text-foreground tracking-tight">
+              Post publié, 
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Vous avez {total} post publié
+            </p>
+          </div>
+       
         </div>
-        <div className="w-full flex items-center justify-start">
-          <div className="w-full md:w-5/6  lg:w-1/3 xl:w-1/6">
+        <div className="w-full flex justify-start items-center">
+          <div className="flex items-center  w-max">
+            {/* Badge compteur */}
+            {!isLoading && (
+              <span className="inline-flex items-center text-foreground/65 text-base font-semibold px-2.5 py-1 uppercase">
+                Organisation
+                {search && ` · « ${search} »`}
+              </span>
+            )}
+          </div>
+          <div className="w-max">
             <OrganisationSelector
               value={selectedOrgId}
               onChange={(v) => {
@@ -169,42 +182,46 @@ export default function PublishedPage() {
       </div>
 
       {/* ── Filtres ── */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2.5 p-2 bg-muted/40 border border-border rounded-xl w-full lg:w-max">
         {/* Search */}
         <div className="relative">
           <FontAwesomeIcon
             icon={faSearch}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            style={{ width: "0.875rem", height: "0.875rem" }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            style={{ width: "0.8rem", height: "0.8rem" }}
           />
           <Input
             placeholder="Rechercher…"
             value={searchInput}
             onChange={(e) => handleSearch(e.target.value)}
-            className="pl-9 pr-9 w-52 h-9 text-sm"
+            className="pl-8 pr-8 w-52 h-8 text-sm bg-background border-border
+                       focus-visible:ring-2 focus-visible:ring-ring"
           />
           {searchInput && (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => handleSearch("")}
-              className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-slate-400 hover:text-slate-600"
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6
+                         text-muted-foreground hover:text-foreground"
             >
               <FontAwesomeIcon
                 icon={faTimes}
-                style={{ width: "0.875rem", height: "0.875rem" }}
+                style={{ width: "0.75rem", height: "0.75rem" }}
               />
             </Button>
           )}
         </div>
 
+        <div className="w-px h-5 bg-border" />
+
         {/* Année */}
         <Select value={year ? String(year) : "all"} onValueChange={handleYear}>
-          <SelectTrigger className="w-28 h-9 text-sm">
+          <SelectTrigger className="w-28 h-8 text-sm bg-background border-border focus:ring-ring">
             <SelectValue placeholder="Année" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Toutes</SelectItem>
+            <SelectItem value="all">Toutes les années</SelectItem>
             {YEARS.map((y) => (
               <SelectItem key={y} value={String(y)}>
                 {y}
@@ -218,11 +235,11 @@ export default function PublishedPage() {
           value={month ? String(month) : "all"}
           onValueChange={handleMonth}
         >
-          <SelectTrigger className="w-36 h-9 text-sm">
+          <SelectTrigger className="w-36 h-8 text-sm bg-background border-border focus:ring-ring">
             <SelectValue placeholder="Mois" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tous</SelectItem>
+            <SelectItem value="all">Tous les mois</SelectItem>
             {MONTHS.map((m) => (
               <SelectItem key={m.value} value={String(m.value)}>
                 {m.label}
@@ -237,7 +254,10 @@ export default function PublishedPage() {
           onValueChange={handleWeek}
           disabled={!month}
         >
-          <SelectTrigger className="w-36 h-9 text-sm">
+          <SelectTrigger
+            className="w-36 h-8 text-sm bg-background border-border focus:ring-ring
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <SelectValue placeholder={month ? "Semaine" : "Choisir un mois"} />
           </SelectTrigger>
           <SelectContent>
@@ -251,42 +271,46 @@ export default function PublishedPage() {
         </Select>
       </div>
 
-      {/* ── Grille Pinterest ── */}
+      {/* ── Grille masonry ── */}
       <div
-        className={`transition-opacity duration-200 ${isFetching && !isLoading ? "opacity-60" : "opacity-100"}`}
+        className={`transition-all duration-300 ${
+          isFetching && !isLoading
+            ? "opacity-50 scale-[0.995]"
+            : "opacity-100 scale-100"
+        }`}
       >
         {isLoading ? (
-          /* Skeletons en grille masonry */
-          <div className="columns-2 sm:columns-3 lg:columns-4 gap-4 space-y-0">
+          /* Skeletons masonry — hauteurs variées pour effet naturel */
+          <div className="columns-1 sm:columns-2 lg:columns-4 gap-2">
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-              <div key={i} className="mb-4 break-inside-avoid">
+              <div key={i} className="mb-2 break-inside-avoid">
                 <Skeleton
-                  className="w-full rounded-2xl"
-                  style={{ height: `${180 + (i % 3) * 60}px` }}
+                  className="w-full rounded-xl "
+                  style={{ height: `${400 + Math.random() * 20 * 10}px` }}
                 />
               </div>
             ))}
           </div>
         ) : posts.length === 0 ? (
           /* Empty state */
-          <div className="flex flex-col items-center justify-center py-24 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40">
-            <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-              <ImageOff className="w-6 h-6 text-slate-400" />
+          <div className="flex flex-col items-center justify-center py-24 rounded-xl border border-dashed border-border bg-muted/20 dark:bg-muted/10">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <ImageOff className="w-6 h-6 text-primary" />
             </div>
-            <p className="text-[15px] font-medium text-slate-800 dark:text-white mb-1">
+            <p className="text-[15px] font-semibold text-foreground mb-1">
               Aucun post publié
             </p>
-            <p className="text-sm text-slate-400 dark:text-slate-500 text-center max-w-xs">
+            <p className="text-sm text-muted-foreground text-center max-w-xs leading-relaxed">
               {search || year || month
                 ? "Aucun résultat pour ces filtres. Essayez d'élargir votre recherche."
                 : "Vos publications Facebook apparaîtront ici une fois publiées."}
             </p>
           </div>
         ) : (
-          /* Masonry grid — chaque carte gère sa propre hauteur d'image */
+          /* Masonry grid */
           <div className="columns-1 sm:columns-2 lg:columns-4 gap-2">
             {posts.map((post) => (
-              <div key={post.id} className="mb-4 break-inside-avoid">
+              <div key={post.id} className="mb-2 break-inside-avoid">
                 <PublishedPostCardWrapper
                   post={post}
                   pages={pages}
@@ -306,10 +330,13 @@ export default function PublishedPage() {
 
       {/* ── Pagination ── */}
       {totalPages > 1 && (
-        <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-between pt-1">
-          <p className="text-sm text-slate-500">
-            Page {page} sur {totalPages} — {total} résultat
-            {total > 1 ? "s" : ""}
+        <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-between pt-2 border-t border-border">
+          <p className="text-xs text-muted-foreground">
+            Page <span className="font-medium text-foreground">{page}</span> sur{" "}
+            <span className="font-medium text-foreground">{totalPages}</span>
+            {" — "}
+            <span className="font-medium text-foreground">{total}</span>{" "}
+            résultat{total > 1 ? "s" : ""}
           </p>
           <Pagination>
             <PaginationContent>
@@ -416,7 +443,7 @@ export default function PublishedPage() {
   );
 }
 
-// ── Wrappers ──────────────────────────────────────────────────────────────────
+// ── Wrappers (inchangés) ──────────────────────────────────────────────────────
 
 function PublishedPostCardWrapper({
   post,
@@ -436,7 +463,7 @@ function PublishedPostCardWrapper({
   onClick: () => void;
 }) {
   const { data: scheduledPost } = useScheduledPost(post.scheduled_post_id);
-  const page = pages.find((p) => p.id === post.facebook_page_id);
+  const page:FacebookPageResponse = pages.find((p) => p.id === post.facebook_page_id);
   return (
     <PublishedPostCard
       post={post}

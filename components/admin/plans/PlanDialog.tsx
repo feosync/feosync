@@ -60,13 +60,15 @@ function TagInput({
           {tags.map(tag => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[12px] font-medium bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg
+                         text-[12px] font-medium
+                         bg-primary/10 text-primary border border-primary/20"
             >
               {tag}
               <button
                 type="button"
                 onClick={() => remove(tag)}
-                className="hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
+                className="hover:text-primary/60 transition-colors"
               >
                 <FontAwesomeIcon icon={faTimes} style={{ width: '0.75rem', height: '0.75rem' }} />
               </button>
@@ -90,12 +92,12 @@ function TagInput({
           size="sm"
           onClick={add}
           disabled={!input.trim()}
-          className="px-3"
+          className="px-3 border-border hover:bg-muted disabled:opacity-50"
         >
           <FontAwesomeIcon icon={faPlus} style={{ width: '0.875rem', height: '0.875rem' }} />
         </Button>
       </div>
-      <p className="text-[11px] text-slate-400">
+      <p className="text-[11px] text-muted-foreground">
         Appuie sur Entrée ou clique + pour ajouter. Backspace pour supprimer le dernier.
       </p>
     </div>
@@ -122,7 +124,7 @@ export function PlanDialog({
       ? {
           name:           initial.name,
           price:          initial.price,
-          max_org:       initial.max_org,
+          max_org:        initial.max_org,
           max_post_month: initial.max_post_month,
           max_ai_caption: initial.max_ai_caption,
           max_ai_image:   initial.max_ai_image,
@@ -147,15 +149,17 @@ export function PlanDialog({
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto border-border">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Modifier le plan' : 'Créer un plan'}</DialogTitle>
+          <DialogTitle className="text-foreground">
+            {isEdit ? 'Modifier le plan' : 'Créer un plan'}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           {/* Nom */}
           <div className="space-y-1.5">
-            <Label>Nom</Label>
+            <Label className="text-sm text-foreground">Nom</Label>
             <Input
               value={form.name}
               onChange={e => set('name', e.target.value)}
@@ -163,10 +167,10 @@ export function PlanDialog({
             />
           </div>
 
-          {/* Prix + Pages */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Prix + Organisations */}
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Prix (Ar)</Label>
+              <Label className="text-sm text-foreground">Prix (Ar)</Label>
               <Input
                 type="number" min={0}
                 value={form.price}
@@ -174,7 +178,7 @@ export function PlanDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Organisations</Label>
+              <Label className="text-sm text-foreground">Organisations</Label>
               <Input
                 type="number" min={1}
                 value={form.max_org}
@@ -184,9 +188,9 @@ export function PlanDialog({
           </div>
 
           {/* Posts + IA */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Posts / mois</Label>
+              <Label className="text-sm text-foreground">Posts / mois</Label>
               <Input
                 type="number" min={1}
                 value={form.max_post_month}
@@ -194,7 +198,7 @@ export function PlanDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Légendes IA</Label>
+              <Label className="text-sm text-foreground">Légendes IA</Label>
               <Input
                 type="number" min={0}
                 value={form.max_ai_caption}
@@ -202,7 +206,7 @@ export function PlanDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Images IA</Label>
+              <Label className="text-sm text-foreground">Images IA</Label>
               <Input
                 type="number" min={0}
                 value={form.max_ai_image}
@@ -213,18 +217,18 @@ export function PlanDialog({
 
           {/* Features */}
           <div className="space-y-1.5">
-            <Label>Fonctionnalités incluses</Label>
+            <Label className="text-sm text-foreground">Fonctionnalités incluses</Label>
             <TagInput
               tags={form.features ?? []}
               onChange={tags => set('features', tags)}
             />
           </div>
 
-          {/* Statut */}
-          <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-3">
+          {/* Statut actif */}
+          <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3 bg-muted/30">
             <div>
-              <p className="text-sm font-medium">Plan actif</p>
-              <p className="text-xs text-slate-500">Visible par les utilisateurs</p>
+              <p className="text-sm font-medium text-foreground">Plan actif</p>
+              <p className="text-xs text-muted-foreground">Visible par les utilisateurs</p>
             </div>
             <Switch
               checked={form.is_active ?? true}
@@ -234,10 +238,20 @@ export function PlanDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isPending}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={isPending}
+            className="border-border hover:bg-muted"
+          >
             Annuler
           </Button>
-          <Button onClick={handleSubmit} disabled={isPending || !form.name}>
+          <Button
+            onClick={handleSubmit}
+            disabled={isPending || !form.name}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground
+                       font-semibold disabled:opacity-50"
+          >
             {isPending ? 'Enregistrement…' : isEdit ? 'Mettre à jour' : 'Créer'}
           </Button>
         </DialogFooter>

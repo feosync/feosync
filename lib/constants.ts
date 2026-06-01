@@ -49,16 +49,16 @@ export const NAVIGATION_ITEMS = [
       },
     ],
   },
-   {
-    section: 'Contenu',
-    items: [
-      {
-        label: 'Modèles',
-        href: '/templates',
-        icon: faBookmark,
-      },
-    ],
-  },
+  //  {
+  //   section: 'Contenu',
+  //   items: [
+  //     {
+  //       label: 'Modèles',
+  //       href: '/templates',
+  //       icon: faBookmark,
+  //     },
+  //   ],
+  // },
   {
     section: 'Analyses',
     items: [
