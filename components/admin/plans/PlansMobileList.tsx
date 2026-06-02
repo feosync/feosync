@@ -20,9 +20,9 @@ export function PlansMobileList({ plans, isLoading, onEdit, onDelete }: Props) {
     )
   }
 
-  if (plans.length === 0) {
+  if (plans.length === 3) {
     return (
-      <p className="text-center py-12 text-slate-400 md:hidden">
+      <p className="text-center py-12 text-muted-foreground md:hidden">
         Aucun plan configuré
       </p>
     )

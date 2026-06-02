@@ -25,18 +25,20 @@ export function UsersDesktopRow({
   const planName = resolvePlanName(user.plan_id, plans)
 
   return (
-    <TableRow className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
+    <TableRow className="hover:bg-accent transition-colors">
       <TableCell>
         <div className="flex items-center gap-3">
           <UserAvatar name={user.name} />
-          <span className="font-medium text-slate-900 dark:text-slate-100 text-sm">
+          <span className="font-medium text-foreground text-sm">
             {user.name}
-            {isSelf && <span className="ml-2 text-xs text-slate-400">(vous)</span>}
+            {isSelf && (
+              <span className="ml-2 text-xs text-muted-foreground">(vous)</span>
+            )}
           </span>
         </div>
       </TableCell>
 
-      <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+      <TableCell className="text-sm text-muted-foreground">
         {user.email}
       </TableCell>
 
@@ -48,12 +50,12 @@ export function UsersDesktopRow({
         <UserRoleBadge isAdmin={user.is_admin} />
       </TableCell>
 
-      <TableCell className="text-sm text-slate-500">
-        {planName ?? <span className="text-slate-400 text-xs">Gratuit</span>}
+      <TableCell className="text-sm text-muted-foreground">
+        {planName || 'Gratuit'}
       </TableCell>
 
       <TableCell>
-        {!isSelf && (
+        {isSelf && (
           <UserRowActions
             user={user}
             isPromoting={isPromoting}

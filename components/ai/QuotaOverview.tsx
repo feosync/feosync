@@ -45,14 +45,14 @@ export function QuotaOverview({ quota, isLoading }: QuotaOverviewProps) {
       </div>
 
       {/* Total tokens banner */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex items-center justify-between">
+      <div className="bg-card rounded-xl border border-border p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4 text-amber-500" />
-          <span className="text-[13px] font-medium text-slate-900 dark:text-white">
+          <Zap className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium text-foreground">
             Total tokens utilisés
           </span>
         </div>
-        <span className="text-[18px] font-semibold text-slate-900 dark:text-white">
+        <span className="text-lg font-semibold text-foreground">
           {quota.total_tokens.toLocaleString('fr-FR')}
         </span>
       </div>
