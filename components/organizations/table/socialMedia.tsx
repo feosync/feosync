@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ConnectFacebookDialog } from "../ConnectFacebookDialog";
-import { SocialCardProps } from "@/lib/api";
+import { Channel, SocialCardProps } from "@/lib/api";
 import { apiClient } from "@/lib/api/client";
 
 // ─── Icônes SVG (inchangées — couleurs de marque) ────────────────────────────
@@ -109,7 +109,7 @@ export function ManageSocialMedia({ open, onOpenChange, orgId }: ManageSocialMed
         const data = await apiClient.getChannelByUser();
         if (cancelled) return;
         const matched = CHANNELS.filter((ch) =>
-          data.some((d: { name: string }) => d.name.toLowerCase() === ch.name.toLowerCase())
+          data.some((d:Channel) => d.name.toLowerCase() === ch.name.toLowerCase() && d.org_id === orgId)
         );
         setConnectedChannels(matched);
       } catch (err) {

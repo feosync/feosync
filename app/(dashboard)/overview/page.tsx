@@ -21,7 +21,6 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { OrganisationSelector } from "@/components/organizations/OrgSelector";
-import { AnalyticsPeriod } from "@/lib/api/types";
 
 // ── Design tokens sémantiques ────────────────────────────────────────────────
 const STAT_CONFIG = {
@@ -151,6 +150,9 @@ export default function OverviewPage() {
   const publishedTotal = publishedData?.total ?? 0;
   const { data: pages = [] } = useFacebookPages(orgId);
   const isLoading = l1 || l2 || l3 || l4;
+  const MAX_LAST_PUBLISHED = 3;
+  const MAX_UPCOMING = 3;
+
 
   const upcoming = (scheduledData?.items ?? [])
     .filter((p) => p.publish_at)
@@ -278,7 +280,7 @@ export default function OverviewPage() {
               </div>
             ) : (
               <div className="space-y-0.5">
-                {upcoming.map((post) => {
+                {upcoming.slice(0, MAX_UPCOMING).map((post) => {
                   const page = pages.find(
                     (p) => p.id === Object.values(post.page_ids || {})[0],
                   );
@@ -363,7 +365,7 @@ export default function OverviewPage() {
               </div>
             ) : (
               <div className="space-y-0.5">
-                {published.map((p) => (
+                {published.slice(-MAX_LAST_PUBLISHED).map((p) => (
                   <div
                     key={p.id}
                     className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-accent transition-colors"
