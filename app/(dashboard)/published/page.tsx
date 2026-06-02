@@ -145,17 +145,17 @@ export default function PublishedPage() {
     cond ? "pointer-events-none opacity-40" : "cursor-pointer";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5.5">
       {/* ── Header ── */}
       <div className="flex items-end justify-between flex-wrap gap-6 max-w-max">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <h1 className="text-xl font-semibold text-foreground tracking-tight">
-              Post publié, 
+              Post publié ({total} post{total > 1 ? "s" : ""})
             </h1>
-            <p className="text-sm text-muted-foreground">
+            {/* <p className="text-sm text-muted-foreground">
               Vous avez {total} post publié
-            </p>
+            </p> */}
           </div>
        
         </div>
@@ -163,7 +163,7 @@ export default function PublishedPage() {
           <div className="flex items-center  w-max">
             {/* Badge compteur */}
             {!isLoading && (
-              <span className="inline-flex items-center text-foreground/65 text-base font-semibold px-2.5 py-1 uppercase">
+              <span className="inline-flex items-center text-foreground/65 pr-2.5 text-base font-semibold uppercase">
                 Organisation
                 {search && ` · « ${search} »`}
               </span>
