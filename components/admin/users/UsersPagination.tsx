@@ -19,7 +19,7 @@ export function UsersPagination({ page, totalPages, total, isFetching, onPageCha
 
   return (
     <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-muted-foreground">
         Page {page} sur {totalPages} — {total} résultat{total > 1 ? 's' : ''}
       </p>
 

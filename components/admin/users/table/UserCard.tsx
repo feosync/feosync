@@ -21,20 +21,22 @@ export function UserCard({
   isPromoting, isDemoting,
   onPromote, onDemote, onDelete,
 }: Props) {
-  const planName = user ? resolvePlanName(user?.plan_id, plans): ""
+  const planName = user ? resolvePlanName(user?.plan_id, plans) : ''
 
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+    <div className="rounded-xl border border-border bg-card text-card-foreground p-4 transition-shadow hover:shadow-md">
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <UserAvatar name={user.name} />
           <div className="min-w-0">
-            <p className="font-semibold text-slate-900 dark:text-white truncate text-sm">
+            <p className="font-semibold text-card-foreground truncate text-sm">
               {user.name}
-              {isSelf && <span className="ml-2 text-xs text-slate-400">(vous)</span>}
+              {isSelf && (
+                <span className="ml-2 text-xs text-muted-foreground">(vous)</span>
+              )}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
+            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
           </div>
         </div>
         <UserRoleBadge isAdmin={user.is_admin} />
@@ -43,14 +45,14 @@ export function UserCard({
       {/* Meta */}
       <div className="flex items-center gap-2 mt-3 flex-wrap">
         <UserStatusBadge isActive={user.is_active} />
-        <span className="text-xs text-slate-500">
-          {planName ?? <span className="text-slate-400">Gratuit</span>}
+        <span className="text-xs text-muted-foreground">
+          {planName || 'Gratuit'}
         </span>
       </div>
 
       {/* Actions */}
       {!isSelf && (
-        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="mt-3 pt-3 border-t border-border">
           <UserRowActions
             user={user}
             isPromoting={isPromoting}

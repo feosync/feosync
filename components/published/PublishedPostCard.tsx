@@ -188,7 +188,7 @@ export function PublishedPostCard({
 
         {/* Caption */}
         {scheduledPost?.caption && (
-          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed h-10">
             {scheduledPost.caption}
           </p>
         )}
