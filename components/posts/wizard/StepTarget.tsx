@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select'
 import { Loader2, Globe, Calendar, ArrowRight } from 'lucide-react'
 import { OrganisationSelector } from '@/components/organizations/OrgSelector'
-import type { FacebookPage } from '@/lib/api/types'
+import type { FacebookPageResponse, } from '@/lib/api/types'
 import { fromZonedTime } from 'date-fns-tz'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -32,7 +32,7 @@ const TIMEZONES = [
 ]
 
 interface StepTargetProps {
-  pages: FacebookPage[]
+  pages: FacebookPageResponse[]
   isLoading: boolean
   onOrgChange?: (orgId: string) => void
   onNext: (data: { organization_id: string; facebook_page_id: string; publish_at?: string }) => void
@@ -119,17 +119,11 @@ export function StepTarget({ pages, isLoading, onOrgChange, onNext }: StepTarget
               <SelectValue placeholder="Sélectionnez une page Facebook" />
             </SelectTrigger>
             <SelectContent>
-              {!selectedOrgId ? (
-                <SelectItem value="" disabled>Sélectionnez d'abord une organisation</SelectItem>
-              ) : pages.length === 0 ? (
-                <SelectItem value="" disabled>Aucune page Facebook connectée</SelectItem>
-              ) : (
-                pages.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.page_name}
-                  </SelectItem>
-                ))
-              )}
+              {pages.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.page_name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
