@@ -13,13 +13,13 @@ import {
 import Image from "next/image";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import type { ScheduledPost, FacebookPage } from "@/lib/api/types";
+import type { ScheduledPost, FacebookPageResponse } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 interface StepConfirmProps {
   post: ScheduledPost;
-  pages: FacebookPage[];
+  pages: FacebookPageResponse[];
   publishAt: string;
   isLoading: boolean;
   onConfirm: () => void;

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Card } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
@@ -12,179 +11,444 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2, Sparkles, ArrowLeft, ArrowRight, Edit3 } from 'lucide-react'
+import {
+  Loader2,
+  Sparkles,
+  ArrowLeft,
+  ArrowRight,
+  Edit3,
+  Eye,
+  RotateCcw,
+  CheckCircle2,
+  Facebook,
+  Copy,
+  Check,
+  AlertCircle,
+} from 'lucide-react'
 import type { ScheduledPost } from '@/lib/api/types'
 import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
 import { checkCanGenerateCaption } from '@/lib/api/plan-limits'
 import { cn } from '@/lib/utils'
+import { log } from 'console'
+
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 interface StepCaptionProps {
   post: ScheduledPost
   isLoading: boolean
-  onNext: (data: any) => void
+  onNext: (data: CaptionPayload) => void
   onBack: () => void
   onSkip: () => void
+  /** Génère le caption via LLM et retourne le texte produit */
+  onGenerateCaption?: (data:any) => Promise<any>
 }
 
-export function StepCaption({ post, isLoading, onNext, onBack, onSkip }: StepCaptionProps) {
-  const { data: userDetail } = useCurrentUserDetail()
-  const [mode, setMode] = useState<'manual' | 'llm'>('manual')
-  const [caption, setCaption] = useState(post.caption || '')
-  const [topic, setTopic] = useState('')
-  const [language, setLang] = useState('fr')
+type CaptionMode = 'manual' | 'llm'
+type UIState = 'editing' | 'generating' | 'preview'
 
+interface CaptionPayload {
+  mode: CaptionMode
+  text?: string
+  topic?: string
+  language?: string
+}
+
+// ─── Styles extraits ─────────────────────────────────────────────────────────
+
+const S = {
+  card: 'rounded-2xl bg-neutral-800/50 border border-white/8 overflow-hidden shadow-xl shadow-black/20',
+  tabActive: 'bg-white/10 shadow-sm text-white border border-white/12',
+  tabInactive: 'text-white/50 hover:text-white/80 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed',
+  input: 'bg-white/5 border border-white/10 text-white placeholder:text-white/30 rounded-xl focus:border-white/25 focus:ring-0 resize-none text-[13px] leading-relaxed',
+  label: 'text-[12px] font-medium text-white/60 uppercase tracking-wider',
+  ghost: 'bg-white/6 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white/90 rounded-xl',
+  primary: 'bg-white text-neutral-900 hover:bg-neutral-100 font-semibold rounded-xl',
+  skeletonLine: 'h-3 rounded-full bg-white/8 animate-pulse',
+} as const
+
+// ─── Composant ───────────────────────────────────────────────────────────────
+
+export function StepCaption({
+  post,
+  isLoading,
+  onNext,
+  onBack,
+  onSkip,
+  onGenerateCaption,
+}: StepCaptionProps) {
+  const { data: userDetail } = useCurrentUserDetail()
   const canGenerateAI = checkCanGenerateCaption(userDetail)
 
-  const handleNext = () => {
+  // ── État local ──
+  const [mode, setMode] = useState<CaptionMode>('manual')
+  const [uiState, setUiState] = useState<UIState>('editing')
+
+  // Mode manuel
+  const [caption, setCaption] = useState(post.caption || '')
+
+  // Mode LLM
+  const [topic, setTopic] = useState('')
+  const [language, setLanguage] = useState('fr')
+  const [generatedCaption, setGeneratedCaption] = useState('')
+  const [generationError, setGenerationError] = useState<string | null>(null)
+
+  // UI
+  const [copied, setCopied] = useState(false)
+  // Caption affiché en preview selon le mode
+  const previewText = mode === 'manual' ? caption : generatedCaption
+
+  let charCount = 0
+  if (previewText!==undefined) {
+     charCount = previewText.length
+  }
+  const isOverLimit = charCount > 2200
+
+  // ── Handlers ──
+
+  const handleSwitchMode = (m: CaptionMode) => {
+    if (m === 'llm' && !canGenerateAI) return
+    setMode(m)
+    setUiState('editing')
+    setGenerationError(null)
+  }
+
+  /** Manuel → preview directe | LLM → génération API puis preview */
+  const handlePreview = async () => {
     if (mode === 'manual') {
-      onNext({ mode: 'manual', text: caption.trim() })
-    } else {
-      if (!canGenerateAI || !topic.trim()) return
-      onNext({ mode: 'llm', topic: topic.trim(), language })
+      if (!caption.trim() || isOverLimit) return
+      setUiState('preview')
+      return
+    }
+
+    // Mode LLM
+    if (!topic.trim() || !canGenerateAI) return
+    setGenerationError(null)
+    setUiState('generating')
+
+    try {
+      if (!onGenerateCaption) {
+        throw new Error('Générateur non disponible.')
+      }
+      let data = { mode: 'llm',  topic: topic.trim(),language: language }
+      const result = await onGenerateCaption(data)
+      setGeneratedCaption(result.caption)
+      setUiState('preview')
+    } catch (err: any) {
+      setGenerationError(err?.message ?? 'Erreur lors de la génération.')
+      setUiState('editing')
     }
   }
 
-  const charCount = caption.length
-  const isOverLimit = charCount > 2200
+  const handleConfirmAndNext = () => {
+    if (mode === 'manual') {
+      onNext({ mode: 'manual', text: caption.trim() })
+    } else {
+      onNext({ mode: 'llm', text: generatedCaption, topic: topic.trim(), language: language })
+    }
+  }
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(previewText)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  // CTA principal dans la barre de navigation
+  const isEditingDisabled =
+    uiState === 'editing' &&
+    ((mode === 'manual' && (!caption.trim() || isOverLimit)) ||
+      (mode === 'llm' && (!topic.trim() || !canGenerateAI)))
+
+  // ── Render ──
 
   return (
-    <Card className="p-8 bg-card border-border shadow-xl">
-      <div className="space-y-8">
-        {/* Header */}
-        <div>
-          <h2 className="text-2xl font-semibold text-foreground mb-2">Rédigez le caption</h2>
-          <p className="text-muted-foreground">
-            Écrivez manuellement ou laissez l’IA générer un texte engageant.
-          </p>
-        </div>
+    <div className="space-y-5">
 
-        {/* Mode Selection */}
-        <div className="flex gap-1 p-1 bg-muted rounded-2xl">
-          {(['manual', 'llm'] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => {
-                if (m === 'llm' && !canGenerateAI) return
-                setMode(m)
-              }}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-medium transition-all",
-                mode === m
-                  ? "bg-card shadow-sm text-foreground border border-border"
-                  : "text-muted-foreground hover:text-foreground hover:bg-card/50"
-              )}
-            >
-              {m === 'manual' ? (
-                <>
-                  <Edit3 className="w-4 h-4" />
-                  Manuel
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  Générer avec IA
-                </>
-              )}
-            </button>
-          ))}
-        </div>
+      {/* ── Tabs mode ─────────────────────────────────────────────────────── */}
+      <div className="flex gap-1 p-1 bg-white/4 rounded-xl border border-white/8">
+        {(['manual', 'llm'] as const).map((m) => (
+          <button
+            key={m}
+            onClick={() => handleSwitchMode(m)}
+            disabled={m === 'llm' && !canGenerateAI}
+            aria-selected={mode === m}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-[13px] font-medium transition-all duration-200',
+              mode === m ? S.tabActive : S.tabInactive
+            )}
+          >
+            {m === 'manual'
+              ? <><Edit3 className="w-3.5 h-3.5" /> Manuel</>
+              : <><Sparkles className={cn('w-3.5 h-3.5', mode === 'llm' ? 'text-emerald-400' : 'text-white/30')} /> Générer avec IA</>
+            }
+          </button>
+        ))}
+      </div>
 
-        {/* Content Area */}
-        {mode === 'manual' ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>Caption</Label>
-              <span
-                className={cn(
-                  "text-sm font-medium tabular-nums",
-                  isOverLimit ? "text-destructive" : "text-muted-foreground"
-                )}
-              >
-                {charCount} / 2200
-              </span>
+      {/* ── Zone principale ────────────────────────────────────────────────── */}
+
+      {/* ÉTAT : Édition */}
+      {uiState === 'editing' && (
+        <div className="space-y-4">
+
+          {/* Erreur génération */}
+          {generationError && (
+            <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+              <p className="text-[12px] text-red-300">{generationError}</p>
             </div>
+          )}
 
-            <Textarea
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder="Écrivez un caption captivant pour votre publication..."
-              rows={7}
-              maxLength={2200}
-              className="resize-none text-base leading-relaxed"
-            />
-          </div>
-        ) : (
-          <div className="space-y-6">
+          {mode === 'manual' ? (
+            /* ── Mode manuel ── */
             <div className="space-y-2">
-              <Label>
-                Sujet de la publication <span className="text-destructive">*</span>
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label className={S.label}>Caption</Label>
+                {/* <span className={cn(
+                  'text-[11px] tabular-nums transition-colors',
+                  isOverLimit ? 'text-red-400 font-medium' : 'text-white/35'
+                )}>
+                  {charCount.toLocaleString()} / 2 200
+                </span> */}
+              </div>
               <Textarea
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder="Ex: Lancement de notre nouvelle collection été 2026, focus sur l'innovation durable..."
-                rows={4}
-                className="resize-none"
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder="Écrivez un caption captivant pour votre publication Facebook…"
+                rows={7}
+                maxLength={2200}
+                className={cn(S.input, 'font-mono tracking-tight placeholder:font-sans placeholder:tracking-normal')}
               />
             </div>
+          ) : (
+            /* ── Mode LLM ── */
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className={S.label}>
+                  Sujet de la publication <span className="text-red-400">*</span>
+                </Label>
+                <Textarea
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder="Ex : Lancement de notre nouvelle collection été 2026, focus sur l'innovation durable…"
+                  rows={4}
+                  className={S.input}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className={S.label}>Langue</Label>
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger className={cn(S.ghost, 'w-44 h-9 text-[13px]')}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-neutral-900 border border-white/10 rounded-xl">
+                    <SelectItem value="fr" className="text-[13px] text-white/80 focus:bg-white/8">🇫🇷 Français</SelectItem>
+                    <SelectItem value="en" className="text-[13px] text-white/80 focus:bg-white/8">🇬🇧 English</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
 
-            <div className="space-y-2">
-              <Label>Langue du caption</Label>
-              <Select value={language} onValueChange={setLang}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fr">Français</SelectItem>
-                  <SelectItem value="en">English</SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Bouton Prévisualiser inline */}
+          <button
+            onClick={handlePreview}
+            disabled={isEditingDisabled}
+            className={cn(
+              'w-full h-10 flex items-center justify-center gap-2 rounded-xl border border-dashed text-[13px] transition-all duration-200',
+              isEditingDisabled
+                ? 'border-white/8 text-white/25 cursor-not-allowed'
+                : 'border-white/20 text-white/60 hover:border-white/35 hover:text-white/90 hover:bg-white/4'
+            )}
+          >
+            {mode === 'llm' ? (
+              <><Sparkles className="w-4 h-4 text-emerald-400" /> Générer & prévisualiser</>
+            ) : (
+              <><Eye className="w-4 h-4" /> Prévisualiser</>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* ÉTAT : Génération en cours (LLM uniquement) */}
+      {uiState === 'generating' && (
+        <div className={S.card}>
+          {/* Header skeleton */}
+          <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/8 bg-white/3">
+            <div className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+            </div>
+            <div className="space-y-1.5 flex-1">
+              <div className={cn(S.skeletonLine, 'w-24')} />
+              <div className={cn(S.skeletonLine, 'w-36')} />
             </div>
           </div>
-        )}
-
-        {/* Navigation Buttons */}
-        <div className="flex gap-3 pt-4">
-          <Button
-            variant="outline"
-            onClick={onBack}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Retour
-          </Button>
-
-          <Button
-            variant="ghost"
-            onClick={onSkip}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Ignorer
-          </Button>
-
-          <Button
-            onClick={handleNext}
-            disabled={
-              isLoading ||
-              (mode === 'manual' ? !caption.trim() : !topic.trim()) ||
-              (mode === 'llm' && !canGenerateAI)
-            }
-            className="flex-1 h-12 text-base font-semibold rounded-2xl shadow-lg shadow-primary/20 hover:shadow-xl transition-all"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                {mode === 'llm' ? 'Génération en cours...' : 'Enregistrement...'}
-              </>
-            ) : (
-              <>
-                {mode === 'llm' ? 'Générer le caption' : 'Enregistrer le caption'}
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </>
-            )}
-          </Button>
+          {/* Lignes skeleton du contenu */}
+          <div className="p-4 space-y-2.5">
+            {[100, 85, 92, 70, 88, 60].map((w, i) => (
+              <div
+                key={i}
+                className={cn(S.skeletonLine)}
+                style={{ width: `${w}%`, animationDelay: `${i * 80}ms` }}
+              />
+            ))}
+          </div>
+          <div className="px-4 py-3 border-t border-white/8 bg-white/2 flex items-center gap-2">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+            <span className="text-[12px] text-white/40">Génération en cours…</span>
+          </div>
         </div>
+      )}
+
+      {/* ÉTAT : Preview */}
+      {uiState === 'preview' && (
+        <div className="space-y-4">
+
+          {/* Carte style Facebook */}
+          <div className={S.card}>
+
+            {/* Header simulé Facebook */}
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/8 bg-white/3">
+              <div className="w-8 h-8 rounded-full bg-blue-500/15 border border-blue-500/20 flex items-center justify-center">
+                <Facebook className="w-4 h-4 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-[12px] font-semibold text-white leading-none">Votre Page</p>
+                <p className="text-[10px] text-white/40 mt-0.5">Aperçu de la publication</p>
+              </div>
+              <div className="ml-auto flex items-center gap-1.5">
+                {mode === 'llm' && (
+                  <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                    IA
+                  </span>
+                )}
+                <span className="text-[10px] font-medium text-white/40 bg-white/6 border border-white/8 px-2 py-0.5 rounded-full">
+                  Aperçu
+                </span>
+              </div>
+            </div>
+
+            {/* Contenu éditable en mode LLM, texte brut en manuel */}
+            <div className="relative p-4">
+              {mode === 'llm' ? (
+                /* Caption LLM éditable directement */
+                <Textarea
+                  value={generatedCaption}
+                  onChange={(e) => setGeneratedCaption(previewText)}
+                  rows={8}
+                  className={cn(
+                    S.input,
+                    'border-transparent bg-transparent focus:border-white/15 focus:bg-white/3 transition-all duration-200'
+                  )}
+                  aria-label="Caption généré — modifiable"
+                />
+              ) : (
+                <p className="text-[13px] text-white/80 leading-relaxed whitespace-pre-wrap break-words pr-8">
+                  {previewText}
+                </p>
+              )}
+
+              {/* Bouton copier */}
+              <button
+                onClick={handleCopy}
+                className="absolute top-3 right-3 p-1.5 rounded-lg text-white/35 hover:text-white/80 hover:bg-white/8 transition-colors"
+                aria-label="Copier le caption"
+              >
+                {copied
+                  ? <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  : <Copy className="w-3.5 h-3.5" />
+                }
+              </button>
+            </div>
+
+            {/* Footer compteur */}
+            <div className="px-4 py-2.5 border-t border-white/8 bg-white/2 flex items-center justify-between">
+              <span className={cn(
+                'text-[10px] tabular-nums transition-colors',
+                isOverLimit ? 'text-red-400 font-medium' : 'text-white/35'
+              )}>
+                {/* {charCount?.toLocaleString()} / 2 200 caractères */}
+              </span>
+              {/* <span className="text-[10px] text-white/25">
+                ~{Math.ceil(previewText.split(' ').filter(Boolean).length / 200)} min de lecture
+              </span> */}
+            </div>
+          </div>
+
+          {/* Lien "Modifier" */}
+          <button
+            onClick={() => setUiState('editing')}
+            className="flex items-center gap-1.5 text-[12px] text-white/40 hover:text-white/70 transition-colors"
+          >
+            <RotateCcw className="w-3 h-3" />
+            {mode === 'llm' ? 'Régénérer' : 'Modifier'}
+          </button>
+        </div>
+      )}
+
+      {/* ── Navigation ─────────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 pt-2 border-t border-white/8">
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className={cn(S.ghost, 'gap-1.5 h-9 text-[13px]')}
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Retour
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onSkip}
+          className="text-white/35 hover:text-white/60 text-[12px] h-9"
+        >
+          Ignorer
+        </Button>
+
+        {/* CTA principal adaptatif */}
+        <Button
+          onClick={uiState === 'preview' ? handleConfirmAndNext : handlePreview}
+          disabled={
+            isLoading ||
+            uiState === 'generating' ||
+            (uiState === 'editing' && isEditingDisabled) ||
+            (uiState === 'preview' && isOverLimit)
+          }
+          size="sm"
+          className={cn(S.primary, 'ml-auto gap-2 min-w-40 h-9 text-[13px] disabled:opacity-40')}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              Enregistrement…
+            </>
+          ) : uiState === 'generating' ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              Génération…
+            </>
+          ) : uiState === 'preview' ? (
+            <>
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Confirmer & continuer
+              <ArrowRight className="w-3.5 h-3.5" />
+            </>
+          ) : mode === 'llm' ? (
+            <>
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              Générer & prévisualiser
+            </>
+          ) : (
+            <>
+              <Eye className="w-3.5 h-3.5" />
+              Prévisualiser
+            </>
+          )}
+        </Button>
       </div>
-    </Card>
+    </div>
   )
 }

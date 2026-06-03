@@ -26,11 +26,11 @@ export const NAVIGATION_ITEMS = [
         href: '/organizations',
         icon: faBuildingCircleArrowRight,
       },
-      {
-        label: 'Pages Facebook',
-        href: '/pages',
-        icon: faSquareFacebook,
-      },
+      // {
+      //   label: 'Pages Facebook',
+      //   href: '/pages',
+      //   icon: faSquareFacebook,
+      // },
     ],
   },
  
