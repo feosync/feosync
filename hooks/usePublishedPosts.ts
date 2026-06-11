@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
-import type { AutoCommentRequest, PublishedPost } from '@/lib/api/types'
+import type { AutoCommentRequest, PublishedPost, PaginatedResponse } from '@/lib/api/types'
 
 export const PUBLISHED_KEY  = (orgId: string)  => ['published-posts', orgId]
 export const PUBLISHED_ONE  = (postId: string) => ['published-post', postId]
@@ -44,7 +44,7 @@ export function usePublishNow(orgId: string) {
       queryClient.invalidateQueries({ queryKey: ['scheduled-posts', orgId] })
       toast.success('Post publié. Visible sur Facebook dans quelques secondes.')
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
         toast.error('Erreur', { description: err.message })
     },
   })
@@ -63,7 +63,7 @@ export function useSyncMetrics(orgId: string) {
       queryClient.setQueryData(PUBLISHED_ONE(updated.id), updated)
       toast.success('Métriques synchronisées')
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error('Erreur', { description: err.message })
     },
   })
@@ -81,7 +81,7 @@ export function useDeletePublishedPost(orgId: string) {
       )
       toast.success('Post supprimé localement. Il peut rester visible sur Facebook.')        
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
         toast.error('Erreur', { description: err.message })
     },
   })
@@ -101,7 +101,7 @@ export function useSetAutoComment(orgId: string) {
     }) => apiClient.setAutoComment(postId, payload),
     onSuccess: (updated: PublishedPost) => {
       // Met à jour la liste paginée
-      queryClient.setQueryData<any>([...PUBLISHED_KEY(orgId)], (prev: any) => {
+      queryClient.setQueryData([...PUBLISHED_KEY(orgId)], (prev: PaginatedResponse<PublishedPost> | undefined) => {
         if (!prev?.items) return prev
         return {
           ...prev,
@@ -113,6 +113,6 @@ export function useSetAutoComment(orgId: string) {
         updated.is_auto_comment ? 'Auto-commentaire activé' : 'Auto-commentaire désactivé'
       )
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }

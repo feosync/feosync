@@ -153,6 +153,7 @@ export function PublishedPostCard({
                 <img
                   src={page.fb_page_picture}
                   alt={page.page_name}
+                  referrerPolicy="no-referrer"
                   className="w-full h-full rounded-xl  object-cover"
                 />
               ) : (
@@ -166,8 +167,8 @@ export function PublishedPostCard({
                 {page?.page_name || "Page Facebook"}
               </p>
               {/* Statut publié — couleur sémantique intentionnelle */}
-              <div className="flex items-center gap-1 text-emerald-500 dark:text-emerald-400 text-[11px] mt-0.5">
-                <div className="w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse" />
+              <div className="flex items-center gap-1 text-success text-[11px] mt-0.5">
+                <div className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
                 Publié
               </div>
             </div>

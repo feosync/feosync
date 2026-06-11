@@ -2,11 +2,9 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { useTheme } from "next-themes";
 import {
-  Sparkles, Shield, Users, Zap, Globe, Heart,
+  Sparkles, Shield, Users, Heart,
 } from "lucide-react";
-import { useDarkMode } from '@/hooks/useDarkMode'
 
 const values = [
   {
@@ -51,60 +49,38 @@ const values = [
 const ValueCard = ({
   value,
   index,
-  dark,
 }: {
   value: (typeof values)[0];
   index: number;
-  dark: boolean;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const Icon = value.icon;
 
-  const isLarge = index === 0 || index === 3; // cards that span 2 cols
-  const cardBg = dark ? "rgba(18,22,34,0.9)" : "rgba(255,255,255,0.92)";
-  const cardBorder = dark
-    ? `1px solid rgba(255,255,255,0.06)`
-    : `1px solid rgba(0,0,0,0.06)`;
-  const numColor = dark
-    ? `${value.color}12`
-    : `${value.color}0e`;
-  const descColor = dark ? "#8b90a8" : "#6b7280";
+  const isLarge = index === 0 || index === 3;
+  const numColor = `${value.color}12`;
 
   return (
     <motion.div
       ref={ref}
-      className={`relative rounded-2xl p-7 overflow-hidden group ${
+      className={`relative rounded-2xl p-7 overflow-hidden group bg-card/90 border border-border/60 shadow-lg ${
         isLarge ? "md:col-span-2" : "md:col-span-1"
       }`}
-      style={{
-        background: cardBg,
-        border: cardBorder,
-        boxShadow: dark
-          ? "0 8px 32px rgba(0,0,0,0.35)"
-          : "0 8px 32px rgba(0,0,0,0.06)",
-      }}
       initial={{ opacity: 0, y: 40 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -4, boxShadow: dark
-        ? `0 20px 48px rgba(0,0,0,0.5), 0 0 0 1px ${value.color}22`
-        : `0 20px 48px rgba(0,0,0,0.1), 0 0 0 1px ${value.color}30`,
-      }}
+      whileHover={{ y: -4, boxShadow: `0 20px 48px rgba(0,0,0,0.15), 0 0 0 1px ${value.color}30` }}
     >
-      {/* Giant number watermark */}
       <span
         className="absolute -bottom-4 -right-2 font-ui font-black select-none pointer-events-none leading-none"
         style={{
           fontSize: "clamp(80px, 10vw, 120px)",
           color: numColor,
-          transition: "color 0.3s",
         }}
       >
         {value.number}
       </span>
 
-      {/* Hover glow blob */}
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"
         style={{
@@ -112,7 +88,6 @@ const ValueCard = ({
         }}
       />
 
-      {/* Icon */}
       <motion.div
         className="relative w-11 h-11 rounded-xl flex items-center justify-center mb-5"
         style={{ background: value.accent, border: `1px solid ${value.color}30` }}
@@ -122,15 +97,13 @@ const ValueCard = ({
         <Icon size={20} style={{ color: value.color }} strokeWidth={1.8} />
       </motion.div>
 
-      {/* Text */}
       <h3 className="relative text-lg font-ui font-bold text-foreground mb-2 leading-snug">
         {value.title}
       </h3>
-      <p className="relative text-sm leading-relaxed" style={{ color: descColor }}>
+      <p className="relative text-sm leading-relaxed text-muted-foreground">
         {value.description}
       </p>
 
-      {/* Bottom accent line — slides in on hover */}
       <div
         className="absolute bottom-0 left-0 h-0.5 w-0 group-hover:w-full transition-all duration-500 rounded-full"
         style={{ background: `linear-gradient(90deg, ${value.color}, transparent)` }}
@@ -140,21 +113,14 @@ const ValueCard = ({
 };
 
 // ── Section header ────────────────────────────────────────────────────────────
-const SectionHeader = ({ dark }: { dark: boolean }) => {
+const SectionHeader = () => {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
-  const pillBg = dark ? "rgba(66,133,244,0.12)" : "rgba(66,133,244,0.08)";
 
   return (
     <div ref={ref} className="text-center mb-16">
-      {/* Pill label */}
       <motion.div
-        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-ui font-semibold mb-6"
-        style={{
-          background: pillBg,
-          color: "#4285F4",
-          border: "1px solid rgba(66,133,244,0.2)",
-        }}
+        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-ui font-semibold mb-6 bg-primary/10 text-primary border border-primary/20"
         initial={{ opacity: 0, scale: 0.85 }}
         animate={inView ? { opacity: 1, scale: 1 } : {}}
         transition={{ duration: 0.5 }}
@@ -163,7 +129,6 @@ const SectionHeader = ({ dark }: { dark: boolean }) => {
         Ce en quoi nous croyons
       </motion.div>
 
-      {/* Headline */}
       <motion.h2
         className="font-ui font-black text-foreground leading-tight mb-4"
         style={{ fontSize: "clamp(32px, 5vw, 56px)" }}
@@ -172,12 +137,8 @@ const SectionHeader = ({ dark }: { dark: boolean }) => {
         transition={{ duration: 0.6, delay: 0.1 }}
       >
         Nos{" "}
-        <span
-          className="relative inline-block"
-          style={{ color: "#4285F4" }}
-        >
+        <span className="relative inline-block text-primary">
           valeurs
-          {/* Underline squiggle */}
           <svg
             className="absolute -bottom-1 left-0 w-full"
             viewBox="0 0 120 8"
@@ -213,36 +174,27 @@ const SectionHeader = ({ dark }: { dark: boolean }) => {
 
 // ── Main export ───────────────────────────────────────────────────────────────
 const Values = () => {
-  const {dark} = useDarkMode();
-
-  const sectionBg = dark
-    ? "radial-gradient(ellipse at 50% 0%, rgba(66,133,244,0.07) 0%, transparent 60%)"
-    : "radial-gradient(ellipse at 50% 0%, rgba(66,133,244,0.05) 0%, transparent 60%)";
-
   return (
     <section id="values"
       className="relative py-28 px-6 bg-background overflow-hidden"
-      style={{ backgroundImage: sectionBg }}
+      style={{
+        backgroundImage:
+          "radial-gradient(ellipse at 50% 0%, rgba(66,133,244,0.06) 0%, transparent 60%)",
+      }}
     >
-      {/* Ambient decorative blobs */}
       <div className="absolute top-0 left-0 w-72 h-72 rounded-full pointer-events-none"
-        style={{ background: dark ? "rgba(66,133,244,0.05)" : "rgba(66,133,244,0.04)", filter: "blur(80px)", transform: "translate(-40%, -40%)" }} />
+        style={{ background: "rgba(66,133,244,0.04)", filter: "blur(80px)", transform: "translate(-40%, -40%)" }} />
       <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full pointer-events-none"
-        style={{ background: dark ? "rgba(234,67,53,0.05)" : "rgba(234,67,53,0.04)", filter: "blur(100px)", transform: "translate(40%, 40%)" }} />
+        style={{ background: "rgba(234,67,53,0.04)", filter: "blur(100px)", transform: "translate(40%, 40%)" }} />
 
       <div className="relative max-w-5xl mx-auto">
-        <SectionHeader dark={dark} />
+        <SectionHeader />
 
-        {/* Masonry-style grid: 3 cols on md, rows with 2 large + 4 normal */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Row 1 : large (2 cols) + normal (1 col) */}
-          <ValueCard value={values[0]} index={0} dark={dark} />
-          <ValueCard value={values[1]} index={1} dark={dark} />
-
-          {/* Row 2 : normal + normal + large (2 cols) */}
-          <ValueCard value={values[2]} index={2} dark={dark} />
-          <ValueCard value={values[3]} index={3} dark={dark} />
-
+          <ValueCard value={values[0]} index={0} />
+          <ValueCard value={values[1]} index={1} />
+          <ValueCard value={values[2]} index={2} />
+          <ValueCard value={values[3]} index={3} />
         </div>
       </div>
     </section>

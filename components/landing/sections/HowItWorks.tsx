@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 
 const steps = [
     {
@@ -27,15 +26,8 @@ const steps = [
 ];
 
 const HowItWorks = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start 0.8", "end 0.5"],
-  });
-  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-
   return (
-    <section className="py-24 px-6 bg-background" ref={containerRef} id="how-it-works">
+    <section className="py-24 px-6 bg-background" id="how-it-works">
       <div className="max-w-3xl mx-auto">
 
         <motion.h2
@@ -46,15 +38,17 @@ const HowItWorks = () => {
         >
           De zéro à publié en 4 étapes
         </motion.h2>
-        
 
         <div className="relative">
 
           {/* ── Ligne verticale ── */}
           <div className="absolute left-6 md:left-8 top-0 bottom-0 w-0.5 bg-border">
             <motion.div
-              style={{ height: lineHeight }}
-              className="w-full bg-linear-to-b from-primary to-chart-1"
+              initial={{ height: 0 }}
+              whileInView={{ height: "100%" }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+              className="w-full bg-gradient-to-b from-primary to-chart-1 origin-top"
             />
           </div>
 

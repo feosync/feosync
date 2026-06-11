@@ -1,12 +1,12 @@
 import { useScheduledPost } from '@/hooks/useScheduledPosts'
 import { usePublishedPosts } from '@/hooks/usePublishedPosts'
 import { PublishedPostDetailSheet } from '@/components/published/PublishedPostDetailSheet'
-import type { AutoCommentRequest } from '@/lib/api/types'
+import type { AutoCommentRequest, FacebookPageResponse } from '@/lib/api/types'
 
 interface PublishedSheetFromScheduledProps {
   scheduledPostId: string
   orgId: string
-  pages: any[]
+  pages: FacebookPageResponse[]
   onClose: () => void
   onSync: (id: string) => void
   onDelete: (id: string) => void

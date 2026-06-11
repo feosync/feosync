@@ -19,7 +19,7 @@ export function UsersMobileList({
 }: Props) {
   if (users.length === 0) {
     return (
-      <p className="text-center py-12 text-slate-400 md:hidden">
+      <p className="text-center py-12 text-muted-foreground md:hidden">
         Aucun utilisateur trouvé
       </p>
     )

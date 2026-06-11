@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
-import type { User, UserSummary, PaginatedResponse } from '@/lib/api/types'
+import type { UserDetail, UserSummary, PaginatedResponse } from '@/lib/api/types'
 
 const QUERY_KEY = ['admin', 'users']
 
@@ -12,7 +12,7 @@ export function useAdminUsers(params?: {
 }) {
   return useQuery({
     queryKey: [...QUERY_KEY, params],
-    queryFn: () => apiClient.adminGetAllUsers(params) as Promise<PaginatedResponse<UserSummary>>,
+    queryFn: () => apiClient.adminGetAllUsers(params),
     staleTime: 1000 * 60 * 2,
     placeholderData: (prev) => prev,  
   })
@@ -21,7 +21,7 @@ export function useAdminUsers(params?: {
 export function useAdminUserDetail(userId: string) {
   return useQuery({
     queryKey: [...QUERY_KEY, userId],
-    queryFn: () => apiClient.adminGetUserById(userId) as Promise<User>,
+    queryFn: () => apiClient.adminGetUserById(userId),
     enabled: !!userId,
   })
 }
@@ -35,7 +35,7 @@ export function useAdminPromoteUser() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       toast.success('Utilisateur promu admin')
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error('Erreur', { description: err.message })
     },
   })
@@ -50,7 +50,7 @@ export function useAdminDemoteUser() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       toast.success('Utilisateur rétrogradé')
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error('Erreur', { description: err.message })
     },
   })
@@ -65,7 +65,7 @@ export function useAdminDeleteUser() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       toast.success('Utilisateur supprimé')
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error('Erreur', { description: err.message })
     },
   })

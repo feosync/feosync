@@ -44,8 +44,8 @@ export function AutoCommentPopover({ post, onSave, isPending, variant = 'icon' }
         title={post.is_auto_comment ? "Auto-commentaire actif" : "Activer l'auto-commentaire"}
         className={`h-7 w-7 ${
         post.is_auto_comment
-            ? 'bg-violet-600 hover:bg-violet-700 text-white border-0'
-            : 'text-slate-400 hover:text-violet-600 hover:border-violet-300 dark:hover:border-violet-700'
+            ? 'bg-primary text-primary-foreground border-0'
+            : 'text-muted-foreground hover:text-primary hover:border-primary/50'
         }`}
     >
         <MessageCircle className="w-3.5 h-3.5" />
@@ -58,7 +58,7 @@ export function AutoCommentPopover({ post, onSave, isPending, variant = 'icon' }
         {trigger ?? <span />}
       </PopoverTrigger>
       <PopoverContent
-        className="w-72 p-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+        className="w-72 p-4 bg-card border-border"
         align="end"
         onClick={e => e.stopPropagation()}
       >
@@ -66,11 +66,11 @@ export function AutoCommentPopover({ post, onSave, isPending, variant = 'icon' }
           {/* Toggle principal */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[13px] font-medium text-slate-900 dark:text-white flex items-center gap-1.5">
-                <Bot className="w-3.5 h-3.5 text-violet-500" />
+              <p className="text-[13px] font-medium text-foreground flex items-center gap-1.5">
+                <Bot className="w-3.5 h-3.5 text-primary" />
                 Auto-commentaire
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-muted-foreground mt-0.5">
                 Claude répond aux commentaires
               </p>
             </div>
@@ -84,7 +84,7 @@ export function AutoCommentPopover({ post, onSave, isPending, variant = 'icon' }
           {enabled && (
             <div className="space-y-3">
               <button
-                className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-600 transition-colors"
+                className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setShowFields(v => !v)}
               >
                 {showFields ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -94,7 +94,7 @@ export function AutoCommentPopover({ post, onSave, isPending, variant = 'icon' }
               {showFields && (
                 <div className="space-y-2.5">
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-500">Instructions</Label>
+                    <Label className="text-[11px] text-muted-foreground">Instructions</Label>
                     <Textarea
                       value={instructions}
                       onChange={e => setInstructions(e.target.value)}
@@ -103,7 +103,7 @@ export function AutoCommentPopover({ post, onSave, isPending, variant = 'icon' }
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-500">Mots-clés</Label>
+                    <Label className="text-[11px] text-muted-foreground">Mots-clés</Label>
                     <Textarea
                       value={keywords}
                       onChange={e => setKeywords(e.target.value)}
@@ -121,14 +121,14 @@ export function AutoCommentPopover({ post, onSave, isPending, variant = 'icon' }
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 text-[12px] border-slate-200 dark:border-slate-700"
+              className="flex-1 text-[12px] border-border"
               onClick={() => setOpen(false)}
             >
               Annuler
             </Button>
             <Button
               size="sm"
-              className="flex-1 text-[12px] bg-violet-600 hover:bg-violet-700 text-white"
+              className="flex-1 text-[12px]"
               onClick={handleSave}
               disabled={isPending}
             >

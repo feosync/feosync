@@ -10,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import { Loader2 } from 'lucide-react'
 import type { Organisation, CreateOrgRequest, ToneEnum, SectorEnum } from '@/lib/api/types'
 
 const SECTORS: { value: SectorEnum; label: string }[] = [
@@ -180,11 +179,11 @@ export function OrgDialog({ open, onOpenChange, onSubmit, initialData, isPending
             </Button>
             <Button
               type="submit"
-              disabled={isPending || !form.name.trim()}
+              loading={isPending}
+              disabled={!form.name.trim()}
               className="bg-primary hover:bg-primary/90 text-primary-foreground
                          transition-colors disabled:opacity-50 disabled:pointer-events-none"
             >
-              {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {isPending ? 'Enregistrement...' : 'Enregistrer'}
             </Button>
           </DialogFooter>

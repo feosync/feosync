@@ -94,18 +94,18 @@ export function OrganisationSelector({
                 <>
                   {organisations.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-                      <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-2.5">
-                        <Building2 className="w-5 h-5 text-slate-400" />
+                      <div className="w-10 h-10 bg-slate-100  rounded-full flex items-center justify-center mb-2.5">
+                        <Building2 className="w-5 h-5 text-muted-foreground" />
                       </div>
-                      <p className="text-[13px] font-medium text-slate-900 dark:text-white mb-1">
+                      <p className="text-[13px] font-medium text-foreground mb-1">
                         Aucune organisation
                       </p>
-                      <p className="text-[12px] text-slate-500 dark:text-slate-400 mb-3">
+                      <p className="text-[12px] text-muted-foreground mb-3">
                         Créez votre première organisation pour commencer
                       </p>
                       <Button
                         size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5 text-[12px]"
+                        className="bg-primary text-primary-foreground gap-1.5 text-[12px]"
                         onClick={handleOpenCreateOrg}
                       >
                         <Plus className="w-3.5 h-3.5" />
@@ -140,7 +140,7 @@ export function OrganisationSelector({
                           >
                             Précédent
                           </Button>
-                          <span className="text-slate-500">Page {page} sur {totalPages}</span>
+                          <span className="text-muted-foreground">Page {page} sur {totalPages}</span>
                           <Button
                             variant="ghost" size="sm"
                             disabled={page === totalPages}
@@ -155,7 +155,7 @@ export function OrganisationSelector({
                       <div className="border-t p-2">
                         <Button
                           variant="ghost" size="sm"
-                          className="w-full justify-start gap-2 text-[12px] text-slate-500 hover:text-blue-600"
+                          className="w-full justify-start gap-2 text-[12px] text-muted-foreground hover:text-primary"
                           onClick={handleOpenCreateOrg}
                         >
                           <Plus className="w-3.5 h-3.5" />

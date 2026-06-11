@@ -38,7 +38,7 @@ export function useConnectFacebookPage() {
       // pas de toast ici — géré dans le callback
     },
 
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error('Erreur', { description: err.message })
     },
   })
@@ -55,7 +55,7 @@ export function useToggleFacebookPage(orgId: string) {
       )
       toast.success(updated.is_active ? 'Page activée' : 'Page désactivée')
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error('Erreur', { description: err.message })
     },
   })
@@ -69,7 +69,7 @@ export function useDisconnectFacebookPage(orgId: string) {
       queryClient.invalidateQueries({ queryKey: FB_QUERY_KEY(orgId) })
       toast.success('Page déconnectée')
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error('Erreur', { description: err.message })
     },
   })
@@ -83,7 +83,7 @@ export function useSyncInsights(orgId: string) {
       queryClient.invalidateQueries({ queryKey: FB_INSIGHTS_KEY(pageId) })
       toast.success('Insights synchronisés !')
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error('Échec de la synchronisation', { description: err.message })
     },
   })

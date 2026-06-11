@@ -17,22 +17,18 @@ function CallbackLoader() {
 
         {/* Halo + Logo */}
         <div className="relative flex items-center justify-center">
-          {/* Cercle de halo externe */}
           <div className="absolute w-32 h-32 rounded-full bg-primary/5 animate-pulse" />
-          {/* Cercle intérieur */}
           <div className="absolute w-20 h-20 rounded-full bg-primary/8" />
-          {/* Logo */}
           <Image
             src={dark ? '/images/dark/feosync_logo.png' : '/images/light/feosync_logo.png'}
             alt="FeoSync"
             width={240}
             height={70}
             loading="eager"
-            className="relative h-10 w-auto z-10"
+            className="relative h-8 w-auto z-10"
           />
         </div>
 
-        {/* Texte */}
         <div className="space-y-1.5">
           <p className="text-sm font-medium text-foreground tracking-wide">
             Connexion en cours
@@ -42,7 +38,6 @@ function CallbackLoader() {
           </p>
         </div>
 
-        {/* Dots animés */}
         <div className="flex items-center gap-1.5">
           {[0, 1, 2].map((i) => (
             <span
@@ -53,27 +48,11 @@ function CallbackLoader() {
           ))}
         </div>
 
-        {/* Barre de progression indéterminée */}
-        <div className="w-full h-4 bg-border overflow-hidden rounded-full">
-          <div
-            className="h-full bg-primary rounded-full animate-[progress_1.8s_ease-in-out_infinite]"
-            style={{
-              animation: 'shimmer 1.8s ease-in-out infinite',
-              background: `linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%)`,
-              transform: 'translateX(-100%)',
-              animationName: 'shimmer',
-            }}
-          />
+        <div className="w-full h-1.5 bg-border overflow-hidden rounded-full">
+          <div className="h-full w-full bg-primary rounded-full animate-[shimmer-bar_1.8s_ease-in-out_infinite]" />
         </div>
 
       </div>
-
-      <style>{`
-        @keyframes shimmer {
-          0%   { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
-        }
-      `}</style>
     </div>
   )
 }
@@ -114,8 +93,8 @@ function CallbackHandler() {
       toast.success('Connexion réussie', { description: `Bienvenue ${data.user.name} !` })
       window.location.href = '/overview'
 
-    } catch (err: any) {
-      toast.error('Erreur', { description: err.message })
+    } catch (err: unknown) {
+      toast.error('Erreur', { description: err instanceof Error ? err.message : 'Erreur inconnue' })
       router.replace('/login')
     }
   }

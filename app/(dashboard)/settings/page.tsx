@@ -31,15 +31,21 @@ const SECTION_TITLES: Record<string, { title: string; description: string }> = {
 }
 
 function SectionContent({ activeId }: { activeId: string }) {
-  switch (activeId) {
-    case 'general':       return <GeneralSection />
-    case 'profile':       return <ProfileSection />
-    case 'notifications': return <NotificationsSection />
-    case 'ai':            return <AiSection />
-    case 'account':       return <AccountSection />
-    case 'about':         return <AboutSection />
-    default:              return null
-  }
+  return (
+    <div key={activeId} className="animate-[fade-in_0.2s_ease-out]">
+      {(() => {
+        switch (activeId) {
+          case 'general':       return <GeneralSection />
+          case 'profile':       return <ProfileSection />
+          case 'notifications': return <NotificationsSection />
+          case 'ai':            return <AiSection />
+          case 'account':       return <AccountSection />
+          case 'about':         return <AboutSection />
+          default:              return null
+        }
+      })()}
+    </div>
+  )
 }
 
 /* ── Page ───────────────────────────────────────────────────────── */

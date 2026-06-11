@@ -140,20 +140,6 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
               {imageCount}
             </div>
           )}
-
-          {/* Overlay hover — "Voir / Modifier" */}
-          <div className="absolute inset-0 bg-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center z-10 pointer-events-none group-hover:pointer-events-auto">
-            <Button
-              onClick={(e) => { e.stopPropagation(); onClick() }}
-              // bg-background pour contraste maximal (blanc en light, sombre en dark)
-              className="bg-background text-foreground hover:bg-accent gap-2 h-8 px-4 text-xs font-medium rounded-lg shadow-lg border border-border"
-            >
-              <Eye className="w-3.5 h-3.5" />
-              Voir / Modifier
-            </Button>
-          </div>
-
-          {/* Menu ⋮ — visible uniquement au hover, z supérieur à l'overlay */}
           <div
             className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-20"
             onClick={(e) => e.stopPropagation()}
@@ -213,7 +199,7 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
           <div className="flex items-center justify-between pt-3 border-t border-border">
             {/* Date */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Calendar className="w-3 h-3 flex-shrink-0" />
+              <Calendar className="w-3 h-3 shrink-0" />
               {post.publish_at ? (
                 format(new Date(post.publish_at), 'd MMM yyyy · HH:mm', { locale: fr })
               ) : (
@@ -247,7 +233,7 @@ export function PostCard({ post, onClick, onDelete }: PostCardProps) {
               Annuler
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => { onDelete(); setConfirmDelete(false) }}
+              onClick={(e) => { e.stopPropagation(); onDelete(); setConfirmDelete(false) }}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground focus-visible:ring-2 focus-visible:ring-ring text-sm h-9"
             >
               Supprimer

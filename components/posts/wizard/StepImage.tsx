@@ -127,7 +127,7 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
                   <button
                     onClick={() => handleRemove(img.id)}
                     disabled={removeMutation.isPending}
-                    className="absolute top-2 right-2 w-7 h-7 bg-black/70 hover:bg-red-600 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all"
+                    className="absolute top-2 right-2 w-7 h-7 bg-black/70 hover:bg-destructive rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -242,7 +242,7 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
         )}
 
         {!canAdd && (
-          <div className="flex items-center gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-600 dark:text-amber-400">
+          <div className="flex items-center gap-3 p-4 bg-warning/10 border border-warning/20 rounded-2xl text-warning">
             <Images className="w-5 h-5" />
             Limite maximale de {MAX_IMAGES} images atteinte.
           </div>

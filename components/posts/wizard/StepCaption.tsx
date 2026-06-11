@@ -40,7 +40,7 @@ interface StepCaptionProps {
   onBack: () => void
   onSkip: () => void
   /** Génère le caption via LLM et retourne le texte produit */
-  onGenerateCaption?: (data:any) => Promise<any>
+  onGenerateCaption?: (data: { mode: 'llm'; topic: string; language: string }) => Promise<{ caption: string }>
 }
 
 type CaptionMode = 'manual' | 'llm'
@@ -129,12 +129,12 @@ export function StepCaption({
       if (!onGenerateCaption) {
         throw new Error('Générateur non disponible.')
       }
-      let data = { mode: 'llm',  topic: topic.trim(),language: language }
+      let data: { mode: 'llm'; topic: string; language: string } = { mode: 'llm', topic: topic.trim(), language: language }
       const result = await onGenerateCaption(data)
       setGeneratedCaption(result.caption)
       setUiState('preview')
-    } catch (err: any) {
-      setGenerationError(err?.message ?? 'Erreur lors de la génération.')
+    } catch (err: unknown) {
+      setGenerationError(err instanceof Error ? err.message : 'Erreur lors de la génération.')
       setUiState('editing')
     }
   }
@@ -179,7 +179,7 @@ export function StepCaption({
           >
             {m === 'manual'
               ? <><Edit3 className="w-3.5 h-3.5" /> Manuel</>
-              : <><Sparkles className={cn('w-3.5 h-3.5', mode === 'llm' ? 'text-emerald-400' : 'text-white/30')} /> Générer avec IA</>
+              : <><Sparkles className={cn('w-3.5 h-3.5', mode === 'llm' ? 'text-success' : 'text-white/30')} /> Générer avec IA</>
             }
           </button>
         ))}
@@ -193,8 +193,8 @@ export function StepCaption({
 
           {/* Erreur génération */}
           {generationError && (
-            <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
-              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+            <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-destructive/10 border border-destructive/20">
+              <AlertCircle className="w-4 h-4 text-destructive shrink-0" />
               <p className="text-[12px] text-red-300">{generationError}</p>
             </div>
           )}
@@ -262,7 +262,7 @@ export function StepCaption({
             )}
           >
             {mode === 'llm' ? (
-              <><Sparkles className="w-4 h-4 text-emerald-400" /> Générer & prévisualiser</>
+              <><Sparkles className="w-4 h-4 text-success" /> Générer & prévisualiser</>
             ) : (
               <><Eye className="w-4 h-4" /> Prévisualiser</>
             )}
@@ -275,8 +275,8 @@ export function StepCaption({
         <div className={S.card}>
           {/* Header skeleton */}
           <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/8 bg-white/3">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+            <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-success animate-pulse" />
             </div>
             <div className="space-y-1.5 flex-1">
               <div className={cn(S.skeletonLine, 'w-24')} />
@@ -294,7 +294,7 @@ export function StepCaption({
             ))}
           </div>
           <div className="px-4 py-3 border-t border-white/8 bg-white/2 flex items-center gap-2">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-success" />
             <span className="text-[12px] text-white/40">Génération en cours…</span>
           </div>
         </div>
@@ -318,7 +318,7 @@ export function StepCaption({
               </div>
               <div className="ml-auto flex items-center gap-1.5">
                 {mode === 'llm' && (
-                  <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-medium text-success bg-success/10 border border-success/20 px-2 py-0.5 rounded-full">
                     IA
                   </span>
                 )}
@@ -355,7 +355,7 @@ export function StepCaption({
                 aria-label="Copier le caption"
               >
                 {copied
-                  ? <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  ? <Check className="w-3.5 h-3.5 text-success" />
                   : <Copy className="w-3.5 h-3.5" />
                 }
               </button>
@@ -438,7 +438,7 @@ export function StepCaption({
             </>
           ) : mode === 'llm' ? (
             <>
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <Sparkles className="w-3.5 h-3.5 text-success" />
               Générer & prévisualiser
             </>
           ) : (

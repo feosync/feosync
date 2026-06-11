@@ -62,7 +62,7 @@ export function PageRowActions({
         title={page.is_active ? 'Désactiver' : 'Activer'}
       >
         {page.is_active
-          ? <ToggleRight className="w-4 h-4 text-emerald-500" />
+          ? <ToggleRight className="w-4 h-4 text-success" />
           : <ToggleLeft className="w-4 h-4 text-muted-foreground" />}
       </Button>
 

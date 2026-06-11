@@ -23,10 +23,10 @@ export function PostActionsGrid({ onEditCaption, onEditImage, onEditDate }: Prop
         <button
           key={key}
           onClick={handlers[key]}
-          className="flex flex-col items-center gap-1.5 p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all group"
+          className="flex flex-col items-center gap-1.5 p-3 bg-card rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
         >
-          <Icon className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
-          <span className="text-[12px] text-slate-600 dark:text-slate-400 group-hover:text-blue-600">
+          <Icon className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+          <span className="text-[12px] text-muted-foreground group-hover:text-primary">
             {label}
           </span>
         </button>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
+import { SectionHeader } from "@/components/landing/SectionHeader";
 
 const plans = [
   {
@@ -60,14 +61,7 @@ const Pricing = () => {
     <section className="py-24 px-6 bg-background" id="pricing">
       <div className="max-w-7xl mx-auto text-center">
         {/* ── Titre ── */}
-        <motion.h2
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.01em] text-foreground mb-4"
-        >
-          Tarifs transparents. Aucune surprise.
-        </motion.h2>
+        <SectionHeader title="Tarifs transparents. Aucune surprise." />
 
         {/* ── Toggle mensuel / annuel ── */}
         <div className="flex items-center justify-center gap-4 mb-16">

@@ -1,7 +1,5 @@
-import { Navbar } from "../../layout/Navbar";
-import Footer from "./Footer";
-import { motion, useAnimationFrame, AnimatePresence } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 
 import { useDarkMode } from "@/hooks/useDarkMode";
 import { X, MapPin, Mail, Twitter, Github, Linkedin } from "lucide-react";
@@ -64,49 +62,26 @@ const desktopPositions = [
 // ── Profile Modal ────────────────────────────────────────────────────────────
 const ProfileModal = ({
   member,
-  dark,
   onClose,
 }: {
   member: TeamMember;
-  dark: boolean;
   onClose: () => void;
 }) => {
-  const overlayBg = dark ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.5)";
-  const modalBg = dark ? "#12151f" : "#ffffff";
-  const modalBorder = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
-  const tagBg = dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)";
-  const tagColor = dark ? "#a0a8c8" : "#4b5563";
-  const metaColor = dark ? "#6b7299" : "#9ca3af";
-  const divider = dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
-
-  // Lock body scroll while modal is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = "" };
   }, []);
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4"
-      style={{ background: overlayBg, backdropFilter: "blur(6px)" }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/50 dark:bg-black/80 backdrop-blur-sm"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="relative w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl overflow-hidden"
-        style={{
-          background: modalBg,
-          border: `1px solid ${modalBorder}`,
-          boxShadow: dark
-            ? `0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px ${modalBorder}`
-            : "0 32px 80px rgba(0,0,0,0.18)",
-          maxHeight: "92dvh",
-          overflowY: "auto",
-        }}
+        className="relative w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl overflow-hidden bg-card border border-border shadow-2xl max-h-[92dvh] overflow-y-auto"
         initial={{ scale: 0.95, y: 60, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
         exit={{ scale: 0.95, y: 40, opacity: 0 }}
@@ -115,12 +90,7 @@ const ProfileModal = ({
       >
         {/* Drag handle (mobile) */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
-          <div
-            className="w-10 h-1 rounded-full"
-            style={{
-              background: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)",
-            }}
-          />
+          <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
         </div>
 
         {/* Header banner */}
@@ -135,51 +105,19 @@ const ProfileModal = ({
             viewBox="0 0 360 112"
             preserveAspectRatio="xMidYMid slice"
           >
-            <circle
-              cx="300"
-              cy="56"
-              r="80"
-              fill="none"
-              stroke={member.color}
-              strokeWidth="0.8"
-              strokeOpacity="0.25"
-            />
-            <circle
-              cx="300"
-              cy="56"
-              r="130"
-              fill="none"
-              stroke={member.color}
-              strokeWidth="0.5"
-              strokeOpacity="0.12"
-            />
-            <circle
-              cx="60"
-              cy="90"
-              r="50"
-              fill="none"
-              stroke={member.color}
-              strokeWidth="0.6"
-              strokeOpacity="0.18"
-            />
+            <circle cx="300" cy="56" r="80" fill="none" stroke={member.color} strokeWidth="0.8" strokeOpacity="0.25" />
+            <circle cx="300" cy="56" r="130" fill="none" stroke={member.color} strokeWidth="0.5" strokeOpacity="0.12" />
+            <circle cx="60" cy="90" r="50" fill="none" stroke={member.color} strokeWidth="0.6" strokeOpacity="0.18" />
           </svg>
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 rounded-full p-1.5 transition-colors"
-            style={{
-              background: dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
-              color: dark ? "#fff" : "#374151",
-            }}
+            className="absolute top-3 right-3 rounded-full p-1.5 transition-colors bg-black/10 dark:bg-white/10 text-foreground hover:bg-black/20 dark:hover:bg-white/20"
           >
             <X size={14} />
           </button>
           <div
-            className="absolute bottom-3 left-20 text-xs font-semibold px-2.5 py-1 rounded-full"
-            style={{
-              background: member.color,
-              color: "#fff",
-              fontSize: "10px",
-            }}
+            className="absolute bottom-3 left-20 text-[10px] font-semibold px-2.5 py-1 rounded-full text-white"
+            style={{ background: member.color }}
           >
             {member.role}
           </div>
@@ -188,13 +126,9 @@ const ProfileModal = ({
         {/* Avatar */}
         <div className="absolute top-16 left-5">
           <motion.div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-bold text-lg border-2"
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-bold text-lg border-2 border-card shadow-lg"
             style={{
               background: `linear-gradient(135deg, ${member.color}, ${member.color}cc)`,
-              borderColor: modalBg,
-              boxShadow: dark
-                ? `0 0 20px ${member.color}50`
-                : `0 4px 16px ${member.color}40`,
             }}
             initial={{ scale: 0, rotate: -10 }}
             animate={{ scale: 1, rotate: 0 }}
@@ -210,25 +144,19 @@ const ProfileModal = ({
             <h2 className="text-lg font-bold text-foreground leading-tight">
               {member.name}
             </h2>
-            <div className="flex items-center gap-3 mt-1 flex-wrap">
-              <span
-                className="flex items-center gap-1 text-xs"
-                style={{ color: metaColor }}
-              >
+            <div className="flex items-center gap-3 mt-1 flex-wrap text-muted-foreground">
+              <span className="flex items-center gap-1 text-xs">
                 <MapPin size={11} /> {member.location}
               </span>
-              <span
-                className="flex items-center gap-1 text-xs"
-                style={{ color: metaColor }}
-              >
+              <span className="flex items-center gap-1 text-xs">
                 <Mail size={11} /> {member.email}
               </span>
             </div>
-            <p className="text-xs mt-0.5" style={{ color: metaColor }}>
+            <p className="text-xs mt-0.5 text-muted-foreground">
               {member.joined}
             </p>
           </div>
-          <div className="my-3 h-px" style={{ background: divider }} />
+          <div className="my-3 border-t border-border" />
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
             {member.bio}
           </p>
@@ -236,14 +164,13 @@ const ProfileModal = ({
             {member.skills.map((s) => (
               <span
                 key={s}
-                className="text-xs px-2.5 py-1 rounded-full font-medium"
-                style={{ background: tagBg, color: tagColor }}
+                className="text-xs px-2.5 py-1 rounded-full font-medium bg-muted text-muted-foreground"
               >
                 {s}
               </span>
             ))}
           </div>
-          <div className="my-3 h-px" style={{ background: divider }} />
+          <div className="my-3 border-t border-border" />
           <div className="flex items-center gap-2 flex-wrap">
             {[
               { icon: <Twitter size={14} />, label: member.social.twitter },
@@ -252,8 +179,7 @@ const ProfileModal = ({
             ].map(({ icon, label }) => (
               <motion.button
                 key={label}
-                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg"
-                style={{ background: tagBg, color: tagColor }}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-muted text-muted-foreground"
                 whileHover={{
                   scale: 1.05,
                   background: `${member.color}22`,
@@ -269,9 +195,7 @@ const ProfileModal = ({
         </div>
         <div
           className="h-0.5 w-full"
-          style={{
-            background: `linear-gradient(90deg, ${member.color}, transparent)`,
-          }}
+          style={{ background: `linear-gradient(90deg, ${member.color}, transparent)` }}
         />
       </motion.div>
     </motion.div>
@@ -281,30 +205,14 @@ const ProfileModal = ({
 // ── Mobile team card (grid item) ─────────────────────────────────────────────
 const MobileTeamCard = ({
   member,
-  dark,
   onClick,
 }: {
   member: TeamMember;
-  dark: boolean;
   onClick: () => void;
 }) => {
-  const cardBg = dark ? "rgba(22,26,40,0.9)" : "rgba(255,255,255,0.95)";
-  const cardBorder = dark
-    ? "1px solid rgba(255,255,255,0.07)"
-    : "1px solid rgba(0,0,0,0.07)";
-  const nameColor = dark ? "#e8eaf6" : "#1a1a2e";
-  const roleColor = dark ? "#8b90a8" : "#6b7280";
-
   return (
     <motion.div
-      className="flex flex-col items-center gap-2 rounded-2xl p-4 cursor-pointer text-center"
-      style={{
-        background: cardBg,
-        border: cardBorder,
-        boxShadow: dark
-          ? "0 4px 20px rgba(0,0,0,0.4)"
-          : "0 4px 16px rgba(0,0,0,0.07)",
-      }}
+      className="flex flex-col items-center gap-2 rounded-2xl p-4 cursor-pointer text-center bg-card/95 border border-border/70 shadow-md"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: member.delay * 0.6, duration: 0.5, type: "spring" }}
@@ -313,24 +221,16 @@ const MobileTeamCard = ({
       onClick={onClick}
     >
       <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-sm font-bold"
-        style={{
-          background: member.color,
-          boxShadow: dark
-            ? `0 0 14px ${member.color}55`
-            : `0 4px 12px ${member.color}40`,
-        }}
+        className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md"
+        style={{ background: member.color }}
       >
         {member.avatar}
       </div>
       <div>
-        <p
-          className="text-xs font-semibold leading-tight"
-          style={{ color: nameColor }}
-        >
+        <p className="text-xs font-semibold leading-tight text-foreground">
           {member.name}
         </p>
-        <p className="text-[10px] mt-0.5" style={{ color: roleColor }}>
+        <p className="text-[10px] mt-0.5 text-muted-foreground">
           {member.role}
         </p>
       </div>
@@ -352,24 +252,11 @@ const About = () => {
   const heroBg = dark
     ? "linear-gradient(135deg, #0f1117 0%, #141a2e 50%, #1e1218 100%)"
     : "linear-gradient(135deg, #f8f9ff 0%, #e8f0fe 50%, #fce8e6 100%)";
-  const cardBg = dark ? "rgba(22,26,40,0.85)" : "rgba(255,255,255,0.85)";
-  const cardBorder = dark
-    ? "1px solid rgba(255,255,255,0.07)"
-    : "1px solid rgba(0,0,0,0.06)";
-  const nameColor = dark ? "#e8eaf6" : "#1a1a2e";
-  const roleColor = dark ? "#8b90a8" : "#6b7280";
-  const statsBg = dark ? "rgba(10,12,20,0.75)" : "rgba(255,255,255,0.65)";
-  const statsBorder = dark
-    ? "1px solid rgba(66,133,244,0.12)"
-    : "1px solid rgba(66,133,244,0.15)";
-  const statValueClr = dark ? "#82aaff" : "#4285F4";
-  const statLabelClr = dark ? "#5a5f7a" : "#6b7280";
-  const ringOpacity = dark ? "30" : "20";
 
   return (
     <section
       id="about"
-      className="min-h-screen bg-background font-body text-foreground selection:bg-google-bg-chip selection:text-google-blue"
+      className="min-h-screen bg-background text-foreground"
     >
       {/* ── HERO ── */}
       <div className="min-h-screen relative flex justify-center items-center flex-col overflow-hidden px-4 py-24 sm:py-0 sm:h-screen sm:px-0">
@@ -421,16 +308,10 @@ const About = () => {
           {teamMembers.map((member, i) => (
             <motion.div
               key={member.name}
-              className="absolute flex items-center gap-2 rounded-xl px-3 py-2 cursor-pointer"
+              className="absolute flex items-center gap-2 rounded-xl px-3 py-2 cursor-pointer bg-card/85 border-border/60 backdrop-blur-md shadow-lg"
               style={{
                 left: desktopPositions[i].left,
                 top: desktopPositions[i].top,
-                background: cardBg,
-                border: cardBorder,
-                backdropFilter: "blur(12px)",
-                boxShadow: dark
-                  ? "0 4px 16px rgba(0,0,0,0.4)"
-                  : "0 4px 16px rgba(0,0,0,0.08)",
               }}
               initial={{ opacity: 0, scale: 0.6, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -457,16 +338,10 @@ const About = () => {
                 {member.avatar}
               </div>
               <div>
-                <p
-                  className="text-xs font-semibold leading-none"
-                  style={{ color: nameColor }}
-                >
+                <p className="text-xs font-semibold leading-none text-foreground">
                   {member.name}
                 </p>
-                <p
-                  className="text-[10px] leading-tight mt-0.5"
-                  style={{ color: roleColor }}
-                >
+                <p className="text-[10px] leading-tight mt-0.5 text-muted-foreground">
                   {member.role}
                 </p>
               </div>
@@ -483,33 +358,6 @@ const About = () => {
             </motion.div>
           ))}
 
-          {/* Stats strip */}
-          {/* <motion.div
-            className="absolute bottom-0 left-0 right-0 flex justify-around items-center py-3 px-6"
-            style={{
-              backdropFilter: "blur(10px)",
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9, duration: 0.6 }}
-          >
-            {stats.map((s) => (
-              <div key={s.label} className="text-center">
-                <p
-                  className="text-xl font-bold leading-none"
-                  style={{ color: statValueClr }}
-                >
-                  {s.value}
-                </p>
-                <p
-                  className="text-[11px] mt-0.5"
-                  style={{ color: statLabelClr }}
-                >
-                  {s.label}
-                </p>
-              </div>
-            ))}
-          </motion.div> */}
         </div>
 
         {/* ── MOBILE layout ── */}
@@ -534,7 +382,8 @@ const About = () => {
                 rx="160"
                 ry="55"
                 fill="none"
-                stroke={`#4285F4${ringOpacity}`}
+                stroke="#4285F4"
+                strokeOpacity="0.25"
                 strokeWidth="1.2"
                 strokeDasharray="5 3"
               />
@@ -544,7 +393,8 @@ const About = () => {
                 rx="100"
                 ry="35"
                 fill="none"
-                stroke={`#EA4335${ringOpacity}`}
+                stroke="#EA4335"
+                strokeOpacity="0.2"
                 strokeWidth="1"
                 strokeDasharray="3 4"
               />
@@ -578,22 +428,13 @@ const About = () => {
             </div>
 
             {/* Stats row */}
-            <div
-              className="relative grid grid-cols-4 gap-1 pb-5"
-              style={{ borderTop: statsBorder, paddingTop: "14px" }}
-            >
+            <div className="relative grid grid-cols-4 gap-1 pb-5 border-t border-primary/15 pt-[14px]">
               {stats.map((s) => (
                 <div key={s.label} className="text-center">
-                  <p
-                    className="text-base font-bold leading-none"
-                    style={{ color: statValueClr }}
-                  >
+                  <p className="text-base font-bold leading-none text-primary">
                     {s.value}
                   </p>
-                  <p
-                    className="text-[10px] mt-0.5"
-                    style={{ color: statLabelClr }}
-                  >
+                  <p className="text-[10px] mt-0.5 text-muted-foreground">
                     {s.label}
                   </p>
                 </div>
@@ -607,7 +448,6 @@ const About = () => {
               <MobileTeamCard
                 key={member.name}
                 member={member}
-                dark={dark}
                 onClick={() => setSelectedMember(member)}
               />
             ))}

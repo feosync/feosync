@@ -601,6 +601,7 @@ export interface FacebookPageResponse {
   fb_page_id: string
   page_name: string
   is_active: boolean
+  token_expires_at: string | null
   fb_page_picture: string | null
   fb_page_fan_count: number | null
   fb_user_id: string | null

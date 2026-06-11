@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   faCalendar,
   faCheckCircle,
@@ -61,28 +62,30 @@ function StatCard({
 }: {
   label: string;
   value: number;
-  icon: any;
+  icon: IconDefinition;
   variant: StatVariant;
   trend?: string;
 }) {
   const cfg = STAT_CONFIG[variant];
   return (
     <div
-      className={`rounded-xl p-5 ${cfg.classes} transition-shadow hover:shadow-sm`}
+      className={`rounded-xl p-5 ${cfg.classes} transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 group relative overflow-hidden`}
     >
+      {/* Hover gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
       {/* Icône + label */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-4 relative">
         <div
-          className={`w-9 h-9 rounded-lg flex items-center justify-center ${cfg.iconClasses}`}
+          className={`w-9 h-9 rounded-lg flex items-center justify-center transition-transform duration-200 group-hover:scale-110 ${cfg.iconClasses}`}
         >
           <FontAwesomeIcon icon={iconDef} className="w-4 h-4" />
         </div>
         {/* Indicateur de statut discret */}
-        <span className={`w-1.5 h-1.5 rounded-full mt-1 ${cfg.dot}`} />
+        <span className={`w-1.5 h-1.5 rounded-full mt-1 ${cfg.dot} animate-[pulse-dot_2s_ease-in-out_infinite]`} />
       </div>
       {/* Valeur */}
       <div
-        className={`text-3xl font-semibold tracking-tight ${cfg.valueClasses}`}
+        className={`text-3xl font-semibold tracking-tight transition-colors ${cfg.valueClasses}`}
       >
         {value}
       </div>
@@ -287,15 +290,16 @@ export default function OverviewPage() {
                   return (
                     <PostItem key={post.id} href={`/posts/${post.id}`}>
                       {/* Avatar Facebook */}
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-primary-foreground text-xs font-bold flex-shrink-0">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-primary-foreground text-xs font-bold shrink-0">
                         {page?.fb_page_picture ? (
                           <img
                             src={page.fb_page_picture}
                             alt={page.page_name}
+                            referrerPolicy="no-referrer"
                             className="w-10 h-10 rounded-xl  object-cover"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold flex-shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold shrink-0">
                             f
                           </div>
                         )}

@@ -18,7 +18,7 @@ const CHANNELS: Channel[] = [
   { id: 'facebook',  label: 'Facebook',  icon: faFacebook,       available: true,  color: 'text-blue-600'  },
   { id: 'instagram', label: 'Instagram', icon: faInstagram,      available: false, color: 'text-pink-500'  },
   { id: 'whatsapp',  label: 'WhatsApp',  icon: faFacebook,  available: false, color: 'text-green-500' },
-  { id: 'twitter',   label: 'X / Twitter', icon: faSquareXTwitter,      available: false, color: 'text-slate-800' },
+  { id: 'twitter',   label: 'X / Twitter', icon: faSquareXTwitter,      available: false, color: 'text-foreground' },
   { id: 'linkedin',  label: 'LinkedIn',  icon: faLinkedin,       available: false, color: 'text-blue-700'  },
 ]
 
@@ -55,11 +55,11 @@ export function OrgChannelPicker({ orgId, onClose }: OrgChannelPickerProps) {
               `}
             >
               <FontAwesomeIcon icon={channel.icon} className={`w-4 h-4 ${channel.color}`} />
-              <span className="flex-1 text-left text-slate-700 dark:text-slate-300">
+              <span className="flex-1 text-left text-foreground">
                 {channel.label}
               </span>
               {!channel.available && (
-                <FontAwesomeIcon icon={faLock} className="w-3 h-3 text-slate-400" />
+                <FontAwesomeIcon icon={faLock} className="w-3 h-3 text-muted-foreground" />
               )}
               {channel.available && (
                 <span className="text-[10px] bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">

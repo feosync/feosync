@@ -10,7 +10,7 @@ import {
 } from "../ui/alert-dialog";
 
 import { PlanAction } from "./PlanCard";
-import { ArrowDown, ArrowUp, CreditCard, Loader2 } from "lucide-react";
+import { ArrowDown, ArrowUp, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button"; 
 
@@ -148,23 +148,15 @@ export function UpDowngradeCreateDialogue({
             Garder mon abonnement actuel
           </AlertDialogCancel>
 
-          {/* ✅ Button à la place de AlertDialogAction */}
           <Button
             onClick={onClick}
-            disabled={isLoading}
+            loading={isLoading}
             className={cn(
               "rounded-2xl h-10 text-base text-foreground font-medium flex-1 transition-all active:scale-[0.985] will-change-auto",
               config.confirmClass,
             )}
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2.5 animate-spin" />
-                Traitement en cours...
-              </>
-            ) : (
-              config.confirmText
-            )}
+            {isLoading ? 'Traitement en cours...' : config.confirmText}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

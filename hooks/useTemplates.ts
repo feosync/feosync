@@ -21,7 +21,7 @@ export function useCreateTemplate(orgId: string) {
       queryClient.invalidateQueries({ queryKey: TEMPLATES_KEY(orgId) })
       toast.success('Template créé')
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err: Error) => toast.error(err.message),
   })
 }
 
@@ -37,7 +37,7 @@ export function useUpdateTemplate(orgId: string) {
       )
       toast.success('Template mis à jour')
     },
-    onError: (err: any) =>toast.error(err.message ?? "Something went wrong")
+    onError: (err: Error) => toast.error(err.message ?? "Something went wrong")
 ,
   })
 }
@@ -53,6 +53,6 @@ export function useDeleteTemplate(orgId: string) {
       )
       toast.success('Template supprimé')
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err: Error) => toast.error(err.message),
   })
 }

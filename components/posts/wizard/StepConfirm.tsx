@@ -131,7 +131,7 @@ export function StepConfirm({
               <span
                 className={cn(
                   "w-1.5 h-1.5 rounded-full flex-shrink-0",
-                  item.ok ? "bg-emerald-500" : "bg-amber-400"
+                  item.ok ? "bg-success" : "bg-warning"
                 )}
               />
 
@@ -147,7 +147,7 @@ export function StepConfirm({
               <span
                 className={cn(
                   "text-sm font-medium ml-auto",
-                  item.ok ? "text-foreground" : "text-amber-500"
+                  item.ok ? "text-foreground" : "text-warning"
                 )}
               >
                 {item.value}
@@ -166,7 +166,7 @@ export function StepConfirm({
 
       {/* ── Warning ── */}
       {!canConfirm && (
-        <div className="flex items-start gap-2.5 text-amber-600 dark:text-amber-400 bg-amber-500/8 border border-amber-500/20 rounded-xl px-4 py-3">
+        <div className="flex items-start gap-2.5 text-warning bg-warning/10 border border-warning/20 rounded-xl px-4 py-3">
           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <p className="text-sm">Un caption ou au moins une image est requis.</p>
         </div>

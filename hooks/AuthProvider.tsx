@@ -51,8 +51,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // ← plus besoin de récupérer access_token
       const response = await apiClient.googleLogin(googleToken)
       setUser(response.user)
-    } catch (err: any) {
-      setError(err.message || 'Échec de la connexion Google')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Échec de la connexion Google'
+      setError(message)
       throw err
     } finally {
       setIsLoading(false)

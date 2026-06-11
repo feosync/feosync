@@ -16,7 +16,7 @@ import { StepTarget }  from '@/components/posts/wizard/StepTarget'
 import { StepCaption } from '@/components/posts/wizard/StepCaption'
 import { StepImage }   from '@/components/posts/wizard/StepImage'
 import { StepConfirm } from '@/components/posts/wizard/StepConfirm'
-import type { ScheduledPost } from '@/lib/api/types'
+import type { ScheduledPost, CaptionPatchRequest } from '@/lib/api/types'
 
 const STEPS = [
   { label: 'Cible',     description: 'Page & horaire' },
@@ -54,17 +54,14 @@ export default function NewPostPage() {
     setStep(1)
   }
 
-  const handleSaveCaption = async (data: any) => {
+  const handleSaveCaption = async (data: CaptionPatchRequest) => {
     if (!post) return
-    // const res = await captionMutation.mutateAsync({ postId: post.id, data })
-    // setPost(res.scheduled_post)
     setStep(2)
   }
-const handleGenerateCaption = async (data: any) => {
-    if (!post) return
-    const res = await captionMutation.mutateAsync({ postId: post.id, data })
+const handleGenerateCaption = async (data: CaptionPatchRequest): Promise<{ caption: string }> => {
+    const res = await captionMutation.mutateAsync({ postId: post!.id, data })
     setPost(res.scheduled_post)
-    return res
+    return { caption: res.caption }
   }
 
   const handleConfirm = async () => {
@@ -144,7 +141,7 @@ const handleGenerateCaption = async (data: any) => {
       </div>
 
       {/* ── Contenu des étapes ── */}
-      <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+      <div key={step} className="animate-[slide-up_0.25s_ease-out]">
         {step === 0 && (
           <StepTarget
             pages={pages}

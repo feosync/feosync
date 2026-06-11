@@ -134,7 +134,7 @@ export function PlanDialog({
       : EMPTY_FORM
   )
 
-  const set = (key: keyof CreatePlanRequest, value: any) =>
+  const set = (key: keyof CreatePlanRequest, value: CreatePlanRequest[keyof CreatePlanRequest]) =>
     setForm(prev => ({ ...prev, [key]: value }))
 
   const handleSubmit = () => {

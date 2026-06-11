@@ -16,7 +16,7 @@ const ADMIN_QUERY_KEY = ["admin", "plans"];
 export function usePlans() {
   return useQuery({
     queryKey: QUERY_KEY,
-    queryFn: () => apiClient.getPlans() as Promise<Plan[]>,
+    queryFn: () => apiClient.getPlans(),
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -24,7 +24,7 @@ export function usePlans() {
 export function usePlanById(planId: string) {
   return useQuery({
     queryKey: [...QUERY_KEY, planId],
-    queryFn: () => apiClient.getPlanById(planId) as Promise<Plan>,
+    queryFn: () => apiClient.getPlanById(planId),
     enabled: !!planId,
   });
 }
@@ -42,7 +42,7 @@ export function useSubscribeToPlan() {
       queryClient.invalidateQueries({ queryKey: ["plans"] });
       toast.success("Abonnement crée");
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error("Erreur", { description: err.message });
     },
   });
@@ -65,7 +65,7 @@ export function useUpgradeSubcription() {
       queryClient.invalidateQueries({ queryKey: ["plans"] });
       toast.success("Abonnement mis à jour");
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error("Error", { description: err.message });
     },
   });
@@ -83,7 +83,7 @@ export function useUnsubscribeFromPlan() {
       queryClient.invalidateQueries({ queryKey: ["plans"] });
       toast.success("Désabonnement effectué");
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error("Erreur", { description: err.message });
     },
   });
@@ -94,7 +94,7 @@ export function useUnsubscribeFromPlan() {
 export function useAdminAllPlans() {
   return useQuery({
     queryKey: ADMIN_QUERY_KEY,
-    queryFn: () => apiClient.adminGetAllPlans() as Promise<Plan[]>,
+    queryFn: () => apiClient.adminGetAllPlans(),
     staleTime: 1000 * 60 * 2,
   });
 }
@@ -104,7 +104,7 @@ export function useAdminCreatePlan() {
 
   return useMutation({
     mutationFn: (data: CreatePlanRequest) =>
-      apiClient.adminCreatePlan(data) as Promise<Plan>,
+      apiClient.adminCreatePlan(data),
     onSuccess: (newPlan) => {
       queryClient.setQueryData<Plan[]>(ADMIN_QUERY_KEY, (prev = []) => [
         ...prev,
@@ -113,7 +113,7 @@ export function useAdminCreatePlan() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       toast.success("Plan créé", { description: newPlan.name });
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error("Erreur", { description: err.message });
     },
   });
@@ -129,7 +129,7 @@ export function useAdminUpdatePlan() {
     }: {
       planId: string;
       data: UpdatePlanRequest;
-    }) => apiClient.adminUpdatePlan(planId, data) as Promise<Plan>,
+    }) => apiClient.adminUpdatePlan(planId, data),
     onSuccess: (updated) => {
       queryClient.setQueryData<Plan[]>(ADMIN_QUERY_KEY, (prev = []) =>
         prev.map((p) => (String(p.id) === String(updated.id) ? updated : p)),
@@ -137,7 +137,7 @@ export function useAdminUpdatePlan() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       toast.success("Plan mis à jour");
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error("Erreur", { description: err.message });
     },
   });
@@ -155,7 +155,7 @@ export function useAdminDeletePlan() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       toast.success("Plan supprimé");
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error("Erreur", { description: err.message });
     },
   });

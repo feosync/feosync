@@ -34,9 +34,9 @@ export function ConnectPageDialog({ open, onOpenChange }: ConnectPageDialogProps
       const { oauth_url } = await apiClient.getFacebookOAuthUrl(selectedOrgId)
       sessionStorage.setItem('fb_oauth_org_id', selectedOrgId)
       window.location.href = oauth_url
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error('Erreur lors de la redirection', { 
-        description: err.message || 'Une erreur est survenue' 
+        description: err instanceof Error ? err.message : 'Une erreur est survenue' 
       })
     } finally {
       setLoading(false)
@@ -45,19 +45,19 @@ export function ConnectPageDialog({ open, onOpenChange }: ConnectPageDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 sm:max-w-md">
+      <DialogContent className="bg-card border-border sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-slate-900 dark:text-white">
+          <DialogTitle className="text-foreground">
             Connecter une page Facebook
           </DialogTitle>
-          <DialogDescription className="text-slate-500 dark:text-slate-400">
+          <DialogDescription className="text-muted-foreground">
             Sélectionnez l'organisation pour laquelle vous souhaitez connecter une page Facebook.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-2">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label className="text-sm font-medium text-foreground">
               Organisation <span className="text-red-500">*</span>
             </label>
             
@@ -68,9 +68,9 @@ export function ConnectPageDialog({ open, onOpenChange }: ConnectPageDialogProps
             />
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 rounded-lg p-4 text-xs text-blue-700 dark:text-blue-300 space-y-2">
+          <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 text-xs text-foreground space-y-2">
             <p className="font-medium">Comment ça fonctionne :</p>
-            <ol className="list-decimal list-inside space-y-1 text-blue-600 dark:text-blue-400">
+            <ol className="list-decimal list-inside space-y-1 text-primary">
               <li>Sélectionnez l'organisation concernée</li>
               <li>Cliquez sur "Connecter avec Facebook"</li>
               <li>Autorisez FeoSync sur Facebook</li>
@@ -94,7 +94,7 @@ export function ConnectPageDialog({ open, onOpenChange }: ConnectPageDialogProps
             <Button
               onClick={handleConnect}
               disabled={!selectedOrgId || loading}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white gap-2"
+              className="flex-1 bg-primary text-primary-foreground gap-2"
             >
               {loading ? (
                 <>

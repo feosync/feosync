@@ -52,9 +52,9 @@ export function AppSidebar() {
 
       <aside
         className={cn(
-          // Tokens : bg-sidebar, border-border
-          "h-full bg-sidebar z-40 transition-all duration-300 flex flex-col overflow-hidden shrink-0",
+          "h-full bg-sidebar z-40 flex flex-col overflow-hidden shrink-0",
           "fixed md:relative",
+          "transition-[width] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]",
           isOpen ? "w-60" : "w-0 md:w-14",
         )}
       >
@@ -139,37 +139,33 @@ export function AppSidebar() {
                         if (window.innerWidth < 768) close();
                       }}
                     >
-                      <div
-                        className={cn(
-                          "flex items-center gap-2.5 px-2 h-9 rounded-lg text-sm font-medium transition-colors",
-                          // État actif
-                          isActive
-                            ? isAdmin
-                              ? "bg-destructive/50 text-foreground/85"
-                              : "bg-primary/50 text-foreground/85"
-                            : "text-foreground/85 hover:bg-accent hover:text-accent-foreground",
-                          // Mode collapsed
-                          !isOpen && "md:justify-center md:px-0",
-                        )}
-                        title={!isOpen ? item.label : undefined}
-                      >
-                        <FontAwesomeIcon
-                          icon={item.icon}
+                        <div
                           className={cn(
-                            "w-4 h-4 shrink-0 text-foreground",
+                            "flex items-center gap-2.5 px-2 h-9 rounded-lg text-sm font-medium transition-all duration-150",
+                            isActive
+                              ? isAdmin
+                                ? "bg-destructive/50 text-foreground/85"
+                                : "bg-primary/30 text-foreground"
+                              : "text-foreground/75 hover:bg-accent hover:text-accent-foreground",
+                            !isOpen && "md:justify-center md:px-0",
                           )}
-                        />
-                        {isOpen && (
-                          <span className="truncate text-[13px]">{item.label}</span>
-                        )}
+                          title={!isOpen ? item.label : undefined}
+                        >
+                          <FontAwesomeIcon
+                            icon={item.icon}
+                            className={cn(
+                              "w-4 h-4 shrink-0",
+                              isActive ? "text-foreground" : "text-foreground/70",
+                            )}
+                          />
+                          {isOpen && (
+                            <span className="truncate text-[13px]">{item.label}</span>
+                          )}
 
-                        {/* Indicateur actif : barre droite subtile */}
-                        {isActive && isOpen && (
-                          <span className={cn(
-                            "ml-auto w-1 h-4 rounded-full shrink-0 bg-foreground"
-                          )} />
-                        )}
-                      </div>
+                          {isActive && isOpen && (
+                            <span className="ml-auto w-1 h-4 rounded-full shrink-0 bg-foreground animate-[fade-in_0.2s_ease-out]" />
+                          )}
+                        </div>
                     </Link>
                   );
                 })}

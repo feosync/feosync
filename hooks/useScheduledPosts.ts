@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
 import type {
-  ScheduledPost, CaptionPatchRequest, ImageAddRequest,
+  ScheduledPost, CaptionPatchRequest, CaptionPatchResponse, ImageAddRequest,
   AddImageResponse, PostStatus,
 } from '@/lib/api/types'
 
@@ -52,7 +52,7 @@ export function useCreateScheduledPost() {
       queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY(post.organisation_id) })
       toast.success('Brouillon créé')
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }
 
@@ -61,12 +61,12 @@ export function usePatchCaption(orgId: string) {
   return useMutation({
     mutationFn: ({ postId, data }: { postId: string; data: CaptionPatchRequest }) =>
       apiClient.patchCaption(postId, data),
-    onSuccess: (res: any) => {
+    onSuccess: (res: CaptionPatchResponse) => {
       queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY(orgId) })
       queryClient.setQueryData(POST_QUERY_KEY(res.scheduled_post.id), res.scheduled_post)
       toast.success('Caption enregistré')
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }
 
@@ -82,7 +82,7 @@ export function useAddImage(orgId: string) {
       queryClient.setQueryData(POST_QUERY_KEY(res.scheduled_post.id), res.scheduled_post)
       toast.success('Image ajoutée')
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }
 
@@ -96,7 +96,7 @@ export function useAddImageUpload(orgId: string) {
       queryClient.setQueryData(POST_QUERY_KEY(res.scheduled_post.id), res.scheduled_post)
       toast.success('Image uploadée')
     },
-    onError: (err: any) => toast.error('Erreur upload', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur upload', { description: err.message }),
   })
 }
 
@@ -110,7 +110,7 @@ export function useRemoveImage(orgId: string) {
       queryClient.setQueryData(POST_QUERY_KEY(updatedPost.id), updatedPost)
       toast.success('Image supprimée')
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }
 
@@ -123,7 +123,7 @@ export function useReorderImages(orgId: string) {
       queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY(orgId) })
       queryClient.setQueryData(POST_QUERY_KEY(updatedPost.id), updatedPost)
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }
 
@@ -138,7 +138,7 @@ export function useConfirmPost(orgId: string) {
       queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY(orgId) })
       toast.success('Post planifié !')
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }
 
@@ -150,7 +150,7 @@ export function useDeleteScheduledPost(orgId: string) {
       queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY(orgId) })
       toast.success('Post supprimé')
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }
 

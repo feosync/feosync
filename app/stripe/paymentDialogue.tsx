@@ -68,8 +68,8 @@ export function PaymentDialog({
 
       onSuccess(plan);
       onOpenChange(false);
-    } catch (err: any) {
-      setError(err.message || "Une erreur est survenue lors du paiement");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Une erreur est survenue lors du paiement");
     } finally {
       setLoading(false);
     }
@@ -112,7 +112,7 @@ export function PaymentDialog({
 
           {/* Sécurité */}
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <ShieldCheck className="w-4 h-4 text-success" />
             <span>Protégé par Stripe • Chiffrement SSL 256-bit</span>
           </div>
 

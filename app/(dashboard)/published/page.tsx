@@ -455,7 +455,7 @@ function PublishedPostCardWrapper({
   onClick,
 }: {
   post: PublishedPost;
-  pages: any[];
+  pages: FacebookPageResponse[];
   onSync: () => void;
   isSyncing?: boolean;
   onAutoComment: (payload: AutoCommentRequest) => void;
@@ -463,7 +463,7 @@ function PublishedPostCardWrapper({
   onClick: () => void;
 }) {
   const { data: scheduledPost } = useScheduledPost(post.scheduled_post_id);
-  const page:FacebookPageResponse = pages.find((p) => p.id === post.facebook_page_id);
+  const page: FacebookPageResponse | undefined = pages.find((p) => p.id === post.facebook_page_id);
   return (
     <PublishedPostCard
       post={post}
@@ -490,7 +490,7 @@ function PublishedPostDetailSheetWrapper({
   isAutoCommenting,
 }: {
   post: PublishedPost;
-  pages: any[];
+  pages: FacebookPageResponse[];
   onClose: () => void;
   onSync: () => void;
   onDelete: () => void;

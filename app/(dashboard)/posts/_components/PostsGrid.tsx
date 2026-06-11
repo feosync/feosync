@@ -2,16 +2,16 @@ import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PostCard } from '@/components/posts/PostCard'
 import { EmptyState } from '@/components/posts/EmptyState'
-import type { PostStatus } from '@/lib/api/types'
+import type { PostStatus, ScheduledPost } from '@/lib/api/types'
 
 const PAGE_SIZE = 3
 
 interface PostsGridProps {
-  posts: any[]
+  posts: ScheduledPost[]
   isLoading: boolean
   isFetching: boolean
   activeTab: PostStatus | 'all'
-  onPostClick: (post: any) => void
+  onPostClick: (post: ScheduledPost) => void
   onPostDelete: (id: string) => void
   onCreateClick: () => void
 }

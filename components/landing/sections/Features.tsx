@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Cpu, Calendar, BarChart3, MessageSquare, Globe, ShieldCheck } from "lucide-react";
+import { SectionHeader } from "@/components/landing/SectionHeader";
 
 const features = [
   { title: "Assistant IA",          desc: "Visuels + légendes générés en 1 clic selon votre ton.",    icon: Cpu          },
@@ -18,19 +19,10 @@ const Features = () => {
       <div className="max-w-7xl mx-auto">
 
         {/* ── Header ── */}
-        <div className="text-center mb-16">
-          <motion.h2
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.01em] text-foreground mb-4"
-          >
-            Tout ce dont vous avez besoin. Rien de superflu.
-          </motion.h2>
-          <p className="text-muted-foreground">
-            Une suite complète d'outils pilotés par l'intelligence artificielle.
-          </p>
-        </div>
+        <SectionHeader
+          title="Tout ce dont vous avez besoin. Rien de superflu."
+          description="Une suite complète d'outils pilotés par l'intelligence artificielle."
+        />
 
         {/* ── Grid ── */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

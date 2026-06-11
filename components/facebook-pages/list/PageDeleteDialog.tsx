@@ -15,25 +15,25 @@ interface Props {
 export function PageDeleteDialog({ page, isDeleting, onConfirm, onCancel }: Props) {
   return (
     <AlertDialog open={!!page} onOpenChange={open => !open && onCancel()}>
-      <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+      <AlertDialogContent className="bg-card border-border">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-slate-900 dark:text-white">
+          <AlertDialogTitle className="text-foreground">
             Déconnecter la page
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-slate-500 dark:text-slate-400">
+          <AlertDialogDescription className="text-muted-foreground">
             Êtes-vous sûr de vouloir déconnecter{' '}
-            <span className="font-medium text-slate-900 dark:text-white">{page?.page_name}</span>
+            <span className="font-medium text-foreground">{page?.page_name}</span>
             {' '}? Les posts planifiés sur cette page seront affectés.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel} className="border-slate-200 dark:border-slate-700">
+          <AlertDialogCancel onClick={onCancel} className="border-slate-200 ">
             Annuler
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isDeleting}
-            className="bg-red-600 hover:bg-red-700 text-white border-0"
+            className="bg-destructive text-destructive-foreground border-0"
           >
             Déconnecter
           </AlertDialogAction>

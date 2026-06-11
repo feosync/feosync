@@ -26,8 +26,8 @@ export function ConnectFacebookDialog({ open, onOpenChange, orgId }: ConnectFace
       const { oauth_url } = await apiClient.getFacebookOAuthUrl(orgId)
       sessionStorage.setItem('fb_oauth_org_id', orgId)
       window.location.href = oauth_url
-    } catch (err: any) {
-      toast.error('Erreur lors de la redirection', { description: err.message })
+    } catch (err: unknown) {
+      toast.error('Erreur lors de la redirection', { description: err instanceof Error ? err.message : 'Erreur inconnue' })
     } finally {
       setLoading(false)
     }

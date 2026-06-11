@@ -1,13 +1,23 @@
+# 1. Étape de build
 FROM node:22-alpine AS builder
-WORKDIR  /app
+WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --legacy-peer-deps
 COPY . .
 RUN npm run build
 
-# build stage
+# 2. Étape finale (production)
 FROM node:22-alpine
 WORKDIR /app
-COPY --from=builder /app ./
+
+# Copier uniquement les fichiers de configuration des paquets
+COPY package.json package-lock.json ./
+
+# Installer SEULEMENT les dépendances de production
+RUN npm ci --omit=dev --legacy-peer-deps
+
+# Copier UNIQUEMENT le dossier de build (ajustez "dist" selon votre framework : build, .next, etc.)
+COPY --from=builder /app/.next/build ./dist
+
 EXPOSE 3000
 CMD ["npm", "start"]

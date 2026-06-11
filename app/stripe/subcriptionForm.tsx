@@ -44,8 +44,8 @@ export default function SubscriptionForm({ stripeCustomerId, stripePriceId }: Pr
       await apiClient.subscription(sub); // ta méthode existante ✅
       setSuccess(true);
 
-    } catch (err: any) {
-      setError(err.message || "Erreur lors de la souscription");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erreur lors de la souscription");
     } finally {
       setLoading(false);
     }
