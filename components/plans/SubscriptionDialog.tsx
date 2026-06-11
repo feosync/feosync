@@ -243,14 +243,10 @@ export function SubscriptionDialog({
                 variant="ghost"
                 size="sm"
                 onClick={() => setConfirmUnsub(true)}
-                disabled={unsubscribeMutation.isPending}
+                loading={unsubscribeMutation.isPending}
                 className="ml-auto text-destructive hover:bg-destructive/10 gap-2"
               >
-                {unsubscribeMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <LogOut className="w-4 h-4" />
-                )}
+                <LogOut className="w-4 h-4" />
                 Se désabonner
               </Button>
             </div>
@@ -261,7 +257,7 @@ export function SubscriptionDialog({
       {/* Spinner pendant le chargement du SetupIntent */}
       {secretLoading && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/60 backdrop-blur-sm rounded-2xl">
-          <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
         </div>
       )}
 

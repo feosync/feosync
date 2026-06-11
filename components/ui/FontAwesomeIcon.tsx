@@ -22,7 +22,7 @@ interface IconProps {
   pull?: 'left' | 'right';
   power?: 'down' | 'up';
   children?: ReactNode;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export function FAIcon({

@@ -25,11 +25,11 @@ export function PostScheduleCard({
   const canConfirm = !!post.caption && !!post.publish_at
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3">
+    <div className="bg-card rounded-xl border border-border p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-[13px] font-medium text-slate-900 dark:text-white">Prêt à planifier ?</h3>
+        <h3 className="text-[13px] font-medium text-foreground">Prêt à planifier ?</h3>
         {!post.caption && (
-          <span className="text-[11px] text-amber-600 dark:text-amber-400">⚠️ Caption manquant</span>
+          <span className="text-[11px] text-warning">⚠️ Caption manquant</span>
         )}
       </div>
 
@@ -40,17 +40,17 @@ export function PostScheduleCard({
               <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
                 item.ok
                   ? 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                  : 'bg-slate-100  text-muted-foreground'
               }`}>
                 {item.ok ? <Check className="w-2.5 h-2.5" /> : <span className="text-[9px]">–</span>}
               </div>
-              <span className="text-[13px] text-slate-600 dark:text-slate-400">
+              <span className="text-[13px] text-muted-foreground">
                 {item.label}
-                {item.optional && <span className="text-[11px] text-slate-400 ml-1">(optionnel)</span>}
+                {item.optional && <span className="text-[11px] text-muted-foreground ml-1">(optionnel)</span>}
               </span>
             </div>
             {!item.ok && (
-              <button onClick={item.action} className="text-[11px] text-blue-600 hover:underline">
+              <button onClick={item.action} className="text-[11px] text-primary hover:underline">
                 Ajouter
               </button>
             )}
@@ -64,7 +64,7 @@ export function PostScheduleCard({
           onConfirm()
         }}
         disabled={!canConfirm || isPending}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2"
+        className="w-full bg-primary text-primary-foreground gap-2"
       >
         {isPending
           ? <><Loader2 className="w-4 h-4 animate-spin" />Planification...</>

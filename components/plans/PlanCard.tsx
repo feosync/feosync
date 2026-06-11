@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Check, Loader2, ArrowUp, ArrowDown, Lock, Sparkles, Zap } from "lucide-react";
+import { Check, ArrowUp, ArrowDown, Lock, Sparkles, Zap } from "lucide-react";
 import type { Plan } from "@/lib/api/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@ function getButtonConfig(
 function FeatureItem({ isCurrent, children }: { isCurrent: boolean; children: React.ReactNode }) {
   return (
     <li className="flex gap-3">
-      <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isCurrent ? "text-primary" : "text-emerald-500"}`} />
+      <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isCurrent ? "text-primary" : "text-success"}`} />
       <span>{children}</span>
     </li>
   );
@@ -195,13 +195,11 @@ export function PlanCard({
       {/* Bouton CTA */}
       <Button
         onClick={() => onSubscribe(plan, action)}
-        disabled={action === "CURRENT" || isLoading}
+        disabled={action === "CURRENT"}
+        loading={isLoading}
         className={`w-full h-12 rounded-2xl text-base font-semibold mb-8 transition-all active:scale-[0.985] ${btn.className}`}
       >
-        {isLoading
-          ? <Loader2 className="w-5 h-5 animate-spin" />
-          : <>{btn.icon}{btn.label}</>
-        }
+        {btn.icon}{btn.label}
       </Button>
 
       {/* Liste des fonctionnalités */}

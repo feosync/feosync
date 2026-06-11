@@ -6,15 +6,15 @@ interface SettingsCardProps {
 
 export function SettingsCard({ title, children, variant = 'default' }: SettingsCardProps) {
   const styles = {
-    default: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800',
+    default: 'bg-card border-border',
     info:    'bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900',
-    danger:  'bg-red-50 dark:bg-red-950/20 border-red-100 dark:border-red-900',
+    danger:  'bg-destructive/10 border-destructive/20',
   }
 
   const titleStyles = {
-    default: 'text-slate-500 dark:text-slate-400',
+    default: 'text-muted-foreground',
     info:    'text-blue-700 dark:text-blue-300',
-    danger:  'text-red-600 dark:text-red-400',
+    danger:  'text-destructive',
   }
 
   return (

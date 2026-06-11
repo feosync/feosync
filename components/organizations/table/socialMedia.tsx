@@ -217,7 +217,7 @@ export function ManageSocialMedia({ open, onOpenChange, orgId }: ManageSocialMed
                     {/* Badge connecté */}
                     {isConnected && (
                       <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full
-                                       bg-emerald-500 border-2 border-background" />
+                                       bg-success border-2 border-background" />
                     )}
                   </span>
 

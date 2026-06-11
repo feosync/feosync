@@ -23,12 +23,12 @@ import type { Notification, NotificationType } from '@/lib/api/types'
 
 // Configuration des types (plus minimaliste)
 const TYPE_CONFIG: Record<NotificationType, { icon: React.ReactNode; color: string }> = {
-  post_published:   { icon: '✓', color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
-  post_failed:      { icon: '✕', color: 'bg-red-500/10 text-red-600 dark:text-red-400' },
-  insights_updated: { icon: '📈', color: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
-  token_expiring:   { icon: '⚠', color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
-  welcome:          { icon: '👋', color: 'bg-violet-500/10 text-violet-600 dark:text-violet-400' },
-  schedule_created: { icon: '📅', color: 'bg-slate-500/10 text-slate-600 dark:text-slate-400' },
+  post_published:   { icon: '✓', color: 'bg-success/10 text-success' },
+  post_failed:      { icon: '✕', color: 'bg-destructive/10 text-destructive' },
+  insights_updated: { icon: '📈', color: 'bg-primary/10 text-primary' },
+  token_expiring:   { icon: '⚠', color: 'bg-warning/10 text-warning' },
+  welcome:          { icon: '👋', color: 'bg-accent/10 text-accent-foreground' },
+  schedule_created: { icon: '📅', color: 'bg-muted text-muted-foreground' },
 }
 
 // ====================== BELL ======================
@@ -116,14 +116,10 @@ function NotificationsPanel({ onClose }: { onClose: () => void }) {
               variant="ghost"
               size="sm"
               onClick={() => markAll.mutate()}
-              disabled={markAll.isPending}
+              loading={markAll.isPending}
               className="text-xs h-8 px-3 rounded-xl text-primary hover:bg-primary/10"
             >
-              {markAll.isPending ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <CheckCheck className="w-3.5 h-3.5" />
-              )}
+              <CheckCheck className="w-3.5 h-3.5" />
               <span className="ml-1.5">Tout lire</span>
             </Button>
           )}

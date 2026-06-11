@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { SectionHeader } from "@/components/landing/SectionHeader";
 const testimonials = [
   {
     initials: "IA",
@@ -25,44 +26,12 @@ const testimonials = [
   },
 ];
 
-// const testimonials = [
-//   {
-//     initials: "RN",
-//     name: "Rina Nomena",
-//     role: "Gérante, Café Meva",
-//     quote: "Depuis que j'utilise AutoPost Pro, mes ventes ont augmenté de 40%. Je ne passe plus mes soirées à créer des posts.",
-//     colorClass: "bg-primary",
-//   },
-//   {
-//     initials: "JA",
-//     name: "Jean-André",
-//     role: "Directeur, Agence DigiMada",
-//     quote: "On gère 15 clients avec un seul outil. L'IA Gemini produit du contenu de qualité professionnelle en secondes.",
-//     colorClass: "bg-chart-1",
-//   },
-//   {
-//     initials: "SR",
-//     name: "Sarah R.",
-//     role: "Fondatrice, TanaBoutic",
-//     quote: "La planification automatique a transformé notre workflow. Plus besoin de se réveiller à 6h pour poster.",
-//     colorClass: "bg-chart-2",
-//   },
-// ];
-
 const Testimonials = () => {
   return (
     <section id="testimonials" className="py-24 px-6 bg-background">
       <div className="max-w-7xl mx-auto">
 
-        <motion.h2
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.01em] text-foreground text-center mb-16"
-        >
-          {/* Ils nous font confiance */}
-          Pourquoi choisir FeoSync?
-        </motion.h2>
+        <SectionHeader title="Pourquoi choisir FeoSync?" />
 
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((t, i) => (

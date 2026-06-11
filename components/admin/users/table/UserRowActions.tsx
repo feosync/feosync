@@ -30,7 +30,7 @@ export function UserRowActions({
       ) : (
         <Button
           size="sm" variant="outline"
-          className="h-7 text-xs text-amber-600 border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950"
+          className="h-7 text-xs text-warning border-warning/30 hover:bg-warning/10"
           onClick={onPromote}
           disabled={isPromoting}
         >
@@ -41,7 +41,7 @@ export function UserRowActions({
 
       <Button
         size="sm" variant="outline"
-        className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950"
+        className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
         onClick={onDelete}
       >
         <FontAwesomeIcon icon={faTrash} className="w-3 h-3" />

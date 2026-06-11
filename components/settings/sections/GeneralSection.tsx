@@ -44,13 +44,13 @@ export function GeneralSection() {
 
       <SettingsCard title="Langue & région">
         <SettingRow label="Langue de l'interface" description="Langue utilisée dans l'application">
-          <select className="text-sm bg-slate-100 dark:bg-slate-800 border-0 rounded-lg px-3 py-1.5 text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          <select className="text-sm bg-muted border-0 rounded-lg px-3 py-1.5 text-foreground focus:ring-2 focus:ring-ring focus:outline-none">
             <option value="fr">Français</option>
             <option value="en">English</option>
           </select>
         </SettingRow>
         <SettingRow label="Fuseau horaire" description="Pour l'affichage des dates et heures">
-          <span className="text-sm text-slate-500 dark:text-slate-400">UTC+3 (Antananarivo)</span>
+          <span className="text-sm text-muted-foreground">UTC+3 (Antananarivo)</span>
         </SettingRow>
       </SettingsCard>
     </div>

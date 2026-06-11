@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import { SectionHeader } from "@/components/landing/SectionHeader";
 
 const stats = [
   {
@@ -129,28 +130,21 @@ const StatsTerminal = () => {
     <section id="stats" className="py-24 px-6 bg-background">
       <div className="mx-auto max-w-6xl" ref={ref}>
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-          className="mb-16 text-center"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-1.5 text-xs font-medium text-primary">
-            📊 Chiffres clés
-          </span>
-          <h2
-            className="mt-6 text-foreground font-bold"
-            style={{
-              fontSize: "clamp(28px, 4vw, 44px)",
-              letterSpacing: "-0.01em",
-            }}
+        <div className="mb-16 text-center">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.4 }}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-1.5 text-xs font-medium text-primary"
           >
-            Optimisez votre croissance digitale{" "}
-          </h2>
-          <p className="mx-auto mt-4 max-w-lg text-base text-muted-foreground leading-7">
-            FeoSync est conçu pour maximiser votre impact tout en minimisant votre temps de gestion.
-          </p>
-        </motion.div>
+            📊 Chiffres clés
+          </motion.span>
+          <SectionHeader
+            title="Optimisez votre croissance digitale"
+            description="FeoSync est conçu pour maximiser votre impact tout en minimisant votre temps de gestion."
+            className="mt-4"
+          />
+        </div>
 
         {/* Grille */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

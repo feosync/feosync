@@ -38,6 +38,7 @@ export function PagesDesktopRow({
               <img
                 src={page.fb_page_picture}
                 alt={page.page_name}
+                referrerPolicy="no-referrer"
                 className="w-full h-full rounded-xl  object-cover"
               />
             ) : (
@@ -111,7 +112,7 @@ export function PageStatusBadge({ isActive }: { isActive: boolean }) {
     <Badge
       className={
         isActive
-          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0 font-medium"
+          ? "bg-success/10 text-success border-0 font-medium"
           : "bg-muted text-muted-foreground border-0 font-medium"
       }
     >

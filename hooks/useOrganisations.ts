@@ -12,7 +12,7 @@ export function useOrganisations(params?: {
 }) {
   return useQuery({
     queryKey: [...QUERY_KEY, params],
-    queryFn: () => apiClient.getOrganisations(params) as Promise<PaginatedResponse<Organisation>>,
+    queryFn: () => apiClient.getOrganisations(params),
     staleTime: 1000 * 60 * 2,
     placeholderData: (prev) => prev,
   })
@@ -26,7 +26,7 @@ export function useCreateOrganisation() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       toast.success('Organisation créée', { description: newOrg.name })
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }
 
@@ -39,7 +39,7 @@ export function useUpdateOrganisation() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       toast.success('Organisation mise à jour')
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }
 
@@ -51,6 +51,6 @@ export function useDeleteOrganisation() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       toast.success('Organisation supprimée')
     },
-    onError: (err: any) => toast.error('Erreur', { description: err.message }),
+    onError: (err: Error) => toast.error('Erreur', { description: err.message }),
   })
 }

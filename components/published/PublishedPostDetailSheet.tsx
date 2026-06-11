@@ -218,10 +218,9 @@ export function PublishedPostDetailSheet({
             <div className="bg-muted/50 rounded-xl p-4 space-y-3 border border-border">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {/* ✅ dark: supprimés — violet = couleur fonctionnelle unique */}
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
                     autoEnabled
-                      ? 'bg-violet-500/15 text-violet-500'
+                      ? 'bg-primary/15 text-primary'
                       : 'bg-muted text-muted-foreground'
                   }`}>
                     <Bot className="w-4 h-4" />
@@ -237,7 +236,7 @@ export function PublishedPostDetailSheet({
               {autoEnabled && (
                 <div className="space-y-2.5 pt-1">
                   <button
-                    className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-violet-500 transition-colors"
+                    className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors"
                     onClick={() => setShowFields(v => !v)}
                   >
                     {showFields ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -274,7 +273,7 @@ export function PublishedPostDetailSheet({
                   size="sm"
                   onClick={handleAutoSave}
                   disabled={isAutoCommenting}
-                  className="w-full bg-violet-500 hover:bg-violet-600 text-white text-[12px]"
+                  className="w-full text-[12px]"
                 >
                   {isAutoCommenting ? 'Sauvegarde…' : 'Enregistrer'}
                 </Button>

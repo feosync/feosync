@@ -1,10 +1,10 @@
 'use client'
 
-import { Calendar, FileText, CheckCircle2, XCircle } from 'lucide-react'
+import { Calendar, FileText, CheckCircle2, XCircle, type LucideIcon } from 'lucide-react'
 import type { PostStatus } from '@/lib/api/types'
 
 const THIS_YEAR    = new Date().getFullYear()
-export const CONST_TABS: { label: string; value: PostStatus | 'all'; icon: any }[] = [
+export const CONST_TABS: { label: string; value: PostStatus | 'all'; icon: LucideIcon }[] = [
   { label: 'Tous',       value: 'all',       icon: FileText     },
   { label: 'Brouillons', value: 'DRAFT',     icon: FileText     },
   { label: 'Planifiés',  value: 'SCHEDULED', icon: Calendar     },

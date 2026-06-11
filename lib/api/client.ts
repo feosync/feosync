@@ -1,23 +1,41 @@
 import {
+  User,
   UserSummary,
   UserDetail,
   PaginatedResponse,
   Organisation,
+  Plan,
+  CreatePlanRequest,
+  UpdatePlanRequest,
+  CreateOrgRequest,
+  UpdateOrgRequest,
   ScheduledPost,
+  CreateScheduledPostRequest,
   PublishedPost,
   PostAnalytics,
   PageAnalysisResponse,
   PostsWithReactionsResponse,
   AnalyticsPeriod,
+  CaptionPatchRequest,
   CaptionPatchResponse,
   AddImageResponse,
   ImageAddRequest,
   AutoCommentRequest,
+  ConfirmRequest,
+  PromoteDemoteResponse,
   SubscriptionRequest,
   SubscriptionResponse,
   Subscription,
   Channel,
-  FacebookPageResponse
+  FacebookPageResponse,
+  ConnectFacebookPagePayload,
+  PageInsights,
+  AiGeneration,
+  AiQuota,
+  Notification,
+  PostTemplate,
+  CreateTemplateRequest,
+  UpdateTemplateRequest,
 } from "@/lib/api/types";
 
 import { config } from "@/lib/config";
@@ -56,7 +74,6 @@ export class ApiClient {
     });
 
     if (response.status === 401) {
-      // ← plus de clearToken(), le cookie est géré par le serveur
       // window.location.href = "/login";
       throw new Error("Session expirée");
     }
@@ -73,23 +90,19 @@ export class ApiClient {
 
   // ── Auth ──────────────────────────────────────────────────────────────────
 
-  async googleLogin(googleToken: string): Promise<{ user: any }> {
-    console.log("Attempting Google login with token:", googleToken); // Debug log
-    const data = await this.request<{ message: string; user: any }>(
+  async googleLogin(googleToken: string): Promise<{ message: string; user: User }> {
+    const data = await this.request<{ message: string; user: User }>(
       "/api/v1/auth/google/auth",
       {
         method: "POST",
         body: JSON.stringify({ token: googleToken }),
       },
     );
-    // ← plus de this.setToken(data.access_token)
-    // le cookie est posé automatiquement par le serveur dans Set-Cookie
     return data;
   }
 
-  async getCurrentUser(): Promise<any> {
+  async getCurrentUser(): Promise<User> {
     return this.request("/api/v1/auth/me");
-    // ← credentials: "include" déjà dans request(), cookie envoyé auto
   }
 
   async logout(): Promise<void> {
@@ -132,36 +145,36 @@ export class ApiClient {
     return this.request("/api/v1/user/me");
   }
 
-  async getPlans(): Promise<any[]> {
+  async getPlans(): Promise<Plan[]> {
     return this.request("/api/v1/plans/");
   }
 
-  async getPlanById(planId: string): Promise<any> {
+  async getPlanById(planId: string): Promise<Plan> {
     return this.request(`/api/v1/plans/${planId}`);
   }
 
-  async subscribeToPlan(planId: string): Promise<any> {
+  async subscribeToPlan(planId: string): Promise<User> {
     return this.request(`/api/v1/plans/${planId}/subscribe`, {
       method: "POST",
     });
   }
 
-  async unsubscribeFromPlan(): Promise<any> {
+  async unsubscribeFromPlan(): Promise<User> {
     return this.request("/api/v1/plans/me/unsubscribe", { method: "DELETE" });
   }
 
-  async adminGetAllPlans(): Promise<any[]> {
+  async adminGetAllPlans(): Promise<Plan[]> {
     return this.request("/api/v1/plans/admin/all");
   }
 
-  async adminCreatePlan(data: any): Promise<any> {
+  async adminCreatePlan(data: CreatePlanRequest): Promise<Plan> {
     return this.request("/api/v1/plans/", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async adminUpdatePlan(planId: string, data: any): Promise<any> {
+  async adminUpdatePlan(planId: string, data: UpdatePlanRequest): Promise<Plan> {
     return this.request(`/api/v1/plans/${planId}`, {
       method: "PATCH",
       body: JSON.stringify(data),
@@ -184,17 +197,17 @@ export class ApiClient {
     return this.request(`/api/v1/admin/users/?${query.toString()}`);
   }
 
-  async adminGetUserById(userId: string): Promise<any> {
+  async adminGetUserById(userId: string): Promise<UserDetail> {
     return this.request(`/api/v1/admin/users/${userId}`);
   }
 
-  async adminPromoteUser(userId: string): Promise<any> {
+  async adminPromoteUser(userId: string): Promise<PromoteDemoteResponse> {
     return this.request(`/api/v1/admin/users/${userId}/promote`, {
       method: "PATCH",
     });
   }
 
-  async adminDemoteUser(userId: string): Promise<any> {
+  async adminDemoteUser(userId: string): Promise<PromoteDemoteResponse> {
     return this.request(`/api/v1/admin/users/${userId}/demote`, {
       method: "PATCH",
     });
@@ -216,18 +229,18 @@ export class ApiClient {
     return this.request(`/api/v1/org/?${query.toString()}`);
   }
 
-  async getOrganisationById(orgId: string): Promise<any> {
+  async getOrganisationById(orgId: string): Promise<Organisation> {
     return this.request(`/api/v1/org/${orgId}`);
   }
 
-  async createOrganisation(data: any): Promise<any> {
+  async createOrganisation(data: CreateOrgRequest): Promise<Organisation> {
     return this.request("/api/v1/org/", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async updateOrganisation(id: string, data: any): Promise<any> {
+  async updateOrganisation(id: string, data: UpdateOrgRequest): Promise<Organisation> {
     return this.request(`/api/v1/org/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
@@ -246,14 +259,14 @@ export class ApiClient {
     return this.request(`/api/v1/fb/oauth/url?org_id=${orgId}`);
   }
 
-  async connectFacebookPage(data: any): Promise<any> {
+  async connectFacebookPage(data: ConnectFacebookPagePayload): Promise<FacebookPageResponse> {
     return this.request("/api/v1/fb/connect", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async toggleFacebookPage(pageId: string, orgId: string): Promise<any> {
+  async toggleFacebookPage(pageId: string, orgId: string): Promise<FacebookPageResponse> {
     return this.request(`/api/v1/fb/${pageId}/toggle?org_id=${orgId}`, {
       method: "PATCH",
     });
@@ -265,13 +278,13 @@ export class ApiClient {
     });
   }
 
-  async syncInsights(pageId: string, orgId: string): Promise<any> {
+  async syncInsights(pageId: string, orgId: string): Promise<{ status: string }> {
     return this.request(`/api/v1/fb/${pageId}/insights/sync?org_id=${orgId}`, {
       method: "POST",
     });
   }
 
-  async getInsights(pageId: string, orgId: string): Promise<any[]> {
+  async getInsights(pageId: string, orgId: string): Promise<PageInsights[]> {
     return this.request(`/api/v1/fb/${pageId}/insights?org_id=${orgId}`);
   }
 
@@ -302,14 +315,14 @@ export class ApiClient {
     return this.request(`/api/v1/scheduled/${postId}`);
   }
 
-  async createScheduledPost(data: any): Promise<ScheduledPost> {
+  async createScheduledPost(data: CreateScheduledPostRequest): Promise<ScheduledPost> {
     return this.request("/api/v1/scheduled/", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async patchCaption(postId: string, data: any): Promise<CaptionPatchResponse> {
+  async patchCaption(postId: string, data: CaptionPatchRequest): Promise<CaptionPatchResponse> {
     return this.request(`/api/v1/scheduled/${postId}/caption`, {
       method: "PATCH",
       body: JSON.stringify(data),
@@ -344,7 +357,7 @@ export class ApiClient {
 
   async confirmScheduledPost(
     postId: string,
-    data: any,
+    data: ConfirmRequest,
   ): Promise<ScheduledPost> {
     return this.request(`/api/v1/scheduled/${postId}/confirm`, {
       method: "PATCH",
@@ -408,15 +421,15 @@ export class ApiClient {
     });
   }
 
-  async getAiHistory(orgId: string): Promise<any[]> {
+  async getAiHistory(orgId: string): Promise<AiGeneration[]> {
     return this.request(`/api/v1/ai/history/${orgId}`);
   }
 
-  async getAiQuota(orgId: string): Promise<any> {
-    return this.request(`/api/v1/ai/quota?org_id=${orgId}`);
+  async getAiQuota(orgId: string): Promise<AiQuota> {
+    return this.request(`/api/v1/ai/quota/${orgId}`);
   }
 
-  async getNotifications(unreadOnly = false): Promise<any[]> {
+  async getNotifications(unreadOnly = false): Promise<Notification[]> {
     return this.request(`/api/v1/notif/?unread_only=${unreadOnly}`);
   }
 
@@ -424,7 +437,7 @@ export class ApiClient {
     return this.request("/api/v1/notif/summary");
   }
 
-  async markNotificationRead(id: string): Promise<any> {
+  async markNotificationRead(id: string): Promise<Notification> {
     return this.request(`/api/v1/notif/${id}/read`, { method: "PATCH" });
   }
 
@@ -436,18 +449,18 @@ export class ApiClient {
     await this.request(`/api/v1/notif/${id}`, { method: "DELETE" });
   }
 
-  async getTemplates(orgId: string): Promise<any[]> {
+  async getTemplates(orgId: string): Promise<PostTemplate[]> {
     return this.request(`/api/v1/post-template/available/${orgId}`);
   }
 
-  async createTemplate(data: any): Promise<any> {
+  async createTemplate(data: CreateTemplateRequest): Promise<PostTemplate> {
     return this.request("/api/v1/post-template/", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async updateTemplate(id: string, orgId: string, data: any): Promise<any> {
+  async updateTemplate(id: string, orgId: string, data: UpdateTemplateRequest): Promise<PostTemplate> {
     return this.request(`/api/v1/post-template/${id}?org_id=${orgId}`, {
       method: "PATCH",
       body: JSON.stringify(data),
@@ -487,7 +500,7 @@ export class ApiClient {
     );
   }
 
-  async subscription(sub: SubscriptionRequest): Promise<any> {
+  async subscription(sub: SubscriptionRequest): Promise<SubscriptionResponse> {
     return this.request(`/api/v1/subscription/subscriptions/`, {
       method: "POST",
       body: JSON.stringify(sub),

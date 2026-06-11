@@ -220,7 +220,7 @@ const Hero = () => {
   return (
     <section
       id="#"
-      className="pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 overflow-hidden"
+      className="pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6"
     >
       <div className="max-w-7xl h-max lg:h-[90vh] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
         {/* ── LEFT ── */}
@@ -283,7 +283,7 @@ const Hero = () => {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="relative mt-8 lg:mt-0 px-3 sm:px-6 pt-0 lg:pt-16 lg:pb-16 pb-8 h-[70vh] lg:h-max flex justify-center items-center"
+          className="relative mt-8 lg:mt-0 px-3 sm:px-6 pt-0 lg:pt-16 lg:pb-16 pb-8 min-h-[50vh] lg:min-h-0 flex justify-center items-center"
         >
           {/* Glows */}
           <div className="absolute -top-10 -right-10 w-52 sm:w-64 h-52 sm:h-64 bg-chart-1/5 rounded-full blur-3xl pointer-events-none" />

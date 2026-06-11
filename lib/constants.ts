@@ -1,11 +1,12 @@
 import {
-  faBookmark,
   faUsers,
   faCreditCard,
   faCalendar,
-} from '@fortawesome/free-solid-svg-icons';
-import { faFacebook as faFacebookBrand, faSquareFacebook } from '@fortawesome/free-brands-svg-icons';
-import { faChartColumn, faSquareCheck, faChartLine, faBuildingCircleArrowRight } from '@fortawesome/free-solid-svg-icons'
+  faChartColumn,
+  faSquareCheck,
+  faChartLine,
+  faBuildingCircleArrowRight,
+} from '@fortawesome/free-solid-svg-icons'
 
 export const NAVIGATION_ITEMS = [
   {
@@ -26,14 +27,8 @@ export const NAVIGATION_ITEMS = [
         href: '/organizations',
         icon: faBuildingCircleArrowRight,
       },
-      // {
-      //   label: 'Pages Facebook',
-      //   href: '/pages',
-      //   icon: faSquareFacebook,
-      // },
     ],
   },
- 
   {
     section: 'Publication',
     items: [
@@ -49,16 +44,6 @@ export const NAVIGATION_ITEMS = [
       },
     ],
   },
-  //  {
-  //   section: 'Contenu',
-  //   items: [
-  //     {
-  //       label: 'Modèles',
-  //       href: '/templates',
-  //       icon: faBookmark,
-  //     },
-  //   ],
-  // },
   {
     section: 'Analyses',
     items: [
@@ -117,13 +102,3 @@ export const MONTHS = [
   { value: 11, label: 'November' },
   { value: 12, label: 'December' },
 ];
-
-export const STATUS_COLORS = {
-  scheduled: 'bg-blue-100 text-blue-800',
-  published: 'bg-green-100 text-green-800',
-  failed: 'bg-red-100 text-red-800',
-  success: 'bg-green-100 text-green-800',
-  info: 'bg-blue-100 text-blue-800',
-  warning: 'bg-yellow-100 text-yellow-800',
-  error: 'bg-red-100 text-red-800',
-};

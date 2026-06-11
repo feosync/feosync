@@ -53,6 +53,6 @@ export function useDeleteNotification() {
       queryClient.invalidateQueries({ queryKey: SUMMARY_KEY })
       toast.success('Notification supprimée')
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err: Error) => toast.error(err.message),
   })
 }

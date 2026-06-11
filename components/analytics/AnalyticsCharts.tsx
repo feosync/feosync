@@ -35,14 +35,24 @@ const BAR_SERIES = [
 
 // ─── Tooltip ────────────────────────────────────────────────────────────────
 
-function ChartTooltip({ active, payload, label }: any) {
+interface TooltipPayloadItem {
+  name: string
+  value: number
+  color: string
+}
+
+function ChartTooltip({ active, payload, label }: {
+  active?: boolean
+  payload?: TooltipPayloadItem[]
+  label?: string
+}) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-xl border border-border bg-card px-3 py-2 shadow-lg text-[13px]">
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
-      {payload.map((p: any) => (
+      {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1 last:mb-0">
           <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: p.color }} />
           <span className="flex-1 text-muted-foreground">{p.name}</span>
@@ -106,7 +116,7 @@ export function AnalyticsCharts({ daily }: Props) {
   }))
 
   return (
-    // ✅ bg-card + border-border remplacent bg-white/dark:bg-slate-900 + border-slate-*
+    // ✅ bg-card + border-border remplacent bg-white/ + border-slate-*
     <Card className="border-border bg-card h-full">
       <Tabs defaultValue="lines">
         <CardHeader className="flex flex-row items-start justify-between gap-4 pb-0 flex-wrap">
@@ -119,7 +129,7 @@ export function AnalyticsCharts({ daily }: Props) {
             </CardDescription>
           </div>
 
-          {/* ✅ bg-muted remplace bg-slate-100 dark:bg-slate-800 */}
+          {/* ✅ bg-muted remplace bg-slate-100  */}
           <TabsList className="h-8 bg-muted">
             <TabsTrigger
               value="lines"

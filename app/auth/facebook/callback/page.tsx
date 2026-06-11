@@ -59,23 +59,9 @@ function CallbackLoader({
 
         {/* Barre shimmer */}
         <div className="w-full h-px bg-border overflow-hidden rounded-full">
-          <div
-            className="h-full rounded-full"
-            style={{
-              animation: "shimmer 1.8s ease-in-out infinite",
-              background: "linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%)",
-              transform: "translateX(-100%)",
-            }}
-          />
+          <div className="h-full w-full bg-primary rounded-full animate-[shimmer-bar_1.8s_ease-in-out_infinite]" />
         </div>
       </div>
-
-      <style>{`
-        @keyframes shimmer {
-          0%   { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
-        }
-      `}</style>
     </div>
   );
 }
@@ -219,8 +205,8 @@ function FacebookCallbackHandler() {
       setPages(data.available_pages || []);
       setOrgId(data.org_id || state);
       setUserProfile(data.user_profile || null);
-    } catch (err: any) {
-      toast.error("Erreur", { description: err.message });
+    } catch (err: unknown) {
+      toast.error("Erreur", { description: err instanceof Error ? err.message : "Erreur inconnue" });
       router.replace("/pages");
     } finally {
       setLoading(false);

@@ -21,7 +21,7 @@ export function AiSection() {
     <div className="space-y-5">
       {/* Org selector */}
       <div className="max-w-sm">
-        <label className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5 block">
+        <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
           Organisation
         </label>
         <OrganisationSelector

@@ -21,7 +21,7 @@ export function PlanRowActions({ onEdit, onDelete }: Props) {
       </Button>
       <Button
         size="sm" variant="outline"
-        className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950"
+        className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
         onClick={onDelete}
       >
         <Trash2 className="w-3 h-3" />

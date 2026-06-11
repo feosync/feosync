@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   faChartBar,
   faRefresh,
@@ -12,6 +13,7 @@ import {
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { FacebookPageResponse } from "@/lib/api/types";
 import { useOrganisations } from "@/hooks/useOrganisations";
 import { usePublishedPosts, useSyncMetrics } from "@/hooks/usePublishedPosts";
 import {
@@ -29,7 +31,7 @@ function MetricCard({
 }: {
   label: string;
   value: number | string;
-  icon: any;
+  icon: IconDefinition;
 }) {
   return (
     <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-3">
@@ -54,7 +56,7 @@ function SocialNetworkCard({
   onSync,
   isSyncing,
 }: {
-  page: any;
+  page: FacebookPageResponse;
   orgId: string;
   onSync: (e: React.MouseEvent) => void;
   isSyncing: boolean;
@@ -81,16 +83,16 @@ function SocialNetworkCard({
               <img
                 src={page.fb_page_picture}
                 alt={page.page_name}
-                className="w-14 h-14 rounded-2xl object-cover border-2 border-background shadow-sm
-                           group-hover:ring-2 group-hover:ring-primary/30 transition-all duration-300"
+                referrerPolicy="no-referrer"
+                className="w-12 h-12 rounded-xl object-cover"
               />
             ) : (
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground text-2xl font-bold shadow-sm">
                 f
               </div>
             )}
             {page.is_active && (
-              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-card" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-success rounded-full border-2 border-card" />
             )}
           </div>
 
@@ -98,7 +100,7 @@ function SocialNetworkCard({
             <p className="text-lg font-semibold text-foreground truncate leading-tight group-hover:text-primary transition-colors">
               {page.page_name}
             </p>
-            {page.fb_page_fan_count > 0 && (
+            {page.fb_page_fan_count != null && page.fb_page_fan_count > 0 && (
               <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
                 <span className="tabular-nums">
                   {page.fb_page_fan_count.toLocaleString()}
@@ -112,7 +114,7 @@ function SocialNetworkCard({
         <div
           className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 transition-colors ${
             page.is_active
-              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+              ? "bg-success/10 text-success"
               : "bg-muted text-muted-foreground"
           }`}
         >

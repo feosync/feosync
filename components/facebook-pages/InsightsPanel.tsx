@@ -23,7 +23,7 @@ export function InsightsPanel({ pageId, orgId }: InsightsPanelProps) {
 
   if (insights.length === 0) {
     return (
-      <div className="p-4 text-sm text-slate-500 dark:text-slate-400">
+      <div className="p-4 text-sm text-muted-foreground">
         Aucun insight disponible. Cliquez sur sync pour récupérer les données.
       </div>
     )
@@ -40,9 +40,9 @@ export function InsightsPanel({ pageId, orgId }: InsightsPanelProps) {
           { label: 'Engagés',       value: latest.engaged_users },
           { label: 'Nouveaux',      value: latest.new_followers },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-blue-50 dark:bg-blue-950/50 rounded-lg p-3 text-center">
-            <div className="text-lg font-medium text-blue-700 dark:text-blue-300">{value}</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{label}</div>
+          <div key={label} className="bg-primary/5 rounded-lg p-3 text-center">
+            <div className="text-lg font-medium text-primary">{value}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
           </div>
         ))}
       </div>

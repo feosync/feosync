@@ -27,21 +27,21 @@ export function SettingsSidebar({ items, activeId, onSelect }: SettingsSidebarPr
             onClick={() => onSelect(item.id)}
             className={`
               w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left
-              transition-colors duration-150 group cursor-pointer
+              transition-all duration-150 group cursor-pointer
               ${isActive
-                ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-accent text-accent-foreground font-medium'
+                : 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground'
               }
             `}
           >
             <Icon
               className={`w-4 h-4 shrink-0 transition-colors ${
-                isActive ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
+                isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'
               }`}
             />
-            <span className="text-sm font-medium flex-1">{item.label}</span>
+            <span className="text-sm flex-1">{item.label}</span>
             {item.badge && (
-              <span className="text-[10px] bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-1.5 py-0.5 rounded-full font-medium">
+              <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">
                 {item.badge}
               </span>
             )}
@@ -62,7 +62,7 @@ interface SettingsMobileTabsProps {
 
 export function SettingsMobileTabs({ items, activeId, onSelect }: SettingsMobileTabsProps) {
   return (
-    <div className="flex overflow-x-auto gap-1 pb-1 ">
+    <div className="flex overflow-x-auto gap-1 pb-1 scrollbar-none">
       {items.map((item) => {
         const Icon = item.icon
         const isActive = item.id === activeId
@@ -72,10 +72,10 @@ export function SettingsMobileTabs({ items, activeId, onSelect }: SettingsMobile
             onClick={() => onSelect(item.id)}
             className={`
               flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap shrink-0
-              text-sm font-medium transition-colors
+              text-sm font-medium transition-all duration-150
               ${isActive
-                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'bg-accent text-muted-foreground hover:text-accent-foreground'
               }
             `}
           >
