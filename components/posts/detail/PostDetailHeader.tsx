@@ -64,7 +64,7 @@ export function PostDetailHeader({
         'flex items-center justify-between gap-4',
         'bg-card border-b border-border',
         'px-5 py-3.5',
-        // Ligne d'accentuation gauche colorée selon le statut
+        // Ligne d'accentuation gauche coloré selon le statut
         'border-l-2 transition-colors duration-300',
         s.accentClass,
       )}

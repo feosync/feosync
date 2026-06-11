@@ -26,7 +26,7 @@ export function PostPreviewCard({
     <div className="bg-card rounded-xl border border-border overflow-hidden">
 
       {/* Page header */}
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border bg-slate-50 /50">
+      {/* <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border bg-slate-50 /50">
         <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold flex-shrink-0">
           f
         </div>
@@ -53,12 +53,12 @@ export function PostPreviewCard({
             {post.publish_at ? 'Modifier' : 'Définir une date'}
           </Button>
         )}
-      </div>
+      </div> */}
 
       {/* Image */}
       {firstImage ? (
-        <div className="relative h-56 group">
-          <Image src={firstImage.image_url} alt="post" fill className="object-cover" unoptimized />
+        <div className="relative min-h-52 group">
+          <Image src={firstImage.image_url} alt="post" fill className="w-full h-full object-cover" unoptimized />
           {imageCount > 1 && (
             <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded-full">
               +{imageCount - 1} image{imageCount > 2 ? 's' : ''}

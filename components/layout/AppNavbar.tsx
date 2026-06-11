@@ -42,9 +42,9 @@ export function AppNavbar() {
   if (!user) return null;
 
   return (
-    <nav className={[
+    <nav id="onboarding-navbar" className={[
       "sticky top-0 z-30",
-      "h-13 flex items-center",           // Aligné avec la sidebar
+      "h-13 flex items-center",
       "bg-sidebar", 
       "px-3 gap-2",
     ].join(' ')}>
