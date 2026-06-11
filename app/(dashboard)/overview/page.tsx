@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { OrganisationSelector } from "@/components/organizations/OrgSelector";
+import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
 
 // ── Design tokens sémantiques ────────────────────────────────────────────────
 const STAT_CONFIG = {
@@ -199,13 +200,13 @@ export default function OverviewPage() {
 
       {/* ── Stat cards ── */}
       {isLoading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div id="onboarding-stats" className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-28 rounded-xl" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div id="onboarding-stats" className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard
             label="Publiés"
             value={publishedTotal}
@@ -232,6 +233,9 @@ export default function OverviewPage() {
           />
         </div>
       )}
+
+      {/* ── Checklist onboarding ── */}
+      <OnboardingChecklist />
 
       {/* ── Grille principale ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

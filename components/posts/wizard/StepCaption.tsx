@@ -27,7 +27,7 @@ import {
 } from 'lucide-react'
 import type { ScheduledPost } from '@/lib/api/types'
 import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
-import { checkCanGenerateCaption } from '@/lib/api/plan-limits'
+import { canGenerateCaption, checkCanGenerateCaption } from '@/lib/api/plan-limits'
 import { cn } from '@/lib/utils'
 import { log } from 'console'
 
@@ -77,7 +77,7 @@ export function StepCaption({
   onGenerateCaption,
 }: StepCaptionProps) {
   const { data: userDetail } = useCurrentUserDetail()
-  const canGenerateAI = checkCanGenerateCaption(userDetail)
+  const canGenerateAI = canGenerateCaption(userDetail)
 
   // ── État local ──
   const [mode, setMode] = useState<CaptionMode>('manual')

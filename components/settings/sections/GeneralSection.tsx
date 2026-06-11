@@ -1,9 +1,11 @@
 'use client'
 
 import { useTheme } from 'next-themes'
-import { Monitor, Moon, Sun } from 'lucide-react'
+import { Monitor, Moon, Sun, Sparkles } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { SettingsCard } from '../SettingsCard'
 import { SettingRow } from '../SettingRow'
+import { useOnboardingContext } from '@/components/onboarding/OnboardingProvider'
 
 type Theme = 'light' | 'dark' | 'system'
 
@@ -15,6 +17,7 @@ const THEMES: { value: Theme; label: string; Icon: typeof Sun }[] = [
 
 export function GeneralSection() {
   const { theme, setTheme } = useTheme()
+  const { resetOnboarding } = useOnboardingContext()
 
   return (
     <div className="space-y-4">
@@ -51,6 +54,23 @@ export function GeneralSection() {
         </SettingRow>
         <SettingRow label="Fuseau horaire" description="Pour l'affichage des dates et heures">
           <span className="text-sm text-muted-foreground">UTC+3 (Antananarivo)</span>
+        </SettingRow>
+      </SettingsCard>
+
+      <SettingsCard title="Onboarding">
+        <SettingRow
+          label="Relancer la visite guidée"
+          description="Revoyez les étapes clés de l'application."
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => resetOnboarding()}
+            className="gap-2 text-xs border-border"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Relancer
+          </Button>
         </SettingRow>
       </SettingsCard>
     </div>

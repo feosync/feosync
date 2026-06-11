@@ -56,6 +56,10 @@ export default function NewPostPage() {
 
   const handleSaveCaption = async (data: CaptionPatchRequest) => {
     if (!post) return
+    if (data.mode === 'manual') {
+      const res = await captionMutation.mutateAsync({ postId: post.id, data })
+      setPost(res.scheduled_post)
+    }
     setStep(2)
   }
 const handleGenerateCaption = async (data: CaptionPatchRequest): Promise<{ caption: string }> => {

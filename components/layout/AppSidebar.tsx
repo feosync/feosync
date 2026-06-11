@@ -91,7 +91,7 @@ export function AppSidebar() {
         </div>
 
         {/* ── Navigation ── */}
-        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
+        <nav id="onboarding-sidebar" className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
           {visibleSections.map((section) => (
             <div key={section.section}>
 
@@ -135,6 +135,7 @@ export function AppSidebar() {
                     <Link
                       key={item.href}
                       href={item.href}
+                      id={item.href === "/posts" ? "onboarding-posts" : item.href === "/settings" ? "onboarding-settings" : undefined}
                       onClick={() => {
                         if (window.innerWidth < 768) close();
                       }}
