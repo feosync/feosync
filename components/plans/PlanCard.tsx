@@ -17,7 +17,7 @@ interface ButtonConfig {
 interface PlanCardProps {
   plan: Plan & { description?: string };
   index: number;
-  currentPlanId: number | null;
+  currentPlan: Plan | null;
   currentPlanIndex: number;
   onSubscribe: (plan: Plan, action: PlanAction) => void;
   isLoading: boolean;
@@ -41,13 +41,14 @@ const CLS = {
 
 export function getPlanAction(
   plan: Plan,
-  currentPlanId: number | null,
+  currentPlan: Plan | null,   // â changÃ© : Plan | null au lieu de number | null
   planIndex: number,
   currentPlanIndex: number
 ): PlanAction {
-  if (!plan.is_active)            return "UNAVAILABLE";
-  if (plan.id === currentPlanId)  return "CURRENT";
-  if (!currentPlanId)             return "CREATE";
+  console.log(plan)
+  if (!plan.is_active)                      return "UNAVAILABLE";
+  if (currentPlan && plan.id === currentPlan.id) return "CURRENT";
+  if (!currentPlan || currentPlan.price === 0)   return "CREATE";
   return planIndex > currentPlanIndex ? "UPGRADE" : "DOWNGRADE";
 }
 
@@ -128,15 +129,15 @@ function FeatureItem({ isCurrent, children }: { isCurrent: boolean; children: Re
 export function PlanCard({
   plan,
   index,
-  currentPlanId,
+  currentPlan,
   currentPlanIndex,
   onSubscribe,
   isLoading,
 }: PlanCardProps) {
-  const action    = getPlanAction(plan, currentPlanId, index, currentPlanIndex);
+  const hasNoPlan = currentPlan === null;
+  const action    = getPlanAction(plan, currentPlan, index, currentPlanIndex);
   const isCurrent = action === "CURRENT";
   const isPopular = index === 1;
-  const hasNoPlan = currentPlanId === null;
   const btn       = getButtonConfig(plan, action, index, hasNoPlan);
 
   const cardClass = [
