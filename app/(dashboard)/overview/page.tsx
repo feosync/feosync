@@ -22,7 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { OrganisationSelector } from "@/components/organizations/OrgSelector";
-import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
+import { OnboardingFloatingButton } from "@/components/onboarding/OnboardingFloatingButton";
 
 // ── Design tokens sémantiques ────────────────────────────────────────────────
 const STAT_CONFIG = {
@@ -234,9 +234,6 @@ export default function OverviewPage() {
         </div>
       )}
 
-      {/* ── Checklist onboarding ── */}
-      <OnboardingChecklist />
-
       {/* ── Grille principale ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Prochaines publications */}
@@ -410,6 +407,7 @@ export default function OverviewPage() {
           </div>
         </div>
       </div>
+      <OnboardingFloatingButton />
     </div>
   );
 }

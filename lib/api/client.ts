@@ -36,6 +36,8 @@ import {
   PostTemplate,
   CreateTemplateRequest,
   UpdateTemplateRequest,
+  CollaboratorListResponse,
+  CollaboratorOrganization,
 } from "@/lib/api/types";
 
 import { config } from "@/lib/config";
@@ -44,18 +46,30 @@ const API_BASE_URL = config.apiUrl || "";
 
 export class ApiClient {
   private static instance: ApiClient;
+  private isRefreshing = false;
 
-  private constructor() {
-    // ← plus de localStorage, plus de this.token
-  }
+  private constructor() {}
 
   static getInstance(): ApiClient {
     if (!ApiClient.instance) ApiClient.instance = new ApiClient();
     return ApiClient.instance;
   }
 
-  // ← setToken() supprimé
-  // ← clearToken() supprimé
+  private async tryRefresh(): Promise<boolean> {
+    if (this.isRefreshing) return false;
+    this.isRefreshing = true;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+      return res.ok;
+    } catch {
+      return false;
+    } finally {
+      this.isRefreshing = false;
+    }
+  }
 
   private async request<T>(
     endpoint: string,
@@ -65,17 +79,23 @@ export class ApiClient {
       "Content-Type": "application/json",
       ...((options.headers as Record<string, string>) || {}),
     };
-    // ← plus de headers["Authorization"] = Bearer
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-      credentials: "include", // ← cookie envoyé automatiquement à chaque requête
-    });
+    const doFetch = (): Promise<Response> =>
+      fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+        credentials: "include",
+      });
+
+    let response = await doFetch();
 
     if (response.status === 401) {
-      // window.location.href = "/login";
-      throw new Error("Session expirée");
+      const refreshed = await this.tryRefresh();
+      if (refreshed) {
+        response = await doFetch();
+      } else {
+        throw new Error("Session expirée");
+      }
     }
 
     if (!response.ok) {
@@ -91,14 +111,13 @@ export class ApiClient {
   // ── Auth ──────────────────────────────────────────────────────────────────
 
   async googleLogin(googleToken: string): Promise<{ message: string; user: User }> {
-    const data = await this.request<{ message: string; user: User }>(
+    return this.request<{ message: string; user: User }>(
       "/api/v1/auth/google/auth",
       {
         method: "POST",
         body: JSON.stringify({ token: googleToken }),
       },
     );
-    return data;
   }
 
   async getCurrentUser(): Promise<User> {
@@ -107,28 +126,31 @@ export class ApiClient {
 
   async logout(): Promise<void> {
     await this.request("/api/v1/auth/logout", { method: "POST" });
-    // ← plus de this.clearToken()
-    // le serveur supprime le cookie avec delete_cookie()
   }
 
   // ── Upload image (fetch manuel) ───────────────────────────────────────────
-  // Ce fetch est spécial car il envoie FormData, pas du JSON
-  // Il n'utilise pas request() donc il faut ajouter credentials manuellement
 
   async addImageUpload(postId: string, file: File): Promise<AddImageResponse> {
     const formData = new FormData();
     formData.append("file", file);
 
-    // ← plus de headers Authorization
-    // ← ajoute credentials: "include" pour envoyer le cookie
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/scheduled/${postId}/images/upload`,
-      {
+    const doFetch = (): Promise<Response> =>
+      fetch(`${API_BASE_URL}/api/v1/scheduled/${postId}/images/upload`, {
         method: "POST",
         body: formData,
-        credentials: "include", // ← ajouté
-      },
-    );
+        credentials: "include",
+      });
+
+    let response = await doFetch();
+
+    if (response.status === 401) {
+      const refreshed = await this.tryRefresh();
+      if (refreshed) {
+        response = await doFetch();
+      } else {
+        throw new Error("Session expirée");
+      }
+    }
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
@@ -137,9 +159,7 @@ export class ApiClient {
     return response.json();
   }
 
-  // ── Le reste ne change pas du tout ───────────────────────────────────────
-  // Toutes les méthodes suivantes utilisent this.request()
-  // qui a déjà credentials: "include" → rien à toucher
+  // ── Organisation & Plans ─────────────────────────────────────────────────
 
   async getCurrentUserDetail(): Promise<UserDetail> {
     return this.request("/api/v1/user/me");
@@ -507,12 +527,9 @@ export class ApiClient {
     });
   }
 
-  // lib/api/client.ts — ajoute juste après la méthode subscription()
-
   async createSetupIntent(
     customer_id: string,
   ): Promise<{ client_secret: string; status: string }> {
-    // ✅ query param (pas body) — correspond à ton backend FastAPI
     return this.request(
       `/api/v1/subscription/setup-intent?customer_id=${customer_id}`,{
         method: "POST",
@@ -534,7 +551,57 @@ export class ApiClient {
     return this.request(`/api/v1/channel/`,{
       method: "GET"
     })
-}
+  }
+
+  // ── Collaborators ──────────────────────────────────────────────────────────
+
+  async inviteCollaborator(email: string): Promise<{ detail: string; collaborator_id?: string }> {
+    return this.request("/api/v1/collaborators/invite", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    })
+  }
+
+  async getCollaborators(): Promise<CollaboratorListResponse> {
+    return this.request("/api/v1/collaborators/")
+  }
+
+  async revokeCollaborator(collaboratorId: string): Promise<{ detail: string }> {
+    return this.request(`/api/v1/collaborators/${collaboratorId}`, {
+      method: "DELETE",
+    })
+  }
+
+  async assignOrganizations(collaboratorId: string, organizationIds: string[]): Promise<{ detail: string }> {
+    return this.request(`/api/v1/collaborators/${collaboratorId}/assign`, {
+      method: "POST",
+      body: JSON.stringify({ organization_ids: organizationIds }),
+    })
+  }
+
+  async getAssignedOrganizations(collaboratorId: string): Promise<CollaboratorOrganization[]> {
+    return this.request(`/api/v1/collaborators/${collaboratorId}/organizations`)
+  }
+
+  async getMyCollaboratorRole(): Promise<{ role: "owner" | "collaborator"; owner_name: string | null }> {
+    return this.request("/api/v1/collaborators/me/role")
+  }
+
+  async acceptInvitation(token: string): Promise<{ detail: string; collaborator_id: string }> {
+    return this.request(`/api/v1/collaborators/invitations/accept?token=${encodeURIComponent(token)}`, {
+      method: "POST",
+    })
+  }
+
+  async declineInvitation(token: string): Promise<{ detail: string }> {
+    return this.request(`/api/v1/collaborators/invitations/decline?token=${encodeURIComponent(token)}`, {
+      method: "POST",
+    })
+  }
+
+  async getPendingInvitations(): Promise<Array<{ id: string; token: string; owner_email: string; owner_name: string; expires_at: string }>> {
+    return this.request("/api/v1/collaborators/pending")
+  }
 }
 
 

@@ -21,8 +21,8 @@ export function EmptyState({
   const Icon = c.icon
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 bg-slate-50 /30 rounded-xl border border-dashed border-border">
-      <div className="w-12 h-12 bg-slate-100  rounded-full flex items-center justify-center mb-3">
+    <div className="flex flex-col items-center justify-center py-20 bg-background /30 rounded-xl border border-dashed border-border">
+      <div className="w-12 h-12 bg-muted  rounded-full flex items-center justify-center mb-3">
         <Icon className="w-6 h-6 text-muted-foreground" />
       </div>
       <p className="text-sm font-medium text-foreground mb-1">{c.title}</p>

@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { NAVIGATION_ITEMS } from "@/lib/constants";
 import { useSidebar } from "@/hooks/useSidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { useMyRole } from "@/hooks/useMyRole";
 import { useState } from "react";
 import { SubscriptionDialog } from "@/components/plans/SubscriptionDialog";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,9 @@ export function AppSidebar() {
   const { isOpen, close } = useSidebar();
   const { user } = useAuth();
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
+  const { data: roleData } = useMyRole();
+  const isCollab = roleData?.role === "collaborator";
+
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(NAVIGATION_ITEMS.map((s) => s.section)),
   );
@@ -175,8 +179,8 @@ export function AppSidebar() {
           ))}
         </nav>
 
-        {/* ── Bouton abonnement ── */}
-        <div className={cn(
+        {/* ── Bouton abonnement (masqué pour les collaborateurs) ── */}
+        {!isCollab && <div className={cn(
           "p-3 border-t border-border",
           !isOpen && "flex justify-center",
         )}>
@@ -199,7 +203,7 @@ export function AppSidebar() {
               <FontAwesomeIcon icon={faCrown} className="w-4 h-4" />
             </button>
           )}
-        </div>
+        </div>}
       </aside>
 
       <SubscriptionDialog

@@ -6,6 +6,7 @@ import {
   faSquareCheck,
   faChartLine,
   faBuildingCircleArrowRight,
+  faUserGroup,
 } from '@fortawesome/free-solid-svg-icons'
 
 export const NAVIGATION_ITEMS = [
@@ -26,6 +27,11 @@ export const NAVIGATION_ITEMS = [
         label: 'Organisations',
         href: '/organizations',
         icon: faBuildingCircleArrowRight,
+      },
+      {
+        label: 'Collaborateurs',
+        href: '/settings/collaborators',
+        icon: faUserGroup,
       },
     ],
   },

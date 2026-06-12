@@ -77,7 +77,10 @@ export function SubscriptionDialog({
     setCurrentPlanId(user?.plan_id ?? null);
   }, [user?.plan_id]);
 
-  const activePlans = useMemo(() => plans.filter((p) => p.is_active), [plans]);
+  const activePlans = useMemo(
+    () => plans.filter((p) => p.is_active && !p.is_default),
+    [plans],
+  );
   const currentPlanIndex = useMemo(
     () => activePlans.findIndex((p) => p.id === currentPlanId),
     [activePlans, currentPlanId],
