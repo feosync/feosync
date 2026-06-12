@@ -16,10 +16,12 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
+import { useMyRole } from '@/hooks/useMyRole';
 import { NotificationBell } from '@/components/notifications/NotificationsPopover';
 import { useSidebar } from '@/hooks/useSidebar';
 import Image from 'next/image';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import { Badge } from '@/components/ui/badge';
 
 export function AppNavbar() {
   const { user, logout } = useAuth();
@@ -31,6 +33,9 @@ export function AppNavbar() {
     await logout();
     router.push('/login');
   };
+
+  const { data: roleData } = useMyRole()
+  const isCollab = roleData?.role === "collaborator"
 
   const initials = user?.name
     ?.split(' ')
@@ -103,11 +108,23 @@ export function AppNavbar() {
           >
             {/* Identité */}
             <DropdownMenuLabel className="pb-1">
-              <p className="text-sm font-semibold text-card-foreground leading-tight">
-                {user.name}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-card-foreground leading-tight">
+                  {user.name}
+                </p>
+                <Badge
+                  variant="outline"
+                  className={`text-[10px] px-1.5 py-0 h-4 font-medium ${
+                    isCollab
+                      ? "bg-warning/10 text-warning border-warning/20"
+                      : "bg-primary/10 text-primary border-primary/20"
+                  }`}
+                >
+                  {isCollab ? "Collaborateur" : "Owner"}
+                </Badge>
+              </div>
               <p className="text-xs text-muted-foreground font-normal leading-tight mt-0.5">
-                {user.email}
+                {isCollab && roleData?.owner_name ? `de ${roleData.owner_name}` : user.email}
               </p>
             </DropdownMenuLabel>
 

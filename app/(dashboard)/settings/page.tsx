@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Settings, User, Bell, Info, Shield, Sparkles } from 'lucide-react'
+import { Settings, User, Bell, Info, Shield, Sparkles, Users } from 'lucide-react'
+import { useMyRole } from '@/hooks/useMyRole'
 import { SettingsSidebar, SettingsMobileTabs, NavItem } from '@/components/settings/SettingsSidebar'
 import { GeneralSection }       from '@/components/settings/sections/GeneralSection'
 import { ProfileSection }       from '@/components/settings/sections/ProfileSection'
@@ -15,6 +16,7 @@ import { AiSection }            from '@/components/settings/sections/AiSection'
 const NAV_ITEMS: NavItem[] = [
   { id: 'general',       label: 'Général',       icon: Settings  },
   { id: 'profile',       label: 'Profil',        icon: User      },
+  { id: 'collaborators', label: 'Collaborateurs', icon: Users     },
   { id: 'notifications', label: 'Notifications', icon: Bell      },
   { id: 'ai',            label: 'IA & Quota',    icon: Sparkles  },
   { id: 'account',       label: 'Compte',        icon: Shield    },
@@ -24,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
 const SECTION_TITLES: Record<string, { title: string; description: string }> = {
   general:       { title: 'Général',       description: "Apparence et préférences de l'application" },
   profile:       { title: 'Profil',        description: 'Informations personnelles et photo' },
+  collaborators: { title: 'Collaborateurs', description: 'Gérez les accès à vos organisations' },
   notifications: { title: 'Notifications', description: 'Gérez comment vous êtes alerté' },
   ai:            { title: 'IA & Quota',    description: "Suivi de l'utilisation de l'intelligence artificielle" },
   account:       { title: 'Compte',        description: 'Sécurité et gestion du compte' },
@@ -35,12 +38,13 @@ function SectionContent({ activeId }: { activeId: string }) {
     <div key={activeId} className="animate-[fade-in_0.2s_ease-out]">
       {(() => {
         switch (activeId) {
-          case 'general':       return <GeneralSection />
-          case 'profile':       return <ProfileSection />
-          case 'notifications': return <NotificationsSection />
-          case 'ai':            return <AiSection />
-          case 'account':       return <AccountSection />
-          case 'about':         return <AboutSection />
+      case 'general':       return <GeneralSection />
+      case 'profile':       return <ProfileSection />
+      case 'collaborators': return <CollaboratorsRedirect />
+      case 'notifications': return <NotificationsSection />
+      case 'ai':            return <AiSection />
+      case 'account':       return <AccountSection />
+      case 'about':         return <AboutSection />
           default:              return null
         }
       })()}
@@ -49,6 +53,34 @@ function SectionContent({ activeId }: { activeId: string }) {
 }
 
 /* ── Page ───────────────────────────────────────────────────────── */
+
+function CollaboratorsRedirect() {
+  const { data: roleData } = useMyRole()
+  if (roleData?.role === "collaborator") {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <Users className="w-10 h-10 text-muted-foreground mb-3" />
+        <p className="text-sm text-muted-foreground">
+          Vous êtes collaborateur. Seul le propriétaire du compte peut gérer les collaborateurs.
+        </p>
+      </div>
+    )
+  }
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <Users className="w-10 h-10 text-muted-foreground mb-3" />
+      <p className="text-sm text-muted-foreground mb-4">
+        Gérez vos collaborateurs depuis la page dédiée.
+      </p>
+      <a
+        href="/settings/collaborators"
+        className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+      >
+        Accéder à la gestion des collaborateurs
+      </a>
+    </div>
+  )
+}
 
 export default function SettingsPage() {
   const [activeId, setActiveId] = useState('general')

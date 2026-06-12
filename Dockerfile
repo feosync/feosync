@@ -10,6 +10,8 @@ RUN npm run build
 FROM node:22-alpine
 WORKDIR /app
 
+RUN addgroup --system --gid 1001 appuser && adduser --system --uid 1001 appuser
+
 # Copier uniquement les fichiers de configuration des paquets
 COPY package.json package-lock.json ./
 
@@ -18,6 +20,9 @@ RUN npm ci --omit=dev --legacy-peer-deps
 
 # Copier UNIQUEMENT le dossier de build (ajustez "dist" selon votre framework : build, .next, etc.)
 COPY --from=builder /app/.next/build ./dist
+
+RUN chown -R appuser:appuser /app
+USER appuser
 
 EXPOSE 3000
 CMD ["npm", "start"]

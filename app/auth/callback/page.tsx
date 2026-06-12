@@ -91,7 +91,9 @@ function CallbackHandler() {
       if (!response.ok) throw new Error(data.detail || "Échec de l'authentification")
 
       toast.success('Connexion réussie', { description: `Bienvenue ${data.user.name} !` })
-      window.location.href = '/overview'
+      const returnUrl = sessionStorage.getItem('returnUrl') || '/overview'
+      sessionStorage.removeItem('returnUrl')
+      window.location.href = returnUrl
 
     } catch (err: unknown) {
       toast.error('Erreur', { description: err instanceof Error ? err.message : 'Erreur inconnue' })

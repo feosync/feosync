@@ -2,7 +2,7 @@
 
 import { createContext, useContext, type ReactNode } from 'react'
 import { useOnboarding } from '@/hooks/useOnboarding'
-import type { ChecklistProgress, OnboardingState } from '@/lib/onboarding'
+import type { ChecklistProgress, OnboardingState, StepProgress } from '@/lib/onboarding'
 
 interface OnboardingContextType {
   state: OnboardingState
@@ -12,6 +12,11 @@ interface OnboardingContextType {
   resetOnboarding: () => void
   completeChecklistItem: (itemId: keyof ChecklistProgress) => void
   isFirstVisit: boolean
+  dismissBanner: () => void
+  completeStep: (stepId: string) => void
+  getSteps: () => StepProgress[]
+  stepsProgress: { completed: number; total: number; percent: number }
+  allStepsComplete: boolean
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined)

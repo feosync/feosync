@@ -1,4 +1,22 @@
+import type { LucideIcon } from 'lucide-react'
+import {
+  User,
+  Building2,
+  Facebook,
+  LayoutDashboard,
+  CalendarClock,
+  Send,
+} from 'lucide-react'
+
+export interface StepProgress {
+  id: string
+  completed: boolean
+  completedAt?: string
+}
+
 export interface OnboardingState {
+  dismissed: boolean
+  steps: StepProgress[]
   welcomeSeen: boolean
   tourCompleted: boolean
   checklist: ChecklistProgress
@@ -19,6 +37,59 @@ export interface TourStep {
   description: string
   position: 'bottom' | 'top' | 'left' | 'right'
 }
+
+export interface StepDefinition {
+  id: string
+  label: string
+  description: string
+  href: string
+  icon: LucideIcon
+}
+
+export const ONBOARDING_STEPS: StepDefinition[] = [
+  {
+    id: 'complete-profile',
+    label: 'Compléter votre profil',
+    description: 'Ajoutez votre photo et vérifiez vos informations personnelles.',
+    href: '/settings',
+    icon: User,
+  },
+  {
+    id: 'create-org',
+    label: 'Créer une organisation',
+    description: 'Configurez votre espace de travail pour gérer vos pages Facebook.',
+    href: '/organizations',
+    icon: Building2,
+  },
+  {
+    id: 'connect-facebook',
+    label: 'Connecter votre Facebook',
+    description: 'Lie vos pages Facebook pour publier directement depuis FeoSync.',
+    href: '/pages',
+    icon: Facebook,
+  },
+  {
+    id: 'explore-dashboard',
+    label: 'Explorer le tableau de bord',
+    description: 'Découvrez vos statistiques et suivez vos performances.',
+    href: '/overview',
+    icon: LayoutDashboard,
+  },
+  {
+    id: 'schedule-post',
+    label: 'Planifier un post',
+    description: 'Créez et programmez votre première publication.',
+    href: '/posts/new',
+    icon: CalendarClock,
+  },
+  {
+    id: 'publish-post',
+    label: 'Publier votre premier post',
+    description: 'Passez à l\'action et publiez votre contenu en ligne.',
+    href: '/posts/new',
+    icon: Send,
+  },
+]
 
 export const TOUR_STEPS: TourStep[] = [
   {
@@ -54,6 +125,8 @@ export const TOUR_STEPS: TourStep[] = [
 ]
 
 export const DEFAULT_ONBOARDING_STATE: OnboardingState = {
+  dismissed: false,
+  steps: ONBOARDING_STEPS.map((s) => ({ id: s.id, completed: false })),
   welcomeSeen: false,
   tourCompleted: false,
   checklist: {
@@ -116,4 +189,47 @@ export function computeProgress(onboarding: OnboardingState): number {
   const items = Object.values(onboarding.checklist)
   const done = items.filter(Boolean).length
   return Math.round((done / items.length) * 100)
+}
+
+export function computeStepsProgress(steps: StepProgress[]): {
+  completed: number
+  total: number
+  percent: number
+} {
+  const total = steps.length
+  const completed = steps.filter((s) => s.completed).length
+  return {
+    total,
+    completed,
+    percent: total > 0 ? Math.round((completed / total) * 100) : 0,
+  }
+}
+
+export function migrateState(state: Partial<OnboardingState>): OnboardingState {
+  const base = { ...DEFAULT_ONBOARDING_STATE, ...state }
+
+  if (!base.steps || base.steps.length === 0) {
+    const old = state.checklist
+    base.steps = ONBOARDING_STEPS.map((s) => {
+      const oldId = mapNewToOldStepId(s.id)
+      return {
+        id: s.id,
+        completed: old ? !!old[oldId as keyof ChecklistProgress] : false,
+      }
+    })
+  }
+
+  return base
+}
+
+function mapNewToOldStepId(newId: string): string {
+  const map: Record<string, string> = {
+    'complete-profile': 'profileCompleted',
+    'create-org': 'orgCreated',
+    'schedule-post': 'postScheduled',
+    'publish-post': 'postPublished',
+    'explore-dashboard': 'settingsVisited',
+    'connect-facebook': 'settingsVisited',
+  }
+  return map[newId] ?? ''
 }

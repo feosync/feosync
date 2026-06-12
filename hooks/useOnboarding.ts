@@ -1,12 +1,15 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useAuth } from './useAuth'
 import {
   type OnboardingState,
   type ChecklistProgress,
+  type StepProgress,
   DEFAULT_ONBOARDING_STATE,
   getStorageKey,
+  computeStepsProgress,
+  migrateState,
 } from '@/lib/onboarding'
 
 function loadState(userId: string): OnboardingState {
@@ -14,12 +17,12 @@ function loadState(userId: string): OnboardingState {
   try {
     const raw = localStorage.getItem(getStorageKey(userId))
     if (raw) {
-      const parsed = JSON.parse(raw) as OnboardingState
-      return {
+      const parsed = JSON.parse(raw) as Partial<OnboardingState>
+      return migrateState({
         ...DEFAULT_ONBOARDING_STATE,
         ...parsed,
         checklist: { ...DEFAULT_ONBOARDING_STATE.checklist, ...parsed.checklist },
-      }
+      })
     }
   } catch {}
   return DEFAULT_ONBOARDING_STATE
@@ -43,6 +46,14 @@ export function useOnboarding() {
       setState(loadState(userId))
     }
   }, [userId])
+
+  const persist = useCallback(
+    (next: OnboardingState) => {
+      setState(next)
+      if (userId) saveState(userId, next)
+    },
+    [userId],
+  )
 
   const update = useCallback(
     (patch: Partial<OnboardingState>) => {
@@ -85,11 +96,41 @@ export function useOnboarding() {
   )
 
   const resetOnboarding = useCallback(() => {
-    setState(DEFAULT_ONBOARDING_STATE)
-    if (userId) {
-      localStorage.removeItem(getStorageKey(userId))
-    }
+    persist(DEFAULT_ONBOARDING_STATE)
+  }, [persist])
+
+  const dismissBanner = useCallback(() => {
+    setState((prev) => {
+      if (prev.dismissed) return prev
+      const next = { ...prev, dismissed: true }
+      if (userId) saveState(userId, next)
+      return next
+    })
   }, [userId])
+
+  const getSteps = useCallback((): StepProgress[] => {
+    return state.steps
+  }, [state.steps])
+
+  const completeStep = useCallback(
+    (stepId: string) => {
+      setState((prev) => {
+        const already = prev.steps.find((s) => s.id === stepId)
+        if (already?.completed) return prev
+
+        const steps = prev.steps.map((s) =>
+          s.id === stepId
+            ? { ...s, completed: true, completedAt: new Date().toISOString() }
+            : s,
+        )
+
+        const next = { ...prev, steps }
+        if (userId) saveState(userId, next)
+        return next
+      })
+    },
+    [userId],
+  )
 
   const completeChecklistItem = useCallback(
     (itemId: keyof ChecklistProgress) => {
@@ -98,7 +139,13 @@ export function useOnboarding() {
     [updateChecklist],
   )
 
+  const stepsProgress = useMemo(
+    () => computeStepsProgress(state.steps),
+    [state.steps],
+  )
+
   const isFirstVisit = !state.welcomeSeen
+  const allStepsComplete = stepsProgress.percent === 100
 
   return {
     state,
@@ -107,7 +154,12 @@ export function useOnboarding() {
     dismissTooltip,
     resetOnboarding,
     completeChecklistItem,
+    dismissBanner,
+    completeStep,
+    getSteps,
+    stepsProgress,
     isFirstVisit,
+    allStepsComplete,
     userId,
   }
 }

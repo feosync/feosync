@@ -589,6 +589,35 @@ export interface Channel{
 
 
 
+// ── Collaborators ──────────────────────────────────────────────────────────────
+
+export interface CollaboratorOrganization {
+  id: string
+  name: string
+}
+
+export interface Collaborator {
+  id: string
+  email: string
+  name: string | null
+  status: "active" | "pending" | "revoked"
+  created_at: string
+  assigned_organizations: CollaboratorOrganization[]
+}
+
+export interface CollaboratorListResponse {
+  items: Collaborator[]
+  total: number
+}
+
+export interface InviteCollaboratorRequest {
+  email: string
+}
+
+export interface AssignOrganizationsRequest {
+  organization_ids: string[]
+}
+
 // lib/api/types.ts
 export interface FacebookUserProfile {
   fb_user_id: string
