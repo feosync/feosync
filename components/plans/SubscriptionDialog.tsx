@@ -87,7 +87,7 @@ export function SubscriptionDialog({
   );
   const currentPlan =
     currentPlanIndex >= 0 ? activePlans[currentPlanIndex] : null;
-  const isSubscribed = !!currentPlanId;
+  const isSubscribed = currentPlan !== null && currentPlan.price > 0;
 
   // ==================== HANDLERS ====================
   // const handleSubscribeClick = (plan: Plan, action: PlanAction) => {
@@ -193,7 +193,7 @@ export function SubscriptionDialog({
       : "grid grid-cols-1 lg:grid-cols-3 gap-6";
 
   return (
-    <>
+    <div className="w-max">
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className={STYLES.dialog} showCloseButton={true}>
           {pending && (
@@ -229,7 +229,7 @@ export function SubscriptionDialog({
                     key={plan.id}
                     plan={plan}
                     index={i}
-                    currentPlanId={currentPlanId}
+                    currentPlan={currentPlan}
                     currentPlanIndex={currentPlanIndex}
                     onSubscribe={handleSubscribeClick}
                     isLoading={subscribeMutation.isPending}
@@ -268,8 +268,8 @@ export function SubscriptionDialog({
         <Elements
           stripe={stripePromise}
           options={{
-            clientSecret, // 🔑 obligatoire pour PaymentElement
-            appearance: { theme: "stripe" }, // optionnel
+            clientSecret,
+            appearance: { theme: "stripe" },
           }}
         >
           <PaymentDialog
@@ -311,6 +311,6 @@ export function SubscriptionDialog({
         isPending={unsubscribeMutation.isPending}
         currentPlan={currentPlan}
       />
-    </>
+    </ div>
   );
 }

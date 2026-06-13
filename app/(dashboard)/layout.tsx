@@ -13,7 +13,7 @@ import { useOnboardingContext } from '@/components/onboarding/OnboardingProvider
 
 function PageTransition({ children }: { children: React.ReactNode }) {
   return (
-    <div className="animate-[fade-in_0.2s_ease-out]">
+    <div className="animate-fade-in">
       {children}
     </div>
   );
@@ -74,10 +74,8 @@ export default function DashboardLayout({
   return (
     <OnboardingProvider>
       <OnboardingGate>
-        <div className="flex h-screen bg-background">
-
+        <div className="flex h-screen bg-background overflow-hidden">
           <AppSidebar />
-
           <div className="flex-1 flex flex-col overflow-hidden">
 
             <div className="border-b border-border">

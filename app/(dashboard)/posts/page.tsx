@@ -8,6 +8,8 @@ import { useFacebookPages } from '@/hooks/useFacebookPages'
 import { useSyncMetrics, useDeletePublishedPost, useSetAutoComment } from '@/hooks/usePublishedPosts'
 import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
 import { checkCanCreatePost } from '@/lib/api/plan-limits'
+import { OrgScopeFilter } from '@/components/organizations/OrgScopeFilter'
+import type { ScopeFilter } from '@/components/organizations/OrgScopeFilter'
 
 import { usePostsFilters } from './_hooks/usePostsFilters'
 import { PostsHeader }          from './_components/PostsHeader'
@@ -27,7 +29,8 @@ export default function PostsPage() {
 
   // Org
   const [selectedOrgId, setSelectedOrgId] = useState('')
-  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+  const [scope, setScope] = useState<ScopeFilter>("owned")
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10, scope })
   const organisations = orgData?.items ?? []
   const orgId = selectedOrgId || organisations[0]?.id || ''
   const { data: pages = [] } = useFacebookPages(orgId)
@@ -79,32 +82,40 @@ export default function PostsPage() {
         onCreateClick={handleOpenCreatePost}
       />
 
-      <PostsOrgSelector
-        value={selectedOrgId}
-        onChange={v => { setSelectedOrgId(v); filters.setPage(1) }}
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <OrgScopeFilter value={scope} onChange={setScope} />
+        <div className="sm:ml-auto">
+          <PostsOrgSelector
+            value={selectedOrgId}
+            onChange={v => { setSelectedOrgId(v); filters.setPage(1) }}
+            scope={scope}
+          />
+        </div>
+      </div>
 
-      <PostsSearchBar
-        searchInput={filters.searchInput}
-        onSearch={filters.handleSearch}
-        filtersOpen={filters.filtersOpen}
-        onToggleFilters={() => filters.setFiltersOpen(o => !o)}
-        activeFilterCount={filters.activeFilterCount}
-      />
-
-      {filters.filtersOpen && (
-        <PostsFiltersPanel
-          year={filters.year}
-          month={filters.month}
-          week={filters.week}
-          availableWeeks={filters.availableWeeks}
+      <div className="space-y-2">
+        <PostsSearchBar
+          searchInput={filters.searchInput}
+          onSearch={filters.handleSearch}
+          filtersOpen={filters.filtersOpen}
+          onToggleFilters={() => filters.setFiltersOpen(o => !o)}
           activeFilterCount={filters.activeFilterCount}
-          onYear={filters.handleYear}
-          onMonth={filters.handleMonth}
-          onWeek={filters.handleWeek}
-          onReset={filters.resetFilters}
         />
-      )}
+
+        {filters.filtersOpen && (
+          <PostsFiltersPanel
+            year={filters.year}
+            month={filters.month}
+            week={filters.week}
+            availableWeeks={filters.availableWeeks}
+            activeFilterCount={filters.activeFilterCount}
+            onYear={filters.handleYear}
+            onMonth={filters.handleMonth}
+            onWeek={filters.handleWeek}
+            onReset={filters.resetFilters}
+          />
+        )}
+      </div>
 
       <PostsStatusTabs
         activeTab={filters.activeTab}

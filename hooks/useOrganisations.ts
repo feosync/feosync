@@ -9,6 +9,7 @@ export function useOrganisations(params?: {
   page?: number
   page_size?: number
   search?: string
+  scope?: "owned" | "assigned" | "all"
 }) {
   return useQuery({
     queryKey: [...QUERY_KEY, params],

@@ -1,17 +1,18 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
-import { Loader2, Sparkles, Upload, Link as LinkIcon, X, Plus, Images } from 'lucide-react'
+import { Loader2, Sparkles, X, Plus, Images } from 'lucide-react'
 import Image from 'next/image'
 import type { ScheduledPost } from '@/lib/api/types'
+import type { ImageSource } from '@/types/scheduling'
 import { useAddImage, useAddImageUpload, useRemoveImage } from '@/hooks/useScheduledPosts'
 import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
 import { checkCanGenerateImage } from '@/lib/api/plan-limits'
-import { cn } from '@/lib/utils'
+import { ImageSourcePicker } from '@/components/posts/ImageSourcePicker'
 
 const MAX_IMAGES = 10
 
@@ -24,16 +25,11 @@ interface StepImageProps {
   onBack: () => void
 }
 
-type ImageMode = 'url' | 'upload' | 'llm'
-
 export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, onBack }: StepImageProps) {
   const { data: userDetail } = useCurrentUserDetail()
-  const [mode, setMode] = useState<ImageMode>('url')
-  const [url, setUrl] = useState('')
+  const [imageSource, setImageSource] = useState<ImageSource | null>(null)
+  const [useAi, setUseAi] = useState(false)
   const [description, setDesc] = useState('')
-  const [file, setFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState('')
-  const fileRef = useRef<HTMLInputElement>(null)
 
   const addMutation = useAddImage(orgId)
   const uploadMutation = useAddImageUpload(orgId)
@@ -43,34 +39,27 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
   const canAdd = images.length < MAX_IMAGES
   const isAdding = addMutation.isPending || uploadMutation.isPending
 
-  const resetForm = () => {
-    setUrl('')
-    setDesc('')
-    setFile(null)
-    setPreview('')
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (!f) return
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
-  }
+  const handleSourceChange = useCallback((source: ImageSource | null) => {
+    setImageSource(source)
+    setUseAi(false)
+  }, [])
 
   const handleAdd = async () => {
     let res
-    if (mode === 'upload' && file) {
-      res = await uploadMutation.mutateAsync({ postId: post.id, file })
-    } else if (mode === 'url' && url.trim()) {
-      res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'url', url: url.trim() } })
-    } else if (mode === 'llm' && description.trim()) {
+    if (useAi && description.trim()) {
       if (!checkCanGenerateImage(userDetail)) return
       res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'llm', description: description.trim() } })
+    } else if (imageSource?.type === 'url') {
+      res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'url', url: imageSource.url } })
+    } else if (imageSource?.type === 'file' && imageSource.file) {
+      res = await uploadMutation.mutateAsync({ postId: post.id, file: imageSource.file })
     }
 
     if (res) {
       onImageAdded(res.scheduled_post)
-      resetForm()
+      setImageSource(null)
+      setUseAi(false)
+      setDesc('')
     }
   }
 
@@ -82,15 +71,7 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
   const canSubmitAdd =
     !isAdding &&
     canAdd &&
-    ((mode === 'url' && !!url.trim()) ||
-     (mode === 'upload' && !!file) ||
-     (mode === 'llm' && !!description.trim()))
-
-  const MODES = [
-    { value: 'url' as ImageMode, label: 'URL', icon: LinkIcon },
-    { value: 'upload' as ImageMode, label: 'Uploader', icon: Upload },
-    { value: 'llm' as ImageMode, label: 'Générer par IA', icon: Sparkles },
-  ]
+    ((useAi && !!description.trim()) || imageSource !== null)
 
   return (
     <Card className="p-8 bg-card border-border shadow-xl">
@@ -142,84 +123,42 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
           <div className="space-y-5">
             <Label>Ajouter une image</Label>
 
-            {/* Mode Tabs */}
-            <div className="flex gap-1 p-1 bg-muted rounded-2xl">
-              {MODES.map((m) => (
-                <button
-                  key={m.value}
-                  onClick={() => {
-                    if (m.value === 'llm' && !checkCanGenerateImage(userDetail)) return
-                    setMode(m.value)
-                    resetForm()
-                  }}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-medium transition-all",
-                    mode === m.value
-                      ? "bg-card shadow-sm text-foreground border border-border"
-                      : "text-muted-foreground hover:text-foreground hover:bg-card/60"
-                  )}
-                >
-                  <m.icon className={cn("w-4 h-4", mode === 'llm' && "text-primary")} />
-                  {m.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Form by Mode */}
-            {mode === 'url' && (
-              <div className="space-y-3">
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => {
-                    setUrl(e.target.value)
-                    setPreview(e.target.value)
-                  }}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full h-11 px-4 rounded-xl border bg-card text-foreground focus:ring-2 focus:ring-ring"
-                />
-                {preview && (
-                  <div className="relative h-52 rounded-2xl overflow-hidden border border-border">
-                    <Image src={preview} alt="preview" fill className="object-cover" unoptimized />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {mode === 'upload' && (
-              <div className="space-y-3">
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <div
-                  onClick={() => fileRef.current?.click()}
-                  className="border-2 border-dashed border-border hover:border-primary/50 rounded-2xl p-8 text-center cursor-pointer transition-colors bg-card"
-                >
-                  <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
-                  <p className="font-medium">Cliquez pour sélectionner une image</p>
-                  <p className="text-sm text-muted-foreground mt-1">PNG, JPG, WebP — Max 10MB</p>
-                </div>
-                {preview && (
-                  <div className="relative h-52 rounded-2xl overflow-hidden border border-border">
-                    <Image src={preview} alt="preview" fill className="object-cover" unoptimized />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {mode === 'llm' && (
-              <Textarea
-                value={description}
-                onChange={(e) => setDesc(e.target.value)}
-                placeholder="Décris l'image que tu veux générer... Ex: Une femme souriante devant un ordinateur dans un bureau moderne avec lumière naturelle"
-                rows={4}
-                className="resize-none"
+            {/* Image Source Picker (Upload / URL) */}
+            {!useAi && (
+              <ImageSourcePicker
+                value={imageSource}
+                onChange={handleSourceChange}
               />
             )}
+
+            {/* AI Generation Toggle & Form */}
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setUseAi(!useAi)
+                  if (!useAi) setImageSource(null)
+                }}
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                {useAi ? 'Annuler la génération IA' : 'Générer par IA'}
+              </button>
+
+              {useAi && (
+                <div className="space-y-3 animate-fade-in">
+                  <Textarea
+                    value={description}
+                    onChange={(e) => setDesc(e.target.value)}
+                    placeholder="Décris l'image que tu veux générer... Ex: Une femme souriante devant un ordinateur dans un bureau moderne avec lumière naturelle"
+                    rows={4}
+                    className="resize-none"
+                  />
+                  {!checkCanGenerateImage(userDetail) && (
+                    <p className="text-xs text-warning">Limite de génération IA atteinte pour ce mois.</p>
+                  )}
+                </div>
+              )}
+            </div>
 
             <Button
               onClick={handleAdd}
@@ -229,7 +168,7 @@ export function StepImage({ post, orgId, onImageAdded, onImageRemoved, onNext, o
               {isAdding ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {mode === 'llm' ? 'Génération...' : 'Ajout...'}
+                  {useAi ? 'Génération...' : 'Ajout...'}
                 </>
               ) : (
                 <>

@@ -510,7 +510,6 @@ const About = () => {
         {selectedMember && (
           <ProfileModal
             member={selectedMember}
-            dark={dark}
             onClose={() => setSelectedMember(null)}
           />
         )}

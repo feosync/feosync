@@ -35,10 +35,10 @@ export function useScheduledPosts(orgId: string, params?: ScheduledPostsParams) 
   })
 }
 
-export function useScheduledPost(postId: string) {
+export function useScheduledPost(postId: string | null | undefined) {
   return useQuery({
-    queryKey: POST_QUERY_KEY(postId),
-    queryFn:  () => apiClient.getScheduledPostById(postId),
+    queryKey: POST_QUERY_KEY(postId ?? ''),
+    queryFn:  () => apiClient.getScheduledPostById(postId!),
     enabled:  !!postId,
   })
 }

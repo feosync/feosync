@@ -104,7 +104,7 @@ function InvitationActions({
     setLoading(true)
     try {
       const res = await apiClient.acceptInvitation(token)
-      onStateChange("accepted", res.detail)
+      onStateChange("accepted", res.message)
     } catch (err: any) {
       const msg = err?.message || "Erreur lors de l'acceptation"
       if (msg.toLowerCase().includes("expir")) {
@@ -121,7 +121,7 @@ function InvitationActions({
     setLoading(true)
     try {
       const res = await apiClient.declineInvitation(token)
-      onStateChange("declined", res.detail)
+      onStateChange("declined", res.message)
     } catch (err: any) {
       onStateChange("error", err?.message || "Erreur lors du refus")
     } finally {

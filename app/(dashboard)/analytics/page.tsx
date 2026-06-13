@@ -21,6 +21,8 @@ import {
   useFacebookInsights,
 } from "@/hooks/useFacebookPages";
 import { OrganisationSelector } from "@/components/organizations/OrgSelector";
+import { OrgScopeFilter } from "@/components/organizations/OrgScopeFilter";
+import type { ScopeFilter } from "@/components/organizations/OrgScopeFilter";
 
 // ── Metric Card ───────────────────────────────────────────────────────────────
 
@@ -222,8 +224,9 @@ function EmptyChannels() {
 
 export default function AnalyticsPage() {
   const [selectedOrgId, setSelectedOrgId] = useState<string>("");
+  const [scope, setScope] = useState<ScopeFilter>("owned");
 
-  const { data: orgData } = useOrganisations({ page: 1, page_size: 50 });
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 50, scope });
   const organisations = orgData?.items ?? [];
   const orgId = selectedOrgId || organisations[0]?.id || "";
 
@@ -239,7 +242,7 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-10">
       {/* ── Header ── */}
-      <div className="flex items-end justify-between pb-6 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-6 border-b border-border gap-3">
         <div>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-1">
             Vue d'ensemble
@@ -248,12 +251,16 @@ export default function AnalyticsPage() {
             Analytics
           </h1>
         </div>
-        <div className="w-56">
-          <OrganisationSelector
-            value={orgId}
-            onChange={setSelectedOrgId}
-            placeholder="Organisation"
-          />
+        <div className="flex items-center gap-3">
+          <OrgScopeFilter value={scope} onChange={setScope} />
+          <div className="w-56">
+            <OrganisationSelector
+              value={orgId}
+              onChange={setSelectedOrgId}
+              placeholder="Organisation"
+              scope={scope}
+            />
+          </div>
         </div>
       </div>
 

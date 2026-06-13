@@ -38,6 +38,7 @@ import {
   UpdateTemplateRequest,
   CollaboratorListResponse,
   CollaboratorOrganization,
+  InvitationListResponse,
 } from "@/lib/api/types";
 
 import { config } from "@/lib/config";
@@ -102,7 +103,10 @@ export class ApiClient {
       const err = await response
         .json()
         .catch(() => ({ detail: "Erreur inconnue" }));
-      throw new Error(err.detail || "Erreur API");
+      const message = Array.isArray(err.detail)
+        ? err.detail.map((d: { msg?: string }) => d.msg).join("; ")
+        : err.detail || "Erreur API";
+      throw new Error(message);
     }
 
     return response.json();
@@ -241,11 +245,13 @@ export class ApiClient {
     page?: number;
     page_size?: number;
     search?: string;
+    scope?: "owned" | "assigned" | "all";
   }): Promise<PaginatedResponse<Organisation>> {
     const query = new URLSearchParams();
     if (params?.page) query.set("page", String(params.page));
     if (params?.page_size) query.set("page_size", String(params.page_size));
     if (params?.search) query.set("search", params.search);
+    if (params?.scope) query.set("scope", params.scope);
     return this.request(`/api/v1/org/?${query.toString()}`);
   }
 
@@ -553,9 +559,71 @@ export class ApiClient {
     })
   }
 
+  // ── Reels & Stories ──────────────────────────────────────────────────────────
+
+  async scheduleReel(formData: FormData, onProgress?: (pct: number) => void): Promise<{ id: string; status: string; scheduledAt: string | null }> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${API_BASE_URL}/api/v1/posts/reels`)
+      xhr.withCredentials = true
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable && onProgress) {
+          onProgress(Math.round((e.loaded / e.total) * 100))
+        }
+      }
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(JSON.parse(xhr.responseText))
+        } else {
+          try {
+            const err = JSON.parse(xhr.responseText)
+            reject(new Error(err.detail || "Upload échoué"))
+          } catch {
+            reject(new Error("Upload échoué — vérifiez le format du fichier"))
+          }
+        }
+      }
+
+      xhr.onerror = () => reject(new Error("Erreur réseau"))
+      xhr.send(formData)
+    })
+  }
+
+  async scheduleStory(formData: FormData, onProgress?: (pct: number) => void): Promise<{ id: string; status: string; scheduledAt: string | null; expiresAt?: string | null }> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${API_BASE_URL}/api/v1/posts/stories`)
+      xhr.withCredentials = true
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable && onProgress) {
+          onProgress(Math.round((e.loaded / e.total) * 100))
+        }
+      }
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(JSON.parse(xhr.responseText))
+        } else {
+          try {
+            const err = JSON.parse(xhr.responseText)
+            reject(new Error(err.detail || "Upload échoué"))
+          } catch {
+            reject(new Error("Upload échoué — vérifiez le format du fichier"))
+          }
+        }
+      }
+
+      xhr.onerror = () => reject(new Error("Erreur réseau"))
+      xhr.send(formData)
+    })
+  }
+
   // ── Collaborators ──────────────────────────────────────────────────────────
 
-  async inviteCollaborator(email: string): Promise<{ detail: string; collaborator_id?: string }> {
+  async inviteCollaborator(email: string): Promise<{ id: string; email: string; status: string; role: string }> {
     return this.request("/api/v1/collaborators/invite", {
       method: "POST",
       body: JSON.stringify({ email }),
@@ -587,20 +655,26 @@ export class ApiClient {
     return this.request("/api/v1/collaborators/me/role")
   }
 
-  async acceptInvitation(token: string): Promise<{ detail: string; collaborator_id: string }> {
+  async acceptInvitation(token: string): Promise<{ message: string; access_token: string; user_id: string }> {
     return this.request(`/api/v1/collaborators/invitations/accept?token=${encodeURIComponent(token)}`, {
       method: "POST",
     })
   }
 
-  async declineInvitation(token: string): Promise<{ detail: string }> {
+  async declineInvitation(token: string): Promise<{ message: string }> {
     return this.request(`/api/v1/collaborators/invitations/decline?token=${encodeURIComponent(token)}`, {
       method: "POST",
     })
   }
 
-  async getPendingInvitations(): Promise<Array<{ id: string; token: string; owner_email: string; owner_name: string; expires_at: string }>> {
-    return this.request("/api/v1/collaborators/pending")
+  async getInvitations(): Promise<InvitationListResponse> {
+    return this.request("/api/v1/collaborators/invitations")
+  }
+
+  async revokeInvitation(invitationId: string): Promise<{ detail: string }> {
+    return this.request(`/api/v1/collaborators/invitations/${invitationId}`, {
+      method: "DELETE",
+    })
   }
 }
 

@@ -21,7 +21,7 @@ import { useDarkMode } from "@/hooks/useDarkMode";
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { isOpen, close } = useSidebar();
+  const { isOpen, toggle, close } = useSidebar();
   const { user } = useAuth();
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const { data: roleData } = useMyRole();
@@ -62,40 +62,46 @@ export function AppSidebar() {
           isOpen ? "w-60" : "w-0 md:w-14",
         )}
       >
-        {/* ── Header : Logo + bouton collapse ── */}
+        {/* ── Header : Logo + bouton collapse unique ── */}
         <div
           className={cn(
             "h-14 flex items-center shrink-0 px-3",
             isOpen ? "justify-between" : "justify-center",
           )}
         >
-          <span className="w-7 h-7 shrink-0">
-            <Image
-              src={
-                dark
-                  ? "/images/dark/feosync_icon.png"
-                  : "/images/light/feosync_icon.png"
-              }
-              alt="FeoSync"
-              width={28}
-              height={28}
-              className="w-full h-full"
-            />
-          </span>
-
           {isOpen && (
-            <button
-              onClick={close}
-              className="cursor-pointer w-7 h-7 flex items-center justify-center rounded-lg text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-              aria-label="Réduire le menu"
-            >
-              <FontAwesomeIcon icon={faAnglesLeft} className="w-3.5 h-3.5" />
-            </button>
+            <span className="w-7 h-7 shrink-0">
+              <Image
+                src={
+                  dark
+                    ? "/images/dark/feosync_icon.png"
+                    : "/images/light/feosync_icon.png"
+                }
+                alt="FeoSync"
+                width={28}
+                height={28}
+                className="w-full h-full"
+              />
+            </span>
           )}
+
+          <button
+            onClick={toggle}
+            className={cn(
+              "cursor-pointer w-7 h-7 flex items-center justify-center rounded-lg text-foreground hover:bg-accent hover:text-accent-foreground transition-colors",
+              !isOpen && "w-9 h-9",
+            )}
+            aria-label={isOpen ? "Réduire le menu" : "Ouvrir le menu"}
+          >
+            <FontAwesomeIcon
+              icon={faAnglesLeft}
+              className={cn("w-3.5 h-3.5", !isOpen && "rotate-180")}
+            />
+          </button>
         </div>
 
         {/* ── Navigation ── */}
-        <nav id="onboarding-sidebar" className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
+        <nav id="onboarding-sidebar" className="flex-1  py-3 px-2 space-y-4">
           {visibleSections.map((section) => (
             <div key={section.section}>
 

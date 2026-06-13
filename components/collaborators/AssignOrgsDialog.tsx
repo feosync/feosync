@@ -51,10 +51,10 @@ export function AssignOrgsDialog({
             <Building2 className="w-6 h-6 text-primary" />
           </div>
           <DialogTitle className="text-center text-xl">
-            Assigner des organisations
+            Gérer les collaborations
           </DialogTitle>
           <DialogDescription className="text-center">
-            {collaborator?.name ?? collaborator?.email} verra uniquement les organisations sélectionnées.
+            {collaborator?.name ?? collaborator?.email} aura accès uniquement aux organisations sélectionnées.
           </DialogDescription>
         </DialogHeader>
 
