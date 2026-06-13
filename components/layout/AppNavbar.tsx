@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOut, faMoon, faSun, faEllipsisH, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faSignOut, faMoon, faSun, faBars, faCog } from '@fortawesome/free-solid-svg-icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,9 +16,9 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
+import { useSidebar } from '@/hooks/useSidebar';
 import { useMyRole } from '@/hooks/useMyRole';
 import { NotificationBell } from '@/components/notifications/NotificationsPopover';
-import { useSidebar } from '@/hooks/useSidebar';
 import Image from 'next/image';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { Badge } from '@/components/ui/badge';
@@ -26,8 +26,8 @@ import { Badge } from '@/components/ui/badge';
 export function AppNavbar() {
   const { user, logout } = useAuth();
   const router = useRouter();
-  const { toggle } = useSidebar();
   const { dark, toggle: toggleTheme } = useDarkMode();
+  const { toggle } = useSidebar();
 
   const handleLogout = async () => {
     await logout();
@@ -54,17 +54,16 @@ export function AppNavbar() {
       "px-3 gap-2",
     ].join(' ')}>
 
-      {/* ── Hamburger ── */}
+      {/* ── Hamburger (mobile seulement) ── */}
       <Button
         variant="ghost"
         size="icon"
         onClick={toggle}
-        className="w-8 h-8 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex-shrink-0"
+        className="w-8 h-8 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex-shrink-0 md:hidden"
         aria-label="Ouvrir le menu"
       >
-        <FontAwesomeIcon icon={faEllipsisH} className="w-4 h-4" />
+        <FontAwesomeIcon icon={faBars} className="w-4 h-4" />
       </Button>
-
 
       {/* ── Actions droite ── */}
       <div className="flex items-center gap-3 ml-auto">

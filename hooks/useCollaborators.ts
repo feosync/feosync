@@ -18,7 +18,8 @@ export function useInviteCollaborator() {
     mutationFn: (email: string) => apiClient.inviteCollaborator(email),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY })
-      toast.success(res.detail)
+      queryClient.invalidateQueries({ queryKey: ["invitations"] })
+      toast.success(`Invitation envoyée à ${res.email}`)
     },
     onError: (err: Error) => {
       toast.error("Erreur", { description: err.message })
@@ -51,6 +52,29 @@ export function useAssignOrganizations() {
       organizationIds: string[]
     }) => apiClient.assignOrganizations(collaboratorId, organizationIds),
     onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+      toast.success(res.detail)
+    },
+    onError: (err: Error) => {
+      toast.error("Erreur", { description: err.message })
+    },
+  })
+}
+
+export function useInvitations() {
+  return useQuery({
+    queryKey: ["invitations"],
+    queryFn: () => apiClient.getInvitations(),
+    staleTime: 1000 * 60 * 2,
+  })
+}
+
+export function useCancelInvitation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (invitationId: string) => apiClient.revokeInvitation(invitationId),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["invitations"] })
       queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       toast.success(res.detail)
     },

@@ -193,7 +193,7 @@ export function SubscriptionDialog({
       : "grid grid-cols-1 lg:grid-cols-3 gap-6";
 
   return (
-    <div className="w-max overflow-scroll">
+    <div className="w-max">
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className={STYLES.dialog} showCloseButton={true}>
           {pending && (

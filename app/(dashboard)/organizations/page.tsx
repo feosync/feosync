@@ -6,6 +6,7 @@ import { faPlus, faBuilding, faSearch, faTimes } from '@fortawesome/free-solid-s
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
 import { useDebounce } from '@/hooks/useDebounce'
 import {
   useOrganisations,
@@ -21,10 +22,18 @@ import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
 import { checkCanCreateOrg } from '@/lib/api/plan-limits'
 
 const PAGE_SIZE = 7
+type ScopeFilter = "owned" | "assigned" | "all"
+
+const SCOPE_OPTIONS: { value: ScopeFilter; label: string }[] = [
+  { value: "owned", label: "Mes organisations" },
+  { value: "assigned", label: "Collaborations" },
+  { value: "all", label: "Toutes" },
+]
 
 export default function OrganisationsPage() {
   const [page, setPage] = useState(1)
   const [searchInput, setSearchInput] = useState('')
+  const [scope, setScope] = useState<ScopeFilter>("owned")
   const search = useDebounce(searchInput, 400)
 
   const { data: userDetail } = useCurrentUserDetail()
@@ -36,6 +45,7 @@ export default function OrganisationsPage() {
     page,
     page_size: PAGE_SIZE,
     search: search || undefined,
+    scope,
   })
 
   const organisations = data?.items ?? []
@@ -99,6 +109,23 @@ export default function OrganisationsPage() {
         </Button>
       </div>
 
+      {/* ── Scope filter ──────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2">
+        {SCOPE_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => { setScope(opt.value); setPage(1) }}
+            className={`text-xs font-medium px-3 py-1.5 rounded-full transition-colors ${
+              scope === opt.value
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
       {/* ── Search ────────────────────────────────────────────────────────── */}
       <div className="relative max-w-sm">
         <FontAwesomeIcon
@@ -136,18 +163,26 @@ export default function OrganisationsPage() {
             <FontAwesomeIcon icon={faBuilding} className="w-6 h-6 text-muted-foreground" />
           </div>
           <p className="text-sm font-medium text-foreground mb-1">
-            Aucune organisation
+            {scope === "owned"
+              ? "Aucune organisation"
+              : scope === "assigned"
+                ? "Aucune organisation en collaboration"
+                : "Aucune organisation trouvée"}
           </p>
           <p className="text-sm text-muted-foreground mb-4">
-            Créez votre première organisation pour commencer
+            {scope === "owned"
+              ? "Créez votre première organisation pour commencer"
+              : "Vous n'avez pas encore d'organisation en collaboration"}
           </p>
-          <Button
-            onClick={handleOpenCreate}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5 transition-colors"
-          >
-            <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-            Créer une organisation
-          </Button>
+          {scope === "owned" && (
+            <Button
+              onClick={handleOpenCreate}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5 transition-colors"
+            >
+              <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+              Créer une organisation
+            </Button>
+          )}
         </div>
       ) : (
         <>

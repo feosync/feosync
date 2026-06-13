@@ -22,6 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { OrganisationSelector } from "@/components/organizations/OrgSelector";
+import { OrgScopeFilter } from "@/components/organizations/OrgScopeFilter";
+import type { ScopeFilter } from "@/components/organizations/OrgScopeFilter";
 import { OnboardingFloatingButton } from "@/components/onboarding/OnboardingFloatingButton";
 
 // ── Design tokens sémantiques ────────────────────────────────────────────────
@@ -125,8 +127,9 @@ function PostItem({
 export default function OverviewPage() {
   const { user } = useAuth();
   const [selectedOrgId, setSelectedOrgId] = useState<string>("");
+  const [scope, setScope] = useState<ScopeFilter>("owned");
 
-  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 });
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10, scope });
   const organisations = orgData?.items ?? [];
   const orgId = selectedOrgId || organisations[0]?.id || "";
 
@@ -185,15 +188,14 @@ export default function OverviewPage() {
         </Link>
       </div>
 
-      {/* ── Sélecteur d'organisation ── */}
-      <div className="flex items-center gap-3">
-        <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-          Organisation
-        </span>
-        <div className="min-w-45">
+      {/* ── Sélecteur d'organisation + scope ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <OrgScopeFilter value={scope} onChange={setScope} />
+        <div className="min-w-45 sm:ml-auto">
           <OrganisationSelector
             value={selectedOrgId}
             onChange={setSelectedOrgId}
+            scope={scope}
           />
         </div>
       </div>

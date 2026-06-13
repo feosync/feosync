@@ -16,24 +16,27 @@ import { OrgDialog } from '@/components/organizations/OrgDialog'
 import type { CreateOrgRequest } from '@/lib/api/types'
 import { checkCanCreateOrg } from '@/lib/api/plan-limits'
 import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
+import type { ScopeFilter } from './OrgScopeFilter'
 
 interface OrganisationSelectorProps {
   value: string | null
   onChange: (orgId: string) => void
   placeholder?: string
+  scope?: ScopeFilter
 }
 
 export function OrganisationSelector({
   value,
   onChange,
   placeholder = "Sélectionner une organisation...",
+  scope = "owned",
 }: OrganisationSelectorProps) {
   const [open, setOpen]           = useState(false)
   const [page, setPage]           = useState(1)
   const [dialogOpen, setDialogOpen] = useState(false)
   const { data: userDetail } = useCurrentUserDetail()
 
-  const { data, isLoading } = useOrganisations({ page, page_size: 10 })
+  const { data, isLoading } = useOrganisations({ page, page_size: 10, scope })
   const createMutation = useCreateOrganisation()
 
   const organisations = data?.items ?? []

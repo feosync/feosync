@@ -1,18 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { ImageOff } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -33,10 +23,13 @@ import { useOrganisations } from "@/hooks/useOrganisations";
 import { useFacebookPages } from "@/hooks/useFacebookPages";
 import { PublishedPostCard } from "@/components/published/PublishedPostCard";
 import { PublishedPostDetailSheet } from "@/components/published/PublishedPostDetailSheet";
-import { OrganisationSelector } from "@/components/organizations/OrgSelector";
+import { PostsOrgSelector } from "@/app/(dashboard)/posts/_components/PostsOrgSelector";
+import { OrgScopeFilter } from "@/components/organizations/OrgScopeFilter";
+import type { ScopeFilter } from "@/components/organizations/OrgScopeFilter";
+import { PostsSearchBar } from "@/app/(dashboard)/posts/_components/PostsSearchBar";
+import { PostsFiltersPanel } from "@/app/(dashboard)/posts/_components/PostsFiltersPanel";
 import { useDebounce } from "@/hooks/useDebounce";
 import type { AutoCommentRequest, FacebookPageResponse, PublishedPost } from "@/lib/api/types";
-import { Button } from "@/components/ui/button";
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 
@@ -65,23 +58,6 @@ const THIS_YEAR = new Date().getFullYear();
 const THIS_MONTH = new Date().getMonth() + 1;
 const CURRENT_WEEK = getISOWeekNumber(new Date());
 
-const YEARS = Array.from({ length: 3 }, (_, i) => THIS_YEAR - i);
-
-const MONTHS = [
-  { value: 1, label: "Janvier" },
-  { value: 2, label: "Février" },
-  { value: 3, label: "Mars" },
-  { value: 4, label: "Avril" },
-  { value: 5, label: "Mai" },
-  { value: 6, label: "Juin" },
-  { value: 7, label: "Juillet" },
-  { value: 8, label: "Août" },
-  { value: 9, label: "Septembre" },
-  { value: 10, label: "Octobre" },
-  { value: 11, label: "Novembre" },
-  { value: 12, label: "Décembre" },
-];
-
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function PublishedPage() {
@@ -89,7 +65,8 @@ export default function PublishedPage() {
 
   // ── Org ───────────────────────────────────────────────────────────────────
   const [selectedOrgId, setSelectedOrgId] = useState("");
-  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 });
+  const [scope, setScope] = useState<ScopeFilter>("owned");
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10, scope });
   const orgId = selectedOrgId || orgData?.items[0]?.id || "";
   const { data: pages = [] } = useFacebookPages(orgId);
 
@@ -102,8 +79,14 @@ export default function PublishedPage() {
   const [month, setMonth] = useState<number | undefined>(THIS_MONTH);
   const [week, setWeek] = useState<number | undefined>(CURRENT_WEEK);
   const [page, setPage] = useState(1);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const availableWeeks = year && month ? getWeeksOfMonth(year, month) : [];
+  const activeFilterCount = [
+    year !== THIS_YEAR,
+    month !== THIS_MONTH,
+    week !== CURRENT_WEEK,
+  ].filter(Boolean).length;
 
   const handleYear = (v: string) => {
     setYear(v !== "all" ? Number(v) : undefined);
@@ -147,128 +130,53 @@ export default function PublishedPage() {
   return (
     <div className="space-y-5.5">
       {/* ── Header ── */}
-      <div className="flex items-end justify-between flex-wrap gap-6 max-w-max">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <h1 className="text-xl font-semibold text-foreground tracking-tight">
-              Post publié ({total} post{total > 1 ? "s" : ""})
-            </h1>
-            {/* <p className="text-sm text-muted-foreground">
-              Vous avez {total} post publié
-            </p> */}
-          </div>
-       
+      <div>
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold text-foreground tracking-tight">
+            Post publié ({total} post{total > 1 ? "s" : ""})
+          </h1>
         </div>
-        <div className="w-full flex justify-start items-center">
-          <div className="flex items-center  w-max">
-            {/* Badge compteur */}
-            {!isLoading && (
-              <span className="inline-flex items-center text-foreground/65 pr-2.5 text-base font-semibold uppercase">
-                Organisation
-                {search && ` · « ${search} »`}
-              </span>
-            )}
-          </div>
-          <div className="w-max">
-            <OrganisationSelector
-              value={selectedOrgId}
-              onChange={(v) => {
-                setSelectedOrgId(v);
-                setPage(1);
-              }}
-            />
-          </div>
+      </div>
+
+      {/* ── Scope + Organisation ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <OrgScopeFilter value={scope} onChange={setScope} />
+        <div className="sm:ml-auto">
+          <PostsOrgSelector
+            value={selectedOrgId}
+            onChange={(v) => {
+              setSelectedOrgId(v);
+              setPage(1);
+            }}
+            scope={scope}
+          />
         </div>
       </div>
 
       {/* ── Filtres ── */}
-      <div className="flex flex-wrap items-center gap-2.5 p-2 bg-muted/40 border border-border rounded-xl w-full lg:w-max">
-        {/* Search */}
-        <div className="relative">
-          <FontAwesomeIcon
-            icon={faSearch}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-            style={{ width: "0.8rem", height: "0.8rem" }}
+      <div className="space-y-2">
+        <PostsSearchBar
+          searchInput={searchInput}
+          onSearch={handleSearch}
+          filtersOpen={filtersOpen}
+          onToggleFilters={() => setFiltersOpen(o => !o)}
+          activeFilterCount={activeFilterCount}
+        />
+        {filtersOpen && (
+          <PostsFiltersPanel
+            year={year}
+            month={month}
+            week={week}
+            availableWeeks={availableWeeks}
+            activeFilterCount={activeFilterCount}
+            onYear={handleYear}
+            onMonth={handleMonth}
+            onWeek={handleWeek}
+            onReset={() => {
+              setYear(THIS_YEAR); setMonth(THIS_MONTH); setWeek(CURRENT_WEEK); setPage(1)
+            }}
           />
-          <Input
-            placeholder="Rechercher…"
-            value={searchInput}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="pl-8 pr-8 w-52 h-8 text-sm bg-background border-border
-                       focus-visible:ring-2 focus-visible:ring-ring"
-          />
-          {searchInput && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleSearch("")}
-              className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6
-                         text-muted-foreground hover:text-foreground"
-            >
-              <FontAwesomeIcon
-                icon={faTimes}
-                style={{ width: "0.75rem", height: "0.75rem" }}
-              />
-            </Button>
-          )}
-        </div>
-
-        <div className="w-px h-5 bg-border" />
-
-        {/* Année */}
-        <Select value={year ? String(year) : "all"} onValueChange={handleYear}>
-          <SelectTrigger className="w-28 h-8 text-sm bg-background border-border focus:ring-ring">
-            <SelectValue placeholder="Année" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Toutes les années</SelectItem>
-            {YEARS.map((y) => (
-              <SelectItem key={y} value={String(y)}>
-                {y}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Mois */}
-        <Select
-          value={month ? String(month) : "all"}
-          onValueChange={handleMonth}
-        >
-          <SelectTrigger className="w-36 h-8 text-sm bg-background border-border focus:ring-ring">
-            <SelectValue placeholder="Mois" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les mois</SelectItem>
-            {MONTHS.map((m) => (
-              <SelectItem key={m.value} value={String(m.value)}>
-                {m.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Semaine */}
-        <Select
-          value={week ? String(week) : "all"}
-          onValueChange={handleWeek}
-          disabled={!month}
-        >
-          <SelectTrigger
-            className="w-36 h-8 text-sm bg-background border-border focus:ring-ring
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <SelectValue placeholder={month ? "Semaine" : "Choisir un mois"} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Toutes</SelectItem>
-            {availableWeeks.map((w) => (
-              <SelectItem key={w} value={String(w)}>
-                Semaine {w}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        )}
       </div>
 
       {/* ── Grille masonry ── */}

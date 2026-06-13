@@ -616,6 +616,25 @@ export interface InviteCollaboratorRequest {
   email: string
 }
 
+export interface Invitation {
+  id: string
+  organisation_id: string
+  email: string
+  role: string
+  status: string
+  created_at: string
+  expires_at: string
+  inviter_name: string | null
+}
+
+export interface InvitationListResponse {
+  items: Invitation[]
+  total: number
+  page: number
+  page_size: number
+  total_pages: number
+}
+
 export interface AssignOrganizationsRequest {
   organization_ids: string[]
 }
