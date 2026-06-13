@@ -21,8 +21,11 @@ interface StepConfirmProps {
   post: ScheduledPost;
   pages: FacebookPageResponse[];
   publishAt: string;
-  isLoading: boolean;
-  onConfirm: () => void;
+  isLoading?: boolean;
+  isScheduling?: boolean;
+  isPublishing?: boolean;
+  onSchedule: () => void;
+  onPublishNow?: () => void;
   onBack: () => void;
 }
 
@@ -30,10 +33,15 @@ export function StepConfirm({
   post,
   pages,
   publishAt,
-  isLoading,
-  onConfirm,
+  isLoading = false,
+  isScheduling,
+  isPublishing,
+  onSchedule,
+  onPublishNow,
   onBack,
 }: StepConfirmProps) {
+  const schedulingLoading = isScheduling ?? isLoading
+  const publishingLoading = isPublishing ?? isLoading
   const page = pages.find((p) => p.id === Object.values(post.page_ids)[0]);
   const firstImage = post.images?.[0] ?? null;
   const imageCount = post.images?.length ?? 0;
@@ -181,20 +189,34 @@ export function StepConfirm({
         >
           ← Modifier
         </Button>
-        <Button
-          onClick={onConfirm}
-          disabled={!canConfirm || isLoading}
-          className="flex-1 h-10 text-sm font-medium"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Planification…
-            </>
-          ) : (
-            "Confirmer & Planifier"
+        <div className="flex-1 flex gap-2">
+          {onPublishNow && (
+            <Button
+              onClick={onPublishNow}
+              disabled={!canConfirm || publishingLoading || schedulingLoading}
+              variant="default"
+              className="flex-1 h-10 text-sm font-medium"
+            >
+              {publishingLoading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Publication…</>
+              ) : (
+                "Publier maintenant"
+              )}
+            </Button>
           )}
-        </Button>
+          <Button
+            onClick={onSchedule}
+            disabled={!canConfirm || schedulingLoading || publishingLoading}
+            variant={onPublishNow ? "outline" : "default"}
+            className="flex-1 h-10 text-sm font-medium"
+          >
+            {schedulingLoading ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Planification…</>
+            ) : (
+              "Planifier"
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

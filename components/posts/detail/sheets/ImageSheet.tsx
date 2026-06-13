@@ -1,16 +1,18 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { Sparkles, Upload, Link as LinkIcon, Loader2, X, Plus, Images } from 'lucide-react'
+import { useCallback, useState } from 'react'
+import { Sparkles, Loader2, X, Plus, Images } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
 import Image from 'next/image'
 import type { ScheduledPost } from '@/lib/api/types'
+import type { ImageSource } from '@/types/scheduling'
 import { useAddImage, useAddImageUpload, useRemoveImage } from '@/hooks/useScheduledPosts'
 import { useCurrentUserDetail } from '@/hooks/useCurrentUserDetail'
 import { checkCanGenerateImage } from '@/lib/api/plan-limits'
+import { ImageSourcePicker } from '@/components/posts/ImageSourcePicker'
 
 const MAX_IMAGES = 10
 
@@ -24,12 +26,9 @@ interface Props {
 
 export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
   const { data: userDetail } = useCurrentUserDetail()
-  const fileRef = useRef<HTMLInputElement>(null)
-  const [tab, setTab] = useState('url')
-  const [imageUrl, setImageUrl] = useState('')
+  const [mode, setMode] = useState<'manual' | 'llm'>('manual')
+  const [imageSource, setImageSource] = useState<ImageSource | null>(null)
   const [imageDesc, setImageDesc] = useState('')
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [filePreview, setFilePreview] = useState('')
 
   const addMutation    = useAddImage(orgId)
   const uploadMutation = useAddImageUpload(orgId)
@@ -41,37 +40,30 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
   const isRemoving = removeMutation.isPending
 
   const resetForm = () => {
-    setImageUrl('')
+    setImageSource(null)
     setImageDesc('')
-    setImageFile(null)
-    setFilePreview('')
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (!f) return
-    setImageFile(f)
-    setFilePreview(URL.createObjectURL(f))
-  }
+  const handleSourceChange = useCallback((source: ImageSource | null) => {
+    setImageSource(source)
+  }, [])
 
   const handleAdd = async () => {
     let res
-    if (tab === 'upload' && imageFile) {
-      res = await uploadMutation.mutateAsync({ postId: post.id, file: imageFile })
-    } else if (tab === 'url' && imageUrl.trim()) {
-      res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'url', url: imageUrl } })
-    } else if (tab === 'llm' && imageDesc.trim()) {
+    if (mode === 'llm' && imageDesc.trim()) {
       if (!checkCanGenerateImage(userDetail)) return
       res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'llm', description: imageDesc } })
+    } else if (imageSource?.type === 'url') {
+      res = await addMutation.mutateAsync({ postId: post.id, data: { mode: 'url', url: imageSource.url } })
+    } else if (imageSource?.type === 'file' && imageSource.file) {
+      res = await uploadMutation.mutateAsync({ postId: post.id, file: imageSource.file })
     }
     if (res) { onUpdate?.(res.scheduled_post); resetForm() }
   }
 
   const addDisabled =
     isAdding || !canAdd ||
-    (tab === 'url'    && !imageUrl.trim()) ||
-    (tab === 'upload' && !imageFile) ||
-    (tab === 'llm'    && !imageDesc.trim())
+    (mode === 'llm' ? !imageDesc.trim() : imageSource === null)
 
   return (
     <Sheet open={open} onOpenChange={o => !o && onClose()}>
@@ -98,7 +90,7 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
                 </Badge>
               </div>
               <SheetDescription className="text-muted-foreground text-xs mt-0.5">
-                Jusqu'à {MAX_IMAGES} images par post. L'ordre définit le carrousel Meta.
+                Jusqu&apos;à {MAX_IMAGES} images par post. L&apos;ordre définit le carrousel Meta.
               </SheetDescription>
             </div>
           </div>
@@ -126,15 +118,12 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
                       className="object-cover"
                       unoptimized
                     />
-                    {/* Index badge */}
                     <div className="absolute top-1 left-1 w-5 h-5 bg-black/60 rounded text-white text-[10px] flex items-center justify-center font-medium">
                       {i + 1}
                     </div>
-                    {/* Source badge */}
                     <div className="absolute bottom-1 left-1 text-[9px] bg-black/50 text-white px-1 py-0.5 rounded uppercase tracking-wide">
                       {img.image_source}
                     </div>
-                    {/* Remove button */}
                     <button
                       onClick={() => handleRemove(img.id)}
                       disabled={isRemoving}
@@ -158,77 +147,50 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
                 {images.length === 0 ? 'Ajouter une image' : 'Ajouter une image supplémentaire'}
               </p>
 
-              <Tabs value={tab} onValueChange={v => {
-                if (v === 'llm' && !checkCanGenerateImage(userDetail)) return
-                setTab(v)
-                resetForm()
-              }}>
-                <TabsList className="w-full bg-muted">
-                  <TabsTrigger value="url" className="flex-1 gap-1.5 text-xs">
-                    <LinkIcon className="w-3.5 h-3.5" />URL
-                  </TabsTrigger>
-                  <TabsTrigger value="upload" className="flex-1 gap-1.5 text-xs">
-                    <Upload className="w-3.5 h-3.5" />Upload
-                  </TabsTrigger>
-                  <TabsTrigger value="llm" className="flex-1 gap-1.5 text-xs">
-                    <Sparkles className="w-3.5 h-3.5" />IA
-                  </TabsTrigger>
-                </TabsList>
+              {/* Mode toggle: Manual vs AI */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setMode('manual'); setImageDesc('') }}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    mode === 'manual'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  URL / Upload
+                </button>
+                <button
+                  onClick={() => { setMode('llm'); setImageSource(null) }}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                    mode === 'llm'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  IA
+                </button>
+              </div>
 
-                {/* Tab URL */}
-                <TabsContent value="url" className="space-y-2 mt-3">
-                  <input
-                    value={imageUrl}
-                    onChange={e => setImageUrl(e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
-                  />
-                  {imageUrl && (
-                    <div className="relative h-32 rounded-lg overflow-hidden border border-border">
-                      <Image src={imageUrl} alt="preview" fill className="object-cover" unoptimized />
-                    </div>
-                  )}
-                </TabsContent>
-
-                {/* Tab Upload */}
-                <TabsContent value="upload" className="space-y-2 mt-3">
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-                  <div
-                    onClick={() => fileRef.current?.click()}
-                    className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
-                  >
-                    <Upload className="w-7 h-7 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      {imageFile ? imageFile.name : 'Cliquez ou glissez une image'}
-                    </p>
-                    <p className="text-xs text-muted-foreground/70 mt-1">
-                      PNG, JPG, WebP — max 10MB
-                    </p>
-                  </div>
-                  {filePreview && (
-                    <div className="relative h-32 rounded-lg overflow-hidden border border-border">
-                      <Image src={filePreview} alt="preview" fill className="object-cover" unoptimized />
-                    </div>
-                  )}
-                </TabsContent>
-
-                {/* Tab IA */}
-                <TabsContent value="llm" className="mt-3">
-                  <textarea
+              {mode === 'manual' ? (
+                <ImageSourcePicker
+                  value={imageSource}
+                  onChange={handleSourceChange}
+                />
+              ) : (
+                <div className="space-y-2">
+                  <Textarea
                     value={imageDesc}
                     onChange={e => setImageDesc(e.target.value)}
                     rows={3}
                     placeholder="Ex: Photo professionnelle d'un bureau moderne, lumière naturelle..."
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-input text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+                    className="resize-none"
                   />
-                </TabsContent>
-              </Tabs>
+                  {!checkCanGenerateImage(userDetail) && (
+                    <p className="text-xs text-warning">Limite de génération IA atteinte pour ce mois.</p>
+                  )}
+                </div>
+              )}
 
               <Button
                 onClick={handleAdd}
@@ -238,7 +200,7 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
                 {isAdding ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    {tab === 'llm' ? 'Génération...' : 'Upload...'}
+                    {mode === 'llm' ? 'Génération...' : 'Upload...'}
                   </>
                 ) : (
                   <>
@@ -249,7 +211,6 @@ export function ImageSheet({ open, onClose, post, orgId, onUpdate }: Props) {
               </Button>
             </div>
           ) : (
-            /* Limite atteinte */
             <div className="flex flex-col items-center justify-center py-8 text-center border border-border rounded-xl bg-muted/50">
               <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center mb-3">
                 <Images className="w-5 h-5 text-muted-foreground" />

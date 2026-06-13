@@ -18,11 +18,10 @@ COPY package.json package-lock.json ./
 # Installer SEULEMENT les dépendances de production
 RUN npm ci --omit=dev --legacy-peer-deps
 
-# Copier UNIQUEMENT le dossier de build (ajustez "dist" selon votre framework : build, .next, etc.)
-COPY --from=builder /app/.next/build ./dist
+COPY --from=builder /app/.next ./.next
 
 RUN chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["npx", "next", "start"]

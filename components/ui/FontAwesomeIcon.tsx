@@ -20,7 +20,6 @@ interface IconProps {
   opacity?: 0.25 | 0.5 | 0.75 | 1;
   border?: boolean;
   pull?: 'left' | 'right';
-  power?: 'down' | 'up';
   children?: ReactNode;
   [key: string]: unknown;
 }
@@ -38,7 +37,6 @@ export function FAIcon({
   opacity,
   border,
   pull,
-  power,
   ...rest
 }: IconProps) {
   return (
@@ -55,7 +53,6 @@ export function FAIcon({
       opacity={opacity}
       border={border}
       pull={pull}
-      power={power}
       {...rest}
     />
   );

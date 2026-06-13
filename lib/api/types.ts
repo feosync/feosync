@@ -213,14 +213,16 @@ export interface ConfirmRequest {
 
 export interface PublishedPost {
   id: string;
-  scheduled_post_id: string;
+  scheduled_post_id?: string | null;
   facebook_page_id: string;
   post_id: string | null;
-  meta_permalink: string | null; // ← nouveau
+  meta_permalink: string | null;
   channel: string;
-  image_count: number; // ← nouveau
+  post_type?: string;
+  image_count: number;
+  media_urls?: string[];
   published_at: string;
-  is_auto_comment: boolean; // ← nouveau
+  is_auto_comment: boolean;
   instructions: string | null;
   keywords: string | null;
   initial_reach: number;

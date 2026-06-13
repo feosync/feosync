@@ -553,6 +553,68 @@ export class ApiClient {
     })
   }
 
+  // ── Reels & Stories ──────────────────────────────────────────────────────────
+
+  async scheduleReel(formData: FormData, onProgress?: (pct: number) => void): Promise<{ id: string; status: string; scheduledAt: string | null }> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${API_BASE_URL}/api/v1/posts/reels`)
+      xhr.withCredentials = true
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable && onProgress) {
+          onProgress(Math.round((e.loaded / e.total) * 100))
+        }
+      }
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(JSON.parse(xhr.responseText))
+        } else {
+          try {
+            const err = JSON.parse(xhr.responseText)
+            reject(new Error(err.detail || "Upload échoué"))
+          } catch {
+            reject(new Error("Upload échoué — vérifiez le format du fichier"))
+          }
+        }
+      }
+
+      xhr.onerror = () => reject(new Error("Erreur réseau"))
+      xhr.send(formData)
+    })
+  }
+
+  async scheduleStory(formData: FormData, onProgress?: (pct: number) => void): Promise<{ id: string; status: string; scheduledAt: string | null; expiresAt?: string | null }> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${API_BASE_URL}/api/v1/posts/stories`)
+      xhr.withCredentials = true
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable && onProgress) {
+          onProgress(Math.round((e.loaded / e.total) * 100))
+        }
+      }
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(JSON.parse(xhr.responseText))
+        } else {
+          try {
+            const err = JSON.parse(xhr.responseText)
+            reject(new Error(err.detail || "Upload échoué"))
+          } catch {
+            reject(new Error("Upload échoué — vérifiez le format du fichier"))
+          }
+        }
+      }
+
+      xhr.onerror = () => reject(new Error("Erreur réseau"))
+      xhr.send(formData)
+    })
+  }
+
   // ── Collaborators ──────────────────────────────────────────────────────────
 
   async inviteCollaborator(email: string): Promise<{ detail: string; collaborator_id?: string }> {

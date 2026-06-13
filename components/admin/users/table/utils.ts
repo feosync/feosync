@@ -6,5 +6,5 @@ export const initials = (name: string) =>
 
 export const resolvePlanName = (planId: string | null | undefined, plans: Plan[]) => {
   if (!planId) return null
-  return plans.find(p => p.id === planId)?.name ?? `Plan #${planId}`
+  return plans.find(p => String(p.id) === planId)?.name ?? `Plan #${planId}`
 }
