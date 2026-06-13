@@ -15,6 +15,9 @@ import { MobilePreview } from '@/components/scheduling/MobilePreview'
 import { useScheduleStory } from '@/hooks/useScheduleStory'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { useFacebookPages } from '@/hooks/useFacebookPages'
+import { OrgScopeFilter } from '@/components/organizations/OrgScopeFilter'
+import { OrganisationSelector } from '@/components/organizations/OrgSelector'
+import type { ScopeFilter } from '@/components/organizations/OrgScopeFilter'
 import { useQueryClient } from '@tanstack/react-query'
 import { PUBLISHED_KEY } from '@/hooks/usePublishedPosts'
 import type { ImageSource } from '@/types/scheduling'
@@ -30,7 +33,8 @@ export default function NewStoryPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const [selectedOrgId, setSelectedOrgId] = useState('')
-  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+  const [scope, setScope] = useState<ScopeFilter>("owned")
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10, scope })
   const orgId = selectedOrgId || orgData?.items[0]?.id || ''
   const { data: pages = [] } = useFacebookPages(orgId)
 
@@ -141,6 +145,19 @@ export default function NewStoryPage() {
               <span className={cn('text-[10px] font-semibold uppercase tracking-widest transition-colors duration-300', i === step ? 'text-primary' : i < step ? 'text-muted-foreground' : 'text-muted-foreground/40')}>{s.label}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Scope + Organisation */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+        <OrgScopeFilter value={scope} onChange={setScope} />
+        <div className="sm:ml-auto">
+          <OrganisationSelector
+            value={selectedOrgId}
+            onChange={setSelectedOrgId}
+            placeholder="Organisation"
+            scope={scope}
+          />
         </div>
       </div>
 

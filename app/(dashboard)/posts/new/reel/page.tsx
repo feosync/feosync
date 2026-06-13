@@ -18,6 +18,9 @@ import { MobilePreview } from '@/components/scheduling/MobilePreview'
 import { useScheduleReel } from '@/hooks/useScheduleReel'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { useFacebookPages } from '@/hooks/useFacebookPages'
+import { OrgScopeFilter } from '@/components/organizations/OrgScopeFilter'
+import { OrganisationSelector } from '@/components/organizations/OrgSelector'
+import type { ScopeFilter } from '@/components/organizations/OrgScopeFilter'
 import { useQueryClient } from '@tanstack/react-query'
 import { PUBLISHED_KEY } from '@/hooks/usePublishedPosts'
 import type { FacebookPageResponse } from '@/lib/api/types'
@@ -34,7 +37,8 @@ export default function NewReelPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const [selectedOrgId, setSelectedOrgId] = useState('')
-  const { data: orgData } = useOrganisations({ page: 1, page_size: 10 })
+  const [scope, setScope] = useState<ScopeFilter>("owned")
+  const { data: orgData } = useOrganisations({ page: 1, page_size: 10, scope })
   const orgId = selectedOrgId || orgData?.items[0]?.id || ''
   const { data: pages = [] } = useFacebookPages(orgId)
 
@@ -187,6 +191,19 @@ export default function NewReelPage() {
               </span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Scope + Organisation */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+        <OrgScopeFilter value={scope} onChange={setScope} />
+        <div className="sm:ml-auto">
+          <OrganisationSelector
+            value={selectedOrgId}
+            onChange={setSelectedOrgId}
+            placeholder="Organisation"
+            scope={scope}
+          />
         </div>
       </div>
 

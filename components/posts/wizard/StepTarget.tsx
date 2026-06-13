@@ -13,7 +13,9 @@ import {
 } from '@/components/ui/select'
 import { Loader2, Globe, Calendar, ArrowRight } from 'lucide-react'
 import { OrganisationSelector } from '@/components/organizations/OrgSelector'
+import { OrgScopeFilter } from '@/components/organizations/OrgScopeFilter'
 import type { FacebookPageResponse, } from '@/lib/api/types'
+import type { ScopeFilter } from '@/components/organizations/OrgScopeFilter'
 import { fromZonedTime } from 'date-fns-tz'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -34,11 +36,13 @@ const TIMEZONES = [
 interface StepTargetProps {
   pages: FacebookPageResponse[]
   isLoading: boolean
+  scope: ScopeFilter
+  onScopeChange: (scope: ScopeFilter) => void
   onOrgChange?: (orgId: string) => void
   onNext: (data: { organization_id: string; facebook_page_id: string; publish_at?: string }) => void
 }
 
-export function StepTarget({ pages, isLoading, onOrgChange, onNext }: StepTargetProps) {
+export function StepTarget({ pages, isLoading, scope, onScopeChange, onOrgChange, onNext }: StepTargetProps) {
   const [selectedOrgId, setSelectedOrgId] = useState<string>('')
   const [pageId, setPageId] = useState('')
   const [publishAt, setPublishAt] = useState('')
@@ -97,16 +101,20 @@ export function StepTarget({ pages, isLoading, onOrgChange, onNext }: StepTarget
     <Card className="p-8 bg-card border-border shadow-xl">
       <div className="space-y-8">
 
-        {/* Organisation */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium flex items-center gap-1.5">
-            Organisation <span className="text-destructive">*</span>
-          </Label>
-          <OrganisationSelector
-            value={selectedOrgId}
-            onChange={setSelectedOrgId}
-            placeholder="Sélectionner une organisation"
-          />
+        {/* Scope + Organisation */}
+        <div className="space-y-3">
+          <OrgScopeFilter value={scope} onChange={onScopeChange} />
+          <div className="space-y-2">
+            <Label className="text-sm font-medium flex items-center gap-1.5">
+              Organisation <span className="text-destructive">*</span>
+            </Label>
+            <OrganisationSelector
+              value={selectedOrgId}
+              onChange={setSelectedOrgId}
+              placeholder="Sélectionner une organisation"
+              scope={scope}
+            />
+          </div>
         </div>
 
         {/* Page Facebook */}

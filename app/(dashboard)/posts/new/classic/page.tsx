@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useOrganisations } from '@/hooks/useOrganisations'
 import { useFacebookPages } from '@/hooks/useFacebookPages'
+import { OrgScopeFilter } from '@/components/organizations/OrgScopeFilter'
+import type { ScopeFilter } from '@/components/organizations/OrgScopeFilter'
 import {
   useCreateScheduledPost,
   usePatchCaption,
@@ -32,8 +34,9 @@ export default function NewClassicPostPage() {
   const [post, setPost]           = useState<ScheduledPost | null>(null)
   const [publishAt, setPublishAt] = useState('')
   const [selectedOrgId, setSelectedOrgId] = useState<string>('')
+  const [scope, setScope] = useState<ScopeFilter>("owned")
 
-  const { data: orgData }  = useOrganisations({ page: 1, page_size: 10 })
+  const { data: orgData }  = useOrganisations({ page: 1, page_size: 10, scope })
   const organisations      = orgData?.items ?? []
   const orgId              = selectedOrgId || organisations[0]?.id || ''
   const { data: pages = [], isLoading: pagesLoading } = useFacebookPages(orgId)
@@ -156,6 +159,8 @@ export default function NewClassicPostPage() {
           <StepTarget
             pages={pages}
             isLoading={createMutation.isPending || pagesLoading}
+            scope={scope}
+            onScopeChange={setScope}
             onOrgChange={setSelectedOrgId}
             onNext={handleCreateDraft}
           />

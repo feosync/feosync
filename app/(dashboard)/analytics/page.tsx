@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-10">
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-6 border-b border-border gap-3">
+      <div className="pb-6 border-b border-border space-y-4">
         <div>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-1">
             Vue d'ensemble
@@ -251,9 +251,9 @@ export default function AnalyticsPage() {
             Analytics
           </h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <OrgScopeFilter value={scope} onChange={setScope} />
-          <div className="w-56">
+          <div className="sm:ml-auto">
             <OrganisationSelector
               value={orgId}
               onChange={setSelectedOrgId}
