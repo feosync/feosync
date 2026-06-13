@@ -655,7 +655,7 @@ export class ApiClient {
     return this.request("/api/v1/collaborators/me/role")
   }
 
-  async acceptInvitation(token: string): Promise<{ message: string; access_token: string; user_id: string }> {
+  async acceptInvitation(token: string): Promise<{ message: string; collaborator_id: string }> {
     return this.request(`/api/v1/collaborators/invitations/accept?token=${encodeURIComponent(token)}`, {
       method: "POST",
     })
