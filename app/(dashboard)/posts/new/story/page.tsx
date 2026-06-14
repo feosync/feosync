@@ -150,7 +150,7 @@ export default function NewStoryPage() {
 
       {/* Scope + Organisation */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
-        <OrgScopeFilter value={scope} onChange={setScope} />
+        <OrgScopeFilter value={scope} onChange={(s) => { setScope(s); setSelectedOrgId(""); }} />
         <div className="sm:ml-auto">
           <OrganisationSelector
             value={selectedOrgId}

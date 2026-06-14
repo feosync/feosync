@@ -15,7 +15,6 @@ export function useOrganisations(params?: {
     queryKey: [...QUERY_KEY, params],
     queryFn: () => apiClient.getOrganisations(params),
     staleTime: 1000 * 60 * 2,
-    placeholderData: (prev) => prev,
   })
 }
 

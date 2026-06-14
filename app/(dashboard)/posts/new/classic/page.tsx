@@ -160,7 +160,7 @@ export default function NewClassicPostPage() {
             pages={pages}
             isLoading={createMutation.isPending || pagesLoading}
             scope={scope}
-            onScopeChange={setScope}
+            onScopeChange={(s) => { setScope(s); setSelectedOrgId(""); }}
             onOrgChange={setSelectedOrgId}
             onNext={handleCreateDraft}
           />

@@ -33,6 +33,7 @@ export default function PostsPage() {
   const { data: orgData } = useOrganisations({ page: 1, page_size: 10, scope })
   const organisations = orgData?.items ?? []
   const orgId = selectedOrgId || organisations[0]?.id || ''
+
   const { data: pages = [] } = useFacebookPages(orgId)
 
   // Sheet publié
@@ -83,7 +84,7 @@ export default function PostsPage() {
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <OrgScopeFilter value={scope} onChange={setScope} />
+        <OrgScopeFilter value={scope} onChange={(s) => { setScope(s); setSelectedOrgId(""); }} />
         <div className="sm:ml-auto">
           <PostsOrgSelector
             value={selectedOrgId}
