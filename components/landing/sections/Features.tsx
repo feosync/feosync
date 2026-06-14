@@ -16,7 +16,7 @@ const features = [
 const Features = () => {
   return (
     <section className="py-24 px-6 bg-background" id="features">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl xl:max-w-5/6 mx-auto">
 
         {/* ── Header ── */}
         <SectionHeader

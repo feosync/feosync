@@ -140,7 +140,7 @@ export default function PublishedPage() {
 
       {/* ── Scope + Organisation ── */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <OrgScopeFilter value={scope} onChange={setScope} />
+        <OrgScopeFilter value={scope} onChange={(s) => { setScope(s); setSelectedOrgId(""); }} />
         <div className="sm:ml-auto">
           <PostsOrgSelector
             value={selectedOrgId}

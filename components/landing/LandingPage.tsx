@@ -14,10 +14,12 @@ import Footer from "@/components/landing/sections/Footer";
 import About from "@/components/landing/sections/About";
 import Values from "@/components/landing/sections/Values";
 import { SmoothScroll } from "@/components/SmoothScroll";
+import { montserrat } from "@/lib/fonts";
+
 export default function LandingPage() {
   return (
     <SmoothScroll>
-      <div className="min-h-screen bg-background text-foreground">
+      <div className={`min-h-screen bg-background text-foreground ${montserrat.className}`}>
           <Navbar />
           <main>
             <Hero />

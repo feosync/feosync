@@ -59,7 +59,7 @@ const Pricing = () => {
 
   return (
     <section className="py-24 px-6 bg-background" id="pricing">
-      <div className="max-w-7xl mx-auto text-center">
+      <div className="max-w-7xl xl:max-w-5/6 mx-auto text-center">
         {/* ── Titre ── */}
         <SectionHeader title="Tarifs transparents. Aucune surprise." />
 

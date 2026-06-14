@@ -18,6 +18,7 @@ import { SubscriptionDialog } from "@/components/plans/SubscriptionDialog";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useDarkMode } from "@/hooks/useDarkMode";
+import { LOGO } from "@/lib/constants";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -70,19 +71,13 @@ export function AppSidebar() {
           )}
         >
           {isOpen && (
-            <span className="w-7 h-7 shrink-0">
-              <Image
-                src={
-                  dark
-                    ? "/images/dark/feosync_icon.png"
-                    : "/images/light/feosync_icon.png"
-                }
-                alt="FeoSync"
-                width={28}
-                height={28}
-                className="w-full h-full"
-              />
-            </span>
+            <Image
+              src={dark ? LOGO.DASHBOARD_DARK : LOGO.DASHBOARD_LIGHT}
+              alt="FeoSync"
+              width={240}
+              height={80}
+              className="h-6  w-auto"
+            />
           )}
 
           <button

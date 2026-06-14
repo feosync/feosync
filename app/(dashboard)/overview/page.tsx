@@ -190,7 +190,7 @@ export default function OverviewPage() {
 
       {/* ── Sélecteur d'organisation + scope ── */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <OrgScopeFilter value={scope} onChange={setScope} />
+        <OrgScopeFilter value={scope} onChange={(s) => { setScope(s); setSelectedOrgId(""); }} />
         <div className="min-w-45 sm:ml-auto">
           <OrganisationSelector
             value={selectedOrgId}

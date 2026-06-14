@@ -8,11 +8,11 @@ const FinalCTA = () => {
   const router = useRouter();
 
   return (
-    <section id="cta" className=" px-6 w-full lg:h-max bg-background min-h-125">
+    <section id="cta" className="px-6 w-full bg-background min-h-[300px] md:min-h-[400px]">
       <div
         className="mx-auto w-full lg:max-w-5xl h-full rounded-4xl
-                      bg-linear-to-br from-primary/10 to-chart-2/10
-                      p-12 md:p-20 text-center border border-border
+                      bg-gradient-to-br from-primary/10 to-chart-2/10
+                      p-8 sm:p-12 md:p-20 text-center border border-border
                       flex flex-col items-center justify-center
                       "
       >

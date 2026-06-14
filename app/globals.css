@@ -147,6 +147,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --breakpoint-xs: 475px;
+
   --backdrop-blur-sm: 4px;
   --backdrop-blur: 8px;
   --backdrop-blur-md: 12px;

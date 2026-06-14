@@ -36,17 +36,17 @@ export function OrganisationSelector({
   const [dialogOpen, setDialogOpen] = useState(false)
   const { data: userDetail } = useCurrentUserDetail()
 
-  const { data, isLoading } = useOrganisations({ page, page_size: 10, scope })
+  const { data, isLoading, isPlaceholderData } = useOrganisations({ page, page_size: 10, scope })
   const createMutation = useCreateOrganisation()
 
   const organisations = data?.items ?? []
   const totalPages    = data?.total_pages ?? 1
 
   useEffect(() => {
-    if (!value && organisations.length > 0) {
+    if (!value && organisations.length > 0 && !isPlaceholderData) {
       onChange(organisations[0].id)
     }
-  }, [organisations, value, onChange])
+  }, [organisations, value, onChange, isPlaceholderData])
 
   const selectedOrg = organisations.find(org => org.id === value)
 
