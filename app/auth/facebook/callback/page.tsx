@@ -2,20 +2,25 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { toast } from "sonner";
 import { Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { MetaPageItem } from "@/lib/api/types";
 import { config } from "@/lib/config";
+import { LOGO } from "@/lib/constants";
 import { useConnectFacebookPage } from "@/hooks/useFacebookPages";
 
 /* ── Logo ────────────────────────────────────────────────────────────────── */
 function FeoSyncLogo() {
   return (
-    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center
-                    text-primary-foreground font-bold text-sm tracking-wide">
-      FS
-    </div>
+    <Image
+      src={LOGO.ICON_LIGHT}
+      alt="FeoSync"
+      width={40}
+      height={40}
+      className="w-10 h-10"
+    />
   )
 }
 

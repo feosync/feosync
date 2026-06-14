@@ -5,9 +5,9 @@ import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisH, faTimes, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { useDarkMode } from '@/hooks/useDarkMode'
+import { Logo } from '@/components/ui/Logo'
 
 const navLinks = [
   { label: 'Comment ça marche', href: '/#how-it-works' },
@@ -31,23 +31,21 @@ export const Navbar = () => {
   }, [])
 
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 will-change-transform ${
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 will-change-transform uppercase h-max ${
       isScrolled
         ? 'bg-background/90 backdrop-blur-md border-b border-border py-3'
         : 'bg-transparent py-5'
     }`}>
-      <div className="relative max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <div className="relative max-w-full h-max mx-auto px-6 flex items-center justify-between">
 
-        <div className="w-56 h-16 relative">
-          <Image loading="eager" src={dark ? '/images/dark/feosync_logo.png' : '/images/light/feosync_logo.png'} alt="FeoSync" width={32} height={32} className="w-full h-full" />
-        </div>
+        <Logo priority />
 
-        <div className="hidden lg:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-2">
           {navLinks.map(item => (
             <a
               key={item.label}
               href={item.href}
-              className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-accent"
+              className="px-4 py-2 text-xs text-muted-foreground font-bold hover:text-foreground transition-colors rounded-lg hover:bg-accent"
             >
               {item.label}
             </a>

@@ -1,3 +1,12 @@
+export const LOGO = {
+  DARK: '/images/dark/feosync_dark_logo.svg',
+  LIGHT: '/images/light/feosync_light_logo.svg',
+  DASHBOARD_DARK: '/images/dark/feosync_dashboard_dark_logo.svg',
+  DASHBOARD_LIGHT: '/images/light/feosync_dashboard_light_logo.svg',
+  ICON_DARK: '/images/dark/feosync_dark_icon.svg',
+  ICON_LIGHT: '/images/light/feosync_light_icon.svg',
+} as const
+
 import {
   faUsers,
   faCreditCard,

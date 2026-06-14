@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { Logo } from "@/components/ui/Logo";
 
 const footerCols = [
   {
@@ -43,8 +42,6 @@ const footerCols = [
 ];
 
 const Footer = () => {
-  const { dark } = useDarkMode()
-
   return (
     <footer
       className="bg-card border-t border-border pt-20 pb-10 px-6"
@@ -53,20 +50,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-12 mb-16">
         {/* Brand */}
         <div className="col-span-2">
-          <div className="w-56 h-16 relative mb-8">
-            <Image
-              src={
-                dark
-                  ? "/images/dark/feosync_logo.png"
-                  : "/images/light/feosync_logo.png"
-              }
-              alt="FeoSync"
-              width={32}
-              height={32}
-              loading="eager"
-              className="w-full h-full"
-            />
-          </div>
+          <Logo logoClassName="h-10 md:h-24 mb-8" />
 
           <p className="text-muted-foreground text-sm max-w-xs leading-relaxed mb-6">
             La plateforme d'automatisation marketing n°1 à Madagascar, propulsée

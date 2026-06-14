@@ -36,7 +36,7 @@ const ProblemSection = () => {
                       w-[600px] h-[300px] rounded-full
                       bg-destructive/6 blur-[100px]" />
 
-      <div className="max-w-7xl mx-auto space-y-16">
+      <div className="max-w-7xl mx-auto space-y-10 lg:space-y-16">
 
         {/* ── HEADER ── */}
         <motion.div
@@ -87,7 +87,7 @@ const ProblemSection = () => {
               </div>
 
               {/* Titre rouge */}
-              <h3 className="text-base font-bold bg-background text-destructive mb-3 tracking-[-0.01em]title px-2 rounded-full w-max">
+              <h3 className="text-base font-bold bg-background text-destructive mb-3 tracking-[-0.01em] px-2 rounded-full w-max">
                 {point.title}
               </h3>
 

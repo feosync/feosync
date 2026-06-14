@@ -7,6 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useDarkMode } from "@/hooks/useDarkMode";
 import { config } from "@/lib/config";
+import { montserrat } from "@/lib/fonts";
+import { Logo } from "@/components/ui/Logo";
 
 // LeftPanel vit TOUJOURS sur fond sombre (#0d1520)
 // → toutes les couleurs sont hardcodées en dark, sans dark: conditionnel
@@ -134,23 +136,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen h-screen bg-background flex flex-col">
+    <div className={`min-h-screen h-screen bg-background flex flex-col ${montserrat.className}`}>
       {/* Logo */}
 
       <Link href="/" className="absolute top-6 left-6 z-50 cursor-pointer">
-        <Image
-          src={
-            dark
-              ? "/images/dark/feosync_logo.png"
-              : "/images/light/feosync_logo.png"
-          }
-          alt="FeoSync"
-          width={240}
-          height={70}
-          className="h-16 w-auto"
-          priority
-          loading="eager"
-        />
+        <Logo priority logoClassName="h-10 md:h-20" />
       </Link>
 
       {/* Ambient glow */}

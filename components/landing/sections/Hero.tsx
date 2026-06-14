@@ -222,7 +222,7 @@ const Hero = () => {
       id="#"
       className="pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6"
     >
-      <div className="max-w-7xl h-max lg:h-[90vh] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+      <div className="max-w-7xl h-max lg:h-[90vh] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
         {/* ── LEFT ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -230,15 +230,15 @@ const Hero = () => {
           transition={{ duration: 0.6 }}
           className="text-center lg:text-left"
         >
-          <h1 className="text-[clamp(36px,7vw,75px)] leading-[1.05] tracking-[-0.02em] font-bold text-foreground mb-5 sm:mb-6">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-3">
-              Penser, imaginer, créer , inspirer !!!
+          <h1 className="text-[clamp(36px,6.5vw,70px)] leading-[1.05] tracking-[-0.02em] font-bold text-foreground mb-5 sm:mb-6">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-1">
+              Penser, inspirer, imaginer et créer
             </span>
             <br />
-            FeoSync gére le
+            feosync gére le
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-3">
-              reste pour vous !!
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-1">
+              reste pour vous!
             </span>
           </h1>
 
@@ -253,12 +253,12 @@ const Hero = () => {
               onClick={() => router.push("/login")}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-[24px]
-                         bg-primary text-primary-foreground
-                         text-sm sm:text-base font-medium
-                         flex items-center justify-center gap-2
-                         hover:bg-primary/90
-                         hover:shadow-lg hover:shadow-primary/20 transition-all"
+               className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-[24px]
+                          bg-primary text-primary-foreground
+                          text-sm sm:text-base font-medium
+                          flex items-center justify-center gap-2
+                          hover:bg-primary/90
+                          hover:shadow-lg hover:shadow-primary/20 transition-all"
             >
               Commencer gratuitement <ArrowRight size={18} />
             </motion.button>
@@ -267,11 +267,11 @@ const Hero = () => {
               href="#demo"
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-[24px]
-                         border border-border text-primary
-                         text-sm sm:text-base font-medium
-                         flex items-center justify-center gap-2
-                         hover:bg-secondary transition-all"
+               className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-[24px]
+                          border border-border text-primary
+                          text-sm sm:text-base font-medium
+                          flex items-center justify-center gap-2
+                          hover:bg-secondary transition-all"
             >
               Voir la démo <Play size={16} className="fill-current" />
             </motion.a>
@@ -283,7 +283,7 @@ const Hero = () => {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="relative mt-8 lg:mt-0 px-3 sm:px-6 pt-0 lg:pt-16 lg:pb-16 pb-8 min-h-[50vh] lg:min-h-0 flex justify-center items-center"
+          className="relative mt-8 lg:mt-0 px-3 sm:px-6 pt-0 lg:pt-16 lg:pb-16 pb-8 min-h-[40vh] lg:min-h-0 flex justify-center items-center"
         >
           {/* Glows */}
           <div className="absolute -top-10 -right-10 w-52 sm:w-64 h-52 sm:h-64 bg-chart-1/5 rounded-full blur-3xl pointer-events-none" />

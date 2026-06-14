@@ -4,16 +4,9 @@ import { AuthProvider } from '@/hooks/AuthProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from '@/components/theme-provider'
+import { LOGO } from '@/lib/constants'
 import './globals.css'
-import { Roboto } from 'next/font/google';
-
-
-
-const roboto = Roboto({
-  weight: ['400', '500', '700'],
-  subsets: ['latin'],
-  variable: '--font-roboto', // Crée une variable CSS native
-});
+import { roboto, montserrat } from '@/lib/fonts';
 export const metadata: Metadata = {
   title: 'FeoSync - Social Media Automation',
   description: 'Automate your social media posting with AI-powered content generation and scheduling',
@@ -21,16 +14,16 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/images/light/feosync_icon.png',
+        url: LOGO.ICON_LIGHT,
         media: '(prefers-color-scheme: light)',
       },
       {
-        url: '/images/dark/feosync_icon.png',
+        url: LOGO.ICON_DARK,
         media: '(prefers-color-scheme: dark)',
       }
       
     ],
-    apple: '/images/light/feosync_icon.png',
+    apple: LOGO.ICON_LIGHT,
   },
 }
 
@@ -41,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${roboto.variable}` }>
+      <body className={`${roboto.variable} ${montserrat.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <QueryProvider>
             <AuthProvider>

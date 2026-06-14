@@ -3,14 +3,11 @@
 import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
-import { useDarkMode } from '@/hooks/useDarkMode'
-import Image from 'next/image'
 import { config } from '@/lib/config'
+import { Logo } from '@/components/ui/Logo'
 
 /* ── Loader visuel ───────────────────────────────────────────────────────── */
 function CallbackLoader() {
-  const { dark } = useDarkMode()
-
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="flex flex-col items-center gap-8 w-full max-w-xs text-center">
@@ -19,14 +16,7 @@ function CallbackLoader() {
         <div className="relative flex items-center justify-center">
           <div className="absolute w-32 h-32 rounded-full bg-primary/5 animate-pulse" />
           <div className="absolute w-20 h-20 rounded-full bg-primary/8" />
-          <Image
-            src={dark ? '/images/dark/feosync_logo.png' : '/images/light/feosync_logo.png'}
-            alt="FeoSync"
-            width={240}
-            height={70}
-            loading="eager"
-            className="relative h-8 w-auto z-10"
-          />
+          <Logo priority logoClassName="relative h-14 z-10" />
         </div>
 
         <div className="space-y-1.5">

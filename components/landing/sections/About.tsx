@@ -418,7 +418,7 @@ const About = () => {
                 <span className="text-white font-bold text-base">We</span>
               </motion.div>
               <div>
-                <h3 className="text-2xl font-ui font-black text-foreground leading-tight">
+                <h3 className="text-2xl font-black text-foreground leading-tight">
                   Notre équipe
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -428,7 +428,7 @@ const About = () => {
             </div>
 
             {/* Stats row */}
-            <div className="relative grid grid-cols-4 gap-1 pb-5 border-t border-primary/15 pt-[14px]">
+            <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-1 pb-5 border-t border-primary/15 pt-[14px]">
               {stats.map((s) => (
                 <div key={s.label} className="text-center">
                   <p className="text-base font-bold leading-none text-primary">
@@ -443,7 +443,7 @@ const About = () => {
           </motion.div>
 
           {/* Mobile team grid */}
-          <div className="grid grid-cols-3 gap-3 px-1">
+          <div className="grid grid-cols-2 gap-3 px-1">
             {teamMembers.map((member) => (
               <MobileTeamCard
                 key={member.name}
@@ -466,7 +466,7 @@ const About = () => {
 
         {/* ── Shared title + description (desktop only, mobile has it in banner) ── */}
         <motion.h3
-          className="hidden md:block p-8 text-4xl font-ui font-bold text-foreground"
+          className="hidden md:block p-8 text-4xl font-bold text-foreground"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.1, duration: 0.6 }}

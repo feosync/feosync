@@ -34,7 +34,7 @@ const HowItWorks = () => {
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.01em] text-foreground text-center mb-16"
+          className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.01em] text-foreground text-center mb-10 sm:mb-16"
         >
           De zéro à publié en 4 étapes
         </motion.h2>
@@ -52,7 +52,7 @@ const HowItWorks = () => {
             />
           </div>
 
-          <div className="space-y-12">
+          <div className="space-y-8 sm:space-y-12">
             {steps.map((step, i) => (
               <motion.div
                 key={step.num}
