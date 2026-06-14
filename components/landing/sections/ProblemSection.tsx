@@ -36,7 +36,7 @@ const ProblemSection = () => {
                       w-[600px] h-[300px] rounded-full
                       bg-destructive/6 blur-[100px]" />
 
-      <div className="max-w-7xl mx-auto space-y-10 lg:space-y-16">
+      <div className="max-w-7xl xl:max-w-5/6 mx-auto space-y-10 lg:space-y-16">
 
         {/* ── HEADER ── */}
         <motion.div

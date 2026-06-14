@@ -36,7 +36,7 @@ export const Navbar = () => {
         ? 'bg-background/90 backdrop-blur-md border-b border-border py-3'
         : 'bg-transparent py-5'
     }`}>
-      <div className="relative max-w-full h-max mx-auto px-6 flex items-center justify-between">
+      <div className="relative max-w-7xl xl:max-w-5/6 h-max mx-auto px-6 flex items-center justify-between">
 
         <Logo priority />
 

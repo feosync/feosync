@@ -90,7 +90,7 @@ const IntegrationsMarquee = () => {
     <section id="integrations" className="py-20 bg-background overflow-hidden">
 
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-6 text-center mb-12">
+      <div className="max-w-7xl xl:max-w-5/6 mx-auto px-6 text-center mb-12">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
           Intégrations
         </p>

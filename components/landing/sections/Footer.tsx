@@ -47,7 +47,7 @@ const Footer = () => {
       className="bg-card border-t border-border pt-20 pb-10 px-6"
       id="contact"
     >
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-12 mb-16">
+      <div className="max-w-7xl xl:max-w-5/6 mx-auto grid grid-cols-2 md:grid-cols-6 gap-12 mb-16">
         {/* Brand */}
         <div className="col-span-2">
           <Logo logoClassName="h-10 md:h-24 mb-8" />
@@ -81,7 +81,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom bar */}
-      <div className="max-w-7xl mx-auto pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] text-muted-foreground">
+      <div className="max-w-7xl xl:max-w-5/6 mx-auto pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] text-muted-foreground">
         <p>© 2025 FeoSync · Made with ❤️ in Madagascar 🇲🇬</p>
         <div className="flex gap-6">
           <a

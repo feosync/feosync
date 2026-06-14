@@ -63,7 +63,7 @@ const FacebookBubble = () => (
     initial={{ opacity: 0, x: 30, y: -10, scale: 0.85 }}
     animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
     transition={{ delay: 0.9, type: "spring", stiffness: 160, damping: 18 }}
-    className="absolute -top-6 right-2 sm:-top-6 sm:-right-4 z-20 w-[180px] sm:w-[210px]"
+    className="absolute -top-6 right-1 xs:-top-6 xs:right-2 sm:-top-6 sm:-right-4 z-20 w-[170px] xs:w-[180px] sm:w-[210px]"
     style={{ willChange: "transform" }}
   >
     <motion.div
@@ -146,7 +146,7 @@ const WhatsAppBubble = () => (
     initial={{ opacity: 0, x: -30, y: 10, scale: 0.85 }}
     animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
     transition={{ delay: 1.2, type: "spring", stiffness: 160, damping: 18 }}
-    className="absolute -bottom-6 left-2 sm:-bottom-6 sm:-left-4 z-20 w-[180px] sm:w-[210px]"
+    className="absolute -bottom-6 left-1 xs:-bottom-6 xs:left-2 sm:-bottom-6 sm:-left-4 z-20 w-[170px] xs:w-[180px] sm:w-[210px]"
     style={{ willChange: "transform" }}
   >
     <motion.div
@@ -222,7 +222,7 @@ const Hero = () => {
       id="#"
       className="pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6"
     >
-      <div className="max-w-7xl h-max lg:h-[90vh] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
+      <div className="max-w-7xl xl:max-w-5/6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
         {/* ── LEFT ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -248,7 +248,7 @@ const Hero = () => {
             chaque post reflète vraiment votre vision.
           </p>
 
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-center lg:items-start justify-center lg:justify-start">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center lg:items-start justify-center lg:justify-start">
             <motion.button
               onClick={() => router.push("/login")}
               whileHover={{ y: -2 }}
@@ -283,7 +283,7 @@ const Hero = () => {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="relative mt-8 lg:mt-0 px-3 sm:px-6 pt-0 lg:pt-16 lg:pb-16 pb-8 min-h-[40vh] lg:min-h-0 flex justify-center items-center"
+          className="relative mt-8 lg:mt-0 px-2 sm:px-6 pt-0 lg:pt-16 lg:pb-16 pb-8 min-h-[35vh] lg:min-h-0 flex justify-center items-center overflow-hidden"
         >
           {/* Glows */}
           <div className="absolute -top-10 -right-10 w-52 sm:w-64 h-52 sm:h-64 bg-chart-1/5 rounded-full blur-3xl pointer-events-none" />
@@ -341,14 +341,14 @@ const Hero = () => {
             </div>
 
             <CardContent className="pt-2 px-3 sm:px-6">
-              <ChartContainer
-                config={chartConfig}
-                className="h-[200px] sm:h-[250px] lg:h-[290px] w-full"
-              >
-                <AreaChart
-                  data={chartData}
-                  margin={{ top: 4, right: 4, left: -28, bottom: 0 }}
+                <ChartContainer
+                  config={chartConfig}
+                  className="h-[180px] xs:h-[200px] sm:h-[250px] lg:h-[290px] w-full"
                 >
+                  <AreaChart
+                    data={chartData}
+                    margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
+                  >
                   <defs>
                     {Object.entries(chartConfig).map(([key, { color }]) => (
                       <linearGradient

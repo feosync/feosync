@@ -29,7 +29,7 @@ const testimonials = [
 const Testimonials = () => {
   return (
     <section id="testimonials" className="py-24 px-6 bg-background">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl xl:max-w-5/6 mx-auto">
 
         <SectionHeader title="Pourquoi choisir FeoSync?" />
 
